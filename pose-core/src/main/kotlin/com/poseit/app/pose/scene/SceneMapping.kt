@@ -21,8 +21,17 @@ import com.poseit.app.pose.Skeleton
  * @param offsetX horizontal shift in SCENE-normalized units (fraction of scene width)
  * @param offsetY vertical shift in SCENE-normalized units (fraction of scene height)
  * @param scale uniform scale about the centre of the fitted frame
+ * @param rotation rotation in degrees (clockwise on screen) about the centre of the fitted frame. Rotation must be
+ *   applied in ISOTROPIC units (x scaled by the scene aspect) so the figure is not sheared.
+ *
+ * Order: fit frame into scene -> scale & rotate about the fitted frame's centre -> translate by offsets.
  */
-data class OverlayTransform(val offsetX: Float = 0f, val offsetY: Float = 0f, val scale: Float = 1f) {
+data class OverlayTransform(
+    val offsetX: Float = 0f,
+    val offsetY: Float = 0f,
+    val scale: Float = 1f,
+    val rotation: Float = 0f,
+) {
     companion object {
         val IDENTITY = OverlayTransform()
         const val MIN_SCALE = 0.4f
