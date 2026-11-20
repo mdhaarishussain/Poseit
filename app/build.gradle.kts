@@ -56,6 +56,16 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
+        // Robolectric + Roborazzi screenshot tests render Compose screens on the JVM.
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all { test ->
+            test.systemProperty("roborazzi.test.record", "true")
+            // Optional: -ProbolectricRepoUrl=<maven mirror> if Maven Central rate-limits Robolectric's SDK download.
+            (project.findProperty("robolectricRepoUrl") as String?)?.let {
+                test.systemProperty("robolectric.dependency.repo.url", it)
+                test.systemProperty("robolectric.dependency.repo.id", "mirror")
+            }
+        }
     }
 }
 
@@ -117,7 +127,13 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
     debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi.core)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.ui.test.junit4)
 }
