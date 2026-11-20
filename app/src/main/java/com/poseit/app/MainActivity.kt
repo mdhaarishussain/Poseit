@@ -1,6 +1,7 @@
 package com.poseit.app
 
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.poseit.app.data.AppSettings
+import com.poseit.app.input.HardwareKeys
 import com.poseit.app.ui.nav.PoseitNavHost
 import com.poseit.app.ui.theme.PoseitTheme
 import kotlinx.coroutines.flow.map
@@ -33,5 +35,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) && HardwareKeys.captureVolumeKeys) {
+            if (event.repeatCount == 0) HardwareKeys.onVolumeKey()
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) && HardwareKeys.captureVolumeKeys) return true
+        return super.onKeyUp(keyCode, event)
     }
 }

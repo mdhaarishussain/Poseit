@@ -14,6 +14,7 @@ enum class FlashMode { OFF, AUTO, ON }
 enum class SceneAspect(val ratio: Float, val label: String) {
     RATIO_3_4(3f / 4f, "3:4"),
     RATIO_9_16(9f / 16f, "9:16"),
+    RATIO_1_1(1f, "1:1"),
 }
 
 /**
@@ -33,6 +34,12 @@ class PoseCamera(private val context: Context) {
     val maxZoom: StateFlow<Float> get() = TODO("implemented by the camera-infra agent")
 
     val hasFlash: StateFlow<Boolean> get() = TODO("implemented by the camera-infra agent")
+
+    /** Supported exposure-compensation index range (0..0 when unsupported). */
+    val exposureRange: StateFlow<IntRange> get() = TODO("implemented by the camera-infra agent")
+
+    /** Size of one exposure-compensation step in EV (e.g. 1/3). */
+    val exposureStepEv: StateFlow<Float> get() = TODO("implemented by the camera-infra agent")
 
     /**
      * (Re)binds all use cases. Safe to call again to switch lens or aspect.
@@ -57,13 +64,19 @@ class PoseCamera(private val context: Context) {
         TODO("implemented by the camera-infra agent")
     }
 
+    /** Exposure compensation index within [exposureRange]. */
+    fun setExposure(index: Int) {
+        TODO("implemented by the camera-infra agent")
+    }
+
     /** Tap-to-focus at view coordinates. */
     fun focusAt(previewView: PreviewView, x: Float, y: Float) {
         TODO("implemented by the camera-infra agent")
     }
 
     /**
-     * Takes a photo and saves it to MediaStore under Pictures/Poseit (JPEG).
+     * Takes a FULL-RESOLUTION photo with ImageCapture (CAPTURE_MODE_MAXIMIZE_QUALITY, never a preview frame) and
+     * saves it to MediaStore under Pictures/Poseit (JPEG). The overlay is never part of the photo.
      * @param mirror save horizontally mirrored (used for front camera when the user prefers mirrored selfies)
      * @return the content Uri of the saved image
      * @throws Exception if capture fails

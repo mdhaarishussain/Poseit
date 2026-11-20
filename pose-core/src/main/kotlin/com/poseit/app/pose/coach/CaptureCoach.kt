@@ -26,8 +26,18 @@ sealed interface CaptureState {
     /** Score is above threshold; [progress] 0..1 until the countdown starts. */
     data class Holding(val progress: Float) : CaptureState
 
-    /** Counting down. [secondsLeft] is what to display (3, 2, 1). [manual] = started by the self-timer button. */
-    data class Countdown(val secondsLeft: Int, val progress: Float, val manual: Boolean) : CaptureState
+    /**
+     * Counting down. [secondsLeft] is what to display (3, 2, 1). [manual] = started by the self-timer / photoshoot
+     * button. [shot] is the 1-based number of the photo being counted down to, [totalShots] the session size
+     * (1 for a plain timer or auto-capture, 0 = unlimited photoshoot until [CaptureCoach.cancel]).
+     */
+    data class Countdown(
+        val secondsLeft: Int,
+        val progress: Float,
+        val manual: Boolean,
+        val shot: Int = 1,
+        val totalShots: Int = 1,
+    ) : CaptureState
 
     /** Emitted for exactly one update: the app must take the photo now and then call [CaptureCoach.onCaptured]. */
     data object Capture : CaptureState
@@ -51,8 +61,21 @@ class CaptureCoach(settings: CoachSettings = CoachSettings()) {
         TODO("implemented by the engine agent")
     }
 
-    /** Starts a manual self-timer countdown of [seconds] regardless of the score. */
-    fun startTimer(seconds: Int, nowMillis: Long) {
+    /**
+     * Starts a manual self-timer regardless of the score. With [shots] > 1 (or 0 = unlimited) it becomes a
+     * hands-free PHOTOSHOOT (interval shooting, like a self-timer camera): the first photo after [seconds], then one
+     * every [intervalSeconds] until [shots] photos were taken or [cancel] is called. Auto-capture is suspended while
+     * a manual session runs.
+     */
+    fun startTimer(seconds: Int, nowMillis: Long, shots: Int = 1, intervalSeconds: Int = 3) {
+        TODO("implemented by the engine agent")
+    }
+
+    /** True while a manual timer / photoshoot session is running. */
+    val isSessionActive: Boolean get() = TODO("implemented by the engine agent")
+
+    /** Stops a running timer / photoshoot (and an auto countdown); returns to Idle. */
+    fun cancel() {
         TODO("implemented by the engine agent")
     }
 

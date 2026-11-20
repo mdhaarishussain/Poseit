@@ -60,7 +60,7 @@ android {
 }
 
 // ---------------------------------------------------------------------------
-// MediaPipe pose landmarker models (Apache-2.0) are downloaded at build time
+// MediaPipe models (Apache-2.0: pose landmarker + DeepLab v3 segmenter) are downloaded at build time
 // instead of being committed to git.
 // ---------------------------------------------------------------------------
 val poseModels = mapOf(
@@ -68,11 +68,14 @@ val poseModels = mapOf(
         "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task",
     "pose_landmarker_full.task" to
         "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task",
+    // Person segmentation for turning reference photos into outline / silhouette guides.
+    "deeplab_v3.tflite" to
+        "https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/latest/deeplab_v3.tflite",
 )
 val modelDir = layout.projectDirectory.dir("src/main/assets/models")
 
 val downloadPoseModels by tasks.registering {
-    description = "Downloads MediaPipe pose landmarker models into assets/models"
+    description = "Downloads MediaPipe models into assets/models"
     outputs.dir(modelDir)
     doLast {
         val dir = modelDir.asFile.apply { mkdirs() }
