@@ -12,3 +12,6 @@ build/
 *.aab
 # downloaded at build time by :app:downloadPoseModels
 /app/src/main/assets/models/
+
+# Claude Code agent worktrees
+.claude/
