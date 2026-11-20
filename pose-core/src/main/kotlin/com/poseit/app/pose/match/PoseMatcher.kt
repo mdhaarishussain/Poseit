@@ -13,6 +13,8 @@ data class MatchConfig(
     val perfectWithinDeg: Float = 12f,
     /** Segment angle error (degrees) at which a segment scores zero. */
     val zeroAtDeg: Float = 55f,
+    /** Overall score at/above which the pose counts as matched (the user's strictness setting) -> PERFECT hint. */
+    val perfectScore: Float = 0.80f,
 )
 
 /**
