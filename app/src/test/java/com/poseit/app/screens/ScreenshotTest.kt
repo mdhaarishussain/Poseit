@@ -9,7 +9,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.poseit.app.pose.library.BuiltInPoses
+import com.poseit.app.ui.create.CreateFromPhotoScreen
+import com.poseit.app.ui.detail.PoseDetailScreen
+import com.poseit.app.ui.editor.PoseEditorScreen
+import com.poseit.app.ui.gallery.GalleryScreen
 import com.poseit.app.ui.library.LibraryScreen
+import com.poseit.app.ui.onboarding.OnboardingScreen
+import com.poseit.app.ui.settings.SettingsScreen
 import com.poseit.app.ui.theme.PoseitTheme
 import org.junit.Rule
 import org.junit.Test
@@ -43,5 +50,36 @@ class ScreenshotTest {
     @Test
     fun library() = shot("library") {
         LibraryScreen({}, {}, {}, {}, {}, {})
+    }
+
+    @Test
+    fun detail() = shot("detail") {
+        PoseDetailScreen(poseId = BuiltInPoses.all.firstOrNull()?.id ?: "none", onBack = {}, onTryPose = {}, onEdit = {})
+    }
+
+    @Test
+    fun detailCouple() = shot("detail_couple") {
+        val id = BuiltInPoses.all.firstOrNull { it.personCount == 2 }?.id ?: "none"
+        PoseDetailScreen(poseId = id, onBack = {}, onTryPose = {}, onEdit = {})
+    }
+
+    @Test
+    fun settings() = shot("settings") { SettingsScreen(onBack = {}) }
+
+    @Test
+    fun onboarding() = shot("onboarding") { OnboardingScreen(onDone = {}) }
+
+    @Test
+    fun gallery() = shot("gallery") { GalleryScreen(onBack = {}) }
+
+    @Test
+    fun createFromPhoto() = shot("create") { CreateFromPhotoScreen(onBack = {}, onSaved = {}) }
+
+    @Test
+    fun editor() = shot("editor") { PoseEditorScreen(basePoseId = null, onBack = {}, onSaved = {}) }
+
+    @Test
+    fun editorFromPose() = shot("editor_from_pose") {
+        PoseEditorScreen(basePoseId = BuiltInPoses.all.getOrNull(3)?.id, onBack = {}, onSaved = {})
     }
 }
