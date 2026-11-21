@@ -161,6 +161,21 @@
         "url": "https://mixkit.co/license/#videoFree"
       },
       "alternateOnly": true
+    },
+    "standing": {
+      "catalogue": "mk-34412",
+      "title": "Photographer analyzing different angles of a girl",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/photographer-analyzing-different-angles-of-a-girl-34412/",
+      "file": "https://assets.mixkit.co/videos/34412/34412-1080.mp4",
+      "fileRes": "1920x1080",
+      "fps": 23.976,
+      "duration": 30.03,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      },
+      "licenceChecked": "2026-11-21 by the v3 director: the clip page's download panel reads 'Mixkit Stock Video Free License' (data-license=\"videoFree\"), offers HD Ready 1080x720 and Full HD 1920x1080; the 1080 file answers (113 MB)."
     }
   },
   "shots": [
@@ -643,8 +658,74 @@
         "grade": "colour (the first colour frame of the film); the app's capture flash (85% white, 280 ms decay) hides the switch",
         "move": "slow push 1.00 -> 1.03 about her mid-hip (Ken Burns on a still)"
       }
+    },
+    {
+      "id": "o1",
+      "beat": "v3 B1-B3",
+      "clock": "v3",
+      "role": "v3 opener, the problem: a real woman stands stiffly for a camera, hands clasped, glancing about. B1 shows her on the phone's plain camera screen; the same plate, scaled and blurred, is the room behind the phone through B3.",
+      "clip": "standing",
+      "film": [
+        0,
+        108
+      ],
+      "source": {
+        "in": 0.0,
+        "out": 3.6
+      },
+      "rate": 1,
+      "crop": {
+        "x": 660,
+        "y": 0,
+        "w": 608,
+        "h": 1080
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0
+      },
+      "overlay": "none: the phone's plain camera before Poseit is opened. No skeleton, guide or HUD is drawn on her, so no detection is needed for this shot.",
+      "notes": "Film frames are v3 frames (this shot is used only by the v3 film). In this window she is alone from 0.0 to about 3.8 s; the clip's man enters from the left at 4.0 s (his arm near the lens), so nothing after source 3.6 s is ever shown: the blurred room behind the phone holds source 3.5 s after f105. She is full length in the phone's screen (head about 0.08, feet about 0.97 of the plate height): never a face crop. She is never captioned; the caption addresses the viewer ('Never know how to pose for photos?'), it is not her words. 608 px wide crop, so about 1:1 at the phone screen's 0.50 W."
     }
   ],
+  "v3": {
+    "storyboard": "STORYBOARD.md v3 (clarity first). 816 frames, 27.2 s, 1080 x 1920, 30 fps. This block is the director's plan for the footage; the v2 entries above stay as they are, so the v2 film still renders and npm run check passes until the builders switch.",
+    "clock": "v3 frame = v2 frame + offset for every v2 plate the v3 film reuses. A builder may either play the v2 plate and its JSON at (v3 frame - offset) or rebuild the shot at its v3 window (move film and remap keys by the offset, then npm run footage / landmarks / footage-match); either way no verdict, landmark or pose pick may change except as listed under changes.",
+    "rules": [
+      "Every rule above still holds, except the second half of rule 4: in v3, captions in the app's voice addressed to the viewer ('Never know how to pose for photos?', 'It tells you what to fix.') may share a frame with a person. Never a caption, quote or speech bubble presented as a person's words, never a name, nothing that presents a person as a user or reviewer of Poseit, nothing mocking.",
+      "Footage is printed in the Studio ramp until the shutter (f472), as in v2; the photo is the first colour, and the footage after it (the chorus) is in its own colour.",
+      "No phone brand on screen: the phone in v3 is drawn (a generic device). The balcony selfie (c3) is dropped because its phone is a recognisable branded design."
+    ],
+    "shots": [
+      {
+        "shot": "o1",
+        "v3": [0, 108],
+        "offset": 0,
+        "use": "B1 inside the phone's plain camera (f0-96); behind the phone, scaled about 1.6x and blurred, from f0 to the D framing in B3 (about f236), holding source 3.5 s after f105"
+      },
+      {
+        "shot": "b5-live",
+        "v3": [296, 515],
+        "offset": -40,
+        "use": "B4-B6 inside the phone's camera screen and, scaled and blurred, as the room behind the phone; the capture frame in colour is the photo (f480-560)",
+        "changes": [
+          "audience SUBJECT ('Hints are for: I'm posing', a real camera quick setting, CameraModels.kt AudienceMode.SUBJECT) instead of PHOTOGRAPHER, so the card reads 'Bend your right elbow more'. Rerun the app's PromoFootageMatch with it (it hard-codes PHOTOGRAPHER today) and keep everything else: back camera, not mirrored, the same guide, strictness 0.75, the same remap rule. Expected: the same frames for found, card, lock, digits and capture (the audience changes wording only); if any frame moves, the v3 caption windows in src/beats.ts move with it, never the verdicts.",
+          "acceptance window in v3 frames: capture in f465-491 (v2's f505-531 moved by the offset); planned capture f472"
+        ]
+      },
+      { "shot": "c7", "v3": [560, 576], "offset": 336, "pose": "chorus.json pick (Walk toward the camera, flipped)", "note": "16 f (v2 showed 8): the plate covers 23 f after the landing; look at the figure for the extra 8 f" },
+      { "shot": "c2", "v3": [576, 592], "offset": 416, "pose": "chorus.json pick (Cross-legged)" },
+      { "shot": "c5", "v3": [592, 608], "offset": 384, "pose": "chorus.json pick (Face frame, flipped)", "note": "16 f (v2 showed 8): look at the figure for the extra 8 f" },
+      { "shot": "c6", "v3": [608, 624], "offset": 392, "pose": "chorus.json pick (Blazer pocket)", "note": "16 f (v2 showed 8): look at the figure for the extra 8 f" },
+      { "shot": "c9", "v3": [624, 656], "offset": 384, "pose": "chorus.json pick (Crossed-arm smile, head anchor)", "note": "holds 32 f as in v2; its figure becomes B8's solid figure on f656" }
+    ],
+    "dropped": {
+      "b2-alive": "v2's first real person (with the hook's skeleton): the v3 opener is the problem on a phone instead",
+      "c1, c8": "the magenta man a second and third time (c6 keeps him once)",
+      "c3": "the balcony selfie: a recognisable branded phone",
+      "c4": "a second crossed-arm pose next to c9's"
+    }
+  },
   "snaps": [
     {
       "shot": "c1",
@@ -717,12 +798,12 @@
       "why": "subtle poses, landscape upscale, and a sequinned veil the same shoot's pages describe as resembling blood splatter"
     },
     {
-      "clip": "mk-34412",
-      "why": "a man circling a standing woman can read as her being judged"
+      "clip": "mk-34412 after 3.8 s",
+      "why": "a man circling a standing woman can read as her being judged. v3 uses only 0.0-3.6 s (shot o1), where she stands alone in the 9:16 window; his arm enters at 4.0 s"
     },
     {
       "clip": "mk-28324",
-      "why": "the film never shows a real person as awkward; the stick figure carries the freeze"
+      "why": "two people avoiding each other's eye by a brick wall, no camera in the scene; v3's problem shot is o1 (one person standing for a camera, shown kindly, captioned in the viewer's voice)"
     },
     {
       "clip": "mk-359",

@@ -68,3 +68,64 @@ export const NAME_TIMING = {
   resolved: 645,
   end: 664,
 };
+
+// =====================================================================================================================
+// v3 (STORYBOARD.md v3). Inner frames per window, global v3 frames. The beat edges, captions, phone framings and the
+// app's verdict frames are in beats.ts (BEATS_V3, CAPTIONS, PHONE_FRAMING, LIVE_V3); these are the hand-set frames
+// inside each window. Owners: STORY owns OPENING_V3, CHORUS_V3_TIMING and END_V3; APP owns DEMO_V3.
+// The v2 objects above stay until the v2 scenes are retired.
+// =====================================================================================================================
+
+/** B1-B2 (STORY): the problem on the phone's plain camera, then the app's launch screen. */
+export const OPENING_V3 = {
+  drift: [0, 96] as [number, number], // PHONE_FRAMING.W1: the film starts moving; her real footage on the screen
+  screenCut: 96, // on the beat: the screen cuts from the plain camera to the Android launch screen (Paper)
+  iconLand: [96, 104] as [number, number], // the launcher icon lands from 2.6x (softLand 8 f), PHONE.splashIcon
+  step: [96, 106] as [number, number], // the camera steps in W1 -> W2 (softLand 10 f)
+  hold: [106, 160] as [number, number], // the icon holds, settled; f160 hands the same screen to APP's library
+};
+
+/** B3-B6 (APP): pick, line up, hold, the photo. Live frames are beats.ts LIVE_V3 (the app's verdicts). */
+export const DEMO_V3 = {
+  launchToLibrary: [160, 172] as [number, number], // the app's launch screen gives way to the library (on the screen only)
+  pushM: [160, 176] as [number, number], // W2 -> M
+  scroll: [176, 214] as [number, number], // one real-feeling scroll of the library that settles with "Hands in pockets" in reach
+  tapTile: { park: 216, press: 220, answer: 221 }, // the touch disc parks 4 f, squashes 2 f, the tile answers a frame later
+  detailOpen: [222, 232] as [number, number], // the app's navigation to the pose detail
+  pushD1: [228, 240] as [number, number], // magnified: the detail title "Hands in pockets" reads (>= 0.035 H em)
+  roomSwap: 240, // o1's room -> her studio, while D1 covers the frame
+  pullD2: [246, 258] as [number, number], // "Try this pose" in view
+  tapTry: { park: 256, press: 260, answer: 261 },
+  cameraOpen: [262, 272] as [number, number], // the app's navigation to the camera; plate frame 0 held until LIVE_V3.found
+  pullW3: [264, 284] as [number, number], // D2 -> W3: the phone in her studio
+  pushC: [312, 330] as [number, number], // W3 -> C: the card readable
+  lockStep: 361, // the film camera steps 1.5% on the lock (v2)
+  pullW: [382, 402] as [number, number], // C -> W3 on the "3": the whole phone, nobody touching it
+  flash: [472, 480] as [number, number], // the app's capture flash on the preview (85% white, 280 ms decay)
+  thumb: 480, // the app's gallery thumbnail takes the photo (white ring) and "Saved to Pictures/Poseit" rises
+  viewerOpen: [484, 494] as [number, number], // the photo opens from the thumbnail to the full screen, in colour
+  pushPhoto: [490, 516] as [number, number], // PHONE_FRAMING.PHOTO: the photo fills the frame
+  photoPush: [516, 560] as [number, number], // slow push 1.00 -> 1.06 about her mid-hip, still moving on the cut
+  cut: 560,
+};
+
+/** B7 (STORY): the chorus cuts are beats.ts CHORUS_V3; the film camera carries the photo's push across them. */
+export const CHORUS_V3_TIMING = {
+  first: 560,
+  push: [560, 624] as [number, number], // 1.00 -> 1.06 across the four beat shots, about each person's mid-hip
+  hold: [624, 656] as [number, number], // c9 holds (0.3% drift): the breath before the end card
+  cut: 656,
+};
+
+/** B8 (STORY): c9's figure becomes the solid figure on paper, relaxes into the icon pose and becomes the icon. */
+export const END_V3 = {
+  cut: 656, // hard cut on the beat: the solid "Crossed-arm smile" figure exactly where c9's guide was
+  breath: [656, 672] as [number, number], // the chorus push carried across the cut, settling
+  relax: [672, 684] as [number, number], // on twos into "Hand on hip" (the icon's pose)
+  iconForm: [684, 700] as [number, number], // the Set-grey disc grows behind it and the contour thickens: the app icon
+  pull: [688, 712] as [number, number], // the camera pulls back; the icon settles above the wordmark
+  wordmark: 708,
+  lines: [724, 740, 752] as [number, number, number], // CAPTIONS C10-C12, a word every 3 f, each resolving in 5 f
+  resolved: 768, // then a living hold (slow drift) so the static end hold stays 0.6-1.4 s
+  end: 816,
+};

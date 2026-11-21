@@ -1,12 +1,65 @@
 # Poseit promo: sound plan
 
-**v2:** the deltas for the real-people film are in the next two sections (the plan, then the build); the rest of this
-file is v1 as built and stays the reference for the timbres.
+**v3** (STORYBOARD.md v3, clarity first, 816 f): the plan is the next section. **v2:** the deltas for the
+real-people film follow it (the plan, then the build); the rest of this file is v1 as built and stays the reference
+for the timbres.
 
-Film: 664 frames at 30 fps (22.13 s), see `STORYBOARD.md`. All audio is synthesized in Node by our own scripts
+Film (v1 and v2): 664 frames at 30 fps (22.13 s); v3 is 816 frames (27.2 s), see `STORYBOARD.md` v3. All audio is synthesized in Node by our own scripts
 (deterministic, seeded, 48 kHz 16-bit WAV), because there is no ElevenLabs key in this session. The voice-over is
 written (`vo.txt`) but not voiced: no fake or placeholder voice goes into the mix. When a key arrives, the VO drops
 into the windows below and the music is ducked under it; the picture does not move.
+
+## v3 deltas (STORYBOARD.md v3: captions, a phone, the app's own screens)
+
+Film: **816 f, 27.2 s**. Same grid (112.5 BPM, beat 16 f, bar lines f16 + 64n: 16, 80, 144, ... 784), same kit, same
+mix targets (-14 LUFS integrated, true peak at or under -1 dBTP), same rule: every cue is placed from `src/events.ts`,
+which the v3 build rewrites from `src/beats.ts` (BEATS_V3, CAPTIONS, LIVE_V3) and `src/scenes/timing.ts` (the `_V3`
+objects). The live act's cues keep v2's spacing, 40 f earlier (LIVE_OFFSET). Owner: BUILDER STORY.
+
+**The film must work muted; the sound is a second channel, never the explanation.** Captions carry every meaning, so
+no cue may be the only thing that says something.
+
+| v3 section | Frames | Sound |
+|---|---|---|
+| The problem | 0-96 | Room tone; a soft, unresolved pad from about f40 swelling into f96. No hook fidget ticks (there is no stick figure). |
+| Poseit | 96-160 | **Hit 1 on f96: the icon lands** (a warm two-note chime, then the groove's first kick). Groove A, light: kick, bass, shutter-click hats. |
+| Pick a pose | 160-272 | Groove A continues under the UI; a soft paper scroll texture under the fling (f176-214, -24 dB); a dry tap on each touch (f220, f260); a soft whoosh on the D1 push (f228-240). |
+| Match, fix | 272-382 | The coaching bed 6 dB down (no kick or clap) from the camera opening (f272); card tick on f308 ("Bend your right elbow more"); **hit 2 on the lock, f361**; "Perfect. Hold it" (f373) gets no tick, as in v2; a short soft whoosh on the push in (f312-330). |
+| Hold, shoot | 382-472 | The countdown beeps on f382, 412, 442 (the app's TONE_PROP_BEEP at D6); the build follows the digits; the pull back on f382 gets no whoosh (the beep owns it); music out on f464; 8 f of silence; **hit 3, the shutter, on f472** (the loudest SFX). |
+| The photo | 472-560 | The shutter's tail; the warm Am(add9) **blooms when the photo opens in colour (f488)** and rings under "Here's your photo." |
+| 99 poses | 560-656 | Groove B returns on the f560 cut (the lift after the payoff); one shutter-click per figure landing on f560, 576, 592, 608, 624 (rising a semitone each, as v2's chorus family); the drop under c9 (f624-656): music out, the reversed swell. |
+| The name | 656-816 | A soft low A re-strike on the f656 cut (bass A1 and an A-E fifth, to the last frame); wooden joint ticks on twos for the relax (f672-684); one soft paper set-down as the icon's disc lands (f700, -20 dB); no sound on the wordmark or the end lines; room tone to the end. |
+
+**Hits stay three:** the icon (f96, the name arrives), the lock (f361), the shutter (f472). The colour is the chord,
+not a fourth hit. **Silences:** f464-472 before the shutter; f624-656 the drop under c9.
+
+**Goes (from v2):** the hook's push whoosh into f80, the first-person groove entry at f80, the unison hit at f272 and
+its frame-mark pop and 4 dB dip, the push whoosh into f336, the chorus snaps at f144-240 (the chorus moved to
+f560-624), the colour chord at f520 (now f488), the low A re-strike at f600 (now f656).
+
+**Voice-over windows = the caption windows** (`vo.txt` line N = `CAPTIONS[N-1]` in `src/beats.ts`; `src/audio/voiceover.ts`
+follows it): the narrator, never the people. Each line starts 2 f after its caption begins to rise and ends before the
+caption leaves; the music ducks 9 dB under each line (6 dB under line 9, the chorus, which is the music's moment).
+
+| Line | Text | Window (frames) |
+|---|---|---|
+| 1 | Never know how to pose for photos? | 2-94 |
+| 2 | Poseit shows you how. | 102-154 |
+| 3 | Pick a pose to copy. | 166-226 |
+| 4 | Match the outline. | 280-312 |
+| 5 | It tells you what to fix. | 324-392 |
+| 6 | Hold still. | 400-432 |
+| 7 | It takes the photo for you. | 438-506, with a pause f464-476 ("It takes the photo" ... shutter ... "for you.") |
+| 8 | Here's your photo. | 518-558 |
+| 9 | 99 poses for every kind of photo. | 564-652 |
+| 10 | Free for Android. | 726-760 |
+| 11 | Works offline. | 762-784 |
+| 12 | No account, no ads. | 786-814 |
+
+Line 7 is the tight one: six words need about 2.2 s, and the 8 f of stillness and the shutter (f464-476) must
+stay free of speech, so the line is split around them: "It takes the photo" f438-462, the stillness, the shutter on
+f472, "for you." from f478 (split the take at the word boundary with voice.py's word timings). Lines 10-12 are
+spoken in sequence after the lines appear, slower and warm.
 
 ## v2 deltas (STORYBOARD.md v2: real people, the app's graphics on top)
 

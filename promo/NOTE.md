@@ -4,6 +4,19 @@ The plan is in `STORYBOARD.md`, the sound in `sound-plan.md` and the voice-over 
 what is built, what is real and what is illustrative, and records what was checked. It grows with the film; the newest
 state is at the top and v1's record is at the end.
 
+## Status v3: boarded, not built (clarity first)
+
+The mom test failed on v2 ("she wasnt able to make out the purpose of the app from the video"), and two cold viewers
+of the r0 stills (`out/coldtest/r0/`) agreed. `STORYBOARD.md` is now v3: 816 f (27.2 s); captions carry the story
+(`vo.txt` = the caption script); a generic drawn phone shows the app's real screens (launch, library, the "Hands in
+pockets" page, the camera); the live act is v2's real verdicts 40 f earlier with the real "Hints are for: I'm posing"
+setting ("Bend your right elbow more"); the photo opens on the phone; the figure montage follows it, captioned "99
+poses for every kind of photo."; the figure becomes the icon. The plan is data in `src/beats.ts` and
+`src/scenes/timing.ts` (v3 halves) and the `v3` block of `footage/manifest.json`; one new clip, mk-34412 (shot `o1`,
+source 0.0-3.6 s, Mixkit Stock Video Free License checked on its page, in `CREDITS.md`), is fetched and its plate is
+in `public/footage/plates.json`. The scenes are still v2's: `npm run check` passes and `npm run render` still makes the
+v2 cut until the two v3 builders (APP and STORY, `STORYBOARD.md` section 13) land.
+
 ## Status v2: integrated, reviewed twice, final master rendered (real people, the app's graphics on top; the voice waits for a key)
 
 The whole v2 film is built and assembled in `Promo` (664 f, 22.13 s, 1080 x 1920, 30 fps): real people from Mixkit
