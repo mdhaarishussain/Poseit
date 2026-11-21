@@ -26,9 +26,9 @@ Download the latest `Poseit-vX.Y.Z.apk` from [Releases](../../releases) on your 
 ones: every build is signed with the same public sideload key (`app/signing/`). Builds from any branch are also
 available as artifacts of the [Build APK workflow](../../actions/workflows/android.yml).
 
-To publish a release, push a version tag: `git tag v1.2.0 && git push origin v1.2.0`. The
-[Release workflow](.github/workflows/release.yml) builds the APK and attaches it to a GitHub Release, using
-`docs/releases/<tag>.md` as the notes. To sign with your own key instead of the public one, add the
+To publish a release, bump `versionName` in `app/build.gradle.kts`, add the notes as `docs/releases/v<versionName>.md`
+and push. The [Release workflow](.github/workflows/release.yml) builds the APK, creates the tag and publishes a GitHub
+Release with the APK attached; pushing a `v*` tag yourself works too. To sign with your own key instead of the public one, add the
 `POSEIT_KEYSTORE_BASE64`, `POSEIT_KEYSTORE_PASSWORD`, `POSEIT_KEY_ALIAS` and `POSEIT_KEY_PASSWORD` repository
 secrets.
 

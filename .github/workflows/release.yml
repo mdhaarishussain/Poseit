@@ -1,7 +1,10 @@
 name: Release
 
-# Push a version tag (e.g. `git tag v1.1.0 && git push origin v1.1.0`) to build the release APK and publish it as a
-# GitHub Release. Release notes come from docs/releases/<tag>.md when that file exists.
+# Publishes a GitHub Release with the release APK attached. Two ways to trigger it:
+#   1. Add release notes for the version in app/build.gradle.kts (docs/releases/v<versionName>.md) and push them to
+#      any branch. The workflow creates the tag v<versionName> at that commit and publishes the release. It does
+#      nothing if that release already exists, so merging the same notes later won't publish twice.
+#   2. Push a version tag yourself: `git tag v1.2.0 && git push origin v1.2.0`.
 #
 # Signing: by default the APK is signed with the public sideload key in app/signing/ (same signature as local
 # builds, so it installs over earlier versions). To sign with your own key instead, add these repository secrets:
@@ -14,10 +17,12 @@ name: Release
 on:
   push:
     tags: ["v*"]
+    branches: ["**"]
+    paths: ["docs/releases/**", ".github/workflows/release.yml"]  # path filters only apply to branch pushes
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to (re)build and publish, e.g. v1.1.0"
+        description: "Tag to publish, e.g. v1.1.0 (created at the selected branch; skipped if that release exists)"
         required: true
 
 permissions:
@@ -27,29 +32,55 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Decide the tag
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          elif [ "${{ github.ref_type }}" = "tag" ]; then
+            TAG="${{ github.ref_name }}"
+          else
+            VERSION=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts | head -1)
+            TAG="v$VERSION"
+            if [ ! -f "docs/releases/$TAG.md" ]; then
+              echo "No docs/releases/$TAG.md for the current versionName; nothing to publish."
+              echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          if [ "${{ github.ref_type }}" != "tag" ] && gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "Release $TAG already exists; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "Publishing $TAG from ${{ github.sha }}"
 
       - name: Set up JDK 17
+        if: steps.tag.outputs.skip != 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Set up Gradle
+        if: steps.tag.outputs.skip != 'true'
         uses: gradle/actions/setup-gradle@v4
 
       - name: Cache MediaPipe models
+        if: steps.tag.outputs.skip != 'true'
         uses: actions/cache@v4
         with:
           path: app/src/main/assets/models
           key: mediapipe-models-v1
 
       - name: Use your own signing key (if configured)
+        if: steps.tag.outputs.skip != 'true'
         env:
           KEYSTORE_B64: ${{ secrets.POSEIT_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.POSEIT_KEYSTORE_PASSWORD }}
@@ -70,9 +101,11 @@ jobs:
           fi
 
       - name: Build release APK
+        if: steps.tag.outputs.skip != 'true'
         run: ./gradlew :pose-core:test :app:assembleRelease --console=plain
 
       - name: Verify alignment and signature
+        if: steps.tag.outputs.skip != 'true'
         run: |
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
           "$BT/zipalign" -c -P 16 -v 4 app/build/outputs/apk/release/app-release.apk | tail -1
@@ -80,6 +113,7 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk "Poseit-${TAG}.apk"
 
       - name: Release notes
+        if: steps.tag.outputs.skip != 'true'
         run: |
           if [ -f "docs/releases/${TAG}.md" ]; then
             cp "docs/releases/${TAG}.md" "$RUNNER_TEMP/notes.md"
@@ -88,9 +122,11 @@ jobs:
           fi
 
       - name: Publish GitHub Release
+        if: steps.tag.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
+          target_commitish: ${{ github.sha }}
           name: Poseit ${{ env.TAG }}
           body_path: ${{ runner.temp }}/notes.md
           files: Poseit-${{ env.TAG }}.apk
