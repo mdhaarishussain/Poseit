@@ -37,10 +37,31 @@ Every step resumes: pages, clips, files and images already done are skipped.
 | `picks/gaps-r1_finalize.py` | round-1 picks -> `app/src/main/assets/pose_photos/`, `landmarks/`, `picks/gaps-r1.json` (credits, or why a pose stays empty) |
 | `picks/gaps-r2_search.py` | gap filling, round 2: Commons titles via `list=search` (500 a request: the API allows about one request a minute here) over the reviewed Unsplash, Pixabay, PxHere and rawpixel CC0 imports, ~30 pose categories (Men/Women with crossed arms, ... sitting on stairs, ... crouching, kneeling, jumping, Chin on hand, People sitting on desks/armchairs/stools/chairs, ...) and pose phrases; 500 px thumbnails from thumb.wikimedia.org (about one a second) for titles that pass the text rules; the app's full model and matcher on all of them; licence metadata only for the best per pose; more Mixkit tags and searches, title-picked clips scanned with round 1's scanner; outputs in `WORK/gaps-r2/` |
 | `picks/gaps-r2_finalize.py` | round-2 picks (round 1's build, round 2's records) -> photos, landmarks, `picks/gaps-r2.json`; the attribution says what was changed, that a BY-SA crop keeps the licence, and adds an author's requested link |
+| `picks/*.json` | the selection records per round (photo and credit, or why a pose has none) |
+| pose-core `PosePhotoMatch` (test) | the app's own Kotlin PoseMatcher on every shipped photo's landmarks: score against its own pose as drawn and flipped, part scores, fit, tcov, and the nearest library pose by rank -> `app-match.json` |
+| `credits.py` | merges the selection records (later rounds win) and `app-match.json` into `app/src/main/assets/pose_photos/credits.json` and `coverage.json`; holds the confirm stage's decisions (`DROPPED`, `NOTES`); `--table` prints the docs' coverage table; refuses photos without a credit, credits without a photo, and licences without a shipped text |
+| `allpicks.py` | review sheets: every shipped photo beside its pose figure, name, source, licence, app score and nearest pose -> `WORK/all-picks.jpg` (one grid) and `WORK/all-picks-<n>.jpg` (16 a sheet) |
 
 `posematch.py` reproduces the Kotlin matcher: on the promo film's nine chorus shots (`promo/public/footage/chorus.json`,
 scores written by pose-core `PromoChorusMatch`) it gives the same score to 4 decimals (largest difference 0.0001) and
 the same scene-space guide joints (largest difference 0.0001). Re-check after any change to pose-core `match/`.
+
+## Confirm and credits (after any change to the shipped photos)
+
+```sh
+export ANDROID_HOME=/opt/android-sdk
+./gradlew --console=plain -q :pose-core:test --tests 'com.poseit.app.tools.PosePhotoMatch' --rerun   # -> app-match.json
+python3 tools/pose-photos/credits.py                    # -> credits.json, coverage.json
+$PY tools/pose-photos/allpicks.py                       # -> WORK/all-picks*.jpg
+```
+
+## Outputs in git
+
+- `app/src/main/assets/pose_photos/<poseId>.webp` the shipped photos; `credits.json` their credits (keyed by pose id).
+- `app/src/main/assets/licenses/` the licence texts and `index.json`.
+- `landmarks/<poseId>.json` the app's full pose model on each shipped photo (IMAGE mode, up to 4 people, MediaPipe's
+  33 landmarks as `[x, y, z, visibility, presence]`, normalised to the photo).
+- `app-match.json` (PosePhotoMatch), `coverage.json` (credits.py): all 99 poses, photo or not, scores, verdicts.
 
 ## Outputs (work folder)
 
