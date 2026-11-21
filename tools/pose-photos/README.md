@@ -12,7 +12,9 @@ Everything downloaded or generated goes to a work folder outside git, `/home/use
 PY=promo/.venv/bin/python
 $PY tools/pose-photos/mixkit_harvest.py crawl            # grid pages of 56 people tags -> items.json
 $PY tools/pose-photos/mixkit_harvest.py scan --max-clips 420   # licence check, 360p preview, lite model, frames
+$PY tools/pose-photos/mixkit_harvest.py scan --max-clips 510 --min-relevance 1 --focus "couple|friends|group|sitting|lying|kneeling|..."
 $PY tools/pose-photos/commons_harvest.py search          # per-pose phrases + broad phrases -> files.json (slow: rate limits)
+$PY tools/pose-photos/commons_harvest.py search --cached-only   # re-apply the rules to saved results, no requests
 $PY tools/pose-photos/commons_harvest.py download        # ~1200 px renditions of the files that pass
 $PY tools/pose-photos/detect_images.py                   # full model, up to 4 people -> landmarks/*.jsonl
 $PY tools/pose-photos/score.py                           # every image x every pose -> candidates/<poseId>.json, index.json

@@ -83,9 +83,9 @@ PUBLIC = ["red carpet", "premiere", "festival", "award", "awards", "gala", "osca
           "director", "producer", "ceo", "founder", "entrepreneur", "businessman named", "deputy", "chancellor",
           "vs", "fc", "football", "soccer", "basketball", "baseball", "volleyball", "handball", "wrestling", "boxing",
           "tennis", "golf", "cricket", "rugby", "hockey", "cycling", "marathon", "race", "racing", "games", "sport",
-          "sports", "stadium", "arena", "fans", "supporters", "club", "fashion show", "show", "parade", "carnival",
-          "pride", "march", "visit", "meeting with", "delegation", "event", "events", "congress", "forum",
-          "biennale", "salon", "salão", "fair", "photocall", "signing", "launch"]
+          "sports", "stadium", "arena", "fans", "supporters", "club", "fashion show", "parade", "carnival",
+          "pride", "meeting with", "delegation", "event", "events", "congress", "forum",
+          "biennale", "salon", "salão", "photocall", "signing"]
 
 ART = ["painting", "paintings", "drawing", "drawings", "sketch", "sculpture", "sculptures", "statue", "statues",
        "illustration", "illustrations", "engraving", "etching", "lithograph", "woodcut", "poster",
@@ -103,7 +103,8 @@ WATERMARK = ["watermark", "watermarked", "logo", "copyright notice", "text overl
 
 
 def has_any(text: str, words: list[str]) -> list[str]:
-    return [w for w in words if f" {w} " in text]
+    """Words (or phrases) present as whole words, plural forms included ("bikinis", "dresses")."""
+    return [w for w in words if f" {w} " in text or f" {w}s " in text or f" {w}es " in text]
 
 
 _CAP_GENERIC = set("""Photographs Photos Photo Images Pictures People Persons Men Man Women Woman Portrait Portraits
@@ -147,6 +148,9 @@ def people_check(title: str, description: str, categories: list[str], extra: str
         reject.append("minor? " + ",".join(m[:3]))
     if m := has_any(text, SENSITIVE):
         reject.append("sensitive: " + ",".join(m[:3]))
+    if m := re.findall(r" (sex|nude|naked|erotic|lingerie|boudoir|porn|fetish|topless|sensual|bikini|swimsuit|"
+                       r"swimwear|underwear|urinat|piss|toilet|bathing|nightwear|pajama|pyjama|negligee)[a-z]*", text):
+        reject.append("sensitive (word root): " + ",".join(sorted(set(m))[:3]))
     if m := has_any(text, PUBLIC):
         reject.append("public/event: " + ",".join(m[:3]))
     if m := has_any(text, ART):

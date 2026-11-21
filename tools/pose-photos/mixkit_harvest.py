@@ -21,7 +21,8 @@ scan    ranks the items by how likely their title and description show a person 
              pose holds still (both neighbouring samples < HOLD_SPEED deg/s) first, then clearly different poses
              (tagged "moving"); each kept frame is saved as WORK/mixkit/frames/<id>_<ms>.jpg;
           5. deletes the video. Per clip: WORK/mixkit/clips/<id>.json (licence evidence, tags, frames kept).
-        Requests are serial with a gap (mixkit.co 2 s, assets 1 s); re-runs skip clips already scanned.
+        --focus "couple|group|sitting" limits a run to clips whose text has one of those words (to fill weak
+        categories). Requests are serial with a gap (mixkit.co 2 s, assets 1 s); re-runs skip clips already scanned.
 report  prints counts.
 
 Mixkit User Terms (https://mixkit.co/terms/, clause 9) forbid using "scripts or bots to mass download Items". This tool
@@ -91,17 +92,22 @@ def http() -> Polite:
 
 # ------------------------------------------------------------------------------------------------------------- crawl
 
-CARD = re.compile(r'<div class="item-grid-card"\s+data-algolia-analytics-object-id="video-(\d+)"(.*?)</a>', re.S)
+CARD = re.compile(r'<div class="item-grid-card[^"]*"\s+data-algolia-analytics-object-id="video-(\d+)"')
 
 
 def parse_grid(text: str) -> list[dict]:
+    """Item cards of a tag grid page or a search (discover) page."""
     items = []
-    for m in CARD.finditer(text):
-        vid, body = m.group(1), m.group(2)
+    starts = list(CARD.finditer(text))
+    for k, m in enumerate(starts):
+        vid = m.group(1)
+        body = text[m.end(): starts[k + 1].start() if k + 1 < len(starts) else m.end() + 20000]
         video = re.search(r'<video src="([^"]+)"', body)
         thumb = re.search(r'<img src="([^"]+)"', body)
-        title = re.search(r'item-grid-video-player__overlay-video-title">\s*(.*?)\s*</span>', body, re.S)
-        desc = re.search(r'item-grid-video-player__overlay-video-description">\s*(.*?)\s*</span>', body, re.S)
+        title = re.search(r'item-grid-video-player__overlay-video-title">\s*(.*?)\s*</span>', body, re.S) or \
+            re.search(r'item-grid-video-player__overlay-link">\s*(.*?)\s*</a>', body, re.S)
+        desc = re.search(r'item-grid-video-player__overlay-video-description">\s*(.*?)\s*</span>', body, re.S) or \
+            re.search(r'item-grid-card__description">\s*(.*?)\s*</p>', body, re.S)
         href = re.search(r'href="(/free-stock-video/[a-z0-9-]+-%s/)"' % vid, body)
         vertical = "item-grid-video-player--vertical" in body
         if not (video and href):
@@ -140,6 +146,11 @@ def cmd_crawl(args):
                     print(f"[{tag}] page {page}: {e}", flush=True)
                     break
             found = parse_grid(text)
+            if not found and page == 1 and "/discover/" not in base_url:
+                # a tag without its own grid: use Mixkit's search page for the same words
+                base_url = f"{BASE}/free-stock-video/discover/{tag}/"
+                text = client.get(base_url).decode("utf-8", "replace")
+                found = parse_grid(text)
             new = 0
             for it in found:
                 key = str(it["id"])
@@ -360,6 +371,9 @@ def cmd_scan(args):
         if verdict["reject"] or score < args.min_relevance:
             continue
         ranked.append(it)
+    if args.focus:
+        focus = re.compile(r"\b(" + args.focus + r")\b", re.I)
+        ranked = [it for it in ranked if focus.search(it["title"] + " " + it["description"])]
     ranked.sort(key=lambda it: (-it["relevance"], -it["id"]))
     done = {int(p.stem) for p in (OUT / "clips").glob("*.json")}
     scanned = sum(1 for p in (OUT / "clips").glob("*.json") if (read_json(p) or {}).get("scanned"))
@@ -440,6 +454,7 @@ def main():
     s.add_argument("--fps", type=float, default=3.0)
     s.add_argument("--model", default="lite", choices=["lite", "full"])
     s.add_argument("--min-relevance", type=float, default=2.0)
+    s.add_argument("--focus", help="regex alternation: only clips whose text has one of these words (e.g. couple|group)")
     sub.add_parser("report")
     args = ap.parse_args()
     {"crawl": cmd_crawl, "scan": cmd_scan, "report": cmd_report}[args.cmd](args)

@@ -91,8 +91,8 @@ selling copies nor making items available "on a stock or inventory basis". Condi
 
 Clause 9 forbids "scripts or bots to mass download Items". The harvester does not download items through the download
 buttons; it reads public grid and clip pages and fetches the small 360p hover previews that a browser plays on the
-grid, one at a time with a gap, only for clips whose title and description suggest a person holding a pose (about 400 of
-2,843 listed clips). That is far from "the entire library", but it is scripted. Before the app ships Mixkit frames, the
+grid, one at a time with a gap, only for clips whose title and description suggest a person holding a pose (510 of the
+3,146 clips listed on the pages read). That is far from "the entire library", but it is scripted. Before the app ships Mixkit frames, the
 owner should decide whether that is acceptable, or ask Mixkit; the final frames themselves should be downloaded from the
 clip pages by a person (a handful of clips).
 
@@ -131,10 +131,11 @@ flagged for the reviewer; `trademarked`, `insignia` and similar are rejected.
 ### Rate limits
 
 Wikimedia allows about 10 API requests a minute to clients whose User-Agent carries no contact details (200 with
-contact details); thumbnails on upload.wikimedia.org are limited too, and this environment's address is shared, so
-most requests first get HTTP 429 with a Retry-After of 30-180 s. The harvester is serial and honours Retry-After, so
-Commons is slow here and contributes far fewer images than Mixkit. Adding a contact address to the User-Agent (the
-owner's choice; the tools do not send one) would raise the limit.
+contact details), and this environment's address is shared, so most API requests first got HTTP 429 with a Retry-After
+of 30-60 s: about one search a minute in practice. Images must be fetched at a standard thumbnail width (1280, 960,
+500 ...; mediawiki.org/wiki/Common_thumbnail_sizes): originals and other widths are refused with 429. The harvester is
+serial, honours Retry-After and uses standard widths. Adding a contact address to the User-Agent (the owner's choice;
+the tools do not send one) would raise the API limit.
 
 ## People rules (all sources)
 
@@ -165,9 +166,11 @@ box, mirrored or not); the app matcher score.
 
 ## How candidates are found and ranked
 
-1. **Mixkit**: `mixkit_harvest.py crawl` reads 4 grid pages of each of 56 people tags; `scan` ranks the clips by their
-   text, checks each clip page's licence, downloads the 360p preview, runs the app's lite pose model on 3 frames a
-   second and keeps up to 8 frames per clip where a person shows at least head, shoulders and hips, holds preferred.
+1. **Mixkit**: `mixkit_harvest.py crawl` reads up to 4 grid pages of each of 56 people tags (and Mixkit search pages
+   for 25 more phrases); `scan` ranks the clips by their text, checks each clip page's licence, downloads the 360p
+   preview, runs the app's lite pose model on 3 frames a second and keeps up to 8 frames per clip where a person shows
+   at least head, shoulders and hips, holds preferred; a second `--focus` run fills weak categories (couples, groups,
+   sitting, floor).
 2. **Commons**: `commons_harvest.py search` runs one or two phrases per pose (its name and category words) and broad
    "pexels" phrases per category, filters by licence and the people rules, `download` fetches ~1200 px renditions.
 3. `detect_images.py` runs the app's full pose model (up to 4 people) on every kept frame and photo.
@@ -179,3 +182,48 @@ box, mirrored or not); the app matcher score.
 
 The selection stage looks at every sheet, rejects anything that breaks the people rules, prefers holds at a good size,
 and writes the credits.
+
+## Harvest run, 2026-11-21
+
+| | |
+| --- | --- |
+| Mixkit clips listed (grid and search pages read) | 3,146 |
+| Clip pages checked for the licence | 576: 510 Free License, 66 Restricted (skipped) |
+| Clips scanned (360p preview, lite model, 3 fps) | 510 (420 best by text, then 90 for weak categories); previews deleted after the scan |
+| Frames kept | 3,043 from 484 clips (622 holds, the rest "moving") |
+| Commons searches | 134: one or two phrases for **every one of the 99 poses** (117), 15 broad "pexels" phrases, 2 others |
+| Commons files read (licence metadata) | 1,927; 212 pass the licence and people rules (CC0 57, PD 16, CC BY 2.0-4.0 64, CC BY-SA 2.0-4.0 75; 10 carry the "personality" restriction flag) |
+| Commons photos downloaded and scored | 196 |
+| Images scored against every pose | 3,239 (3,043 Mixkit frames + 196 Commons photos) |
+
+Best **eligible** candidate per pose (right people count, framing fits, tcov >= 0.9), app matcher score:
+
+| Category | Poses | best > 0.7 | best > 0.6 | mean best |
+| --- | --- | --- | --- | --- |
+| Standing | 10 | 9 | 10 | 0.88 |
+| Sitting | 10 | 1 | 2 | 0.55 |
+| Leaning | 9 | 7 | 7 | 0.78 |
+| Walking | 10 | 7 | 9 | 0.83 |
+| On the ground | 9 | 1 | 2 | 0.54 |
+| Portrait | 9 | 8 | 9 | 0.92 |
+| Selfie | 8 | 8 | 8 | 0.91 (inflated, see below) |
+| Professional | 8 | 7 | 8 | 0.91 |
+| Fun & jumping | 9 | 5 | 5 | 0.65 |
+| Couple | 10 | 1 | 3 | 0.52 |
+| Group | 7 | 0 | 0 | 0 (no eligible photo) |
+| **All** | **99** | **54** | **63** | |
+
+What this means for the selection stage:
+
+- **Groups have nothing yet**: only 18 frames show three or more people, and none fits a group pose with full bodies.
+  Couples, sitting, on-the-ground and jumping poses are thin too. Real photos of these need more sources (or staged
+  photos of the owner's friends, or a different illustration).
+- **Selfie and portrait scores are inflated.** Those templates require few segments (the phone arm leaves the frame),
+  so any waist-up frame with the arms down scores 0.9-1.0 while real selfies score 0.5-0.7. The contact sheets keep
+  three places for candidates whose title or description names the pose ("T").
+- Walking poses are often matched by people standing still in a similar stance; check the text and the frame.
+- Mixkit candidates are 360p preview frames (crops of 200-600 px); the release frame must be re-cut from the clip's
+  licensed 720p/1080p download at the recorded time.
+- The text rules miss things (e.g. a Commons swimwear photo whose title said only "nearby the pool" got through until
+  categories were checked with plurals); every chosen photo needs a look for age, clothing, context, watermarks and
+  public figures. Mixkit flags "check age" on titles with "girl" or "young".

@@ -24,8 +24,14 @@ How a candidate is scored (per image, per pose, for the pose as drawn and flippe
   5. sit = mean distance from the person's joints to the placed figure's, in torso lengths (info only).
   6. crop_px = the pose's own frame placed with the same transform: the crop that frames the person as the pose is
      drawn (a portrait pose crops a full-body photo to waist up); crop_inside = its share inside the photo.
-  rank = score - 0.3 * max(0, 0.85 - fit) - 0.25 * |people - figures| - 0.2 * max(0, 0.85 - crop_inside).
-  Eligible (counted in index.json): people ==
+  7. tcov = share (by weight) of the segments the pose needs in its own frame that the photo shows and the matcher
+     scored (the app's coverage only counts segments inside the scene, so a guide dragged mostly off a waist-up photo
+     would still score 1 on the few segments left).
+  rank = score - 0.3 * max(0, 0.85 - fit) - 0.25 * |people - figures| - 0.2 * max(0, 0.85 - crop_inside)
+         - max(0, 0.95 - tcov).
+  Plus 0.08 each when the candidate's title or description has a word of the pose's category (CATEGORY_WORDS) or of
+  its name ("text_match"): the matcher alone cannot tell an arm held out of frame for a selfie from an arm cut off.
+  Eligible (counted in index.json): tcov >= 0.9, people ==
   figures (groups: figures..figures+1) and fit >= 0.6. "mirror_photo": true means the best match was the flipped
   pose, so the photo must be mirrored horizontally to show the pose as drawn.
 At most 2 frames per Mixkit clip per pose are kept in a pose's list (the best two).
@@ -35,6 +41,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -166,6 +173,20 @@ def crop_info(frame_aspect, aspect, scale, off, w, h):
             "crop_inside": round(inside, 3), "crop_h_px": round((y1 - y0) * h)}
 
 
+def template_coverage(own_required, figs):
+    """Share (by segment weight) of the segments the pose needs in its OWN frame that the photo's person shows and the
+    matcher scored; min over figures. The app's coverage only counts template segments inside the scene, so a guide
+    dragged mostly off a head-and-shoulders photo would still score 1; this catches that."""
+    vals = []
+    for req, (ev, _) in zip(own_required, figs):
+        total = sum(req.values())
+        if ev is None or total <= 0:
+            vals.append(0.0)
+            continue
+        vals.append(sum(w for name, w in req.items() if name in ev.segments) / total)
+    return min(vals) if vals else 0.0
+
+
 def framing_of(s):
     def v(j):
         p = s["points"].get(j)
@@ -182,6 +203,33 @@ def framing_of(s):
     return "partial"
 
 
+CATEGORY_WORDS = {
+    "STANDING": r"stand|standing|stands|pos(e|es|ing)",
+    "SITTING": r"sit|sits|sitting|seated|chair|bench|stairs|steps|stool|sofa|couch|armchair",
+    "LEANING": r"lean|leans|leaning|wall|railing|door|doorway",
+    "WALKING": r"walk|walks|walking|stroll|strolling",
+    "PORTRAIT": r"portrait|smil\w*|face",
+    "SELFIE": r"selfie|selfies|mirror",
+    "PROFESSIONAL": r"business\w*|office|suit|blazer|executive|corporate|professional",
+    "FUN": r"jump\w*|danc\w*|spin\w*|twirl\w*|laugh\w*|celebrat\w*|kick\w*",
+    "FLOOR": r"floor|ground|grass|lying|lies|crouch\w*|squat\w*|kneel\w*|cross-legged",
+    "COUPLE": r"couple|couples|lovers|boyfriend|girlfriend|husband|wife|romantic|hug\w*|embrac\w*",
+    "GROUP": r"friends|group|three|four|team|together",
+}
+STOP = {"the", "on", "in", "and", "with", "your", "pose", "up", "off", "out", "to", "a", "of", "&", "classic", "candid",
+        "relaxed", "happy", "high", "low", "double", "one", "two"}
+
+
+def text_terms(pose):
+    """Regexes for the pose's category and for its own name (words of 4+ letters), matched against a candidate's
+    title and description: a prior for the reviewer, since the matcher alone cannot tell e.g. an arm held out of frame
+    for a selfie from an arm simply cut off."""
+    words = [w for w in pose["name"].lower().replace("-", " ").split() if w not in STOP and len(w) >= 4]
+    own = "|".join(re.escape(w.rstrip("s")) + r"\w*" for w in words)
+    return (re.compile(r"\b(" + CATEGORY_WORDS[pose["category"]] + r")\b", re.I),
+            re.compile(r"\b(" + own + r")", re.I) if own else None)
+
+
 def load_meta():
     meta = {}
     for p in (WORK / "mixkit" / "clips").glob("*.json"):
@@ -193,6 +241,7 @@ def load_meta():
             key = "mixkit:" + Path(f["file"]).stem
             meta[key] = {
                 "source": "Mixkit", "clip": c["id"], "time_s": f["t"], "title": c["title"], "page": c["page"],
+                "description": c.get("description", ""),
                 "file_url": dl.get("Full HD") or dl.get("HD Ready") or next(iter(dl.values()), None),
                 "preview_url": c.get("preview"),
                 "author": c["licence"].get("author") or "Mixkit (author not named on the clip page)",
@@ -208,6 +257,7 @@ def load_meta():
         artist = lic.get("artist") or "unknown"
         meta["commons:" + pid] = {
             "source": "Wikimedia Commons", "title": r["title"], "page": r["page"], "file_url": r["file_url"],
+            "description": r.get("description", ""),
             "thumb_url": r.get("thumb_url"), "author": artist, "credit": lic.get("credit"),
             "licence": {"name": lic.get("short_name"), "key": lic.get("key"), "url": lic.get("url"),
                         "attribution_required": lic.get("attribution_required"),
@@ -239,6 +289,12 @@ def score_image(rec, poses, top_k_people=6):
             continue  # cannot be eligible and would only waste time
         figures = [{"points": {j: tuple(v) for j, v in f["joints"].items()}, "vis": f.get("visibility", {}),
                     "unit": f["unit"]} for f in pose["figures"]]
+        # the segments the pose needs in its own frame (as drawn / flipped), for template_coverage
+        own_required = {m: [{name: pm.SEG_BY_NAME[name][3] for name in
+                             pm.TemplateInfo(k, f, pose["frameAspect"]).required}
+                            for k, f in enumerate(pm.template_to_scene(figures, pose["frameAspect"],
+                                                                       pose["frameAspect"], 1.0, (0.0, 0.0), m))]
+                        for m in (False, True)}
         best = None
         for mirror in (False, True):
             tr = solve_transform(figures, pose["frameAspect"], aspect, mirror, people[:n])
@@ -250,10 +306,12 @@ def score_image(rec, poses, top_k_people=6):
             if best is not None and score <= best["score"] - 0.2:
                 continue
             fit = fit_of(scene, figs, people, aspect)
+            tcov = template_coverage(own_required[mirror], figs)
             sit = sit_of(scene, figs, people, aspect)
             mismatch = abs(n_sig - n)
             crop = crop_info(pose["frameAspect"], aspect, scale, off, w, h)
-            rank = score - 0.3 * max(0.0, 0.85 - fit) - 0.25 * mismatch - 0.2 * max(0.0, 0.85 - crop["crop_inside"])
+            rank = score - 0.3 * max(0.0, 0.85 - fit) - 0.25 * mismatch - 0.2 * max(0.0, 0.85 - crop["crop_inside"]) \
+                - 1.0 * max(0.0, 0.95 - tcov)
             if best is None or rank > best["rank"]:
                 used = [d for _, d in figs if d is not None]
                 boxes = [bbox(people[d]) for d in used]
@@ -261,8 +319,8 @@ def score_image(rec, poses, top_k_people=6):
                          max(b[3] for b in boxes)) if boxes and all(boxes) else None
                 best = {
                     "pose": pose["id"], "score": round(score, 4), "rank": round(rank, 4), "fit": round(fit, 3),
-                    "sit": round(sit, 3), "mirror_photo": mirror, "people": n_sig, "figures": n,
-                    "eligible": (n <= n_sig <= n + (1 if n >= 3 else 0)) and fit >= 0.6,
+                    "sit": round(sit, 3), "tcov": round(tcov, 3), "mirror_photo": mirror, "people": n_sig,
+                    "figures": n, "eligible": (n <= n_sig <= n + (1 if n >= 3 else 0)) and fit >= 0.6 and tcov >= 0.9,
                     "framing": framing_of(people[used[0]]) if used else None,
                     "people_box_px": [round(union[0] * w), round(union[1] * h), round(union[2] * w),
                                       round(union[3] * h)] if union else None,
@@ -302,6 +360,12 @@ def main():
     cand_dir.mkdir(parents=True, exist_ok=True)
     index = []
     for pose in poses:
+        cat_re, own_re = text_terms(pose)
+        for r in per_pose[pose["id"]]:
+            m = meta[r["id"]]
+            text = (m.get("title") or "") + " " + (m.get("description") or "")
+            r["text_match"] = [k for k, rx in (("category", cat_re), ("name", own_re)) if rx and rx.search(text)]
+            r["rank"] = round(r["rank"] + 0.08 * len(r["text_match"]), 4)
         lst = sorted(per_pose[pose["id"]], key=lambda r: -r["rank"])
         kept, per_clip = [], {}
         for r in lst:

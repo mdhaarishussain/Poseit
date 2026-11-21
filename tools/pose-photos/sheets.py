@@ -9,7 +9,8 @@ Reads WORK/candidates/<poseId>.json (score.py); writes WORK/sheets/<poseId>.jpg.
 template's frame); a candidate is shown cropped to the pose's own frame placed on it (score.py crop_px: the crop a
 final photo would use; dark padding where that frame leaves the photo) and mirrored when
 the match was with the flipped pose, so it reads the same way as the figure. Green text = eligible (people count and
-framing fit the pose), orange = not.
+framing fit the pose), orange = not. Up to 3 of the 8 places go to the best candidates whose title or description
+names the pose or its category ("T" in the caption), even when the matcher ranks them lower.
 """
 from __future__ import annotations
 
@@ -96,7 +97,13 @@ def make_sheet(cfile: Path, poses_by_id: dict, top: int, out_dir: Path):
     from PIL import Image, ImageDraw
     data = read_json(cfile)
     pose = poses_by_id[data["pose"]["id"]]
-    cands = data["candidates"][:top]
+    # the best by rank, but keep up to 3 places for the best candidates whose text names the pose or its category
+    # (score.py text_match): for poses with few segments (selfies, portraits) the matcher alone over-rates any
+    # waist-up frame with the arms down
+    allc = data["candidates"]
+    texty = [c for c in allc if c.get("text_match")][:3]
+    cands = [c for c in allc if c not in texty][: max(0, top - len(texty))]
+    cands = sorted(cands + texty, key=lambda c: -c["rank"])
     cols = 3
     n = 1 + len(cands)
     rows = (n + cols - 1) // cols
@@ -123,10 +130,10 @@ def make_sheet(cfile: Path, poses_by_id: dict, top: int, out_dir: Path):
         lic = (c.get("licence") or {}).get("name") or "?"
         src = c["source"] + (f" #{c.get('clip')} @{c.get('time_s')}s" if c["source"] == "Mixkit" else "")
         flags = "; ".join(c.get("flags") or [])
-        lines = [f"#{k}  score {c['score']:.3f}  fit {c['fit']:.2f}  people {c['people']}/{c['figures']}"
-                 f"  crop {c.get('crop_h_px', 0)}px"
-                 f"{'  mirrored' if c['mirror_photo'] else ''}",
-                 f"{src}"[:52], f"{lic}"[:52], flags[:52]]
+        lines = [f"#{k} score {c['score']:.3f} fit {c['fit']:.2f} cov {c.get('tcov', 0):.2f} "
+                 f"ppl {c['people']}/{c['figures']} crop {c.get('crop_h_px', 0)}px",
+                 (f"{src}" + ("  MIRRORED" if c["mirror_photo"] else "") + ("  T" if c.get("text_match") else ""))[:52],
+                 f"{lic}"[:52], flags[:52]]
         d.multiline_text((x, y + CELL_H + 3), "\n".join(lines), fill=col, font=f_small, spacing=2)
     out_dir.mkdir(parents=True, exist_ok=True)
     sheet.save(out_dir / f"{pose['id']}.jpg", quality=85)

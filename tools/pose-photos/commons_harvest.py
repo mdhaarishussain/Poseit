@@ -14,8 +14,10 @@ search    for every pose its phrases in commons_queries.Q (--per-pose, --pexels)
           licence (LicenseShortName, LicenseUrl, Artist, Credit, AttributionRequired, Restrictions, UsageTerms),
           description, categories, the poses and phrases that found it, and the rules verdict (licence allowed?
           people rules: rejects and flags).
-download  fetches a ~1200 px rendition of the accepted files (licence allowed, no rejects, a photo at least 640 px on the
-          short side), best search rank first, at most --per-query per phrase, into WORK/commons/img/<pageid>.jpg.
+download  fetches a rendition at a standard thumbnail width (1280, else 960, else 500 px wide; Wikimedia throttles other
+          widths and originals) of the accepted files (licence allowed, no rejects, a photo at least 640 px on the
+          short side), scaled to 1200 px on the long side, best search rank first, at most --per-query per phrase,
+          into WORK/commons/img/<pageid>.jpg.
 probe     prints one search (for tuning phrases).
 
 Rate limits: Wikimedia allows about 10 requests a minute to clients whose User-Agent carries no contact details, so
@@ -45,7 +47,7 @@ THUMB_W = 1200
 
 
 def http() -> Polite:
-    return Polite(gaps={"commons.wikimedia.org": 8.0, "upload.wikimedia.org": 3.0})
+    return Polite(gaps={"commons.wikimedia.org": 8.0, "upload.wikimedia.org": 3.0, "thumb.wikimedia.org": 2.0})
 
 
 def search(client: Polite, phrase: str, limit: int = 50) -> list[dict]:
@@ -132,6 +134,8 @@ def cmd_search(args):
         key = hashlib.sha1(phrase.encode()).hexdigest()[:12]
         qf = qdir / f"{key}.json"
         saved = read_json(qf)
+        if saved is None and args.cached_only:
+            continue
         if saved is None:
             try:
                 pages = search(client, phrase, args.limit)
@@ -165,6 +169,25 @@ def cmd_search(args):
           f"{client.requests} requests", flush=True)
 
 
+STANDARD_WIDTHS = (1280, 960, 500)  # Wikimedia's thumbnail steps (mediawiki.org/wiki/Common_thumbnail_sizes)
+
+
+def standard_thumb(rec: dict) -> str:
+    """A thumbnail URL at a standard width: upload.wikimedia.org rejects or rate-limits other widths and originals
+    ("use thumbnail images in sizes listed on https://w.wiki/GHai"). The API already rounds iiurlwidth up to a step
+    (1280) when the file is wider; narrower files come back as the original, so ask for the next smaller step."""
+    thumb = (rec.get("thumb_url") or "").split("?")[0]
+    if "/thumb/" in thumb and re.search(r"/\d+px-[^/]+$", thumb):
+        return thumb
+    w = rec.get("width") or 0
+    step = next((s for s in STANDARD_WIDTHS if w > s), STANDARD_WIDTHS[-1])
+    url = (rec.get("file_url") or "").split("?")[0]
+    m = re.match(r"^https://upload\.wikimedia\.org/wikipedia/commons/([0-9a-f]/[0-9a-f]{2}/)([^/]+)$", url)
+    if not m:
+        return thumb or url
+    return f"https://thumb.wikimedia.org/wikipedia/commons/thumb/{m.group(1)}{m.group(2)}/{step}px-{m.group(2)}"
+
+
 def cmd_download(args):
     from PIL import Image
 
@@ -191,7 +214,7 @@ def cmd_download(args):
     for i, rec in enumerate(todo):
         dest = img_dir / f"{rec['pageid']}.jpg"
         try:
-            data = client.get(rec["thumb_url"], timeout=90)
+            data = client.get(standard_thumb(rec), timeout=90)
             im = Image.open(io.BytesIO(data))
             im = im.convert("RGB")
             s = THUMB_W / max(im.size)
@@ -224,6 +247,8 @@ def main():
     s.add_argument("--limit", type=int, default=50)
     s.add_argument("--per-pose", type=int, default=2, help="phrases per pose (commons_queries.Q)")
     s.add_argument("--pexels", action="store_true", help="also search every pose phrase with 'pexels' added")
+    s.add_argument("--cached-only", action="store_true",
+                   help="no requests: rebuild files.json (verdicts with the current rules) from saved queries")
     d = sub.add_parser("download")
     d.add_argument("--per-query", type=int, default=10)
     d.add_argument("--max", type=int, default=3000)
