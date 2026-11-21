@@ -11,6 +11,7 @@
  *   CUTS       the three ground changes: f80 (hard cut, black -> paper), f336 (match cut, paper -> black), the capture
  *   SILENCES   the planned breaths the sound should leave empty: the drop before the unison, the half beat before
  *              the shutter
+ *   CUES       the same frames by name for scripts/gen-audio.mjs (the sound is placed from these, never by hand)
  * Print as JSON: npm run events   (writes out/events.json)
  */
 import { CHORUS, HOOK_WORDS } from "./beats";
@@ -18,6 +19,7 @@ import { CHORUS_SNAPS } from "./scenes/studio/chorus";
 import { CATEGORY_LABEL } from "./figure/poses";
 import type { CategoryId } from "./figure/types";
 import { HOOK_TIMING, NAME_TIMING, STUDIO_TIMING } from "./scenes/timing";
+import { theme } from "./theme";
 import { MATCH_EVENTS, matchAt } from "./scenes/viewfinder/match";
 import { PERFORMER, armT } from "./scenes/viewfinder/performer";
 
@@ -95,3 +97,44 @@ const list: PictureEvent[] = [
 ];
 
 export const EVENTS: PictureEvent[] = list.sort((a, b) => a.f - b.f);
+
+/**
+ * CUES: the same frames by name, for the sound stage (scripts/gen-audio.mjs reads them from out/events.json, so a
+ * re-timed picture moves its sound with it). All global frames at 30 fps; spans are [from, to).
+ */
+const chorusFrames = new Set<number>(CHORUS.map((c) => c.at));
+export const CUES = {
+  fps: FPS,
+  frames: NAME_TIMING.end,
+  /** the music grid: one beat = 16 f (112.5 BPM), bar lines at f16 + 64n */
+  grid: { beat: theme.grid.beat, firstBar: theme.grid.firstBar },
+  hookWords: HOOK_WORDS.flat().map((w) => Math.max(0, w.at)),
+  flick: HOOK_TIMING.flickUp,
+  flop: HOOK_TIMING.flop,
+  cut1: STUDIO_TIMING.cut,
+  chorus: CHORUS.map((c) => ({ f: c.at, category: c.category as string })),
+  /** the ripple frames after an eighth-note snap (the next rows snapping, 3 per frame) */
+  ripple: CHORUS_SNAPS.filter((f) => !chorusFrames.has(f) && f !== STUDIO_TIMING.unison),
+  drop: STUDIO_TIMING.drop,
+  unison: STUDIO_TIMING.unison,
+  marks: STUDIO_TIMING.marks,
+  push: [STUDIO_TIMING.push[0], STUDIO_TIMING.push[1] + 1] as [number, number],
+  /** "Disco point" is on screen from the marks until the push carries it out under the frame */
+  nameRead: [STUDIO_TIMING.marks, STUDIO_TIMING.push[1] + 1] as [number, number],
+  cut2: STUDIO_TIMING.push[1] + 1,
+  found: MATCH_EVENTS.found,
+  cards: [MATCH_EVENTS.card1, MATCH_EVENTS.card2, MATCH_EVENTS.perfect],
+  lock: MATCH_EVENTS.hold,
+  digits: [MATCH_EVENTS.digit3, MATCH_EVENTS.digit2, MATCH_EVENTS.digit1],
+  still: MATCH_EVENTS.capture - 8,
+  capture: MATCH_EVENTS.capture,
+  flashEnd: NAME_TIMING.flashEnd,
+  relax: NAME_TIMING.relax,
+  /** the frames on which the relaxing figure changes pose (on twos) */
+  relaxSteps: Array.from({ length: (NAME_TIMING.relax[1] - NAME_TIMING.relax[0]) / 2 }, (_, k) => NAME_TIMING.relax[0] + 2 * (k + 1)),
+  pull: NAME_TIMING.pull,
+  wordmark: NAME_TIMING.wordmark,
+  line: NAME_TIMING.line,
+  resolved: NAME_TIMING.resolved,
+  end: NAME_TIMING.end,
+};

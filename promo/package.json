@@ -6,16 +6,20 @@
   "description": "Poseit promo film (vertical 1080x1920, 30 fps), built in Remotion from the app's own pose data",
   "license": "MIT",
   "scripts": {
+    "prestudio": "npm run -s audio",
     "studio": "remotion studio src/index.ts",
     "poses": "cd .. && ./gradlew --console=plain -q :pose-core:test --tests 'com.poseit.app.tools.PromoPoseExport'",
     "check": "tsc --noEmit && node --experimental-strip-types scripts/check-shapes.ts && npm run -s check-live",
     "still": "remotion still src/index.ts",
+    "prerender": "npm run -s audio",
     "render": "remotion render src/index.ts Promo out/promo.mp4 --codec h264 --crf 16",
+    "predraft": "npm run -s audio",
     "draft": "remotion render src/index.ts Promo out/draft.mp4 --codec h264 --crf 22 --scale 0.5",
     "assets": "bash scripts/assets.sh",
     "live": "esbuild scripts/export-live.ts --bundle --platform=node --format=esm --outfile=out/export-live.mjs --log-level=warning && node out/export-live.mjs",
     "match": "npm run live && cd .. && ./gradlew --console=plain -q :app:testDebugUnitTest --tests 'com.poseit.app.promo.PromoMatchExport' --rerun",
     "events": "esbuild scripts/export-events.ts --bundle --platform=node --format=esm --outfile=out/export-events.mjs --log-level=warning && node out/export-events.mjs",
+    "audio": "npm run -s events && node scripts/gen-audio.mjs",
     "check-live": "esbuild scripts/export-live.ts --bundle --platform=node --format=esm --outfile=out/export-live.mjs --log-level=warning && esbuild scripts/check-live.ts --bundle --platform=node --format=esm --outfile=out/check-live.mjs --log-level=warning && node out/check-live.mjs"
   },
   "dependencies": {

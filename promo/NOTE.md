@@ -3,13 +3,14 @@
 The plan is in `STORYBOARD.md`, the sound in `sound-plan.md` and the voice-over script in `vo.txt`. This file says
 what is built, what is real and what is illustrative, and records what was checked. It grows with the film.
 
-## Status: picture built, no sound yet
+## Status: picture and sound built; the voice waits for a key
 
 Every beat of the storyboard is built in `src/scenes/` and assembled in `Promo` (664 f, 22.13 s, 1080 x 1920). The act
 III numbers, colours, cards, hold and countdown are the app's own verdicts: the app's PoseMatcher, HintStabilizer and
 CaptureCoach run frame by frame over the keyframed body in a JVM test. The picture events are exported for the
-sound stage in `src/events.ts`. Sound is next: the SFX kit and the music bed are synthesized from `src/events.ts`,
-and the voice-over (`vo.txt`) waits for an ElevenLabs key.
+sound stage in `src/events.ts`. The sound is synthesized from those events by `scripts/gen-audio.mjs` (the SFX kit, the
+score and the mix, -14 LUFS), and the composition plays it (`src/audio/Soundtrack.tsx`). The voice-over (`vo.txt`) has a
+slot (`src/audio/voiceover.ts`) and waits for an ElevenLabs key; see `README.md`, "Voice-over".
 
 ## Run it
 
@@ -21,10 +22,11 @@ npm run assets       # copy the app's screenshots into public/screens/ (gitignor
 npm run check        # typecheck + mannequin parity against pose-core + live.json is in step with the performer
 npm run match        # after editing the performer: export public/live.json, run the app's matcher -> public/match.json
 npm run events       # print the picture events (src/events.ts) to out/events.json for the sound stage
+npm run audio        # events + scripts/gen-audio.mjs: the SFX kit, the score and public/audio/mix.wav (draft/render/studio run it first)
 npm run studio       # Remotion Studio
 npx remotion still src/index.ts Promo out/f.png --frame 40
 npm run draft        # half-size draft to out/draft.mp4
-python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13
+python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13 --expect-audio
 ```
 
 `remotion.config.ts` points Remotion at the Playwright headless shell in `/opt/pw-browsers` when it exists (set
@@ -42,7 +44,9 @@ python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13
 | `src/ui/` | `Hud.tsx` holds the cue card, score ring, countdown numeral, frame marks and capture flash, rebuilt from `CameraHud.kt`. `UiFragment.tsx` shows a real screenshot magnified by the camera. |
 | `src/motion/` | `index.ts` has tween, keys, land, leave, arrive, focusIn, snapTail, drift, stepCounter, onTwos and sway. Every curve is eased and clamped. `WordReveal.tsx` reveals whole words at speech rhythm. `CameraGroup.tsx` puts the film camera on one transform. |
 | `src/scenes/` | The film. `Hook.tsx` (B1), `StudioShot.tsx` (B2-B4, one continuous shot), `Viewfinder.tsx` (B5-B7), `TheName.tsx` (B8). `shots.ts` solves every seam from the shot on the other side (the hook frame, the guide frame, the act III film camera). `timing.ts` holds the hand-set frames. `studio/camera.ts` is the act II camera (the match zoom, the dolly and truck, the scale cut, the push solved per frame onto the guide's frame, the depth of field that follows the hero). `studio/chorus.ts` is what each of the 99 slots shows at each frame. `viewfinder/rig.ts` is the app's 9:16 scene space and forward kinematics, `viewfinder/performer.ts` the keyframed live body, `viewfinder/match.ts` the app's verdicts read from `public/match.json`. |
-| `src/events.ts` | Every picture event with its frame (cuts, snaps, the three hits, the two silences), derived from the sources above, for the sound stage. |
+| `src/events.ts` | Every picture event with its frame (cuts, snaps, the three hits, the two silences), derived from the sources above, for the sound stage; `CUES` names the same frames for the sound script. |
+| `scripts/gen-audio.mjs` | The sound: the SFX kit, the score and the mix, synthesized and placed from `out/events.json` (deterministic). Writes `public/audio/` (gitignored, rebuilt by `npm run audio`). |
+| `src/audio/` | `Soundtrack.tsx` plays `public/audio/mix.wav` from frame 0. `voiceover.ts` is the voice-over slot: the frame and window of each line of `vo.txt`. |
 | `scripts/export-live.ts`, `../app/src/test/java/com/poseit/app/promo/PromoMatchExport.kt` | The live-match pipeline: the performer and the guide in scene space -> `public/live.json` -> the app's PoseMatcher + HintStabilizer + CaptureCoach at 30 fps (app defaults: strictness 0.80, 700 ms hold, 3 s countdown, front camera) -> `public/match.json`. |
 | `src/dev/` | Check compositions (`Dev-*`), rendered as stills: the figure sheet, blends, the studio, the viewfinder and the end frame. They are not part of the film. |
 | `scripts/check-shapes.ts` | Checks the TS geometry against Kotlin for every figure. |
@@ -198,7 +202,126 @@ The film is a quiet joke around one loud chorus.
   only on the push, out of focus.
 - The f272 unison frame has the soft front row across its lower third; a higher unison framing might make a
   stronger screenshot.
-- Not done in this step: the full-size render, the sound and the voice.
+- Not done in this step: the full-size render and the voice (the sound is now built; see "Sound").
+
+## Sound (as built)
+
+`npm run audio` reads `out/events.json` and synthesizes everything in plain Node at 48 kHz in about 3 s. Every noise
+source is a named, seeded generator, so two runs give byte-identical files (21 files checked by sha256). The plan is
+`sound-plan.md`, and this section records what was built and measured.
+
+**The score** is a dry studio-disco groove at 112.5 BPM (16 f per beat), in A minor with the dorian F#. The hats are
+shutter-click transients, and the keys are a two-operator FM electric piano. The score enters with the first kick on the
+f80 cut. The clap joins on bar 3, a 16th tick layer joins on the eighth-note snaps, and the bass climbs D-E-F#-G# with
+them. The keys only tease with offbeat chops. At f248 everything stops dead, and the hit chord's own room tail plays
+backwards into the unison. At f272 the low hit, the bright Am9 stab, an air crash and the unison snap land together.
+The last beat before the match cut lifts (no kick, 16th hats) so the push's whoosh owns the cut. Under the coaching
+cards there is no kick and no clap, just a sparse bass figure, soft hats and two warm chords, 6 dB down. The countdown
+switches to the app's own clock: a kick every 15 f, an A pedal with its filter opening, and the shutter-click hats
+speeding up like a motor drive winding up (eighths, then 16ths). At f546 everything stops, and only the room is left
+until the shutter. At f600, when the camera starts to pull back, one Am(add9) chord sounds and rings out under the name
+to the last frame. The bass is sidechained to the kick (7 dB, 90 ms) so the two never pile up.
+
+**The SFX kit** has four families: clicks (the snaps, the pop, the wooden joint), the shutter, the tones (card tick,
+countdown beep, lock chime) and air (two whooshes, the swell). Fabric and the low hit are one-offs.
+- The shutter is modelled on a camera's mechanical click, because the app plays `MediaActionSound.SHUTTER_CLICK`. The
+  mirror and first curtain make a hard double strike through the body's modes. 68 ms later come the second curtain
+  and the mirror's slap, then a low thump, a faint spring ting and a small room.
+- The countdown beep is the app's own: `VoiceCoach.tick()` plays `ToneGenerator.TONE_PROP_BEEP`, a 1200 Hz tone, for
+  120 ms. It is tuned 37 cents down to D6 so it sits in the key as a suspended fourth over the A pedal. All three
+  digits beep at the same pitch, as in the app.
+- The lock is a latch seating (two ticks 16 ms apart) and a soft E5-B5 confirmation.
+
+**Placement.** 50 cues, each placed from a named frame in `CUES`, with the transient on the frame's first sample.
+- Three hand-placed hits: the unison (f272), the lock (f443) and the shutter (f554). Each has something cleared before
+  it: the 0.8 s drop, the coaching bed 6 dB down, and the half beat of silence.
+- One click per chorus snap (one family). The eighth-note snaps rise a semitone each and ripple 1-3 f after, couples
+  click twice and groups three times.
+- The card ticks at f355 and f400. "Perfect. Hold it" (f455) gets no tick, because it comes 12 f after the lock and is
+  up for 9 f; a lock, a tick and a beep inside 21 frames would be wall-to-wall.
+- The hook's fidget gets fabric, and the f576-588 relax gets a quiet wooden joint tick on each "on twos" step.
+- The wordmark and the end line get no sound: the chord is already ringing.
+
+**Mix.** Music bus automation:
+- "Disco point" dips the music 4 dB from f288, and it comes back for the push.
+- The coaching section is 6 dB down.
+- The countdown builds from -7 dB to -3 dB, so it stays under the chorus and under the shutter.
+- The music is muted from f546 until just before the final chord.
+
+Room tone (filtered pink noise, about -47 dBFS rms) runs the whole film, so no silence is dead air. The master is
+normalised to -14 LUFS (our own BS.1770-4 measurement) through a look-ahead true-peak limiter at -1.5 dBTP (4x
+oversampled), which leaves 0.5 dB for the AAC encode. The limiter works 1-2.7 dB on chorus kick transients and 3.8 dB
+for about 150 ms on the unison downbeat.
+
+| Section (gen-audio report) | Frames | Mean loudness |
+|---|---|---|
+| Act I hook (room, fidget) | 0-80 | -38.5 LUFS |
+| Groove A + chorus | 80-248 | -11.3 |
+| The drop | 248-272 | -25.7 |
+| Unison + groove B | 272-336 | -13.4 |
+| Coaching (music -6 dB) | 336-464 | -19.2 |
+| Countdown build | 464-546 | -14.8 |
+| Stillness | 546-554 | -41.3 (room only) |
+| Shutter + relax | 554-600 | -23.1 |
+| Final chord + name | 600-664 | -18.4 |
+
+Momentary loudness (400 ms) and peak at the hits:
+- The unison: -10.2 LUFS, at the ceiling, equal to the loudest chorus snap (-9.9), with 0.8 s of drop before it.
+- The lock: -18.3 LUFS, over a bed of -19.
+- The shutter: -17.4 LUFS, -1.5 dBFS. It is the loudest SFX and arrives after 0.27 s of room tone.
+
+**Review of the half-scale draft with sound** (`look.py out/draft.mp4 --expect 22.13 --expect-audio --events
+out/cuts.events.json`):
+- AUDIO: integrated -14.0 LUFS, LRA 7.2 LU, true peak -1.1 dBTP (after the AAC encode). Audible 0.02-22.14 s, with
+  no silent tail and no dropouts. 34 onsets; all 3 cuts land within 80 ms of an onset. On f80 the groove enters on
+  the cut. On f336 the coaching section's first bass note and chord change the arrangement on the cut, after the
+  push's whoosh. On f554 the shutter is the cut. No flags.
+- G0 render exists: PASS, with an audio stream. G2 no empty frame: PASS. G3 end card: PASS (end hold 1.30 s). The
+  picture is unchanged.
+- First draft, fixed: look.py flagged "silence for the first 0.98 s", because the room tone at -55 dB rms read as
+  nothing. It now sits at -47 dB.
+
+**Listen-proxy.** No ears in this session, so the sound was checked by measurement:
+- The rendered film's audio against `mix.wav` (cross-correlation): offset 0 samples, and the AAC residual is
+  -49 dB rms. Remotion plays the mix sample-aligned.
+- Transient onsets on the isolated SFX stem (1 kHz high-pass, 0.25 ms envelope): 39 of 43 transient cues start
+  0.1-0.9 ms after their frame, and none is early. The four not resolved are masked by design: the first ripple tick
+  under its own snap, the unison jump over the swell (+11 dB) and the f455 tick, which was then dropped.
+- look.py's onsets report -17 ms at f80 and f554. That is its 10 ms window granularity (it flags the window before
+  a jump), not an early sound.
+- Waveform, level lane and log spectrogram with the cuts, hits and silences marked (drawn from `mix.wav`) show
+  the arc: silence, the chorus wall, the swell into the unison, a thin bed with the lock's chime, a build that stays
+  under the chorus, silence, the shutter, one chord ringing out.
+- Fixes this loop made:
+  - The unison stack clipped into the limiter by 6.8 dB. The five keys voices all started at phase 0 on one sample,
+    so they now get seeded random phases. The low hit carries the bottom of the unison, and the bass is sidechained.
+  - The shutter was 5 dB under the ceiling. It is now the loudest SFX.
+  - The coaching bed measured -25 LUFS at -8 dB: close to silence on a phone. It is now -19 at -6 dB.
+  - The countdown build was as loud as the chorus.
+  - The ending chord was too big for "end small" (-16 to -18 LUFS).
+- The voice-over path was exercised end to end with synthetic test clips in a scratch folder, not in the film.
+  Placement on the frame (clip start = at - lead), the 6/9 dB duck, re-normalisation to -14.03 LUFS and the
+  overrun warning all work.
+
+**Sound column (motionmaxxing sound-sync.md 6a):**
+- First big sound: the groove's first kick, tied to the f80 hard cut, after 2.67 s of room tone (the joke's silence).
+- Reading: the music drops 6 dB under the cards and 4 dB for "Disco point"; the hook's words are read in silence.
+- Cleared before the biggest moves: the music is out for 0.8 s before the unison and off for 0.27 s before the
+  shutter.
+- Hits: 3, hand-picked. The chorus clicks are the groove's percussion, one family at -11 to -20 dB, not hits.
+- Coverage: the score covers the whole cut. The final chord and the room run to f664.
+- Metronome: the groove sits on the picture's 16 f grid because the picture is cut on it. The arrangement changes at
+  every section: it enters on the cut, stops dead twice, thins under the cards, and switches to the app's 1 s clock
+  (an accelerando from 112.5 to 120 BPM).
+
+**What I would still improve:**
+- Nobody has listened yet. The timbres were judged by spectrum and numbers, so play it once on a phone speaker and
+  once on headphones.
+- The kick's body is 44-130 Hz, which phone speakers drop. The tanh drive, the click, the clap and the bass harmonics
+  carry the groove there.
+- A generated music bed (ElevenLabs music, fitted with `voice.py music-fit --loop-bars --bpm 112.5`) could be warmer
+  than synthesis. It must keep the drop, the stillness and the countdown clock, which a looped bed would not.
+- Line 5 of the voice-over is tight: 8 words in 80 f is 3 words a second.
 
 ## Choices and findings for the scene builder
 
@@ -247,5 +370,7 @@ The film is a quiet joke around one loud chorus.
     published measurements, credited in `theme.ts`. Its `look.py` is run from its own folder for render review.
   - remotion-motion-graphics (MIT, haidrrrry): no files were copied. Its theme template shaped `theme.ts`, and its
     rules are followed (eased and clamped interpolation, fps-derived timing, one theme, render and look).
-- **Audio:** no ElevenLabs key in this session. There is no voice and no generated music; the VO script waits in
-  `vo.txt`.
+- **Audio:** all of it is our own synthesis (`scripts/gen-audio.mjs`): no samples, no generated music, no voice. The
+  remotion skill's `gen-sfx.mjs` / `gen-track.mjs` (MIT) and motionmaxxing's `sound-sync.md`, `mix.py` and `voice.py`
+  (Apache-2.0) were read for technique; no code was copied. There was no ElevenLabs key in this session, so the VO
+  script waits in `vo.txt` with its slot in `src/audio/voiceover.ts`.
