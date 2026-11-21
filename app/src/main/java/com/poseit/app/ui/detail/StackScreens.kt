@@ -28,39 +28,25 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
-import com.poseit.app.ui.components.ConnectedAxis
-import com.poseit.app.ui.components.ConnectedCardDefaults
 import com.poseit.app.ui.components.ConnectedCardStack
 import com.poseit.app.ui.components.PoseitSnackbarHost
-import com.poseit.app.ui.components.ProvideSurfaceTone
 import com.poseit.app.ui.components.TopBarCard
 import com.poseit.app.ui.components.TopBarContent
 import com.poseit.app.ui.components.TopBarHeight
 import com.poseit.app.ui.components.TopBarInsets
-import com.poseit.app.ui.components.connectedCardsPath
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitMotion
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.SurfaceTone
-import kotlin.math.max
 
 /*
- * Two screen frames built on the connected-card motif, shared by the pose detail, the pose editor and "pose from a
- * photo". The foundation's TopBarCard(joined = ...) is a fixed bar; these add what those screens need on top:
- * a fused stack that scrolls with the page (ScrollingStackScreen) and one that fills the screen with a flexible
- * middle card (FillingCardStack).
+ * Screen frames built on the connected-card motif, shared by the pose detail and "pose from a photo". The
+ * foundation's TopBarCard(joined = ...) is a fixed bar; ScrollingStackScreen is a fused stack that scrolls with the
+ * page, with PinnedActions at its foot. (A stack that fills a screen that doesn't scroll is the shared
+ * FillingCardStack.)
  */
 
 /**
@@ -158,69 +144,4 @@ internal fun PinnedActions(modifier: Modifier = Modifier, content: @Composable (
             .imePadding()
             .padding(Space.edge),
     ) { content() }
-}
-
-/**
- * Up to three dark cards fused into one body that fills the height it is given: [top] and [bottom] take their own
- * height and [fill] gets the rest (the editor's canvas, the photo being traced). Content gets the dark surface tone.
- * Unlike ConnectedCardStack, which stacks children at their natural height, this one is for screens that don't
- * scroll.
- */
-@Composable
-internal fun FillingCardStack(
-    top: @Composable () -> Unit,
-    fill: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    bottom: (@Composable () -> Unit)? = null,
-    color: Color = PoseitColors.backgroundCard,
-    gap: Dp = ConnectedCardDefaults.Gap,
-) {
-    var segments by remember { mutableStateOf(emptyList<Rect>()) }
-    val contents = buildList<@Composable () -> Unit> {
-        add(top)
-        add(fill)
-        if (bottom != null) add(bottom)
-    }
-    ProvideSurfaceTone(SurfaceTone.Dark) {
-        Layout(
-            contents = contents,
-            modifier = modifier.drawWithCache {
-                val path = connectedCardsPath(
-                    segments,
-                    ConnectedAxis.Vertical,
-                    ConnectedCardDefaults.Radius.toPx(),
-                    ConnectedCardDefaults.JoinRadius.toPx(),
-                    ConnectedCardDefaults.NotchLength.toPx(),
-                )
-                onDrawBehind { drawPath(path, color) }
-            },
-        ) { slots, constraints ->
-            val width = constraints.maxWidth
-            val height = constraints.maxHeight
-            val gapPx = gap.roundToPx()
-            val loose = Constraints(minWidth = width, maxWidth = width)
-            val topPlaceables = slots[0].map { it.measure(loose) }
-            val bottomPlaceables = slots.getOrNull(2)?.map { it.measure(loose) }.orEmpty()
-            val topH = topPlaceables.maxOfOrNull { it.height } ?: 0
-            val bottomH = bottomPlaceables.maxOfOrNull { it.height } ?: 0
-            val gaps = gapPx * (if (bottomPlaceables.isEmpty()) 1 else 2)
-            val fillH = max(0, height - topH - bottomH - gaps)
-            val fillPlaceables = slots[1].map { it.measure(Constraints.fixed(width, fillH)) }
-            layout(width, height) {
-                topPlaceables.forEach { it.place(0, 0) }
-                val fillY = topH + gapPx
-                fillPlaceables.forEach { it.place(0, fillY) }
-                val rects = mutableListOf(
-                    Rect(0f, 0f, width.toFloat(), topH.toFloat()),
-                    Rect(0f, fillY.toFloat(), width.toFloat(), (fillY + fillH).toFloat()),
-                )
-                if (bottomPlaceables.isNotEmpty()) {
-                    val bottomY = fillY + fillH + gapPx
-                    bottomPlaceables.forEach { it.place(0, bottomY) }
-                    rects += Rect(0f, bottomY.toFloat(), width.toFloat(), (bottomY + bottomH).toFloat())
-                }
-                if (rects != segments) segments = rects
-            }
-        }
-    }
 }

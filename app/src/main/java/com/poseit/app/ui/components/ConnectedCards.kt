@@ -215,6 +215,66 @@ fun ConnectedCardStack(
 ) = ConnectedCards(ConnectedAxis.Vertical, modifier, color, gap, content)
 
 /**
+ * A vertical [ConnectedCardStack] that fills the height it is given: every card in [cards] takes its own height
+ * except the one at [fillIndex], which gets what is left (the onboarding picture, the editor's canvas, the photo
+ * being traced). For screens that don't scroll. Each entry of [cards] is one card (it may emit several nodes; they
+ * share the card's slot). Content gets the dark surface tone.
+ *
+ * @param minFillHeight the filling card never gets less than this; on a short screen with large text the stack then
+ *   runs past the bottom rather than crushing the card to nothing
+ */
+@Composable
+fun FillingCardStack(
+    cards: List<@Composable () -> Unit>,
+    modifier: Modifier = Modifier,
+    fillIndex: Int = cards.lastIndex,
+    minFillHeight: Dp = 0.dp,
+    color: Color = PoseitColors.backgroundCard,
+    gap: Dp = ConnectedCardDefaults.Gap,
+) {
+    var segments by remember { mutableStateOf(emptyList<Rect>()) }
+    ProvideSurfaceTone(SurfaceTone.Dark) {
+        Layout(
+            contents = cards,
+            modifier = modifier.drawWithCache {
+                val path = connectedCardsPath(
+                    segments,
+                    ConnectedAxis.Vertical,
+                    ConnectedCardDefaults.Radius.toPx(),
+                    ConnectedCardDefaults.JoinRadius.toPx(),
+                    ConnectedCardDefaults.NotchLength.toPx(),
+                )
+                onDrawBehind { drawPath(path, color) }
+            },
+        ) { slots, constraints ->
+            if (slots.isEmpty()) return@Layout layout(constraints.minWidth, constraints.minHeight) {}
+            val width = constraints.maxWidth
+            val gapPx = gap.roundToPx()
+            val loose = Constraints(minWidth = width, maxWidth = width)
+            val fill = fillIndex.coerceIn(0, slots.lastIndex)
+            val measured = slots.mapIndexed { i, nodes -> if (i == fill) emptyList() else nodes.map { it.measure(loose) } }
+            val heights = IntArray(slots.size) { i -> measured[i].maxOfOrNull { it.height } ?: 0 }
+            val used = heights.sum() + gapPx * (slots.size - 1)
+            val available = if (constraints.hasBoundedHeight) constraints.maxHeight - used else 0
+            heights[fill] = max(available, minFillHeight.roundToPx())
+            val fillPlaceables = slots[fill].map { it.measure(Constraints.fixed(width, heights[fill])) }
+            val total = used + heights[fill]
+            val height = if (constraints.hasBoundedHeight) constraints.maxHeight else total
+            layout(width, height) {
+                var y = 0
+                val rects = ArrayList<Rect>(slots.size)
+                slots.indices.forEach { i ->
+                    (if (i == fill) fillPlaceables else measured[i]).forEach { it.place(0, y) }
+                    rects += Rect(0f, y.toFloat(), width.toFloat(), (y + heights[i]).toFloat())
+                    y += heights[i] + gapPx
+                }
+                if (rects != segments) segments = rects
+            }
+        }
+    }
+}
+
+/**
  * Dark cards side by side, fused with slots cut in from the top and bottom (a stat pair, two choices). Children
  * share the width equally and take the height of the tallest. Every direct child is one card.
  */

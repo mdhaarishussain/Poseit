@@ -231,6 +231,8 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   whole card a button (Astryx ClickableCard). `ProvideSurfaceTone`, `CapsLabel`.
 - **Connected cards** (`ConnectedCards.kt`): `ConnectedCardStack { ... }` and `ConnectedCardRow { ... }`: every
   direct child is one card; use `CardSegment(onClick?, contentPadding)` for padded, optionally clickable cards.
+  `FillingCardStack(cards, fillIndex, minFillHeight)`: a vertical stack for a screen that doesn't scroll, where one
+  card takes the height the others leave (the onboarding picture, the editor's canvas, the photo being traced).
 - **Buttons** (`Buttons.kt`): pills at least 48dp tall with `caps` labels. The form follows where the button sits,
   as in the mockups: a **pill on the canvas** (RESTART / PAUSE, the pinned action bands), a **Block** (`form =
   ButtonForm.Block`, 12dp corners) **inside a dark card** (START, START GAME: Today's pose, the empty-state cards,
@@ -405,7 +407,7 @@ they are; where a label changes, its tests change with it.
   `Banner(status = Error)` with `AccentButton("Choose another photo")` pinned.
 
 **Editor** (`editor/`)
-- One fused stack filling the screen (`detail/FillingCardStack`): the top bar card ("Pose editor", back, and Save as
+- One fused stack filling the screen (`FillingCardStack`): the top bar card ("Pose editor", back, and Save as
   `AccentButton(form = Block, size = Small)`), **joined** to the canvas card (the pose's origin line, "Grid" and,
   for photo poses, "Photo" as `FilterPill`s in its header; the dark stage with `frameMarks`; joints and handles in
   cream and lavender; the hint with undo and redo at its foot), **joined** to the tools card (Mirror, Reset, Add
@@ -416,7 +418,7 @@ they are; where a label changes, its tests change with it.
 - Like the mockups' "Train your coordination." screen: the cream canvas with a connected stack filling the screen:
   a top bar card (wordmark "Poseit" and a step `Badge("1 / 4")`, read as "Page 1 of 4"), joined to the headline
   card (`display` Light, e.g. "Pick a pose to copy", and the body in mist), joined to a tall picture card that takes
-  the rest of the height (`onboarding/FillingCardStack`), where the figure demo stands on the stage; the last
+  the rest of the height (`FillingCardStack`), where the figure demo stands on the stage; the last
   page's camera note sits at its foot in `supporting` mist. Each page is its own stack, so the whole stack slides
   with the pager.
 - Below the stack on the canvas: `TertiaryButton("Skip")` and `AccentButton("Next")` taking the rest of the row;

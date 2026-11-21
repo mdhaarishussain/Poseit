@@ -69,6 +69,7 @@ import com.poseit.app.pose.PoseSource
 import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.ButtonForm
 import com.poseit.app.ui.components.ButtonSize
+import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.CapsLabel
 import com.poseit.app.ui.components.DestructiveButton
 import com.poseit.app.ui.components.FilterPill
@@ -84,7 +85,6 @@ import com.poseit.app.ui.components.SegmentedPill
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.TopBarContent
 import com.poseit.app.ui.create.PoseDetailsForm
-import com.poseit.app.ui.detail.FillingCardStack
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitShapes
 import com.poseit.app.ui.theme.PoseitType
@@ -142,31 +142,30 @@ fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (id: Stri
             modifier = Modifier
                 .fillMaxSize()
                 .padding(Space.edge),
-            top = {
-                // Undo and redo live with the canvas, so the title keeps its room on a narrow phone.
-                TopBarContent(
-                    title = "Pose editor",
-                    onBack = ::requestBack,
-                    actions = {
-                        AccentButton(
-                            text = "Save",
-                            onClick = { showSaveSheet = true },
-                            enabled = !viewModel.loading,
-                            form = ButtonForm.Block,
-                            // Small, so the bar keeps its air around the button, as around the badge on other screens.
-                            size = ButtonSize.Small,
-                            // The bar pads for icon glyphs; this puts the button's edge 16dp in from the card's.
-                            modifier = Modifier.padding(start = Space.s, end = Space.xs),
-                        )
-                    },
-                )
-            },
-            fill = { CanvasCard(viewModel) },
-            bottom = if (viewModel.loading) {
-                null
-            } else {
-                { ToolsCard(viewModel, Modifier.onSizeChanged { toolsHeight = it.height }) }
-            },
+            fillIndex = 1,
+            cards = listOfNotNull<@Composable () -> Unit>(
+                {
+                    // Undo and redo live with the canvas, so the title keeps its room on a narrow phone.
+                    TopBarContent(
+                        title = "Pose editor",
+                        onBack = ::requestBack,
+                        actions = {
+                            AccentButton(
+                                text = "Save",
+                                onClick = { showSaveSheet = true },
+                                enabled = !viewModel.loading,
+                                form = ButtonForm.Block,
+                                // Small, so the bar keeps its air around the button, as around the badge on other screens.
+                                size = ButtonSize.Small,
+                                // The bar pads for icon glyphs; this puts the button's edge 16dp in from the card's.
+                                modifier = Modifier.padding(start = Space.s, end = Space.xs),
+                            )
+                        },
+                    )
+                },
+                { CanvasCard(viewModel) },
+                if (viewModel.loading) null else { { ToolsCard(viewModel, Modifier.onSizeChanged { toolsHeight = it.height }) } },
+            ),
         )
         val toolsDp = with(LocalDensity.current) { toolsHeight.toDp() }
         PoseitSnackbarHost(

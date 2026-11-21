@@ -44,6 +44,7 @@ import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.Badge
 import com.poseit.app.ui.components.CapsLabel
 import com.poseit.app.ui.components.CardSegment
+import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.PoseitSpinner
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.TopBarContent
@@ -190,46 +191,55 @@ private fun OnboardingPage(
     picture: @Composable BoxScope.() -> Unit,
 ) {
     FillingCardStack(
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(top = Space.edge),
-    ) {
-        TopBarContent(
-            "Poseit",
-            wordmark = true,
-            badge = {
-                Badge(
-                    "${page + 1} / $PAGE_COUNT",
-                    Modifier.clearAndSetSemantics { contentDescription = "Page ${page + 1} of $PAGE_COUNT" },
+        // A large font pushes the stack past the bottom rather than crushing the picture.
+        minFillHeight = 120.dp,
+        cards = listOf<@Composable () -> Unit>(
+            {
+                TopBarContent(
+                    "Poseit",
+                    wordmark = true,
+                    badge = {
+                        Badge(
+                            "${page + 1} / $PAGE_COUNT",
+                            Modifier.clearAndSetSemantics { contentDescription = "Page ${page + 1} of $PAGE_COUNT" },
+                        )
+                    },
                 )
             },
-        )
-        CardSegment(contentPadding = PaddingValues(start = Space.cardPadding, end = Space.cardPadding, top = Space.l, bottom = Space.cardPadding)) {
-            Text(
-                title,
-                style = PoseitType.display,
-                color = PoseitColors.textPrimaryInverted,
-                modifier = Modifier.semantics { heading() },
-            )
-            Spacer(Modifier.height(Space.m))
-            Text(body, style = PoseitType.body, color = PoseitColors.textSecondaryInverted)
-        }
-        Column(Modifier.fillMaxSize()) {
-            Box(
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-                content = picture,
-            )
-            if (note != null) {
-                Text(
-                    note,
-                    style = PoseitType.supporting,
-                    color = PoseitColors.textSecondaryInverted,
-                    modifier = Modifier.padding(start = Space.cardPadding, end = Space.cardPadding, bottom = Space.cardPadding - Space.xs),
-                )
-            }
-        }
-    }
+            {
+                CardSegment(contentPadding = PaddingValues(start = Space.cardPadding, end = Space.cardPadding, top = Space.l, bottom = Space.cardPadding)) {
+                    Text(
+                        title,
+                        style = PoseitType.display,
+                        color = PoseitColors.textPrimaryInverted,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Spacer(Modifier.height(Space.m))
+                    Text(body, style = PoseitType.body, color = PoseitColors.textSecondaryInverted)
+                }
+            },
+            {
+                Column(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                        content = picture,
+                    )
+                    if (note != null) {
+                        Text(
+                            note,
+                            style = PoseitType.supporting,
+                            color = PoseitColors.textSecondaryInverted,
+                            modifier = Modifier.padding(start = Space.cardPadding, end = Space.cardPadding, bottom = Space.cardPadding - Space.xs),
+                        )
+                    }
+                }
+            },
+        ),
+    )
 }

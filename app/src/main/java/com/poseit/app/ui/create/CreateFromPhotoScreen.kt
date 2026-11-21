@@ -65,6 +65,7 @@ import com.poseit.app.ui.components.Banner
 import com.poseit.app.ui.components.BannerStatus
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.FigurePaint
+import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.IconSize
 import com.poseit.app.ui.components.NumberedSteps
 import com.poseit.app.ui.components.PoseThumbnail
@@ -73,7 +74,6 @@ import com.poseit.app.ui.components.PoseitSpinner
 import com.poseit.app.ui.components.TopBarContent
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.frameMarks
-import com.poseit.app.ui.detail.FillingCardStack
 import com.poseit.app.ui.detail.PinnedActions
 import com.poseit.app.ui.detail.ScrollingStackScreen
 import com.poseit.app.ui.theme.PoseitColors
@@ -347,36 +347,39 @@ internal fun WorkingContent(state: CreateUiState, onBack: () -> Unit = {}, snack
             modifier = Modifier
                 .fillMaxSize()
                 .padding(Space.edge),
-            top = { TopBarContent(TITLE, onBack = onBack) },
-            fill = {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(Space.m),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    state.photo?.let { PhotoStage(it, state.imageAspect) }
-                }
-            },
-            bottom = {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Space.cardPadding, vertical = Space.l + Space.xs),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    PoseitSpinner(size = 20.dp, color = PoseitColors.accent)
-                    Spacer(Modifier.width(Space.l))
-                    Column {
-                        Text(
-                            if (state.step == CreateStep.LOADING) "Opening your photo…" else "Tracing the pose…",
-                            style = PoseitType.bodyLarge,
-                            color = PoseitColors.textPrimaryInverted,
-                        )
-                        Text("This only takes a moment", style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+            fillIndex = 1,
+            cards = listOf<@Composable () -> Unit>(
+                { TopBarContent(TITLE, onBack = onBack) },
+                {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(Space.m),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        state.photo?.let { PhotoStage(it, state.imageAspect) }
                     }
-                }
-            },
+                },
+                {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Space.cardPadding, vertical = Space.l + Space.xs),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        PoseitSpinner(size = 20.dp, color = PoseitColors.accent)
+                        Spacer(Modifier.width(Space.l))
+                        Column {
+                            Text(
+                                if (state.step == CreateStep.LOADING) "Opening your photo…" else "Tracing the pose…",
+                                style = PoseitType.bodyLarge,
+                                color = PoseitColors.textPrimaryInverted,
+                            )
+                            Text("This only takes a moment", style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+                        }
+                    }
+                },
+            ),
         )
         if (snackbarHostState != null) PoseitSnackbarHost(snackbarHostState, Modifier.align(Alignment.BottomCenter))
     }
