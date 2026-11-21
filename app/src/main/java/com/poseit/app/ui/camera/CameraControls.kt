@@ -1,7 +1,9 @@
 package com.poseit.app.ui.camera
 
 import android.net.Uri
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,48 +20,42 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.BurstMode
-import androidx.compose.material.icons.filled.Cameraswitch
-import androidx.compose.material.icons.filled.CenterFocusStrong
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FlashAuto
-import androidx.compose.material.icons.filled.FlashOff
-import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.Grid3x3
-import androidx.compose.material.icons.filled.GridGoldenratio
-import androidx.compose.material.icons.filled.GridOff
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.TimerOff
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.material.icons.outlined.Block
+import androidx.compose.material.icons.outlined.BurstMode
+import androidx.compose.material.icons.outlined.Cameraswitch
+import androidx.compose.material.icons.outlined.CenterFocusStrong
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.FlashAuto
+import androidx.compose.material.icons.outlined.FlashOff
+import androidx.compose.material.icons.outlined.FlashOn
+import androidx.compose.material.icons.outlined.Grid3x3
+import androidx.compose.material.icons.outlined.GridGoldenratio
+import androidx.compose.material.icons.outlined.GridOff
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.outlined.TimerOff
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -69,15 +65,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -85,13 +80,19 @@ import com.poseit.app.camera.FlashMode
 import com.poseit.app.camera.SceneAspect
 import com.poseit.app.data.GridType
 import com.poseit.app.pose.PoseTemplate
-import com.poseit.app.ui.components.PoseThumbnail
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.components.HairlineDivider
+import com.poseit.app.ui.components.PoseTile
+import com.poseit.app.ui.components.PoseTileSize
+import com.poseit.app.ui.components.StudioIconSize
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
 
 private fun FlashMode.icon(): ImageVector = when (this) {
-    FlashMode.OFF -> Icons.Filled.FlashOff
-    FlashMode.AUTO -> Icons.Filled.FlashAuto
-    FlashMode.ON -> Icons.Filled.FlashOn
+    FlashMode.OFF -> Icons.Outlined.FlashOff
+    FlashMode.AUTO -> Icons.Outlined.FlashAuto
+    FlashMode.ON -> Icons.Outlined.FlashOn
 }
 
 private fun FlashMode.label(): String = when (this) {
@@ -101,15 +102,21 @@ private fun FlashMode.label(): String = when (this) {
 }
 
 private fun GridType.icon(): ImageVector = when (this) {
-    GridType.NONE -> Icons.Filled.GridOff
-    GridType.THIRDS -> Icons.Filled.Grid3x3
-    GridType.GOLDEN -> Icons.Filled.GridGoldenratio
-    GridType.CENTER -> Icons.Filled.CenterFocusStrong
+    GridType.NONE -> Icons.Outlined.GridOff
+    GridType.THIRDS -> Icons.Outlined.Grid3x3
+    GridType.GOLDEN -> Icons.Outlined.GridGoldenratio
+    GridType.CENTER -> Icons.Outlined.CenterFocusStrong
 }
 
 internal fun SceneAspect.next(): SceneAspect = SceneAspect.entries[(ordinal + 1) % SceneAspect.entries.size]
 
-/** Back, flash, grid, aspect ratio, timer menu and quick settings. */
+/** Width of a tile in the pose strip (the tile is 3:4). */
+private val StripTileWidth = 54.dp
+
+/**
+ * Back, flash, grid, aspect ratio, timer menu and quick settings, as round controls on the black surround. Flash and
+ * grid cycle through their states and show the current one in their glyph; the timer inverts while one is set.
+ */
 @Composable
 internal fun CameraTopBar(
     flash: FlashMode,
@@ -126,43 +133,51 @@ internal fun CameraTopBar(
     onQuickSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    CompositionLocalProvider(LocalContentColor provides Color.White) {
-        Row(
-            modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-                .height(56.dp)
-                .padding(horizontal = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
-            Spacer(Modifier.weight(1f))
-            if (hasFlash) {
-                IconButton(onClick = onFlash) {
-                    Icon(flash.icon(), contentDescription = "Flash ${flash.label()}")
-                }
-            }
-            IconButton(onClick = onGrid) {
-                Icon(grid.icon(), contentDescription = "Grid: ${grid.label}")
-            }
-            Box(
-                Modifier
-                    .padding(horizontal = 4.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(1.5.dp, Color.White, RoundedCornerShape(8.dp))
-                    .clickable(role = Role.Button, onClickLabel = "Change aspect ratio", onClick = onAspect)
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .semantics { contentDescription = "Aspect ratio ${aspect.label}" },
-            ) {
-                Text(aspect.label, style = MaterialTheme.typography.labelLarge, color = Color.White)
-            }
-            TimerMenuButton(timer, onTimer, onPhotoshoot)
-            IconButton(onClick = onQuickSettings) {
-                Icon(Icons.Filled.Tune, contentDescription = "Quick settings")
-            }
+    Row(
+        modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+            .height(56.dp)
+            // Discs land 14dp from the edge, in line with the tool rail over the preview.
+            .padding(horizontal = Space.m),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.xs),
+    ) {
+        RoundControl(Icons.AutoMirrored.Outlined.ArrowBack, "Back", onClick = onBack)
+        Spacer(Modifier.weight(1f))
+        if (hasFlash) {
+            RoundControl(flash.icon(), "Flash ${flash.label()}", onClick = onFlash)
         }
+        RoundControl(grid.icon(), "Grid: ${grid.label}", onClick = onGrid)
+        AspectToggle(aspect, onAspect)
+        TimerMenuButton(timer, onTimer, onPhotoshoot)
+        RoundControl(Icons.Outlined.Tune, "Quick settings", onClick = onQuickSettings)
+    }
+}
+
+/** The aspect ratio as an outlined label ("3:4"), engraved-numeral style. Tapping cycles the ratios. */
+@Composable
+private fun AspectToggle(aspect: SceneAspect, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .heightIn(min = 48.dp)
+            .clip(StudioShapes.Small)
+            .clickable(role = Role.Button, onClickLabel = "Change aspect ratio", onClick = onClick)
+            .semantics { contentDescription = "Aspect ratio ${aspect.label}" }
+            .padding(horizontal = Space.xs),
+        contentAlignment = Alignment.Center,
+    ) {
+        // A fixed graphic: sized in dp so it keeps its proportions in the bar at any font scale.
+        val size = with(LocalDensity.current) { 13.dp.toSp() }
+        Text(
+            aspect.label,
+            style = StudioType.numeral(size),
+            color = Studio.Mannequin,
+            maxLines = 1,
+            modifier = Modifier
+                .border(1.5.dp, Studio.Mannequin, StudioShapes.Small)
+                .padding(horizontal = Space.s, vertical = Space.xs),
+        )
     }
 }
 
@@ -174,40 +189,32 @@ private fun TimerMenuButton(timer: TimerOption, onTimer: (TimerOption) -> Unit, 
         is TimerOption.Delay -> "Timer ${timer.seconds} seconds"
         is TimerOption.Photoshoot -> "Photoshoot"
     }
+    val icon = when (timer) {
+        TimerOption.Off -> Icons.Outlined.TimerOff
+        is TimerOption.Delay -> Icons.Outlined.Timer
+        is TimerOption.Photoshoot -> Icons.Outlined.BurstMode
+    }
     Box {
-        IconButton(onClick = { open = true }) {
-            val icon = when (timer) {
-                TimerOption.Off -> Icons.Filled.TimerOff
-                is TimerOption.Delay -> Icons.Filled.Timer
-                is TimerOption.Photoshoot -> Icons.Filled.BurstMode
-            }
-            val label = timer.shortLabel
-            if (label == null) {
-                Icon(icon, contentDescription = description)
-            } else {
-                BadgedBox(badge = { Badge(containerColor = PoseitColors.Violet, contentColor = Color.White) { Text(label) } }) {
-                    Icon(icon, contentDescription = description)
-                }
-            }
-        }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        // The delay itself is shown on the shutter; the inverted disc says a timer is set.
+        RoundControl(icon, description, onClick = { open = true }, active = timer != TimerOption.Off)
+        CameraMenu(expanded = open, onDismissRequest = { open = false }) {
             @Composable
             fun item(text: String, option: TimerOption, icon: ImageVector) = DropdownMenuItem(
                 text = { Text(text) },
                 leadingIcon = { Icon(icon, contentDescription = null) },
-                trailingIcon = { if (timer == option) Icon(Icons.Filled.Check, contentDescription = "Selected") },
+                trailingIcon = { if (timer == option) Icon(Icons.Outlined.Check, contentDescription = "Selected") },
                 onClick = {
                     open = false
                     onTimer(option)
                 },
             )
-            item("Off", TimerOption.Off, Icons.Filled.TimerOff)
-            TimerOption.DELAYS.forEach { s -> item("$s seconds", TimerOption.Delay(s), Icons.Filled.Timer) }
-            HorizontalDivider()
+            item("Off", TimerOption.Off, Icons.Outlined.TimerOff)
+            TimerOption.DELAYS.forEach { s -> item("$s seconds", TimerOption.Delay(s), Icons.Outlined.Timer) }
+            HairlineDivider(Modifier.padding(vertical = Space.xs))
             DropdownMenuItem(
                 text = { Text("Photoshoot…") },
-                leadingIcon = { Icon(Icons.Filled.BurstMode, contentDescription = null) },
-                trailingIcon = { if (timer is TimerOption.Photoshoot) Icon(Icons.Filled.Check, contentDescription = "Selected") },
+                leadingIcon = { Icon(Icons.Outlined.BurstMode, contentDescription = null) },
+                trailingIcon = { if (timer is TimerOption.Photoshoot) Icon(Icons.Outlined.Check, contentDescription = "Selected") },
                 onClick = {
                     open = false
                     onPhotoshoot()
@@ -218,8 +225,8 @@ private fun TimerMenuButton(timer: TimerOption, onTimer: (TimerOption) -> Unit, 
 }
 
 /**
- * Horizontal strip: "All poses" button, a "None" item (plain camera), then favourites and the current
- * category. The selected pose is highlighted and scrolled into view.
+ * Horizontal strip: "All poses", a "None" tile (plain camera), then favourites and the current category, as compact
+ * pose tiles. The selected tile gets a white outline and is scrolled into view.
  */
 @Composable
 internal fun PoseStrip(
@@ -236,42 +243,51 @@ internal fun PoseStrip(
         if (index >= 0) listState.animateScrollToItem((index - 1).coerceAtLeast(0))
     }
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        StripTile(
+        StripActionTile(
+            icon = Icons.Outlined.GridView,
+            label = "All",
+            description = "All poses",
             selected = false,
             onClick = onOpenAll,
-            description = "All poses",
-            modifier = Modifier.padding(start = 12.dp),
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.GridView, contentDescription = null, tint = Color.White)
-                Text("All", color = Color.White, style = MaterialTheme.typography.labelSmall)
-            }
-        }
+            modifier = Modifier.padding(start = Space.m),
+        )
         LazyRow(
             state = listState,
-            contentPadding = PaddingValues(horizontal = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = Space.s),
+            horizontalArrangement = Arrangement.spacedBy(Space.s),
             modifier = Modifier.weight(1f),
         ) {
             item(key = "none") {
-                StripTile(selected = selectedId == null, onClick = { onSelect(null) }, description = "No pose, plain camera") {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Filled.Block, contentDescription = null, tint = PoseitColors.OnSurfaceMuted)
-                        Text("None", color = PoseitColors.OnSurfaceMuted, style = MaterialTheme.typography.labelSmall)
-                    }
-                }
+                StripActionTile(
+                    icon = Icons.Outlined.Block,
+                    label = "None",
+                    description = "No pose, plain camera",
+                    selected = selectedId == null,
+                    onClick = { onSelect(null) },
+                )
             }
             items(poses, key = { it.id }) { pose ->
-                StripTile(selected = pose.id == selectedId, onClick = { onSelect(pose) }, description = pose.name) {
-                    PoseThumbnail(pose, Modifier.fillMaxSize(), showGround = false)
+                val selected = pose.id == selectedId
+                val source = remember { MutableInteractionSource() }
+                PoseTile(
+                    pose = pose,
+                    size = PoseTileSize.Compact,
+                    selected = selected,
+                    onDark = true,
+                    interactionSource = source,
+                    modifier = Modifier
+                        .width(StripTileWidth)
+                        .selectable(selected = selected, interactionSource = source, indication = null, role = Role.Button) { onSelect(pose) }
+                        .semantics { contentDescription = pose.name },
+                ) {
                     if (pose.id in favorites) {
                         Icon(
                             Icons.Filled.Favorite,
                             contentDescription = null,
-                            tint = PoseitColors.Coral,
+                            tint = Studio.Ink,
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
-                                .padding(3.dp)
+                                .padding(Space.xs)
                                 .size(12.dp),
                         )
                     }
@@ -281,29 +297,35 @@ internal fun PoseStrip(
     }
 }
 
+/** A strip tile that isn't a pose ("All", "None"): the same Set tile, with an outlined icon and a short label. */
 @Composable
-private fun StripTile(
+private fun StripActionTile(
+    icon: ImageVector,
+    label: String,
+    description: String,
     selected: Boolean,
     onClick: () -> Unit,
-    description: String,
     modifier: Modifier = Modifier,
-    content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit,
 ) {
-    val shape = RoundedCornerShape(12.dp)
     Box(
         modifier
-            .size(width = 54.dp, height = 72.dp)
-            .clip(shape)
-            .background(PoseitColors.SurfaceHigh.copy(alpha = 0.85f))
-            .border(if (selected) 2.5.dp else 1.dp, if (selected) PoseitColors.Violet else Color.White.copy(alpha = 0.12f), shape)
+            .size(width = StripTileWidth, height = StripTileWidth * 4 / 3)
+            .clip(StudioShapes.Medium)
+            .background(Studio.Set)
+            .then(if (selected) Modifier.border(2.dp, Studio.Mannequin, StudioShapes.Medium) else Modifier)
             .clickable(role = Role.Button, onClick = onClick)
             .semantics {
                 contentDescription = description
                 this.selected = selected
             },
         contentAlignment = Alignment.Center,
-        content = content,
-    )
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(icon, contentDescription = null, tint = Studio.Ink, modifier = Modifier.size(StudioIconSize))
+            Spacer(Modifier.height(Space.xs))
+            Text(label, color = Studio.Ink, style = StudioType.label, maxLines = 1)
+        }
+    }
 }
 
 /** Last photo (opens the gallery), the shutter and the lens switch. */
@@ -321,7 +343,7 @@ internal fun ShutterRow(
     Row(
         modifier
             .fillMaxWidth()
-            .padding(horizontal = 36.dp, vertical = 10.dp),
+            .padding(horizontal = Space.section, vertical = Space.m),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -331,14 +353,17 @@ internal fun ShutterRow(
     }
 }
 
+/** Diameter of the round controls beside the shutter. */
+private val ShutterSideSize = 52.dp
+
 @Composable
 private fun GalleryThumb(lastPhoto: Uri?, onClick: () -> Unit) {
     Box(
         Modifier
-            .size(52.dp)
+            .size(ShutterSideSize)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.12f))
-            .border(2.dp, Color.White, CircleShape)
+            .background(Studio.ControlScrim)
+            .then(if (lastPhoto != null) Modifier.border(1.5.dp, Studio.Mannequin, CircleShape) else Modifier)
             .clickable(role = Role.Button, onClickLabel = "Open gallery", onClick = onClick)
             .semantics { contentDescription = "Open gallery" },
         contentAlignment = Alignment.Center,
@@ -348,19 +373,30 @@ private fun GalleryThumb(lastPhoto: Uri?, onClick: () -> Unit) {
                 model = lastPhoto,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(1.5.dp)
+                    .clip(CircleShape),
             )
         } else {
-            Icon(Icons.Filled.PhotoLibrary, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
+            Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, tint = Studio.Mannequin, modifier = Modifier.size(StudioIconSize))
         }
     }
 }
 
+/**
+ * The shutter: a white ring around a white disc. It shows the self-timer delay (or the photoshoot count) as a
+ * numeral, and an Ink stop square while a timer or photoshoot runs.
+ */
 @Composable
 private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing: Boolean, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (pressed || capturing) 0.88f else 1f, label = "shutterScale")
+    val scale by animateFloatAsState(
+        if (pressed || capturing) 0.88f else 1f,
+        tween(durationMillis = 150, easing = FastOutSlowInEasing),
+        label = "shutterScale",
+    )
     val description = when {
         sessionActive -> "Stop timer"
         timer != TimerOption.Off -> "Start timer"
@@ -369,17 +405,17 @@ private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing:
     Box(
         Modifier
             .size(80.dp)
-            .border(4.dp, Color.White, CircleShape)
-            .padding(8.dp)
+            .border(4.dp, Studio.Mannequin, CircleShape)
+            .padding(Space.s)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
             .clip(CircleShape)
-            .background(if (sessionActive) Color.White.copy(alpha = 0.9f) else Color.White)
+            .background(Studio.Mannequin)
             .clickable(
                 interactionSource = interaction,
-                indication = ripple(color = PoseitColors.Violet),
+                indication = ripple(color = Studio.Ink),
                 role = Role.Button,
                 onClickLabel = description,
                 onClick = onClick,
@@ -391,15 +427,19 @@ private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing:
             sessionActive -> Box(
                 Modifier
                     .size(24.dp)
-                    .background(PoseitColors.Red, RoundedCornerShape(6.dp)),
+                    .background(Studio.Ink, StudioShapes.Small),
             )
-            timer.shortLabel != null -> Text(
-                timer.shortLabel.orEmpty(),
-                color = PoseitColors.Background,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                maxLines = 1,
-                overflow = TextOverflow.Clip,
-            )
+            timer.shortLabel != null -> {
+                // Inside the fixed shutter graphic: sized in dp so it always fits the disc.
+                val size = with(LocalDensity.current) { 18.dp.toSp() }
+                Text(
+                    timer.shortLabel.orEmpty(),
+                    color = Studio.Ink,
+                    style = StudioType.numeral(size),
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                )
+            }
         }
     }
 }
@@ -407,12 +447,16 @@ private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing:
 @Composable
 private fun FlipLensButton(onClick: () -> Unit) {
     var turns by remember { mutableFloatStateOf(0f) }
-    val rotation by animateFloatAsState(turns * 180f, label = "flipRotation")
+    val rotation by animateFloatAsState(
+        turns * 180f,
+        tween(durationMillis = 220, easing = FastOutSlowInEasing),
+        label = "flipRotation",
+    )
     Box(
         Modifier
-            .size(52.dp)
+            .size(ShutterSideSize)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.14f))
+            .background(Studio.ControlScrim)
             .clickable(role = Role.Button, onClickLabel = "Switch camera") {
                 turns += 1f
                 onClick()
@@ -421,11 +465,11 @@ private fun FlipLensButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            Icons.Filled.Cameraswitch,
+            Icons.Outlined.Cameraswitch,
             contentDescription = null,
-            tint = Color.White,
+            tint = Studio.Mannequin,
             modifier = Modifier
-                .size(26.dp)
+                .size(StudioIconSize)
                 .graphicsLayer { rotationY = rotation },
         )
     }

@@ -156,7 +156,7 @@ class CameraInteractionTest {
             byText("Photoshoot…").performClick()
             compose.waitForText("Number of photos")
             shot("photoshoot-dialog")
-            byText("Set").performClick()
+            byText("Set photoshoot").performClick()
             settle(500)
             // Back to no timer, then a manual shot with no bound camera.
             byDesc("Photoshoot", substring = true).performClick()

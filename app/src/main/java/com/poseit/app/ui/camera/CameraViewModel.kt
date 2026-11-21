@@ -430,7 +430,7 @@ class CameraViewModel(
             _ui.update { it.copy(sceneLock = null) }
         } else {
             sceneLockRequested = true
-            _events.trySend(CameraEvent.Message("Background locked – line the live picture up with the faded one"))
+            _events.trySend(CameraEvent.Message("Background locked. Line up the live picture with the faded one."))
         }
     }
 
@@ -496,7 +496,7 @@ class CameraViewModel(
             ?: safely { poseRepository.builtIn.firstOrNull() }
         if (userChosePose) return // the user picked something while we were still looking
         if (initialPoseId != null && requested == null) {
-            _events.trySend(CameraEvent.Message("That pose isn't available, showing another one"))
+            _events.trySend(CameraEvent.Message("That pose isn't available. Showing another one."))
         }
         applyPose(pose, markUsed = pose != null)
         val mirrored = initialMirrored && requested != null
@@ -638,7 +638,7 @@ class CameraViewModel(
         } catch (e: Throwable) {
             Log.e(TAG, "Pose detector could not be created", e)
             _ui.update { it.copy(detectorError = "Pose detection is unavailable. The camera still works.") }
-            _events.trySend(CameraEvent.Message("Pose detection couldn't start – the camera still works"))
+            _events.trySend(CameraEvent.Message("Pose detection couldn't start. You can still take photos."))
             return@withContext
         }
         if (!isActive || !installDetector(created)) safely { created.close() }
@@ -688,7 +688,7 @@ class CameraViewModel(
         val now = SystemClock.uptimeMillis()
         if (lastDetectorErrorAt != Long.MIN_VALUE && now - lastDetectorErrorAt < DETECTOR_ERROR_GAP_MS) return
         lastDetectorErrorAt = now
-        _events.trySend(CameraEvent.Message("Pose detection hiccup – still trying"))
+        _events.trySend(CameraEvent.Message("Pose detection stalled. Trying again."))
     }
 
     // ------------------------------------------------------------------ pipeline
@@ -909,7 +909,7 @@ class CameraViewModel(
             throw e
         } catch (e: Throwable) {
             Log.e(TAG, "Capture failed", e)
-            _events.trySend(CameraEvent.Message("Couldn't save the photo. Please try again."))
+            _events.trySend(CameraEvent.Message("Couldn't save the photo. Try again."))
         } finally {
             _ui.update { it.copy(capturing = false) }
         }

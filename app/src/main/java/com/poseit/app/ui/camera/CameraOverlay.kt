@@ -20,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
@@ -47,18 +46,24 @@ import com.poseit.app.ui.components.FigurePaint
 import com.poseit.app.ui.components.FigureStyle
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.fitFrameRect
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.components.drawFrameMarks
+import com.poseit.app.ui.theme.Studio
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-/** |roll| below this counts as level (horizon turns mint). */
+/** |roll| below this counts as level (the horizon joins its side marks). */
 private const val LEVEL_TOLERANCE_DEG = 1.5f
 
 /** Opacity of the background-match snapshot. */
 private const val SCENE_LOCK_ALPHA = 0.4f
 
-private val LiveSkeletonColor = Color(0xFF9E86FF)
+/** The detected body as thin white lines, quieter than the guide figure. */
+private const val LIVE_SKELETON_ALPHA = 0.7f
+
+/** Viewfinder white for the grid, level and focus marks, with a faint black line under it for bright scenes. */
+private val MarkWhite = Studio.Mannequin
+private val MarkShade = Studio.LiveView.copy(alpha = 0.18f)
 
 internal fun OverlayStyle.toFigureStyle(): FigureStyle = when (this) {
     OverlayStyle.SILHOUETTE -> FigureStyle.SILHOUETTE
@@ -215,11 +220,11 @@ private fun DrawScope.drawTemplateFigures(
     figures.forEachIndexed { i, figure ->
         val figureMatch = match?.figures?.getOrNull(i)
         val partColors = if (figureMatch?.detectedIndex != null) {
-            figureMatch.partScores.mapValues { (_, score) -> PoseitColors.forScore(score) }
+            figureMatch.partScores.mapValues { (_, score) -> Studio.forScore(score, onDark = true) }
         } else {
             emptyMap()
         }
-        val neutral = PoseitColors.FigureTints[i % PoseitColors.FigureTints.size]
+        val neutral = Studio.FigureTones[i % Studio.FigureTones.size]
         drawPoseFigure(
             skeleton = figure,
             aspect = aspect,
@@ -235,8 +240,8 @@ private fun DrawScope.drawLiveSkeletons(people: List<Skeleton>, aspect: Float, f
     val rect = Rect(Offset.Zero, size)
     val paint = FigurePaint(
         style = FigureStyle.STICK,
-        fill = LiveSkeletonColor,
-        alpha = 0.9f,
+        fill = Studio.Mannequin,
+        alpha = LIVE_SKELETON_ALPHA,
         strokeWidthPx = 2.5.dp.toPx(),
         showFaceMarker = false,
     )
@@ -304,8 +309,8 @@ private fun DrawScope.drawSceneLock(image: ImageBitmap, flipX: Boolean) {
 
 private fun DrawScope.drawGrid(type: GridType) {
     if (type == GridType.NONE) return
-    val line = Color.White.copy(alpha = 0.42f)
-    val shadow = Color.Black.copy(alpha = 0.18f)
+    val line = MarkWhite.copy(alpha = 0.42f)
+    val shadow = MarkShade
     val w = 1.dp.toPx()
     fun vertical(x: Float) {
         drawLine(shadow, Offset(x + w, 0f), Offset(x + w, size.height), w)
@@ -334,35 +339,48 @@ private fun DrawScope.drawGrid(type: GridType) {
     }
 }
 
-/** Horizon line rotated against the device roll, between two fixed reference ticks; mint when level. */
+/**
+ * Horizon line rotated against the device roll, between two fixed side marks. When the phone is level the line
+ * snaps straight and joins the marks into one solid line, so the state is shown by shape, not by colour.
+ */
 private fun DrawScope.drawLevel(tilt: DeviceTilt) {
     // Lying flat (camera pointing at the floor/sky) the roll is meaningless.
     if (abs(tilt.pitchDegrees) > 70f || !tilt.rollDegrees.isFinite()) return
     val roll = tilt.rollDegrees
     val level = abs(roll) < LEVEL_TOLERANCE_DEG
-    val color = if (level) PoseitColors.Mint else Color.White
     val half = size.minDimension * 0.15f
     val gap = 8.dp.toPx()
     val tick = 14.dp.toPx()
     val stroke = 2.dp.toPx()
+    val shade = stroke + 2.dp.toPx()
     val c = center
-    val ref = Color.White.copy(alpha = if (level) 0.9f else 0.55f)
-    drawLine(ref, Offset(c.x - half - gap - tick, c.y), Offset(c.x - half - gap, c.y), stroke, cap = StrokeCap.Round)
-    drawLine(ref, Offset(c.x + half + gap, c.y), Offset(c.x + half + gap + tick, c.y), stroke, cap = StrokeCap.Round)
-    rotate(degrees = -roll.coerceIn(-45f, 45f), pivot = c) {
-        drawLine(Color.Black.copy(alpha = 0.3f), Offset(c.x - half, c.y), Offset(c.x + half, c.y), stroke + 2.dp.toPx(), cap = StrokeCap.Round)
-        drawLine(color, Offset(c.x - half, c.y), Offset(c.x + half, c.y), stroke, cap = StrokeCap.Round)
+    val outer = half + gap + tick
+    if (level) {
+        drawLine(MarkShade, Offset(c.x - outer, c.y), Offset(c.x + outer, c.y), shade, cap = StrokeCap.Round)
+        drawLine(MarkWhite, Offset(c.x - outer, c.y), Offset(c.x + outer, c.y), stroke, cap = StrokeCap.Round)
+    } else {
+        val ref = MarkWhite.copy(alpha = 0.55f)
+        drawLine(ref, Offset(c.x - outer, c.y), Offset(c.x - half - gap, c.y), stroke, cap = StrokeCap.Round)
+        drawLine(ref, Offset(c.x + half + gap, c.y), Offset(c.x + outer, c.y), stroke, cap = StrokeCap.Round)
+        rotate(degrees = -roll.coerceIn(-45f, 45f), pivot = c) {
+            drawLine(MarkShade, Offset(c.x - half, c.y), Offset(c.x + half, c.y), shade, cap = StrokeCap.Round)
+            drawLine(MarkWhite, Offset(c.x - half, c.y), Offset(c.x + half, c.y), stroke, cap = StrokeCap.Round)
+        }
     }
-    drawCircle(color, radius = 2.5.dp.toPx(), center = c)
 }
 
+/**
+ * Tap-to-focus mark: viewfinder corner brackets (the Studio frame marks) that close in on the point, hold, then
+ * fade out.
+ */
 private fun DrawScope.drawFocusRing(point: Offset, progress: Float) {
     val shrink = progress.coerceIn(0f, 1f)
     val alpha = (2f - progress).coerceIn(0f, 1f)
     if (alpha <= 0f) return
     val from = 44.dp.toPx()
-    val radius = from + (30.dp.toPx() - from) * shrink
-    drawCircle(Color.Black.copy(alpha = 0.25f * alpha), radius = radius, center = point, style = Stroke(3.dp.toPx()))
-    drawCircle(PoseitColors.Amber.copy(alpha = alpha), radius = radius, center = point, style = Stroke(1.5.dp.toPx()))
-    drawCircle(PoseitColors.Amber.copy(alpha = alpha), radius = 2.dp.toPx(), center = point)
+    val half = from + (30.dp.toPx() - from) * shrink
+    val box = Rect(point.x - half, point.y - half, point.x + half, point.y + half)
+    val length = 12.dp.toPx()
+    drawFrameMarks(box.inflate(1.dp.toPx()), MarkShade.copy(alpha = MarkShade.alpha * alpha), 3.5.dp.toPx(), length + 2.dp.toPx())
+    drawFrameMarks(box, MarkWhite.copy(alpha = alpha), 1.5.dp.toPx(), length)
 }
