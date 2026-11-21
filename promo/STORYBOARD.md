@@ -3,6 +3,11 @@
 Vertical 1080x1920, 30 fps, 664 frames (22.13 s), with sound. Music-led now; the voice-over in `vo.txt` drops in
 later without re-cutting (the picture is locked to the music grid, see `sound-plan.md`). Built in Remotion.
 
+**As built:** the film follows this plan with eleven changes, each listed with its reason in `NOTE.md` ("Changed from
+the storyboard"). The biggest: act III follows what the app's own matcher, stabiliser and capture coach return for the
+keyframed body, so the arm is coached before the step back, and B7 ends on the app's capture frame (f554, not f560).
+`src/events.ts` has every built frame.
+
 Frame numbers are at 30 fps. Positions are fractions of the frame (x right, y down); W = 1080 px, H = 1920 px.
 Type sizes are em as a fraction of H.
 

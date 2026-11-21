@@ -206,6 +206,9 @@ export const theme = {
     countdown: 96, // CountdownSize, Expanded Bold, Mannequin with an Ink 55% contour of 6 dp
     countdownContour: 6,
     scrim: "rgba(0, 0, 0, 0.45)", // Studio.ControlScrim
+    guideAlpha: 0.55, // the template guide over the camera: SettingsRepository overlayOpacity default
+    liveAlpha: 0.7, // the live skeleton: CameraOverlay LIVE_SKELETON_ALPHA
+    liveStroke: 2.5, // dp, the live skeleton's line width
   },
   grid,
   ease,

@@ -9,18 +9,22 @@ export const BEATS = {
   B4: { from: 272, to: 336, role: "turn", world: "studio" },
   B5: { from: 336, to: 400, role: "proof", world: "liveView" },
   B6: { from: 400, to: 464, role: "proof", world: "liveView" },
-  B7: { from: 464, to: 560, role: "proof", world: "liveView" },
-  B8: { from: 560, to: 664, role: "cta", world: "studio" },
+  B7: { from: 464, to: 554, role: "proof", world: "liveView" },
+  B8: { from: 554, to: 664, role: "cta", world: "studio" },
 } as const;
 
 export type BeatId = keyof typeof BEATS;
 
-/** Acts (one world each): the two cuts between worlds are at f80 and f336, the flash at f560. */
+/**
+ * Acts (one world each): the two cuts between worlds are at f80 and f336, the capture flash at f554. B7 ends on the
+ * app's real capture frame (match.json: hold 700 ms from f443, then the 3 s countdown from f464), not the storyboard's
+ * f560: the countdown runs at the app's real speed (30 f per digit) instead of on the half notes.
+ */
 export const ACTS = {
   I: { from: 0, to: 80 },
   II: { from: 80, to: 336 },
-  III: { from: 336, to: 560 },
-  IV: { from: 560, to: 664 },
+  III: { from: 336, to: 554 },
+  IV: { from: 554, to: 664 },
 } as const;
 
 /** B3 chorus snaps (storyboard): category -> frame. */
@@ -38,10 +42,13 @@ export const CHORUS = [
   { category: "GROUP", at: 240 },
 ] as const;
 
-/** The hook's word onsets (B1). */
+/**
+ * The hook's word onsets (B1): 4-6 f apart (headline rhythm) with the longer gap before the key word. "What" starts
+ * before frame 0 so the film opens already moving, the first word half-risen.
+ */
 export const HOOK_WORDS = [
-  [{ text: "What", at: 2 }, { text: "do", at: 6 }, { text: "I", at: 10 }, { text: "do", at: 14 }],
-  [{ text: "with", at: 20 }, { text: "my", at: 24 }, { text: "hands?", at: 33 }],
+  [{ text: "What", at: -3 }, { text: "do", at: 2 }, { text: "I", at: 6 }, { text: "do", at: 10 }],
+  [{ text: "with", at: 16 }, { text: "my", at: 20 }, { text: "hands?", at: 29 }],
 ];
 
 /** Real strings (pose-core MatchHints.kt, FunPoses.kt, the social preview). */

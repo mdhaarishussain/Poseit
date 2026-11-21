@@ -3,11 +3,13 @@
 The plan is in `STORYBOARD.md`, the sound in `sound-plan.md` and the voice-over script in `vo.txt`. This file says
 what is built, what is real and what is illustrative, and records what was checked. It grows with the film.
 
-## Status: foundation
+## Status: picture built, no sound yet
 
-The Remotion project, the real pose data, the mannequin renderer, both worlds, the camera HUD parts and the motion
-helpers are in place. `Promo` is still a scaffold: each act shows its world, and B1 shows the hook over the stiff
-skeleton. The scenes come next.
+Every beat of the storyboard is built in `src/scenes/` and assembled in `Promo` (664 f, 22.13 s, 1080 x 1920). The act
+III numbers, colours, cards, hold and countdown are the app's own verdicts: the app's PoseMatcher, HintStabilizer and
+CaptureCoach run frame by frame over the keyframed body in a JVM test. The picture events are exported for the
+sound stage in `src/events.ts`. Sound is next: the SFX kit and the music bed are synthesized from `src/events.ts`,
+and the voice-over (`vo.txt`) waits for an ElevenLabs key.
 
 ## Run it
 
@@ -16,7 +18,9 @@ cd promo
 npm install
 npm run poses        # re-export public/poses.json from pose-core (only after the pose library changes)
 npm run assets       # copy the app's screenshots into public/screens/ (gitignored, used by UiFragment)
-npm run check        # typecheck + parity of the TS mannequin geometry against pose-core's FigureShapes
+npm run check        # typecheck + mannequin parity against pose-core + live.json is in step with the performer
+npm run match        # after editing the performer: export public/live.json, run the app's matcher -> public/match.json
+npm run events       # print the picture events (src/events.ts) to out/events.json for the sound stage
 npm run studio       # Remotion Studio
 npx remotion still src/index.ts Promo out/f.png --frame 40
 npm run draft        # half-size draft to out/draft.mp4
@@ -37,6 +41,9 @@ python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13
 | `src/world/` | `camera.ts` is the studio camera: perspective, the lattice, placing poses, zooming about a point, lens shift. `StudioPaper.tsx` is the per-pixel lit seamless paper. `StudioFigures.tsx` draws figures depth-sorted, with contact shadows and depth blur and haze. `ContactShadow.tsx`, `LiveView.tsx` (black live view, thirds grid, sensor noise) and `Grain.tsx` complete the worlds. |
 | `src/ui/` | `Hud.tsx` holds the cue card, score ring, countdown numeral, frame marks and capture flash, rebuilt from `CameraHud.kt`. `UiFragment.tsx` shows a real screenshot magnified by the camera. |
 | `src/motion/` | `index.ts` has tween, keys, land, leave, arrive, focusIn, snapTail, drift, stepCounter, onTwos and sway. Every curve is eased and clamped. `WordReveal.tsx` reveals whole words at speech rhythm. `CameraGroup.tsx` puts the film camera on one transform. |
+| `src/scenes/` | The film. `Hook.tsx` (B1), `StudioShot.tsx` (B2-B4, one continuous shot), `Viewfinder.tsx` (B5-B7), `TheName.tsx` (B8). `shots.ts` solves every seam from the shot on the other side (the hook frame, the guide frame, the act III film camera). `timing.ts` holds the hand-set frames. `studio/camera.ts` is the act II camera (the match zoom, the dolly and truck, the scale cut, the push solved per frame onto the guide's frame, the depth of field that follows the hero). `studio/chorus.ts` is what each of the 99 slots shows at each frame. `viewfinder/rig.ts` is the app's 9:16 scene space and forward kinematics, `viewfinder/performer.ts` the keyframed live body, `viewfinder/match.ts` the app's verdicts read from `public/match.json`. |
+| `src/events.ts` | Every picture event with its frame (cuts, snaps, the three hits, the two silences), derived from the sources above, for the sound stage. |
+| `scripts/export-live.ts`, `../app/src/test/java/com/poseit/app/promo/PromoMatchExport.kt` | The live-match pipeline: the performer and the guide in scene space -> `public/live.json` -> the app's PoseMatcher + HintStabilizer + CaptureCoach at 30 fps (app defaults: strictness 0.80, 700 ms hold, 3 s countdown, front camera) -> `public/match.json`. |
 | `src/dev/` | Check compositions (`Dev-*`), rendered as stills: the figure sheet, blends, the studio, the viewfinder and the end frame. They are not part of the film. |
 | `scripts/check-shapes.ts` | Checks the TS geometry against Kotlin for every figure. |
 | `../pose-core/src/test/kotlin/com/poseit/app/tools/PromoPoseExport.kt` | Writes `public/poses.json`. |
@@ -55,13 +62,143 @@ python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13
     MatchHints.kt; "Disco point"; "Free for Android. Works offline.").
   - The HUD sizes from CameraHud.kt: the 56 dp ring with a 2 dp ring and a 4 dp hold arc, cue card padding
     16/12 dp with an 8 dp dot, and the 96 sp countdown with a 6 dp contour.
+  - **Every act III verdict.** The score and badge percent, each limb's colour, which card is shown and when, the
+    hold arc, the countdown seconds and the capture frame are what the app's own PoseMatcher, HintStabilizer and
+    CaptureCoach return, frame by frame at 30 fps, for the keyframed body against the Disco point guide in the
+    app's 9:16 scene space with the app's defaults (`public/match.json`, written by `PromoMatchExport.kt`). The
+    matched score is 95-96 and moves by a point as the raised arm drifts.
+  - The overlay paint (CameraOverlay.kt): the guide at the default 55% overlay opacity, neutral white until a person
+    is assigned, then `forScore` per limb; the live skeleton in the stick style at 70%, 2.5 dp, visible joints only.
+  - The HUD's motion (CameraHud.kt, CameraScreen.kt): hint cards crossfade (180 ms in, 120 ms out); the banner is
+    removed when the countdown starts; each digit lands from 115% over 200 ms with a 150 ms fade while the last one
+    fades in 100 ms; the countdown sits at the preview's centre; the capture flash snaps to 85% white and decays over
+    280 ms (LinearOutSlowIn).
 - **Rebuilt (declare in the film's notes):** the camera HUD. It is drawn from the app's tokens and code, not
-  screen-captured, and magnified by `theme.hud.k` = 1.95, so cue text is 0.04 H.
+  screen-captured, and magnified by `theme.hud.k` = 1.95, so cue text is 0.04 H. Its vertical arrangement (card on
+  top, ring at the right below it) is the film's; the app stacks the ring above the card at the top right.
 - **Illustrative:**
   - The stiff stance and its wrist flick (`promo_stiff`, `promo_stiff_flick`). They are built with the app's pose
     DSL but are not library poses.
-  - The studio, its 11 x 9 lattice and its light.
-  - The person's skeleton keyframes, once built.
+  - The studio, its 11 x 9 lattice (even rows staggered half a column) and its light.
+  - The live body: `src/scenes/viewfinder/performer.ts` is hand-keyframed (the hook's stiff stance too close, the
+    left arm's sweep, the hip hand, two steps back that cross the legs, breathing), not a recording. Its joint
+    visibility is MediaPipe-like (high inside the image, low past the edge). The app's verdicts above are real for
+    this body.
+
+## The film as built
+
+| Beat | Frames | Buys | What is on screen |
+|---|---|---|---|
+| B1 hook | 0-79 | Recognition: the viewer sees their own freeze. | The live stick skeleton stands stiff in the black viewfinder and fidgets; "What do I do / with my hands?" rises a word at a time (What f-3 ... hands? f29); the wrists flick up (f29-38) and flop back (f38-46); the awkward pause; film camera 1.00 -> 1.04. |
+| B2 turn | 80-111 | The joke: everyone freezes like you. | Hard cut on the downbeat: the hero lay figure takes the skeleton's exact frame (a lens zoom solved from the hook's frame); a one-frame snap to 0.7 of that zoom at f81 and a softLand to the wide framing by f100: 99 stiff lay figures on lit seamless paper. |
+| B3 proof | 112-271 | Abundance, counted without a number. | Eleven category snaps (on beats, then an eighth-note ripple three rows per frame, then couples and groups), every slot a different pose of the category, each set down from about 2% H; a two-push dolly (0.85 m) and a 0.45 m truck; f248-271 the group crowd holds (the drop). |
+| B4 turn | 272-335 | Choice: one pose picked out of all of them. | All 99 in Disco point with a one-frame scale cut; f288 the detail screen's frame marks snap around the hero, "Disco point" resolves under them and the focus racks onto its row; f304-335 an accelerating push (2.5 m dolly, lens solved every frame onto the guide's frame); the marks open out past the frame edges and the name leaves under the bottom edge. |
+| B5 proof | 336-399 | The camera sees you and says what to change. | Match cut: the picked figure becomes the see-through guide (within 2.6% of its size and place), the push lands by f342; f343 the body is found (ring 23, red); f355 "Raise your left arm"; the arm sweeps up (the film's one spring, overshoot peak f383), the right hand comes to the hip; the guide's left arm turns green at f376, the ring amber at f377. |
+| B6 proof | 400-463 | The match: it catches the feet and locks when you fit. | f400 "Your feet are cut off. Step back"; two steps back (f418, f440) that cross the legs; f443 the feet are in, the score reaches the threshold (90), every limb green, the ring turns green and its hold arc runs round; f455 "Perfect. Hold it". |
+| B7 proof | 464-553 | Hands-free: nobody touches the phone. | The card is removed and the countdown runs at the app's speed: 3 (f464), 2 (f494), 1 (f524); the score holds at 95-96; the film camera creeps 1.03 -> 1.07 and steps 2% on each digit; f546-553 half a beat of stillness. |
+| B8 cta | 554-663 | The name, free on Android. | The app's capture flash over the new ground: the same figure, solid, at the guide's frame on paper (the photo); f576-588 it relaxes on twos into the launcher pose; f600-624 the camera pulls back to the cove; f620 "Poseit" lands; f628-645 "Free for Android. / Works offline." resolves; resolved hold to the end. |
+
+### Changed from the storyboard, and why
+
+1. **Act III order follows the app.** The storyboard had "Step back" before "Raise your left arm". Given the stiff body
+   standing too close, the app's matcher says "Raise your left arm" first: a pose hint at severity 0.90 outranks the
+   cut-off feet at 0.62. So the film goes arm first, then the step back, then the lock. B6 (importance 3) is now the
+   step back into the outline and the lock.
+2. **Cut-off legs stay green.** The matcher scores only the segments it sees, so the guide's legs do not turn red
+   while the feet are out of frame. The cut-off shows in the score (about 60) and the amber ring. The storyboard's
+   "legs turn red, amber, green" is not what the app does, so it is not in the film.
+3. **Act III runs on the app's clock.** Cards appear when the HintStabilizer shows them (400 ms on top, then at least
+   1500 ms up), the hold is 700 ms and the countdown is 1 s (30 f) per digit, not the 32 f half note, so B7 ends at
+   f554, not f560. The body's motion was tuned so the arm card lands at f355, the feet card on the f400 downbeat and
+   the countdown on the f464 downbeat. As a result "Perfect. Hold it" is up for 9 frames before the countdown
+   removes it, as in the app; the lock reads from the green guide, the ring and its hold arc.
+4. **The HUD moves like the app:** crossfading cards, digits from 115%, the banner removed at the countdown, the
+   85% / 280 ms flash. The storyboard had a drop-in card, digits from 1.5x, a sliding card exit and 2 white frames.
+5. **The countdown is centred at 0.5 H**, where CameraScreen aligns it (the storyboard had 0.60 H).
+6. **The lattice's even rows are staggered half a column**, so nobody stands directly in front of the hero: it is
+   whole on the f80 match cut and at the pick.
+7. **The frame marks leave before the cut.** They open out past the frame edges instead of parking at the frame
+   corners, which would read as the corner-bracket chrome motionmaxxing forbids.
+8. **A rack focus at the pick** (f288-296) isolates the hero's row; the army behind softens further on the push.
+9. **The B8 lockup is 8-12 f later** (wordmark f620, end line f628-645) so the end hold measures 1.30 s, inside G3.
+10. **The hook's first word starts at f-3**, so frame 0 opens already moving.
+11. **The chorus moves more:** a 2% H set-down (not 1%), a 0.85 m dolly and a 0.45 m truck for row parallax (the
+    storyboard's 1.00 -> 1.08 measured too little motion between snaps).
+
+## Review (look.py on the half-scale draft)
+
+```bash
+npx remotion render src/index.ts Promo out/draft.mp4 --scale 0.5 --codec h264 --crf 20
+python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out out/look-draft4 --expect 22.13
+```
+
+Four drafts. Draft 1: the guide's arm and the matched body disagreed by about 20 degrees at a score of 93; the end
+hold was 1.67 s; row 0 hid the hero's legs on the match cut; the first frame of every fade was blank. Draft 2:
+spread the matched body's error so it lines up at 95-96; staggered the rows; fades start one frame in. Draft 3:
+re-timed the lockup (G3 passed). Draft 4: more camera travel in the chorus, the countdown creep, the marks leaving
+before the cut.
+
+**Computed gates (draft 4):**
+- G0 render exists: PASS. 22.13 s, 664 frames, matches `--expect 22.13`. No audio yet (not planned at this stage).
+- G2 no empty frame: PASS. No run of more than 3 flat frames.
+- G3 end card: PASS. End hold 1.30 s (0.6-1.4). The final shot, 18.47-22.13 s, is 3.67 s, 17% of the film
+  (limit 25%).
+
+**Gates judged by eye** (sheet, mid, strips and full-size stills of f79, f80, f272, f296, f460, f663):
+- G1 proof readable: cue text 0.04 H on cards 0.5-0.75 W, the score numeral 0.048 H, the countdown 0.26 H, the pose
+  name 0.045 H. The viewfinder is the whole frame, in its own world (black live view, grid, sensor noise).
+- G4 one hero per frame: the skeleton with its question; the army as one mass; the framed figure with its name; the
+  guide and skeleton as one unit with the card and ring; the figure, then the lockup. There are no side-by-side
+  panels.
+- G5 no page chrome: there are no corner labels, counters, timecodes, progress bars, tracked caps or kickers.
+  `lint.mjs` reads HTML films, so it does not apply to this Remotion film. The ring and the cards are the product's
+  UI. The frame marks belong to the figure and leave before the cut.
+
+**Motion:** the mean frame-to-frame luma change is 2.8/255, below the human band (median 6.8, IQR 4.4-9.8).
+
+| Stretch | Luma change (96 px wide) | Why |
+|---|---|---|
+| B1 | 1.1 | The awkward silence, by design. |
+| B2 | 7.1 | |
+| B3 | 3.2 | Median 1.1 between snaps. |
+| B4 hold | 1.1 | The read. |
+| B4 push | 6.6 | |
+| B5 | 1.5 | |
+| B6 | 1.8 | |
+| B7 | 0.7 | The held pose. |
+| B8 | 0.6-1.1 | Ending small. |
+
+The film is a quiet joke around one loud chorus.
+
+**The sheet, one sentence a frame (draft 4):**
+1. 0.67 s: the black viewfinder, the stiff stick skeleton, "What do I do / with my" rising.
+2. 2.07 s: the whole question over the stiff body.
+3. 3.43 s: 99 stiff lay figures in staggered rows on lit seamless paper.
+4. 4.83 s: the army snapped into leaning and walking poses.
+5. 6.20 s: another category, a dense crowd.
+6. 7.60 s: couples, two figures per slot in white and grey tones.
+7. 8.97 s: groups; the darker crowd holds in the drop.
+8. 10.37 s: the framed hero against a racked-soft army, "Disco point" under it.
+9. 11.73 s: the stiff body too close; the guide's arms red, the rest green; ring 25.
+10. 13.13 s: "Raise your left arm"; the arm is up, the hand on the hip; ring 60, amber.
+11. 14.50 s: "Your feet are cut off. Step back"; stepping back; ring 70.
+12. 15.90 s: "3" over the matched body; ring 95, green.
+13. 17.27 s: "2"; ring 96.
+14. 18.67 s: the photo: the same Disco point as a solid lay figure on paper.
+15. 20.03 s: relaxed into hand-on-hip as the camera pulls back.
+16. 21.43 s: the lockup resolving: the figure, "Poseit", the end line.
+
+**What I would still improve:**
+- The group crowd (f240-271), in the app's darker person tones, reads as a heavy grey mass.
+- "Perfect. Hold it" is up for only 9 frames (true to the app), too short to read on its own.
+- The countdown numeral covers the guide's head (true to the app's centred placement).
+- Cards and digits cross-fade with 3-4 frames of overlap (the app's AnimatedContent), which looks busy in stills.
+- B7 is the stillest stretch; the sound has to carry the build.
+- Figures are camera-facing cards, so a figure very near the camera stands taller than true perspective. This shows
+  only on the push, out of focus.
+- The f272 unison frame has the soft front row across its lower third; a higher unison framing might make a
+  stronger screenshot.
+- Not done in this step: the full-size render, the sound and the voice.
 
 ## Choices and findings for the scene builder
 
@@ -92,9 +229,8 @@ python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13
   from 12 o'clock that fills while the pose is held before the photo. The storyboard's "arc closes to the score" is
   the hold arc, so drive `hold` (0..1) for "the ring closes".
 - **Cue card weight:** the app uses Archivo Medium (bodyStrong), not Regular. The theme follows the app.
-- **Cue card size:** at the app's proportions, a two-line card at 0.04 H text is about 320 px tall (y 0.135 to
-  0.30 H). It overlaps the ring at the storyboard's (0.83 W, 0.33 H). Either lower the ring to about 0.36 H or start
-  the card higher. This needs deciding before B5.
+- **Cue card size:** at the app's proportions, a two-line card at 0.04 H text is about 350 px tall. Decided: the
+  card's top at 0.13 H and the ring at (0.83 W, 0.40 H), clear of the two-line card and of the raised arm.
 - **Thirds grid:** the default is the storyboard's 20% white at 2 px. The app draws 42% at 1 dp with a shade line;
   pass `gridColor` to compare.
 - **Render speed:** in this container, 96 studio frames (99 figures plus paper) render at full size in about 24 s,

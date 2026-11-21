@@ -5,6 +5,14 @@ Film: 664 frames at 30 fps (22.13 s), see `STORYBOARD.md`. All audio is synthesi
 written (`vo.txt`) but not voiced: no fake or placeholder voice goes into the mix. When a key arrives, the VO drops
 into the windows below and the music is ducked under it; the picture does not move.
 
+## As built
+
+`src/events.ts` is the source of truth for every picture frame (print it with `npm run events`, which writes
+`out/events.json`): the cuts, every chorus snap including the ripple, the three hits and the two silences. The act III
+frames come from the app's own PoseMatcher, HintStabilizer and CaptureCoach (`public/match.json`), so they changed from
+the plan: the cards land at f355, f400 and f455, the lock at f443, the digits every 30 f from f464, the shutter at f554.
+The tables below are updated to the build. The wordmark lands at f620 (no sound, as planned).
+
 ## Music
 
 **Character.** A dry, playful studio-disco groove: four-on-the-floor kick (soft and round, not club-heavy), offbeat
@@ -25,10 +33,10 @@ and pose snap is on a multiple of 8 f. Half notes (32 f, 1.07 s) carry the count
 | 248-272 | 8.27-9.07 | The drop | Everything cuts out except a reverse noise swell rising into f272 (music 15 dB down). |
 | 272-336 | 9.07-11.20 | Unison, pick, push-in | Groove B, full: the unison hit, then the groove with the stab on the downbeat; a whoosh into the cut. |
 | 336-464 | 11.20-15.47 | Coaching | Groove thinned to bass and soft hats, no kick, 8 dB down, so the cue cards can be read. |
-| 464-552 | 15.47-18.40 | Countdown | Build: the kick returns on each beat like a pulse, a snare on eighths then sixteenths, a rising filter on the bass. |
-| 552-560 | 18.40-18.67 | Half a beat of stillness | Silence: every music layer off, room tone only. |
-| 560-592 | 18.67-19.73 | Shutter, flash, relax | The shutter alone, then its tail. |
-| 592-664 | 19.73-22.13 | Pull-back, name, hold | One final chord on the bar-10 downbeat (Am add9 stab over a low A), left to ring and decay naturally to the last frame, with room tone under it. No fade, no silent tail. |
+| 464-546 | 15.47-18.20 | Countdown | Build: the kick returns as a pulse, a snare on eighths then sixteenths, a rising filter on the bass. The digits come every 30 f (the app's real 1 s), not every 32 f, so let the build follow the ticks (464, 494, 524) rather than the 112.5 BPM grid: an accelerando into the shutter. |
+| 546-554 | 18.20-18.47 | Half a beat of stillness | Silence: every music layer off, room tone only. |
+| 554-600 | 18.47-20.00 | Shutter, flash, relax | The shutter alone, then its tail. |
+| 600-664 | 20.00-22.13 | Pull-back, name, hold | One final chord on the bar-10 downbeat (Am add9 stab over a low A), left to ring and decay naturally to the last frame, with room tone under it. No fade, no silent tail. |
 
 ## The sound events
 
@@ -42,11 +50,11 @@ groove or a quiet tick.
 | 3 | 248-272, then 272 | 8.27-9.07 | Silence, then all 99 figures snap into Disco point | **Hit 1.** Music drops for 0.8 s with a reverse swell; on f272 kick, clap, chord stab and a shutter click together | -6 dB |
 | 4 | 288 | 9.60 | Frame marks close around one figure | A tiny dry pop | -16 dB |
 | 5 | 324-336 | 10.80-11.20 | Push-in and hard cut into the viewfinder | Airy whoosh starting 3-4 f before peak speed so its peak meets the cut | -12 dB |
-| 6 | 352, 400, 440 | 11.73, 13.33, 14.67 | Each cue card arrives or changes | A soft UI tick (one sound for all three) | -18 dB |
-| 7 | 440 | 14.67 | Every limb green, the ring closes, "Perfect. Hold it" | **Hit 2, soft.** A two-note rising chime (two sine partials, a fifth apart), short and clean; music stays down | -12 dB |
-| 8 | 464, 496, 528 | 15.47, 16.53, 17.60 | Countdown "3", "2", "1" | A countdown tick per digit (the same tick family, pitched a little higher each time), over the build | -12 dB |
-| 9 | 552-560, then 560 | 18.40-18.67 | Half a beat of stillness, then the capture flash | **Hit 3, the loudest sound.** Silence for 8 f, then a two-part mechanical shutter (open click, close clack about 40 ms apart) with a low thump and a short room tail | -4 dB (loudest SFX) |
-| 10 | 592 | 19.73 | The camera pulls back from the relaxed figure | The final chord (part of the music), resolving | -10 dB |
+| 6 | 355, 400, 455 | 11.83, 13.33, 15.17 | Each cue card arrives or changes (the app's HintStabilizer timing) | A soft UI tick (one sound for all three) | -18 dB |
+| 7 | 443 | 14.77 | The lock: the score reaches the match threshold (every limb green, the ring turns green, its hold arc starts running round); "Perfect. Hold it" follows at 455 | **Hit 2, soft.** A two-note rising chime (two sine partials, a fifth apart), short and clean; music stays down | -12 dB |
+| 8 | 464, 494, 524 | 15.47, 16.47, 17.47 | Countdown "3", "2", "1" | A countdown tick per digit (the same tick family, pitched a little higher each time), over the build | -12 dB |
+| 9 | 546-554, then 554 | 18.20-18.47 | Half a beat of stillness, then the capture flash | **Hit 3, the loudest sound.** Silence for 8 f, then a two-part mechanical shutter (open click, close clack about 40 ms apart) with a low thump and a short room tail | -4 dB (loudest SFX) |
+| 10 | 600 | 20.00 | The camera pulls back from the relaxed figure | The final chord (part of the music), resolving | -10 dB |
 
 The wordmark (f608) and the end line get no sound: the chord is already ringing and the ending is quieter than the
 climax.
