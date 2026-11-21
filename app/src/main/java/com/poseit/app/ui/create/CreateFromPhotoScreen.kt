@@ -1,5 +1,7 @@
 package com.poseit.app.ui.create
 
+import com.poseit.app.ui.components.CardVariant
+import com.poseit.app.ui.components.PoseitCard
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -225,15 +227,23 @@ internal fun IntroContent(onBack: () -> Unit = {}, onPick: () -> Unit = {}, snac
             }
         },
     ) {
-        Spacer(Modifier.height(Space.l))
-        NumberedSteps(
-            listOf(
-                "Choose a photo where the whole body is in view",
-                "Choose who to keep, up to four people",
-                "Save it, then line up with it in the camera",
-            ),
-            Modifier.padding(horizontal = Space.textInset),
-        )
+        Spacer(Modifier.height(Space.edge))
+        // The steps as one outlined cream group, like the mockups' list rows.
+        PoseitCard(
+            modifier = Modifier
+                .padding(horizontal = Space.edge)
+                .fillMaxWidth(),
+            variant = CardVariant.Outlined,
+            contentPadding = PaddingValues(horizontal = Space.cardPadding, vertical = Space.xs),
+        ) {
+            NumberedSteps(
+                listOf(
+                    "Choose a photo where the whole body is in view",
+                    "Choose who to keep, up to four people",
+                    "Save it, then line up with it in the camera",
+                ),
+            )
+        }
         Spacer(Modifier.height(Space.xl))
     }
 }

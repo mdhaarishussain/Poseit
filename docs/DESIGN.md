@@ -159,7 +159,7 @@ about the card padding less round):
 | `Pill` / `Circle` | full | Pill buttons, filter pills, segmented pills, circle icon buttons, the shutter, the score ring |
 
 **Spacing** (`Space`, a 4dp grid; Astryx spacing steps 1 to 12):
-- `edge` 8dp: cards to the screen sides, and the gap between separate cards (joined cards sit 6dp apart). The cream frame of 8dp
+- `edge` 8dp: cards to the screen sides, and the gap between separate cards (joined cards sit 10dp apart). The cream frame of 8dp
   around nearly full-width cards is part of the look.
 - `cardPadding` 24dp inside dark cards and the top bar card.
 - `textInset` 32dp (= edge + cardPadding): text placed directly on the canvas (section headings, "99 poses",
@@ -172,25 +172,25 @@ cream surface) and by the 8dp gaps. The only "floor" is the flat oval floor spot
 
 ## Connected cards (the motif)
 
-Dark cards stacked a 6dp slot apart and fused into one body, so the canvas shows only as a thin slot cut in from
-each side of every join (`ConnectedCardStack`, `ConnectedCardRow`, `ConnectedCardShape`,
+Dark cards stacked a 10dp slot apart and fused into one body, so the canvas shows only as a soft groove cut in
+from each side of every join (`ConnectedCardStack`, `ConnectedCardRow`, `ConnectedCardShape`,
 `connectedCardsPath`):
 
 ```
  ╭──────────────────────────╮
  │  top card                │
  ╰──╮                    ╭──╯   join corners: 20dp radius, flaring into the slot
-════○                    ○════  slot: 6dp tall, runs 22dp past the join corners, round tip of radius 3dp
+════○                    ○════  slot: 10dp tall, runs 24dp past the join corners, round tip of radius 5dp
  ╭──╯                    ╰──╮
  │  next card               │
  ╰──────────────────────────╯   outer corners: 24dp
 ```
 
-Geometry (`ConnectedCardDefaults`): outer `Radius` 24dp, `JoinRadius` 20dp, `Gap` 6dp (the slot's thickness, a
-little thinner than the 8dp gap between separate cards, so a join reads as a seam), the slot runs `NotchLength`
-22dp straight past the join corners and ends in a half-circle of radius Gap/2. So a notch reaches 45dp in from each
-side; between the two tips the cards are one piece. Measured from the mockups: slot about 5 to 7dp, flare about
-20dp, straight run about 22dp. A row (`ConnectedCardRow`) is the
+Geometry (`ConnectedCardDefaults`): outer `Radius` 24dp, `JoinRadius` 20dp, `Gap` 10dp (the slot's thickness:
+about 2.5% of a phone-width card, as in the mockups, so a join reads as a soft liquid groove rather than a hairline
+crack), the slot runs `NotchLength` 24dp straight past the join corners and ends in a half-circle of radius Gap/2.
+So a notch reaches about 49dp in from each side; between the two tips the cards are one piece. Measured from the
+mockups: slot about 2.6% of the card width, flare about 20dp, straight run about 22 to 24dp. A row (`ConnectedCardRow`) is the
 same turned 90 degrees: slots come in from the top and bottom.
 
 When cards connect:
@@ -231,8 +231,10 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   whole card a button (Astryx ClickableCard). `ProvideSurfaceTone`, `CapsLabel`.
 - **Connected cards** (`ConnectedCards.kt`): `ConnectedCardStack { ... }` and `ConnectedCardRow { ... }`: every
   direct child is one card; use `CardSegment(onClick?, contentPadding)` for padded, optionally clickable cards.
-  `FillingCardStack(cards, fillIndex, minFillHeight)`: a vertical stack for a screen that doesn't scroll, where one
-  card takes the height the others leave (the onboarding picture, the editor's canvas, the photo being traced).
+  `FillingCardStack(cards, fillIndex, minFillHeight)`: a vertical stack where one card takes the height the others
+  leave (the onboarding picture, the editor's canvas, the photo being traced, the picture of an empty screen). In a
+  scrolling column give it `heightIn(min = ...)`: it fills that and grows past it when the cards need more.
+  `ConnectedCardRow` is the stat pair: the detail screen's Level | People.
 - **Buttons** (`Buttons.kt`): pills at least 48dp tall with `caps` labels. The form follows where the button sits,
   as in the mockups: a **pill on the canvas** (RESTART / PAUSE, the pinned action bands), a **Block** (`form =
   ButtonForm.Block`, 12dp corners) **inside a dark card** (START, START GAME: Today's pose, the empty-state cards,
@@ -242,39 +244,54 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
     screen.
   - `PrimaryButton`: dark pill on cream, cream pill on a dark card. The main action when there is no accent.
   - `SecondaryButton`: 1dp outlined pill. The alternative, beside the main action (the mockups' RESTART / PAUSE).
-  - `TertiaryButton`: text only, sentence case (Astryx ghost): "Cancel", "Skip", "Show all".
+  - `TertiaryButton`: text only, sentence case (Astryx ghost): "Cancel", "Show all". On a screen's foot the
+    alternative is a `SecondaryButton` pill beside the main one ("Skip" / "Next", "Not now" / "Allow camera").
+  - `ButtonPair(first, second, fill)`: the two side by side while both fit on one line, else stacked full width
+    with the main action on top (large text). Pinned action bands, onboarding, the camera permission screen and
+    dialogs use it. Button labels are `capsButton` (13sp) and wrap to a second line rather than being cut.
   - `DestructiveButton`: red sentence-case text, or `filled = true` for a red pill confirming a delete.
 - **Icon buttons** (`IconButtons.kt`): `CircleIconButton(variant = Dark | Light | Accent | Outlined | Camera, size)`
   (48dp; 52dp in the pill bar), `CircleIconToggle` (camera toggles: scrim disc, cream disc when on), `PlainIconButton`
   (bare glyph, top bar actions, the tile heart), `IconToggle` (view options such as Mirror: a 40dp disc while on).
-- **Segmented pill** (`SegmentedPill.kt`): `SegmentedPill(options, selectedIndex, onSelect, size = Medium | Touch |
-  Large, role = RadioButton | Tab, descriptions?, optionPadding)`: dark track, lavender selected option with dark capitals, cream capitals for the rest,
-  equal widths, the selection slides. For two or three options: a value choice or views. `descriptions` gives an
-  option a spoken form (Astryx SegmentedControlItem label); the five-option countdown (`settings/CountdownChips`,
-  shared by Settings and the camera's Quick settings) uses it ("3 s" is read "3 seconds") with `size = Touch`
-  (48dp) and 6dp option padding, so it fits a 360dp phone at 130% text. `PillTabs(labels, selectedIndex, onSelect, edgePadding)`: the same look with options hugging their labels
-  and horizontal scrolling, for three to five tabs (All / Favourites / Recent / My poses). Tabs and segmented
-  options are the same thing in v2; there are no underline tabs.
+- **Segmented pill** (`SegmentedPill.kt`): `SegmentedPill(options, selectedIndex, onSelect, size = Medium | Large,
+  role = RadioButton | Tab, descriptions?, optionRoles?, onClickLabels?, optionPadding)`: dark track, lavender
+  selected option with dark capitals, cream capitals for the rest, equal widths, the selection slides. Medium is
+  48dp and every option fills the track's height, so each is a full touch target in the accessibility tree too
+  (the lavender pill is drawn 4dp inside). For two to five short options: a value choice or views. `descriptions`
+  gives an option a spoken form (Astryx SegmentedControlItem label): the countdown (`settings/CountdownChips`) and
+  the photoshoot interval read "3 s" as "3 seconds". `optionRoles` makes an option that leaves the screen a button
+  (Photos in the home bar). `PillTabs(labels, selectedIndex, onSelect, edgePadding, role)`: the same look for
+  options of very different lengths: when they fit, the track fills the width and the spare space is shared out;
+  when they don't, each hugs its label and the row scrolls. Tabs and segmented options are the same thing in v2;
+  there are no underline tabs. A pick-one value is always a segmented pill; dark-filled pills are for filters.
 - **Badge** (`Badge.kt`): `Badge(text, tone = Accent | Dark | Light, icon?)`: 24dp tag, 8dp corners, capitals. The
   top bar's count ("99 poses"), "New", "2 people". Not interactive.
-- **Filter pills** (`Chips.kt`): `FilterPill(label, selected, onClick, leadingIcon?)`: 36dp pill, sentence-case
-  label; outlined when off, filled dark when on (cream on a dark card). Not lavender.
+- **Filter pills** (`Chips.kt`): `FilterPill(label, selected, onClick, leadingIcon?)`: 40dp pill, sentence-case
+  label; outlined when off, filled dark when on (cream on a dark card). Not lavender. The library's filters and the
+  camera's All poses categories. `TogglePill(label, checked, onCheckedChange)`: the same look announced as a switch,
+  for a view option (the editor's Grid and Photo).
 - **Top bar card** (`TopBar.kt`): `TopBarCard(title, onBack?, wordmark, badge?, actions?, joined?)`: a 64dp dark
   card 8dp below the status bar; title in `title` (or the wordmark), cream glyph actions, optional lavender badge,
-  and `joined` cards fused below it. `TopBarContent` is its inside, for your own stack.
+  and `joined` cards fused below it. `TopBarContent` is its inside, for your own stack. When the bar scrolls away
+  with its list (home, Settings, your photos), `PinnedTopBar(visible = rememberTopBarScrolledAway(listState), ...)`
+  fades a plain bar in at the top, and the in-list bar hides its semantics, so Back is always one tap away and
+  there is only one Back in the tree.
 - **Floating pill bar** (`PillBar.kt`): `FloatingPillBar { CircleIconButton(size = PillBarItemSize);
   PillBarSegments(options, ...); CircleIconButton(...) }`: separate pills on a canvas band above the navigation
   bar; content scrolls under the band, never through it.
-- **Stats** (`Stats.kt`): `Stat(label, value, caption?)` (label in bodyLarge, caption supporting, value in
-  numerals; one accessibility node), `StatRow { CompactStat(label, value) ... }` for two or three in one card.
+- **Stats** (`Stats.kt`): `Stat(label, value, caption?, minValueSize?)` (label in bodyLarge, caption supporting,
+  value in numerals, stepping down to `minValueSize` rather than being cut; one accessibility node), `StatRow { CompactStat(label, value) ... }` for two or three in one card.
 - **Progress** (`Progress.kt`): `SegmentedProgress(progress, segments, contentDescription?)`: narrow rounded bars,
-  lavender when done, the surface's track colour otherwise; reports a progress range. `PoseitSpinner`.
+  lavender when done inside a dark card (ink on cream, where lavender and the track are too close in lightness),
+  the surface's track colour otherwise; reports a progress range. `PoseitSpinner`.
 - **Rows** (`Rows.kt`): `OutlinedRow(title, onClick, subtitle?)`: a single cream row card with a chevron (a place
   to go). `RowGroup { ... }`: one outlined card of rows with inset hairlines between them, for settings. Rows:
   `SettingRow`, `SwitchRow`, `SliderRow`, `RadioRow`, `RowChevron`. At least 56dp; title `bodyStrong`, subtitle
   `supporting` secondary. `poseitSwitchColors()` (on: dark track, lavender thumb), `poseitSliderColors()`.
-- **Slider** (`Slider.kt`): `ValueSlider`: 6dp track (dark filled, track colour after), 22dp lavender thumb ringed
-  in ink; cream filled track on dark surfaces.
+- **Slider** (`Slider.kt`): `ValueSlider`: the mockups' segmented bar made draggable ("80% ||||||||"): 20dp narrow
+  bars filled up to the value (lavender inside a dark card, ink on cream), with a 4 x 28dp tick standing in the gap
+  at the end of the fill as the handle. With steps, the bar count is a multiple of the intervals. An M3 Slider
+  underneath, so drag, tap and the accessibility value actions are unchanged.
 - **Feedback** (`Feedback.kt`): `PoseitSnackbarHost` (a small dark card, cream text, lavender sentence-case
   action, hairline edge for the camera), `PoseitAlertDialog` / `DialogCard` (cream, 28dp corners, `title` heading,
   body secondary, pill confirm + text dismiss), `PoseitBottomSheet` (cream, 28dp top corners, `SheetHandle`),
@@ -284,9 +301,14 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
 - **Sections** (`Sections.kt`): `SectionHeading` (heading role, on `textInset`), `HairlineDivider`,
   `VerticalHairline`.
 - **Empty state** (`EmptyState.kt`): left-aligned on `textInset`: `title` role title, one sentence, one button.
+  On a screen, put it in a dark card fused (`FillingCardStack`) to an `EmptyPictureCard`: the card that fills the
+  rest of the screen with a mannequin in a mist outline standing in frame marks, and the action, full width, at its
+  foot (your photos, the library's empty tabs and no-match).
 - **Pose tile** (`PoseTile.kt`): Regular: a dark card (20dp) with the figure in a 3:4 area and the caption inside
   (name `bodyStrong` cream, category `supporting` mist), the cream heart top-right. Compact (camera strip): the
-  3:4 tile alone with 12dp corners, a lavender 2dp outline when selected, one optional line below.
+  3:4 tile alone with 12dp corners, one optional line below. A selected tile gets `Modifier.selectedRing`: a 2dp
+  lavender ring 4dp inside its edge, so it always sits on the dark stage (on a cream sheet a ring at the edge would
+  be a faint halo); the camera's guide-style picker uses the same ring.
 - **Figures** (`PoseFigure.kt`): `PoseThumbnail` defaults to the dark stage with flat floor spots; pass
   `background = null, floorColor = PoseitColors.figureFloorOnLight` on cream. `FigurePaint` defaults (cream fill,
   ink 55% contour, ink face dot) read on both. Multi-person poses take `figureTones` in order.
@@ -294,8 +316,10 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   `textPrimary` on cream.
 - **Icons** (`Icons.kt`): `PoseitIcons`, `IconSize`, `IconGlyphInset`.
 - **System bars:** dark icons on cream screens (the app default); call `LightSystemBarIconsEffect()` on a screen
-  whose top and bottom edges are dark (photo viewer, a full-bleed dark onboarding). The camera keeps its own
-  effect, and `LightSystemBarIcons { }` for sheets opened over it.
+  whose top and bottom edges are dark (the camera, the photo viewer). It only counts the screen in and out; the
+  outermost `PoseitTheme` owns the window's icon colour and sets light icons while any such screen is composed, so
+  overlapping screens in a cross-fade can't restore each other's state in the wrong order. `LightSystemBarIcons { }`
+  is for sheets opened over the camera.
 
 ## Screen map
 
@@ -327,11 +351,12 @@ they are; where a label changes, its tests change with it.
 
 **Pose detail** (`detail/`)
 - A fused stack that scrolls with the page (`detail/ScrollingStackScreen`): the top bar card (back, the category or
-  source as a lavender `Badge`, the favourite heart) **joined** to the name card (the pose name in `display` Light,
-  then three label/value pairs: "Level" with a 3-segment `SegmentedProgress`, "People", "Shot"), **joined** to the
-  preview card (the figure on the stage inside cream `frameMarks`, the Mirror `IconToggle` in its corner). Once the
+  source as a lavender `Badge`, the favourite heart) **joined** to the name card (the pose name alone in `display`
+  Light), **joined** to the preview card (the figure on the stage inside cream `frameMarks`, the Mirror `IconToggle` in its corner). Once the
   stack's bar scrolls away, a plain `TopBarCard` titled with the pose name fades in; only one of the two bars is in
   the semantics tree at a time.
+- Under the stack, the mockups' stat pair (`ConnectedCardRow`): "Level" (the word in light numerals over a
+  3-segment `SegmentedProgress`, read as "Difficulty: Easy") beside "People" (the count).
 - Below on the canvas: the description, "How to do it" (`PoseSteps` in a dark card) and "Camera setup" (in an
   outlined card), then Delete pose as a red `DestructiveButton` at the end of the content, confirmed by
   `PoseitAlertDialog`.
@@ -368,14 +393,14 @@ they are; where a label changes, its tests change with it.
   (name, facts, camera height and framing as label/value pairs, the figure). Dialogs as `PoseitAlertDialog`.
 - Permission screen: the top bar card joined to a headline card ("Let Poseit use the camera") and, when there is
   room, a picture card with a figure in viewfinder marks; `AccentButton("Allow camera")` and
-  `TertiaryButton("Not now")` at the foot.
+  an outlined `SecondaryButton("Not now")` beside it (a `ButtonPair`).
 
 **Settings** (`settings/`)
 - The top bar card (`TopBarContent("Settings", onBack)` in a `ConnectedCardStack`) **joined** to the two dark cards
   that decide when the photo is taken: "Match strictness" (the value in `numeralLarge` Light beside a `ValueSlider`,
   like the mockups' "79%" and its bar; the slider announces "80%, balanced") and "Countdown" (a five-option segmented
   pill, "Off / 2 s / 3 s / 5 s / 10 s", spoken as "No countdown", "3 seconds"). The stack scrolls with the list; a
-  canvas band covers the status bar.
+  canvas band covers the status bar, and a plain "Settings" bar with Back fades in once the stack's bar is gone.
 - Groups (Coaching, Guide, Camera): `SectionHeading` on `textInset`, then a `RowGroup` of `SwitchRow`s and
   `SliderRow`s. The guide style and grid choices are small dark stage tiles (12dp corners) in a radio group; the
   selected one takes a lavender ring 4dp inside its edge and a medium-weight label.
@@ -401,7 +426,8 @@ they are; where a label changes, its tests change with it.
 **Pose from a photo** (`create/`)
 - The intro scrolls as one fused stack (`ScrollingStackScreen`): the top bar card joined to the explainer card
   ("Recreate any photo" in `display`) and the before/after picture card with the privacy note; the three steps as
-  `NumberedSteps` on the canvas; `AccentButton("Choose a photo")` pinned at the foot. Working: the photo card fills
+  `NumberedSteps` in one outlined cream group (light numerals, hairlines between steps); `AccentButton("Choose a
+  photo")` pinned at the foot, under a hairline while the page scrolls on. Working: the photo card fills
   the screen (`FillingCardStack`) with "Tracing the pose..." in the card below. Review: "Your new pose" bar joined to
   the traced photo, guide styles as a `SegmentedPill`, details form, `AccentButton("Save pose")` pinned. Errors as
   `Banner(status = Error)` with `AccentButton("Choose another photo")` pinned.
@@ -409,9 +435,10 @@ they are; where a label changes, its tests change with it.
 **Editor** (`editor/`)
 - One fused stack filling the screen (`FillingCardStack`): the top bar card ("Pose editor", back, and Save as
   `AccentButton(form = Block, size = Small)`), **joined** to the canvas card (the pose's origin line, "Grid" and,
-  for photo poses, "Photo" as `FilterPill`s in its header; the dark stage with `frameMarks`; joints and handles in
+  for photo poses, "Photo" as `TogglePill`s in its header; the dark stage with `frameMarks`; joints and handles in
   cream and lavender; the hint with undo and redo at its foot), **joined** to the tools card (Mirror, Reset, Add
-  person, Remove as labelled glyphs; "Person N" as a `SegmentedPill` when there are several people).
+  person, Remove as the outlined secondary pills, two by two; "Person N" as a `SegmentedPill` when there are several
+  people).
 - The details sheet is a `PoseitBottomSheet` with `FilterPill` groups and `AccentButton("Save pose")`.
 
 **Onboarding** (`onboarding/`)
@@ -421,7 +448,8 @@ they are; where a label changes, its tests change with it.
   the rest of the height (`FillingCardStack`), where the figure demo stands on the stage; the last
   page's camera note sits at its foot in `supporting` mist. Each page is its own stack, so the whole stack slides
   with the pager.
-- Below the stack on the canvas: `TertiaryButton("Skip")` and `AccentButton("Next")` taking the rest of the row;
+- Below the stack on the canvas: an outlined `SecondaryButton("Skip")` and `AccentButton("Next")` taking the rest of
+  the row (a `ButtonPair`);
   on the last page `AccentButton("Get started")` full width. Page text stays the same words ("Next", "Get
   started" are looked up by tests).
 

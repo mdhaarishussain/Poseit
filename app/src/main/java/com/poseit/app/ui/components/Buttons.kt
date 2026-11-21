@@ -19,13 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.poseit.app.ui.theme.LocalSurfaceTone
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitShapes
 import com.poseit.app.ui.theme.PoseitType
+import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.SurfaceTone
 
 /*
@@ -61,7 +65,7 @@ val ButtonHeight: Dp = 48.dp
  * touches across 48dp: Compose extends the hit area of a target smaller than the minimum touch size.
  */
 enum class ButtonSize(internal val height: Dp, internal val padding: PaddingValues) {
-    Medium(ButtonHeight, PaddingValues(horizontal = 24.dp, vertical = 12.dp)),
+    Medium(ButtonHeight, PaddingValues(horizontal = 20.dp, vertical = 12.dp)),
     Small(40.dp, PaddingValues(horizontal = 16.dp, vertical = 8.dp)),
 }
 
@@ -261,7 +265,10 @@ private fun textColors(content: Color): ButtonColors = ButtonDefaults.textButton
     disabledContentColor = content.copy(alpha = DisabledAlpha),
 )
 
-/** Optional 18dp leading icon, then the label on one line: capitals for pills, sentence case for text buttons. */
+/**
+ * Optional 18dp leading icon, then the label: capitals for pills, sentence case for text buttons. A label wraps to a
+ * second line rather than being cut when it can't fit (large text sizes on a small phone), centred.
+ */
 @Composable
 private fun RowScope.ButtonLabel(text: String, icon: ImageVector?, caps: Boolean = true) {
     if (icon != null) {
@@ -269,8 +276,54 @@ private fun RowScope.ButtonLabel(text: String, icon: ImageVector?, caps: Boolean
         Spacer(Modifier.width(8.dp))
     }
     if (caps) {
-        CapsLabel(text)
+        CapsLabel(text, maxLines = 2, textAlign = TextAlign.Center, style = PoseitType.capsButton)
     } else {
-        Text(text, style = PoseitType.label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text, style = PoseitType.label, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+    }
+}
+
+/**
+ * Two buttons side by side when both fit on one line at their natural width, else stacked full width with [second]
+ * on top (docs/DESIGN.md, "Buttons"): the mockups' RESTART / PAUSE pair that still works at 200% text. [first] is
+ * the alternative (a SecondaryButton or "Cancel"), [second] the main action.
+ *
+ * @param fill side by side, [second] takes the rest of the width (a pinned action bar); false keeps both at their
+ *   natural width, packed to the end (a dialog's buttons)
+ */
+@Composable
+fun ButtonPair(
+    first: (@Composable () -> Unit)?,
+    second: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    fill: Boolean = true,
+    gap: Dp = Space.edge,
+) {
+    Layout(contents = listOf(first ?: {}, second), modifier = modifier) { (firsts, seconds), c ->
+        val f = firsts.firstOrNull()
+        val sec = seconds.first()
+        val gapPx = gap.roundToPx()
+        val max = if (c.hasBoundedWidth) c.maxWidth else Int.MAX_VALUE
+        val wf = f?.maxIntrinsicWidth(Constraints.Infinity) ?: 0
+        val ws = sec.maxIntrinsicWidth(Constraints.Infinity)
+        val needed = if (f == null) ws else wf + gapPx + ws
+        if (needed <= max) {
+            val width = if (fill && max != Int.MAX_VALUE) max else needed
+            val pf = f?.measure(Constraints.fixedWidth(wf))
+            val secondWidth = if (f == null) (if (fill) width else ws) else width - wf - gapPx
+            val ps = sec.measure(Constraints.fixedWidth(secondWidth))
+            val h = maxOf(pf?.height ?: 0, ps.height)
+            layout(width, h) {
+                val start = if (fill) 0 else width - needed
+                pf?.place(start, (h - pf.height) / 2)
+                ps.place(if (pf == null) width - ps.width else start + wf + gapPx, (h - ps.height) / 2)
+            }
+        } else {
+            val ps = sec.measure(Constraints.fixedWidth(max))
+            val pf = f?.measure(Constraints.fixedWidth(max))
+            layout(max, ps.height + (pf?.let { it.height + gapPx } ?: 0)) {
+                ps.place(0, 0)
+                pf?.place(0, ps.height + gapPx)
+            }
+        }
     }
 }

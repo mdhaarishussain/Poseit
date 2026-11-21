@@ -109,7 +109,19 @@ fun DrawScope.drawPoseFigure(
                 if (paint.showFaceMarker) {
                     FigureShapes.noseMarker(skeleton, aspect)?.let { n ->
                         val c = if (paint.style == FigureStyle.OUTLINE) colorFor(BodyPart.HEAD) else paint.faceColor
-                        drawCircle(c, radius = max(2f, n.radius * h), center = px(n.center))
+                        val radius = max(2f, n.radius * h)
+                        // Keep the dot inside the head: on a profile the nose joint sits on the head's edge, and a
+                        // dot drawn there bites a dark notch out of the silhouette. Drawing only; matching is untouched.
+                        val head = shapes.lastOrNull { it is FigureShape.Circle && it.part == BodyPart.HEAD } as FigureShape.Circle?
+                        var center = px(n.center)
+                        if (head != null) {
+                            val hc = px(head.center)
+                            val limit = (head.radius * h - radius - 1.5.dp.toPx()).coerceAtLeast(0f)
+                            val d = center - hc
+                            val dist = d.getDistance()
+                            if (dist > limit && dist > 0f) center = hc + d * (limit / dist)
+                        }
+                        drawCircle(c, radius = radius, center = center)
                     }
                 }
                 canvas.restore()

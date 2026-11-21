@@ -387,9 +387,9 @@ internal fun ReviewBottomBar(saving: Boolean, canSave: Boolean, onSave: () -> Un
             if (saving) {
                 PoseitSpinner(size = IconSize.inline)
                 Spacer(Modifier.width(Space.m))
-                CapsLabel("Saving…")
+                CapsLabel("Saving…", style = PoseitType.capsButton)
             } else {
-                CapsLabel("Save pose")
+                CapsLabel("Save pose", style = PoseitType.capsButton)
             }
         }
     }

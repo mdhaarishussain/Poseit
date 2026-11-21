@@ -37,6 +37,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -64,8 +66,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.poseit.app.appContainer
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
+import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.AccentButton
-import com.poseit.app.ui.components.ButtonForm
 import com.poseit.app.ui.components.Badge
 import com.poseit.app.ui.components.ButtonHeight
 import com.poseit.app.ui.components.CircleIconButton
@@ -76,12 +78,16 @@ import com.poseit.app.ui.components.PillBarItemSize
 import com.poseit.app.ui.components.PillBarSegments
 import com.poseit.app.ui.components.PlainIconButton
 import com.poseit.app.ui.components.PoseitBottomSheet
-import com.poseit.app.ui.components.PoseitCard
 import com.poseit.app.ui.components.PoseitIcons
 import com.poseit.app.ui.components.PoseitSnackbarHost
 import com.poseit.app.ui.components.PoseitSpinner
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.TopBarCard
+import com.poseit.app.ui.components.FillingCardStack
+import com.poseit.app.ui.components.EmptyPictureCard
+import com.poseit.app.ui.components.CardSegment
+import com.poseit.app.ui.components.PinnedTopBar
+import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitMotion
 import com.poseit.app.ui.theme.PoseitType
@@ -196,9 +202,10 @@ private fun LibraryContent(
             return@Scaffold
         }
         val showCreateCard = state.filter.tab == LibraryTab.MINE && state.tabTotal > 0
+        val barAway = rememberTopBarScrolledAway(gridState)
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val nameLines = rememberRowNameLines(
-                names = state.poses.map { it.name },
+                poses = state.poses,
                 leadingName = if (showCreateCard) CreatePoseCardName else null,
                 gridWidth = maxWidth - startPadding - endPadding,
             )
@@ -222,6 +229,7 @@ private fun LibraryContent(
                         total = state.libraryTotal,
                         onOpenSettings = onOpenSettings,
                         modifier = Modifier.bleedHorizontally(Space.edge),
+                        hideBarSemantics = barAway,
                         joined = hero?.let { pose ->
                             {
                                 TodaysPoseCard(
@@ -289,10 +297,20 @@ private fun LibraryContent(
                 }
                 if (state.poses.isEmpty()) {
                     fullWidth("empty") {
+                        // The empty stack reaches down to the floating bar: the room left under the item's top.
+                        val density = LocalDensity.current
+                        val room by remember(gridState) {
+                            derivedStateOf {
+                                val info = gridState.layoutInfo
+                                val item = info.visibleItemsInfo.firstOrNull { it.key == "empty" }
+                                if (item == null) 0 else info.viewportEndOffset - info.afterContentPadding - item.offset.y
+                            }
+                        }
                         LibraryEmptyState(
                             modifier = Modifier
                                 .animateItem()
-                                .padding(top = Space.s),
+                                .padding(top = Space.s)
+                                .heightIn(min = (with(density) { room.toDp() } - Space.s).coerceAtLeast(0.dp)),
                             state = state,
                             onClearFilters = onClearFilters,
                             onShowAll = { onSelectTab(LibraryTab.ALL) },
@@ -303,6 +321,16 @@ private fun LibraryContent(
                     }
                 }
             }
+            // Settings stays one tap away once the wordmark bar has scrolled up under the status bar.
+            PinnedTopBar(
+                visible = barAway,
+                title = "Poseit",
+                wordmark = true,
+                modifier = Modifier.padding(top = padding.calculateTopPadding()),
+                badge = { Badge(if (state.libraryTotal == 1) "1 pose" else "${state.libraryTotal} poses") },
+                windowInsets = WindowInsets(0),
+                actions = { PlainIconButton(PoseitIcons.settings, "Settings", onClick = onOpenSettings) },
+            )
         }
     }
 
@@ -335,11 +363,13 @@ private fun LibraryTopBar(
     total: Int?,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    hideBarSemantics: Boolean = false,
     joined: (@Composable () -> Unit)? = null,
 ) {
     TopBarCard(
         title = "Poseit",
         modifier = modifier,
+        hideBarSemantics = hideBarSemantics,
         wordmark = true,
         badge = total?.let { n -> { Badge(if (n == 1) "1 pose" else "$n poses") } },
         windowInsets = WindowInsets(0),
@@ -360,6 +390,9 @@ private fun LibraryPillBar(onOpenCamera: () -> Unit, onOpenGallery: () -> Unit, 
             options = listOf("Poses", "Photos"),
             selectedIndex = 0,
             onSelect = { if (it == 1) onOpenGallery() },
+            // Photos opens another screen (with its own Back), so it is a button, not a tab that switches in place.
+            optionRoles = listOf(null, Role.Button),
+            onClickLabels = listOf(null, "Open your photos"),
         )
         CircleIconButton(PoseitIcons.add, "Create a pose", onClick = onCreate, size = PillBarItemSize)
     }
@@ -398,19 +431,27 @@ private class RowNameLines(private val perItem: List<Int>, private val offset: I
  * @param gridWidth the grid's width inside its content padding
  */
 @Composable
-private fun rememberRowNameLines(names: List<String>, leadingName: String?, gridWidth: Dp): RowNameLines {
+private fun rememberRowNameLines(poses: List<PoseTemplate>, leadingName: String?, gridWidth: Dp): RowNameLines {
     val density = LocalDensity.current
     val measurer = rememberTextMeasurer()
-    return remember(names, leadingName, gridWidth, density) {
+    // Line counts by name for this width: a search keystroke only re-chunks cached counts into rows instead of laying
+    // out every visible name again.
+    val cache = remember(gridWidth, density) { HashMap<String, Int>() }
+    val geometry = remember(gridWidth, density) {
         val gridPx = with(density) { gridWidth.roundToPx() }.coerceAtLeast(0)
         val spacingPx = with(density) { Space.edge.roundToPx() }
         val cells = with(PoseGridCells) { density.calculateCrossAxisCellSizes(gridPx, spacingPx) }
-        val columns = cells.size.coerceAtLeast(1)
         // The caption's padding inside a pose tile: 16dp at the start, 12dp at the end.
         val textPx = with(density) { ((cells.minOrNull() ?: 0) - (Space.l + Space.m).roundToPx()) }.coerceAtLeast(1)
-        val all = listOfNotNull(leadingName) + names
+        cells.size.coerceAtLeast(1) to textPx
+    }
+    return remember(poses, leadingName, geometry) {
+        val (columns, textPx) = geometry
+        val all = listOfNotNull(leadingName) + poses.map { it.name }
         val lines = all.map { name ->
-            measurer.measure(name, PoseitType.bodyStrong, maxLines = 2, constraints = Constraints(maxWidth = textPx)).lineCount
+            cache.getOrPut(name) {
+                measurer.measure(name, PoseitType.bodyStrong, maxLines = 2, constraints = Constraints(maxWidth = textPx)).lineCount
+            }
         }
         val rows = lines.chunked(columns).map { row -> row.max() }
         RowNameLines(List(all.size) { rows[it / columns] }, offset = if (leadingName != null) 1 else 0)
@@ -503,17 +544,24 @@ private fun LibraryEmptyState(
             onAction = onClearFilters,
         )
     }
-    PoseitCard(
-        modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = Space.cardPadding, vertical = Space.xs),
-    ) {
-        EmptyState(
-            title = content.title,
-            message = content.message,
-            horizontalPadding = 0.dp,
-            action = { AccentButton(content.action, onClick = content.onAction, form = ButtonForm.Block) },
-        )
-    }
+    // What's missing, fused to a picture card that fills the space down to the floating bar, with the action at its
+    // foot.
+    FillingCardStack(
+        modifier = modifier.fillMaxWidth(),
+        minFillHeight = 96.dp,
+        cards = listOf<@Composable () -> Unit>(
+            {
+                CardSegment(contentPadding = PaddingValues(horizontal = Space.cardPadding, vertical = Space.xs)) {
+                    EmptyState(title = content.title, message = content.message, horizontalPadding = 0.dp)
+                }
+            },
+            {
+                EmptyPictureCard(
+                    action = { AccentButton(content.action, onClick = content.onAction, modifier = Modifier.fillMaxWidth()) },
+                )
+            },
+        ),
+    )
 }
 
 private class EmptyCopy(val title: String, val message: String, val action: String, val onAction: () -> Unit)

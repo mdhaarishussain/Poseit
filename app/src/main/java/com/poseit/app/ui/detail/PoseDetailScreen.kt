@@ -2,12 +2,10 @@ package com.poseit.app.ui.detail
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -42,6 +40,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -51,9 +50,12 @@ import com.poseit.app.appContainer
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.Badge
+import com.poseit.app.ui.components.ButtonPair
 import com.poseit.app.ui.components.CameraSetup
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.CardVariant
+import com.poseit.app.ui.components.ConnectedCardRow
+import com.poseit.app.ui.components.Stat
 import com.poseit.app.ui.components.DestructiveButton
 import com.poseit.app.ui.components.EmptyState
 import com.poseit.app.ui.components.IconToggle
@@ -248,6 +250,7 @@ private fun ReadyContent(
             PreviewCard(details, height = previewHeight(), mirrored = mirrored, onMirroredChange = onMirroredChange)
         },
     ) {
+        PoseFacts(pose, Modifier.padding(start = Space.edge, end = Space.edge, top = Space.edge))
         if (pose.description.isNotBlank()) {
             Text(
                 pose.description,
@@ -289,18 +292,21 @@ private fun ReadyContent(
 @Composable
 private fun previewHeight() = LocalConfiguration.current.screenHeightDp.let { h -> (h * 0.44f).coerceIn(240f, 480f).dp }
 
-/** "Customise" (or "Edit") beside the screen's one accent action, on the canvas band at the foot. */
+/**
+ * "Customise" (or "Edit") beside the screen's one accent action, on the canvas band at the foot; stacked, the accent
+ * on top, when large text won't let them share a line.
+ */
 @Composable
 private fun DetailActions(isCustom: Boolean, onEdit: () -> Unit, onTry: () -> Unit) {
     PinnedActions {
-        Row(horizontalArrangement = Arrangement.spacedBy(Space.edge), verticalAlignment = Alignment.CenterVertically) {
-            SecondaryButton(if (isCustom) "Edit" else "Customise", onClick = onEdit)
-            AccentButton("Try this pose", onClick = onTry, modifier = Modifier.weight(1f), icon = PoseitIcons.camera)
-        }
+        ButtonPair(
+            first = { SecondaryButton(if (isCustom) "Edit" else "Customise", onClick = onEdit) },
+            second = { AccentButton("Try this pose", onClick = onTry, icon = PoseitIcons.camera) },
+        )
     }
 }
 
-/** The name in Display Light, then three facts as the mockups' small label / value pairs. */
+/** The name in Display Light, alone on its card like the mockups' "Bohdan, welcome back". */
 @Composable
 private fun NameCard(pose: PoseTemplate) {
     CardSegment(contentPadding = PaddingValues(start = Space.cardPadding, end = Space.cardPadding, top = Space.l + Space.xs, bottom = Space.cardPadding)) {
@@ -310,37 +316,40 @@ private fun NameCard(pose: PoseTemplate) {
             color = PoseitColors.textPrimaryInverted,
             modifier = Modifier.semantics { heading() },
         )
-        Spacer(Modifier.height(Space.l + Space.xs))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.l)) {
-            Fact("Level", Difficulty.label(pose.difficulty), Modifier.weight(1f)) {
-                Spacer(Modifier.height(Space.s))
-                // One segment lit per level; decorative next to the word.
-                SegmentedProgress(
-                    progress = pose.difficulty.coerceIn(1, 3) / 3f,
-                    segments = 3,
-                    height = 6.dp,
-                    emptyColor = PoseitColors.borderInverted,
-                    modifier = Modifier
-                        .width(56.dp)
-                        .clearAndSetSemantics {},
-                )
-            }
-            Fact("People", "${pose.personCount}", Modifier.weight(1f))
-            Fact("Shot", pose.camera.shot.label, Modifier.weight(1f))
+    }
+}
+
+/**
+ * The mockups' stat pair ("Best score 7,593 | Reaction speed 285 ms"): two dark cards side by side, fused by the
+ * neck between them. Level (the word in light numerals over a three-segment meter) and People (the count). The
+ * camera setup below gives the shot.
+ */
+@Composable
+private fun PoseFacts(pose: PoseTemplate, modifier: Modifier = Modifier) {
+    val level = Difficulty.label(pose.difficulty)
+    ConnectedCardRow(modifier.fillMaxWidth()) {
+        CardSegment(
+            // Read as one phrase; the meter repeats the word.
+            modifier = Modifier.clearAndSetSemantics { contentDescription = "Difficulty: $level" },
+            contentPadding = PaddingValues(start = Space.cardPadding, end = Space.l, top = Space.l + Space.xs, bottom = Space.cardPadding),
+        ) {
+            Stat(label = "Level", value = level, valueStyle = FactValueStyle, spacing = Space.m, minValueSize = 18.sp)
+            Spacer(Modifier.height(Space.m))
+            SegmentedProgress(
+                progress = pose.difficulty.coerceIn(1, 3) / 3f,
+                segments = 3,
+                height = 6.dp,
+                modifier = Modifier.width(64.dp),
+            )
+        }
+        CardSegment(contentPadding = PaddingValues(start = Space.cardPadding, end = Space.l, top = Space.l + Space.xs, bottom = Space.cardPadding)) {
+            Stat(label = "People", value = "${pose.personCount}", valueStyle = FactValueStyle, spacing = Space.m, minValueSize = 18.sp)
         }
     }
 }
 
-/** A label in Supporting mist over its value in Body large cream, read as one node ("Level, Easy"). */
-@Composable
-private fun Fact(label: String, value: String, modifier: Modifier = Modifier, extra: @Composable () -> Unit = {}) {
-    Column(modifier.semantics(mergeDescendants = true) {}) {
-        Text(label, style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted, maxLines = 1)
-        Spacer(Modifier.height(Space.xs))
-        Text(value, style = PoseitType.bodyLarge, color = PoseitColors.textPrimaryInverted, maxLines = 2)
-        extra()
-    }
-}
+/** The stat pair's values: light numerals, a size down from the mockups' 7,593 so "Advanced" fits half a phone. */
+private val FactValueStyle = PoseitType.numeral(30.sp)
 
 /**
  * The pose on the dark stage, inside cream viewfinder frame marks at the corners of its photo frame, with the

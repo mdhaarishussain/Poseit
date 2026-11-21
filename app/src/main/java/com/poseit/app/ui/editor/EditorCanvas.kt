@@ -277,8 +277,9 @@ private fun DrawScope.drawFigures(vp: EditorViewport, viewModel: PoseEditorViewM
                 style = FigureStyle.SILHOUETTE,
                 fill = PoseitColors.figureTones[i % PoseitColors.figureTones.size],
                 alpha = if (isSelected || !multi) 1f else 0.45f,
-                // Contour grey rather than ink, so the face dot can't be mistaken for an ink joint handle.
-                faceColor = PoseitColors.figureContour,
+                // No face dot here: the head's drag handle already shows where the head points, and a dot beside it
+                // reads as a stray handle.
+                showFaceMarker = false,
             ),
         )
     }

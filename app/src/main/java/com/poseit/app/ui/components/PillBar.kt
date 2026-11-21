@@ -60,7 +60,8 @@ fun FloatingPillBar(
 
 /**
  * The middle piece of a [FloatingPillBar]: a Large [SegmentedPill] of views (Role.Tab) that takes the remaining
- * width, e.g. "Poses" / "Photos".
+ * width, e.g. "Poses" / "Photos". An option that opens another screen rather than switching the view in place
+ * should be a button: give it [Role.Button] in [optionRoles] and say where it goes in [onClickLabels].
  */
 @Composable
 fun RowScope.PillBarSegments(
@@ -68,6 +69,8 @@ fun RowScope.PillBarSegments(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    optionRoles: List<Role?>? = null,
+    onClickLabels: List<String?>? = null,
 ) = SegmentedPill(
     options = options,
     selectedIndex = selectedIndex,
@@ -75,4 +78,6 @@ fun RowScope.PillBarSegments(
     modifier = modifier.weight(1f),
     size = SegmentedPillSize.Large,
     role = Role.Tab,
+    optionRoles = optionRoles,
+    onClickLabels = onClickLabels,
 )

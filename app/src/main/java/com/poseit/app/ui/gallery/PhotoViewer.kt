@@ -231,13 +231,16 @@ internal fun PhotoViewer(
     }
 }
 
-/** "2 / 12" and the date taken on a dark pill, like the camera's control discs, so it reads over any photo. */
+/**
+ * "2 / 12" and the date taken on an opaque dark-card pill, so the words keep their contrast over a white wall or a
+ * bright sky (a see-through scrim would let a bright photo wash them out; the icon-only discs can stay see-through).
+ */
 @Composable
 private fun PhotoPosition(position: String, date: String, modifier: Modifier = Modifier) {
     Column(
         modifier
             .heightIn(min = 48.dp)
-            .background(PoseitColors.cameraControlScrim, PoseitShapes.Pill)
+            .background(PoseitColors.backgroundCard, PoseitShapes.Pill)
             .padding(horizontal = Space.l, vertical = Space.xs),
         verticalArrangement = Arrangement.Center,
     ) {
@@ -255,8 +258,9 @@ private fun PhotoPosition(position: String, date: String, modifier: Modifier = M
 }
 
 /**
- * Delete / Keep, the mockups' outlined-and-filled pill pair. Delete is the outlined pill on a dark disc colour with
- * the bright Miss red (the signal for dark surroundings) and a bin glyph; Keep is the primary action, a cream pill
+ * Delete / Keep, the mockups' outlined-and-filled pill pair. Delete is the outlined pill on an opaque dark-card fill
+ * (so its label keeps its contrast over any photo) with the bright Miss red (the signal for dark surroundings) and a
+ * bin glyph; Keep is the primary action, a cream pill
  * with ink capitals and a check, taking the remaining width so "Keep and finish" fits (on two lines at most).
  */
 @Composable
@@ -276,16 +280,16 @@ private fun ReviewButtons(enabled: Boolean, isLast: Boolean, onDelete: () -> Uni
             SecondaryButton(
                 onClick = onDelete,
                 enabled = enabled,
-                modifier = Modifier.background(PoseitColors.cameraControlScrim, PoseitShapes.Pill),
+                modifier = Modifier.background(PoseitColors.backgroundCard, PoseitShapes.Pill),
             ) {
                 Icon(PoseitIcons.delete, contentDescription = null, tint = red, modifier = Modifier.size(IconSize.inline))
                 Spacer(Modifier.width(Space.s))
-                CapsLabel("Delete", color = red)
+                CapsLabel("Delete", color = red, style = PoseitType.capsButton)
             }
             PrimaryButton(onClick = onKeep, enabled = enabled, modifier = Modifier.weight(1f)) {
                 Icon(PoseitIcons.check, contentDescription = null, modifier = Modifier.size(IconSize.inline))
                 Spacer(Modifier.width(Space.s))
-                CapsLabel(if (isLast) "Keep and finish" else "Keep", maxLines = 2)
+                CapsLabel(if (isLast) "Keep and finish" else "Keep", maxLines = 2, style = PoseitType.capsButton)
             }
         }
     }

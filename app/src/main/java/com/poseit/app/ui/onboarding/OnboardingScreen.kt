@@ -1,17 +1,19 @@
 package com.poseit.app.ui.onboarding
 
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.BoxWithConstraints
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,7 +48,8 @@ import com.poseit.app.ui.components.CapsLabel
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.PoseitSpinner
-import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.components.ButtonPair
+import com.poseit.app.ui.components.SecondaryButton
 import com.poseit.app.ui.components.TopBarContent
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitType
@@ -59,7 +62,7 @@ private const val PAGE_COUNT = 4
  * First-run intro + camera permission explanation (docs/DESIGN.md, "Onboarding"): on the cream canvas, each page
  * is one connected stack of dark cards filling the screen, like the mockups' "Train your coordination." screen: the
  * top bar card (the wordmark and the step badge), fused to the headline card, fused to a tall picture card where
- * the lay figure shows the idea. Below the stack: "Next" / "Get started" in lavender and "Skip".
+ * the lay figure shows the idea. Below the stack: "Next" / "Get started" in lavender beside an outlined "Skip".
  */
 @Composable
 fun OnboardingScreen(onDone: () -> Unit) {
@@ -144,35 +147,31 @@ fun OnboardingScreen(onDone: () -> Unit) {
                 }
             }
 
-            Row(
-                Modifier
+            // The mockups' pair: an outlined Skip beside the lavender Next (stacked when large text won't fit them).
+            ButtonPair(
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Space.edge, vertical = Space.edge),
-                horizontalArrangement = Arrangement.spacedBy(Space.edge),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (!isLast) {
-                    TertiaryButton(
-                        "Skip",
-                        onClick = { scope.launch { pagerState.animateScrollToPage(PAGE_COUNT - 1) } },
-                        // The label lines up with the text inside the cards above.
-                        modifier = Modifier.padding(start = Space.cardPadding - Space.m),
-                    )
-                }
-                AccentButton(
-                    onClick = {
-                        if (isLast) getStarted() else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-                    },
-                    enabled = !(isLast && finishing),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    if (isLast && finishing) {
-                        PoseitSpinner(size = 20.dp, color = PoseitColors.onAccent)
-                    } else {
-                        CapsLabel(if (isLast) "Get started" else "Next")
+                first = if (isLast) {
+                    null
+                } else {
+                    { SecondaryButton("Skip", onClick = { scope.launch { pagerState.animateScrollToPage(PAGE_COUNT - 1) } }) }
+                },
+                second = {
+                    AccentButton(
+                        onClick = {
+                            if (isLast) getStarted() else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                        },
+                        enabled = !(isLast && finishing),
+                    ) {
+                        if (isLast && finishing) {
+                            PoseitSpinner(size = 20.dp, color = PoseitColors.onAccent)
+                        } else {
+                            CapsLabel(if (isLast) "Get started" else "Next", style = PoseitType.capsButton)
+                        }
                     }
-                }
-            }
+                },
+            )
         }
     }
 }
@@ -190,56 +189,60 @@ private fun OnboardingPage(
     note: String? = null,
     picture: @Composable BoxScope.() -> Unit,
 ) {
-    FillingCardStack(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = Space.edge),
-        // A large font pushes the stack past the bottom rather than crushing the picture.
-        minFillHeight = 120.dp,
-        cards = listOf<@Composable () -> Unit>(
-            {
-                TopBarContent(
-                    "Poseit",
-                    wordmark = true,
-                    badge = {
-                        Badge(
-                            "${page + 1} / $PAGE_COUNT",
-                            Modifier.clearAndSetSemantics { contentDescription = "Page ${page + 1} of $PAGE_COUNT" },
-                        )
-                    },
-                )
-            },
-            {
-                CardSegment(contentPadding = PaddingValues(start = Space.cardPadding, end = Space.cardPadding, top = Space.l, bottom = Space.cardPadding)) {
-                    Text(
-                        title,
-                        style = PoseitType.display,
-                        color = PoseitColors.textPrimaryInverted,
-                        modifier = Modifier.semantics { heading() },
+    // The stack fills the page; with very large text it grows past it and the page scrolls, rather than crushing the
+    // picture or running under the buttons.
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        FillingCardStack(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(top = Space.edge)
+                .heightIn(min = maxHeight - Space.edge),
+            minFillHeight = 120.dp,
+            cards = listOf<@Composable () -> Unit>(
+                {
+                    TopBarContent(
+                        "Poseit",
+                        wordmark = true,
+                        badge = {
+                            Badge(
+                                "${page + 1} / $PAGE_COUNT",
+                                Modifier.clearAndSetSemantics { contentDescription = "Page ${page + 1} of $PAGE_COUNT" },
+                            )
+                        },
                     )
-                    Spacer(Modifier.height(Space.m))
-                    Text(body, style = PoseitType.body, color = PoseitColors.textSecondaryInverted)
-                }
-            },
-            {
-                Column(Modifier.fillMaxSize()) {
-                    Box(
-                        Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center,
-                        content = picture,
-                    )
-                    if (note != null) {
+                },
+                {
+                    CardSegment(contentPadding = PaddingValues(start = Space.cardPadding, end = Space.cardPadding, top = Space.l, bottom = Space.cardPadding)) {
                         Text(
-                            note,
-                            style = PoseitType.supporting,
-                            color = PoseitColors.textSecondaryInverted,
-                            modifier = Modifier.padding(start = Space.cardPadding, end = Space.cardPadding, bottom = Space.cardPadding - Space.xs),
+                            title,
+                            style = PoseitType.display,
+                            color = PoseitColors.textPrimaryInverted,
+                            modifier = Modifier.semantics { heading() },
                         )
+                        Spacer(Modifier.height(Space.m))
+                        Text(body, style = PoseitType.body, color = PoseitColors.textSecondaryInverted)
                     }
-                }
-            },
-        ),
-    )
+                },
+                {
+                    Column(Modifier.fillMaxSize()) {
+                        Box(
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                            content = picture,
+                        )
+                        if (note != null) {
+                            Text(
+                                note,
+                                style = PoseitType.supporting,
+                                color = PoseitColors.textSecondaryInverted,
+                                modifier = Modifier.padding(start = Space.cardPadding, end = Space.cardPadding, bottom = Space.cardPadding - Space.xs),
+                            )
+                        }
+                    }
+                },
+            ),
+        )
+    }
 }

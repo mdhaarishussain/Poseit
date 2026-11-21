@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,6 +16,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.sp
 import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.toneColors
@@ -25,6 +30,8 @@ import com.poseit.app.ui.theme.toneColors
  *
  * @param valueStyle [PoseitType.numeralMedium] by default; [PoseitType.numeralLarge] for a headline figure
  * @param spacing the space above the value (pushes it to the card's foot when the card is taller)
+ * @param minValueSize when set, a value too wide for the card steps down towards this size instead of being cut
+ *   (a word such as "Advanced" in half a phone's width at large text sizes)
  */
 @Composable
 fun Stat(
@@ -34,6 +41,7 @@ fun Stat(
     caption: String? = null,
     valueStyle: TextStyle = PoseitType.numeralMedium,
     spacing: Dp = Space.l,
+    minValueSize: TextUnit = TextUnit.Unspecified,
 ) {
     val colors = toneColors()
     Column(modifier.semantics(mergeDescendants = true) {}) {
@@ -42,7 +50,17 @@ fun Stat(
             Text(caption, style = PoseitType.supporting, color = colors.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         Spacer(Modifier.height(spacing))
-        Text(value, style = valueStyle, color = colors.textPrimary, maxLines = 1)
+        if (minValueSize.isSpecified) {
+            BasicText(
+                value,
+                style = valueStyle.copy(color = colors.textPrimary),
+                maxLines = 1,
+                softWrap = false,
+                autoSize = TextAutoSize.StepBased(minFontSize = minValueSize, maxFontSize = valueStyle.fontSize, stepSize = 1.sp),
+            )
+        } else {
+            Text(value, style = valueStyle, color = colors.textPrimary, maxLines = 1)
+        }
     }
 }
 

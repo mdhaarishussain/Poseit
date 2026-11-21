@@ -15,8 +15,8 @@ android {
         applicationId = "com.poseit.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
         // Phones only (keeps the APK small); add "x86_64" to run on an emulator.

@@ -57,7 +57,8 @@ import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.ConnectedCardDefaults
 import com.poseit.app.ui.components.PoseThumbnail
-import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.components.ButtonPair
+import com.poseit.app.ui.components.SecondaryButton
 import com.poseit.app.ui.components.TopBarCard
 import com.poseit.app.ui.components.TopBarHeight
 import com.poseit.app.ui.components.TopBarInsets
@@ -175,7 +176,7 @@ internal fun CameraPermissionGate(onBack: () -> Unit, content: @Composable () ->
  * Why Poseit needs the camera, in the mockups' connected stack on the canvas: the top bar card fused to a headline
  * card (a Display headline and one paragraph) and, when the screen has room, a picture card where a figure stands
  * in viewfinder marks. The one action sits at the bottom within thumb reach ("Allow camera", or "Open settings"
- * after a permanent denial), with "Not now" under it.
+ * after a permanent denial), with an outlined "Not now" beside it.
  */
 @Composable
 private fun PermissionRationale(
@@ -243,19 +244,20 @@ private fun PermissionRationale(
                 )
             }
         }
-        Column(
-            Modifier
+        // An outlined "Not now" beside the one action, like the mockups' pill pairs; stacked under it at large text.
+        ButtonPair(
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = Space.edge, end = Space.edge, top = Space.l, bottom = Space.s),
-        ) {
-            if (permanentlyDenied) {
-                AccentButton("Open settings", onClick = onOpenSettings, modifier = Modifier.fillMaxWidth())
-            } else {
-                AccentButton("Allow camera", onClick = onAllow, modifier = Modifier.fillMaxWidth())
-            }
-            Spacer(Modifier.height(Space.xs))
-            TertiaryButton("Not now", onClick = onBack, modifier = Modifier.fillMaxWidth())
-        }
+            first = { SecondaryButton("Not now", onClick = onBack) },
+            second = {
+                if (permanentlyDenied) {
+                    AccentButton("Open settings", onClick = onOpenSettings)
+                } else {
+                    AccentButton("Allow camera", onClick = onAllow)
+                }
+            },
+        )
     }
 }
 

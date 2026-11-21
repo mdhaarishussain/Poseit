@@ -30,9 +30,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import com.poseit.app.ui.components.ConnectedCardStack
+import com.poseit.app.ui.components.HairlineDivider
 import com.poseit.app.ui.components.PoseitSnackbarHost
 import com.poseit.app.ui.components.TopBarCard
 import com.poseit.app.ui.components.TopBarContent
@@ -57,7 +59,8 @@ import com.poseit.app.ui.theme.Space
  *
  * @param title the in-stack bar's title ("" when the first joined card carries the screen's name)
  * @param bottomBar pinned below the scrolling content on the canvas (e.g. [PinnedActions]); it pads the navigation
- *   bar itself
+ *   bar itself. A hairline marks its top edge while there is more page under it, so a card cut off by the band
+ *   reads as "scroll for more" rather than as a clipping bug.
  * @param content the rest of the page under the stack, on the canvas
  */
 @Composable
@@ -70,7 +73,7 @@ internal fun ScrollingStackScreen(
     actions: (@Composable RowScope.() -> Unit)? = null,
     scrollState: ScrollState = rememberScrollState(),
     snackbarHostState: SnackbarHostState? = null,
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
     joined: @Composable () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -80,7 +83,16 @@ internal fun ScrollingStackScreen(
         modifier = modifier,
         containerColor = PoseitColors.backgroundBody,
         contentWindowInsets = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom),
-        bottomBar = bottomBar,
+        bottomBar = {
+            if (bottomBar != null) {
+                Column {
+                    // Always laid out (so the page's height doesn't change when it appears), drawn only while the
+                    // page can scroll on.
+                    HairlineDivider(Modifier.alpha(if (scrollState.canScrollForward) 1f else 0f))
+                    bottomBar()
+                }
+            }
+        },
         snackbarHost = { if (snackbarHostState != null) PoseitSnackbarHost(snackbarHostState) },
     ) { padding ->
         Box(
@@ -132,7 +144,7 @@ internal fun ScrollingStackScreen(
 
 /**
  * The band at the foot of a [ScrollingStackScreen]: the canvas, [Space.edge] around its content, above the
- * navigation bar and the keyboard. No rule above it: the page scrolls under the band.
+ * navigation bar and the keyboard. The screen draws a hairline above it while the page scrolls on under it.
  */
 @Composable
 internal fun PinnedActions(modifier: Modifier = Modifier, content: @Composable () -> Unit) {

@@ -1,7 +1,6 @@
 package com.poseit.app.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,9 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitRadius
 import com.poseit.app.ui.theme.PoseitShapes
 import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
@@ -95,7 +94,7 @@ fun PoseTile(
                     .clip(shape)
                     .background(PoseitColors.backgroundStage)
                     .indication(source, ripple())
-                    .then(if (selected) Modifier.border(2.dp, PoseitColors.accent, shape) else Modifier),
+                    .selectedRing(selected, if (regular) PoseitRadius.tile else PoseitRadius.control),
             ) {
                 Box(
                     Modifier

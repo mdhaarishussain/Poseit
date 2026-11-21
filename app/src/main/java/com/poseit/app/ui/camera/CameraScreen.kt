@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -44,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -56,7 +54,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -69,6 +66,7 @@ import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.PoseitSnackbarHost
 import com.poseit.app.ui.components.ProvideSurfaceTone
 import com.poseit.app.ui.theme.LightSystemBarIcons
+import com.poseit.app.ui.theme.LightSystemBarIconsEffect
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitMotion
 import com.poseit.app.ui.theme.PoseitShapes
@@ -112,38 +110,14 @@ private fun CameraScreenContent(initialPoseId: String?, onBack: () -> Unit, onOp
 /** Light system-bar icons on the black camera UI, and keep the screen on (hands-free shooting). */
 @Composable
 private fun CameraWindowEffects() {
+    LightSystemBarIconsEffect()
     val view = LocalView.current
     DisposableEffect(view) {
-        val window = view.context.findActivity()?.window
-        val controller = window?.let { WindowCompat.getInsetsController(it, view) }
-        val lightStatus = controller?.isAppearanceLightStatusBars
-        val lightNav = controller?.isAppearanceLightNavigationBars
-        controller?.isAppearanceLightStatusBars = false
-        controller?.isAppearanceLightNavigationBars = false
-        // API 26-28 draw the app's own translucent canvas-coloured nav-bar scrim (API 29+ use the system's contrast scrim,
-        // which follows the icon colour; API 24-25 already use a dark one): swap in a dark scrim for white icons.
-        val navColor = if (Build.VERSION.SDK_INT in 26..28) window?.navigationBarColorCompat else null
-        if (navColor != null) window?.navigationBarColorCompat = PoseitColors.backgroundCamera.copy(alpha = 0.5f).toArgb()
         val keepOn = view.keepScreenOn
         view.keepScreenOn = true
-        onDispose {
-            controller?.let { c ->
-                if (lightStatus != null) c.isAppearanceLightStatusBars = lightStatus
-                if (lightNav != null) c.isAppearanceLightNavigationBars = lightNav
-            }
-            if (navColor != null) window?.navigationBarColorCompat = navColor
-            view.keepScreenOn = keepOn
-        }
+        onDispose { view.keepScreenOn = keepOn }
     }
 }
-
-/** Window.navigationBarColor, which is deprecated (and ignored) on API 35+; only used on API 26-28 here. */
-@Suppress("DEPRECATION")
-private var Window.navigationBarColorCompat: Int
-    get() = navigationBarColor
-    set(value) {
-        navigationBarColor = value
-    }
 
 @Composable
 private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery: () -> Unit) {

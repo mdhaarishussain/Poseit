@@ -14,6 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
@@ -79,6 +84,10 @@ internal val PoseitColorScheme: ColorScheme = lightColorScheme(
  */
 @Composable
 fun PoseitTheme(content: @Composable () -> Unit) {
+    // The outermost theme owns the window's system-bar icon colour; nested themes (dialogs, sheets) share its counter.
+    val outer = LocalDarkScreens.current
+    val darkScreens = outer ?: remember { DarkScreenCounter() }
+    if (outer == null) SystemBarIconsOwner(darkScreens)
     ReportNightMode(night = false) {
         MaterialTheme(
             colorScheme = PoseitColorScheme,
@@ -86,6 +95,7 @@ fun PoseitTheme(content: @Composable () -> Unit) {
             shapes = PoseitMaterialShapes,
         ) {
             CompositionLocalProvider(
+                LocalDarkScreens provides darkScreens,
                 LocalSurfaceTone provides SurfaceTone.Light,
                 LocalContentColor provides PoseitColors.textPrimary,
                 content = content,
@@ -104,30 +114,47 @@ fun LightSystemBarIcons(content: @Composable () -> Unit) = ReportNightMode(night
 
 /**
  * While in composition, gives the activity window light (white) status- and navigation-bar icons, for a screen whose
- * top and bottom edges are dark (the photo viewer, a full-bleed dark card). Restores the previous appearance when it
- * leaves. Cream screens need nothing: the app's default is dark icons.
+ * top and bottom edges are dark (the camera, the photo viewer). Cream screens need nothing: the app's default is dark
+ * icons.
+ *
+ * Screens don't save and restore the window's appearance themselves: during a cross-fade two of them are composed at
+ * once and would restore in the wrong order. Each one only counts itself in and out, and the outermost [PoseitTheme]
+ * is the single owner that sets light icons while the count is above zero.
  */
 @Composable
 fun LightSystemBarIconsEffect() {
+    val counter = LocalDarkScreens.current ?: return
+    DisposableEffect(counter) {
+        counter.count++
+        onDispose { counter.count-- }
+    }
+}
+
+/** How many screens that want light system-bar icons are in composition ([LightSystemBarIconsEffect]). */
+@Stable
+internal class DarkScreenCounter {
+    var count by mutableIntStateOf(0)
+}
+
+private val LocalDarkScreens = staticCompositionLocalOf<DarkScreenCounter?> { null }
+
+/** Sets the window's bar icons from [counter]: light while any dark screen is composed, the app's dark icons otherwise. */
+@Composable
+private fun SystemBarIconsOwner(counter: DarkScreenCounter) {
     val view = LocalView.current
-    DisposableEffect(view) {
-        val window = view.context.findActivityWindow()
+    val window = remember(view) { view.context.findActivityWindow() }
+    // API 26-28 draw the app's own translucent canvas-coloured nav-bar scrim (API 29+ use the system's contrast
+    // scrim, which follows the icon colour): behind white icons it is swapped for a dark one.
+    val defaultNavColor = remember(window) { if (Build.VERSION.SDK_INT in 26..28) window?.navigationBarColorCompat else null }
+    val dark = counter.count > 0
+    DisposableEffect(window, dark) {
         val controller = window?.let { WindowCompat.getInsetsController(it, view) }
-        val lightStatus = controller?.isAppearanceLightStatusBars
-        val lightNav = controller?.isAppearanceLightNavigationBars
-        controller?.isAppearanceLightStatusBars = false
-        controller?.isAppearanceLightNavigationBars = false
-        // API 26-28 draw the app's own translucent canvas-coloured nav-bar scrim (API 29+ use the system's contrast
-        // scrim, which follows the icon colour): swap in a dark one behind white icons.
-        val navColor = if (Build.VERSION.SDK_INT in 26..28) window?.navigationBarColorCompat else null
-        if (navColor != null) window?.navigationBarColorCompat = PoseitColors.backgroundCard.copy(alpha = 0.6f).toArgb()
-        onDispose {
-            controller?.let { c ->
-                if (lightStatus != null) c.isAppearanceLightStatusBars = lightStatus
-                if (lightNav != null) c.isAppearanceLightNavigationBars = lightNav
-            }
-            if (navColor != null) window?.navigationBarColorCompat = navColor
+        controller?.isAppearanceLightStatusBars = !dark
+        controller?.isAppearanceLightNavigationBars = !dark
+        if (defaultNavColor != null) {
+            window?.navigationBarColorCompat = if (dark) PoseitColors.backgroundCamera.copy(alpha = 0.5f).toArgb() else defaultNavColor
         }
+        onDispose {}
     }
 }
 

@@ -19,10 +19,15 @@ import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.PeopleOutline
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -97,8 +102,65 @@ object PoseitIcons {
     /** share */
     val share: ImageVector get() = Icons.Outlined.Share
 
-    /** person: the people count on a filter pill. */
+    /** person: the people count on a filter pill (one person). */
     val person: ImageVector get() = Icons.Outlined.Person
+
+    /**
+     * group (Material Symbols): two people, for a couple. The hollow PeopleOutline glyph, drawn with the same stroke
+     * as [person], so the people pills read as one family (the legacy Outlined People draws solid figures).
+     */
+    val couple: ImageVector get() = Icons.Outlined.PeopleOutline
+
+    /**
+     * groups (Material Symbols): three people, for a group. Drawn here with the hollow head and body of [person]
+     * flanked by two people behind, because the bundled Outlined Groups draws its side figures solid and Outlined
+     * Group is the same two-person glyph as [couple].
+     */
+    val group: ImageVector get() = GroupGlyph
+}
+
+/** The three-person glyph of [PoseitIcons.group], on the 24dp grid of the Outlined set, with its ~1.6dp walls. */
+private val GroupGlyph: ImageVector by lazy {
+    ImageVector.Builder(name = "Poseit.Group", defaultWidth = 24.dp, defaultHeight = 24.dp, viewportWidth = 24f, viewportHeight = 24f)
+        .path(fill = SolidColor(Color.Black), pathFillType = PathFillType.EvenOdd) {
+            fun circle(cx: Float, cy: Float, r: Float) {
+                moveTo(cx - r, cy)
+                arcToRelative(r, r, 0f, isMoreThanHalf = true, isPositiveArc = true, dx1 = r * 2, dy1 = 0f)
+                arcToRelative(r, r, 0f, isMoreThanHalf = true, isPositiveArc = true, dx1 = -r * 2, dy1 = 0f)
+                close()
+            }
+            // The person in front: a ring for the head, a hollow shoulder shape for the body (as in Outlined Person).
+            circle(12f, 8.4f, 3.4f)
+            circle(12f, 8.4f, 1.6f)
+            moveTo(6.6f, 19f)
+            verticalLineTo(17.9f)
+            curveTo(6.6f, 15.9f, 9.9f, 14.7f, 12f, 14.7f)
+            curveTo(14.1f, 14.7f, 17.4f, 15.9f, 17.4f, 17.9f)
+            verticalLineTo(19f)
+            close()
+            moveTo(8.7f, 17.3f)
+            curveTo(9.4f, 16.9f, 10.7f, 16.5f, 12f, 16.5f)
+            curveTo(13.3f, 16.5f, 14.6f, 16.9f, 15.3f, 17.3f)
+            close()
+            // The two behind: smaller head rings and the slivers of their shoulders either side.
+            circle(4.9f, 10f, 2.5f)
+            circle(4.9f, 10f, 1f)
+            circle(19.1f, 10f, 2.5f)
+            circle(19.1f, 10f, 1f)
+            moveTo(1f, 19f)
+            verticalLineTo(18.2f)
+            curveTo(1f, 16.8f, 2.6f, 15.7f, 4.9f, 15.4f)
+            curveTo(4.1f, 16.1f, 3.6f, 17f, 3.6f, 17.9f)
+            verticalLineTo(19f)
+            close()
+            moveTo(23f, 19f)
+            verticalLineTo(18.2f)
+            curveTo(23f, 16.8f, 21.4f, 15.7f, 19.1f, 15.4f)
+            curveTo(19.9f, 16.1f, 20.4f, 17f, 20.4f, 17.9f)
+            verticalLineTo(19f)
+            close()
+        }
+        .build()
 }
 
 /** Icon sizes: [standalone] glyphs (icon buttons, row ends) and [inline] ones next to a label. */

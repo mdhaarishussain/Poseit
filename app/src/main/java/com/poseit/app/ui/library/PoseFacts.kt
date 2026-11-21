@@ -5,9 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Groups
-import androidx.compose.material.icons.outlined.People
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,8 +39,8 @@ internal fun peopleLabel(count: Int): String = when {
  */
 internal fun peopleIcon(count: Int): ImageVector = when {
     count <= 1 -> PoseitIcons.person
-    count == 2 -> Icons.Outlined.People
-    else -> Icons.Outlined.Groups
+    count == 2 -> PoseitIcons.couple
+    else -> PoseitIcons.group
 }
 
 /**

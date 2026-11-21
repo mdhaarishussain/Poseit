@@ -1,5 +1,11 @@
 package com.poseit.app.ui.library
 
+import androidx.compose.runtime.remember
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +21,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,50 +67,81 @@ internal fun Modifier.bleedHorizontally(amount: Dp): Modifier = layout { measura
 }
 
 /**
- * The search field (Astryx Field): a cream surface with 16dp corners and a hairline edge that turns ink while
- * focused, an outlined search glyph and a clear button while there is text. The keyboard's search key just hides
- * the keyboard (results are live).
+ * The search field (Astryx Field): a 48dp cream field with 16dp corners and the 1dp ink outline of the mockups'
+ * cream rows (2dp while focused), an outlined search glyph and a clear button while there is text. 48dp like the
+ * tab track under it, so the header has two heights: the field and tabs, and the 40dp filter pills. The keyboard's
+ * search key just hides the keyboard (results are live).
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LibrarySearchField(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
     val keyboard = LocalSoftwareKeyboardController.current
     val focus: FocusManager = LocalFocusManager.current
-    OutlinedTextField(
+    val interaction = remember { MutableInteractionSource() }
+    val colors = OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = PoseitColors.backgroundSurface,
+        unfocusedContainerColor = PoseitColors.backgroundSurface,
+        focusedBorderColor = PoseitColors.borderEmphasized,
+        unfocusedBorderColor = PoseitColors.borderEmphasized,
+        focusedTextColor = PoseitColors.textPrimary,
+        unfocusedTextColor = PoseitColors.textPrimary,
+        cursorColor = PoseitColors.textPrimary,
+        focusedPlaceholderColor = PoseitColors.textSecondary,
+        unfocusedPlaceholderColor = PoseitColors.textSecondary,
+        focusedLeadingIconColor = PoseitColors.textPrimary,
+        unfocusedLeadingIconColor = PoseitColors.textPrimary,
+    )
+    BasicTextField(
         value = query,
         onValueChange = onQueryChange,
-        modifier = modifier.fillMaxWidth(),
-        textStyle = PoseitType.bodyLarge,
-        placeholder = {
-            Text("Search poses, places, moods…", style = PoseitType.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        leadingIcon = { Icon(PoseitIcons.search, contentDescription = null, modifier = Modifier.size(IconSize.standalone)) },
-        trailingIcon = if (query.isNotEmpty()) {
-            { PlainIconButton(PoseitIcons.close, "Clear search", onClick = { onQueryChange("") }, tint = PoseitColors.textSecondary) }
-        } else {
-            null
-        },
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = SearchFieldHeight),
+        textStyle = PoseitType.bodyLarge.copy(color = PoseitColors.textPrimary),
+        cursorBrush = SolidColor(PoseitColors.textPrimary),
         singleLine = true,
-        shape = PoseitShapes.Row,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = PoseitColors.backgroundSurface,
-            unfocusedContainerColor = PoseitColors.backgroundSurface,
-            focusedBorderColor = PoseitColors.borderEmphasized,
-            unfocusedBorderColor = PoseitColors.border,
-            focusedTextColor = PoseitColors.textPrimary,
-            unfocusedTextColor = PoseitColors.textPrimary,
-            cursorColor = PoseitColors.textPrimary,
-            focusedPlaceholderColor = PoseitColors.textSecondary,
-            unfocusedPlaceholderColor = PoseitColors.textSecondary,
-            focusedLeadingIconColor = PoseitColors.textPrimary,
-            unfocusedLeadingIconColor = PoseitColors.textSecondary,
-        ),
+        interactionSource = interaction,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
             keyboard?.hide()
             focus.clearFocus()
         }),
-    )
+    ) { inner ->
+        OutlinedTextFieldDefaults.DecorationBox(
+            value = query,
+            innerTextField = inner,
+            enabled = true,
+            singleLine = true,
+            visualTransformation = VisualTransformation.None,
+            interactionSource = interaction,
+            placeholder = {
+                Text("Search poses, places, moods…", style = PoseitType.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            },
+            leadingIcon = { Icon(PoseitIcons.search, contentDescription = null, modifier = Modifier.size(IconSize.standalone)) },
+            trailingIcon = if (query.isNotEmpty()) {
+                { PlainIconButton(PoseitIcons.close, "Clear search", onClick = { onQueryChange("") }, tint = PoseitColors.textSecondary) }
+            } else {
+                null
+            },
+            colors = colors,
+            contentPadding = PaddingValues(vertical = Space.m),
+            container = {
+                OutlinedTextFieldDefaults.Container(
+                    enabled = true,
+                    isError = false,
+                    interactionSource = interaction,
+                    colors = colors,
+                    shape = PoseitShapes.Row,
+                    focusedBorderThickness = 2.dp,
+                    unfocusedBorderThickness = 1.dp,
+                )
+            },
+        )
+    }
 }
+
+/** Height of the search field, the same as the tab track under it. */
+private val SearchFieldHeight = 48.dp
 
 /**
  * All / Favourites / Recent / My poses as pill tabs: a dark track with the lavender selection sliding to the chosen
@@ -249,9 +285,10 @@ internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () ->
                 Column {
                     Text("Today's pose", style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
                     Spacer(Modifier.height(Space.xs))
+                    // The display cut, Light and tightly tracked, like every other hero name and the mockups' headline.
                     Text(
                         pose.name,
-                        style = PoseitType.headline,
+                        style = PoseitType.display,
                         color = PoseitColors.textPrimaryInverted,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,

@@ -38,10 +38,13 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -66,6 +69,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -87,6 +91,11 @@ import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.Badge
 import com.poseit.app.ui.components.Banner
 import com.poseit.app.ui.components.ButtonForm
+import com.poseit.app.ui.components.ButtonSize
+import com.poseit.app.ui.components.EmptyPictureCard
+import com.poseit.app.ui.components.FillingCardStack
+import com.poseit.app.ui.components.PinnedTopBar
+import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.ConnectedCardStack
 import com.poseit.app.ui.components.EmptyState
@@ -214,6 +223,8 @@ fun GalleryScreen(onBack: () -> Unit, onOpenCamera: () -> Unit) {
         viewerUri = photo.uri.toString()
         viewerOpen = true
     }
+    val gridState = rememberLazyGridState()
+    val barAway = rememberTopBarScrolledAway(gridState) && state.photos.isNotEmpty() && !state.loading
     Box(Modifier.fillMaxSize().background(PoseitColors.backgroundBody)) {
         Scaffold(
             snackbarHost = { if (!viewerOpen) PoseitSnackbarHost(snackbar, Modifier.navigationBarsPadding()) },
@@ -226,7 +237,16 @@ fun GalleryScreen(onBack: () -> Unit, onOpenCamera: () -> Unit) {
                 onRefresh = { viewModel.refresh(userInitiated = true) },
                 modifier = Modifier.fillMaxSize().padding(padding),
                 state = refreshState,
-                indicator = { RefreshIndicator(refreshState, state.refreshing, Modifier.align(Alignment.TopCenter)) },
+                // Below the status bar: the canvas band drawn over it would otherwise hide the spinner for most of a pull.
+                indicator = {
+                    RefreshIndicator(
+                        refreshState,
+                        state.refreshing,
+                        Modifier
+                            .align(Alignment.TopCenter)
+                            .windowInsetsPadding(WindowInsets.statusBars),
+                    )
+                },
             ) {
                 when {
                     state.loading -> Column(Modifier.fillMaxSize().padding(top = topInset(), start = Space.edge, end = Space.edge)) {
@@ -242,12 +262,13 @@ fun GalleryScreen(onBack: () -> Unit, onOpenCamera: () -> Unit) {
                         onBack = onBack,
                     )
                     else -> PhotoGrid(
+                        state = gridState,
                         photos = state.photos,
                         permissionMissing = permissionMissing,
                         onGrantPermission = ::requestPermission,
                         onOpen = ::openViewer,
                         header = {
-                            GalleryHeader(photoCount = state.photos.size, onBack = onBack) {
+                            GalleryHeader(photoCount = state.photos.size, onBack = onBack, hideBarSemantics = barAway) {
                                 ReviewCard(onReview = { openViewer(state.photos.first()) })
                             }
                         },
@@ -262,6 +283,15 @@ fun GalleryScreen(onBack: () -> Unit, onOpenCamera: () -> Unit) {
                 .fillMaxWidth()
                 .windowInsetsTopHeight(WindowInsets.statusBars)
                 .background(PoseitColors.backgroundBody),
+        )
+        // Back and Review stay one tap away once the header has scrolled up under the status bar.
+        PinnedTopBar(
+            visible = barAway && !viewerOpen,
+            title = "Your photos",
+            onBack = onBack,
+            actions = {
+                AccentButton("Review", onClick = { state.photos.firstOrNull()?.let(::openViewer) }, size = ButtonSize.Small)
+            },
         )
 
         AnimatedVisibility(
@@ -306,11 +336,14 @@ internal fun GalleryHeader(
     photoCount: Int,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    hideBarSemantics: Boolean = false,
     joined: (@Composable () -> Unit)? = null,
 ) {
     ConnectedCardStack(modifier.fillMaxWidth()) {
         TopBarContent(
             title = "Your photos",
+            // While the pinned bar stands in for it, keep a single Back in the tree.
+            modifier = if (hideBarSemantics) Modifier.clearAndSetSemantics {} else Modifier,
             onBack = onBack,
             badge = if (photoCount > 0) {
                 { Badge(photoCountLabel(photoCount)) }
@@ -382,11 +415,13 @@ internal fun PhotoGrid(
     onGrantPermission: () -> Unit,
     onOpen: (SavedPhoto) -> Unit,
     header: (@Composable () -> Unit)? = null,
+    state: LazyGridState = rememberLazyGridState(),
 ) {
     val days = remember(photos) { groupByDay(photos) }
     val context = LocalContext.current
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 104.dp),
+        state = state,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = Space.edge,
@@ -448,35 +483,47 @@ private fun EmptyGallery(
     onOpenCamera: () -> Unit,
     onBack: () -> Unit,
 ) {
-    // Scrollable so pull-to-refresh works and the message fits on small screens.
+    // Scrollable so pull-to-refresh works and the message fits on small screens. The stack fills the screen: the top
+    // bar, the card that says why it's empty, then a picture card that takes the rest, with the one action at its foot.
+    val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val top = topInset()
     BoxWithConstraints(Modifier.fillMaxSize()) {
+        val fill = maxHeight - top - navBottom - Space.edge
         Column(
             Modifier
                 .verticalScroll(rememberScrollState())
-                .heightIn(min = maxHeight)
                 .fillMaxWidth()
-                .padding(top = topInset(), start = Space.edge, end = Space.edge)
-                .navigationBarsPadding(),
+                .padding(top = top, start = Space.edge, end = Space.edge, bottom = navBottom + Space.edge),
         ) {
-            GalleryHeader(photoCount = 0, onBack = onBack) {
-                CardSegment(contentPadding = PaddingValues(horizontal = Space.cardPadding)) {
-                    if (permissionMissing) {
-                        EmptyState(
-                            title = "Let Poseit see your photos",
-                            message = "Allow access to photos to see the shots you took with Poseit. They stay on this phone.",
-                            horizontalPadding = 0.dp,
-                            action = { AccentButton("Allow access", onClick = onGrantPermission, form = ButtonForm.Block) },
-                        )
-                    } else {
-                        EmptyState(
-                            title = "No photos yet",
-                            message = "Photos you take with the pose camera show up here, and in Pictures/Poseit on this phone.",
-                            horizontalPadding = 0.dp,
-                            action = { AccentButton("Open the pose camera", onClick = onOpenCamera, form = ButtonForm.Block) },
-                        )
-                    }
-                }
+            val title = if (permissionMissing) "Let Poseit see your photos" else "No photos yet"
+            val message = if (permissionMissing) {
+                "Allow access to photos to see the shots you took with Poseit. They stay on this phone."
+            } else {
+                "Photos you take with the pose camera show up here, and in Pictures/Poseit on this phone."
             }
+            FillingCardStack(
+                modifier = Modifier.heightIn(min = fill),
+                minFillHeight = 96.dp,
+                cards = listOf<@Composable () -> Unit>(
+                    { TopBarContent(title = "Your photos", onBack = onBack) },
+                    {
+                        CardSegment(contentPadding = PaddingValues(horizontal = Space.cardPadding)) {
+                            EmptyState(title = title, message = message, horizontalPadding = 0.dp)
+                        }
+                    },
+                    {
+                        EmptyPictureCard(
+                            action = {
+                                if (permissionMissing) {
+                                    AccentButton("Allow access", onClick = onGrantPermission, modifier = Modifier.fillMaxWidth())
+                                } else {
+                                    AccentButton("Open the pose camera", onClick = onOpenCamera, modifier = Modifier.fillMaxWidth())
+                                }
+                            },
+                        )
+                    },
+                ),
+            )
         }
     }
 }

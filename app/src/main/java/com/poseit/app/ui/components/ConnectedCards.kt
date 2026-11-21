@@ -41,14 +41,14 @@ import kotlin.math.max
 import kotlin.math.min
 
 /*
- * The signature motif of v2 (docs/DESIGN.md, "Connected cards"): dark cards stacked a thin slot apart and fused
- * into one body, so the canvas only shows as a thin slot cut in from each side of every join. Each slot enters
+ * The signature motif of v2 (docs/DESIGN.md, "Connected cards"): dark cards stacked a slot apart and fused into one
+ * body, so the canvas only shows as a soft groove cut in from each side of every join. Each slot enters
  * through the flared corners of the two cards and ends in a round tip; between the two tips the cards are one piece.
  *
  *   ╭──────────────────────────╮
  *   │  top card                │
- *   ╰──╮                    ╭──╯   <- join corners (JoinRadius 20dp), then the slot runs NotchLength (22dp) in
- *  ════○                    ○════  <- slot: Gap (6dp) tall, round tip of radius Gap / 2
+ *   ╰──╮                    ╭──╯   <- join corners (JoinRadius 20dp), then the slot runs NotchLength (24dp) in
+ *  ════○                    ○════  <- slot: Gap (10dp) tall, round tip of radius Gap / 2
  *   ╭──╯                    ╰──╮
  *   │  next card               │
  *   ╰──────────────────────────╯
@@ -67,13 +67,13 @@ object ConnectedCardDefaults {
     val JoinRadius: Dp = 20.dp
 
     /**
-     * Space between two joined cards: the slot's thickness. A little thinner than the [Space.edge] gap between
-     * separate cards, so a join reads as a seam rather than a gap.
+     * Space between two joined cards: the slot's thickness. About 2.5% of a phone-width card, as in the mockups, so
+     * a join reads as a soft liquid groove rather than a hairline crack.
      */
-    val Gap: Dp = 6.dp
+    val Gap: Dp = 10.dp
 
     /** How far the slot runs straight past the join corners before its round tip. */
-    val NotchLength: Dp = 22.dp
+    val NotchLength: Dp = 24.dp
 }
 
 /** Direction in which connected cards follow each other. */
@@ -217,8 +217,9 @@ fun ConnectedCardStack(
 /**
  * A vertical [ConnectedCardStack] that fills the height it is given: every card in [cards] takes its own height
  * except the one at [fillIndex], which gets what is left (the onboarding picture, the editor's canvas, the photo
- * being traced). For screens that don't scroll. Each entry of [cards] is one card (it may emit several nodes; they
- * share the card's slot). Content gets the dark surface tone.
+ * being traced, the picture of an empty screen). Each entry of [cards] is one card (it may emit several nodes; they
+ * share the card's slot). Content gets the dark surface tone. In a vertically scrolling parent, give it
+ * `Modifier.heightIn(min = ...)`: it fills that height and grows past it when the cards need more.
  *
  * @param minFillHeight the filling card never gets less than this; on a short screen with large text the stack then
  *   runs past the bottom rather than crushing the card to nothing
@@ -255,8 +256,10 @@ fun FillingCardStack(
             val measured = slots.mapIndexed { i, nodes -> if (i == fill) emptyList() else nodes.map { it.measure(loose) } }
             val heights = IntArray(slots.size) { i -> measured[i].maxOfOrNull { it.height } ?: 0 }
             val used = heights.sum() + gapPx * (slots.size - 1)
-            val available = if (constraints.hasBoundedHeight) constraints.maxHeight - used else 0
-            heights[fill] = max(available, minFillHeight.roundToPx())
+            // In a scrolling column the height is unbounded: fill to the minimum height given instead (e.g.
+            // `heightIn(min = viewport)`), and grow past it when the content needs more.
+            val target = if (constraints.hasBoundedHeight) constraints.maxHeight else constraints.minHeight
+            heights[fill] = max(target - used, minFillHeight.roundToPx())
             val fillPlaceables = slots[fill].map { it.measure(Constraints.fixed(width, heights[fill])) }
             val total = used + heights[fill]
             val height = if (constraints.hasBoundedHeight) constraints.maxHeight else total

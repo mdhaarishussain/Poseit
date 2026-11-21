@@ -43,6 +43,15 @@ class SmallPhoneScreenshotTest : SmallPhoneShots("small")
 @Config(sdk = [35], qualifiers = "w360dp-h640dp-xhdpi", fontScale = 1.3f)
 class SmallPhoneLargeFontScreenshotTest : SmallPhoneShots("small-font130")
 
+/**
+ * Small phone (360x640 dp) with the system font size at 200 %, the largest Android 14+ offers: button pairs stack and
+ * labels wrap instead of being cut.
+ */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [35], qualifiers = "w360dp-h640dp-xhdpi", fontScale = 2.0f)
+class SmallPhoneHugeFontScreenshotTest : SmallPhoneShots("small-font200")
+
 abstract class SmallPhoneShots(private val prefix: String) {
 
     @get:Rule

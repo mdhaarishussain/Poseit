@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -72,6 +73,8 @@ import com.poseit.app.ui.components.SliderRow
 import com.poseit.app.ui.components.SwitchRow
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.TopBarContent
+import com.poseit.app.ui.components.PinnedTopBar
+import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.components.ValueSlider
 import com.poseit.app.ui.onboarding.DemoPoses
 import com.poseit.app.ui.theme.PoseitColors
@@ -131,9 +134,12 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
         val sides = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues()
         val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        val listState = rememberLazyListState()
+        val barAway = rememberTopBarScrolledAway(listState)
         Box(Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
+                state = listState,
                 contentPadding = PaddingValues(
                     start = sides.calculateStartPadding(layoutDirection) + Space.edge,
                     end = sides.calculateEndPadding(layoutDirection) + Space.edge,
@@ -144,7 +150,12 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
             ) {
                 item(key = "header") {
                     ConnectedCardStack(Modifier.fillMaxWidth()) {
-                        TopBarContent("Settings", onBack = onBack)
+                        TopBarContent(
+                            "Settings",
+                            onBack = onBack,
+                            // While the pinned bar stands in for it, keep a single Back in the tree.
+                            modifier = if (barAway) Modifier.clearAndSetSemantics {} else Modifier,
+                        )
                         if (current != null) {
                             StrictnessCard(current, vm::update)
                             CountdownCard(current, vm::update)
@@ -191,6 +202,7 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
                     .windowInsetsTopHeight(WindowInsets.statusBars)
                     .background(PoseitColors.backgroundBody),
             )
+            PinnedTopBar(visible = barAway, title = "Settings", onBack = onBack)
         }
     }
 

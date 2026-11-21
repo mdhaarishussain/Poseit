@@ -73,7 +73,7 @@ object Space {
     val xl: Dp = 24.dp
     val xxl: Dp = 48.dp
 
-    /** Cards to the screen sides, and the gap between separate cards (connected cards sit 6dp apart). */
+    /** Cards to the screen sides, and the gap between separate cards (connected cards sit 10dp apart). */
     val edge: Dp = 8.dp
 
     /** Inside a dark card or the top bar card. */

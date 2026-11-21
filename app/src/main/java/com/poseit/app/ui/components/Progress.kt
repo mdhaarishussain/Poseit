@@ -21,13 +21,22 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.LocalSurfaceTone
 import com.poseit.app.ui.theme.PoseitMotion
+import com.poseit.app.ui.theme.SurfaceTone
 import com.poseit.app.ui.theme.toneColors
 import kotlin.math.roundToInt
 
+/** Space between the bars of a [SegmentedProgress] or a [ValueSlider]. */
+internal val SegmentGap: Dp = 3.dp
+
+/** Corner of a bar (capped at half its width). */
+internal val SegmentCorner: Dp = 4.dp
+
 /**
  * The segmented progress bar (docs/DESIGN.md, "Progress"; Astryx ProgressBar): a row of narrow rounded bars, the
- * done ones lavender and the rest on the track colour of the surface (the mockups' "79%" bar). For a count of
+ * done ones lavender and the rest on the track colour of the surface (the mockups' "79%" bar). On cream the done
+ * bars are ink instead: lavender and the pale track are too close in lightness to tell apart there. For a count of
  * steps or a 0..1 amount. Reports a progress range to accessibility services.
  *
  * @param progress 0..1; segments fill whole, rounding to the nearest
@@ -41,7 +50,7 @@ fun SegmentedProgress(
     segments: Int = 20,
     height: Dp = 28.dp,
     contentDescription: String? = null,
-    filledColor: Color = PoseitColors.accent,
+    filledColor: Color = if (LocalSurfaceTone.current == SurfaceTone.Dark) PoseitColors.accent else PoseitColors.textPrimary,
     emptyColor: Color = toneColors().track,
 ) {
     val p = progress.coerceIn(0f, 1f)
@@ -56,10 +65,10 @@ fun SegmentedProgress(
             },
     ) {
         val n = segments.coerceAtLeast(1)
-        val gap = 3.dp.toPx()
+        val gap = SegmentGap.toPx()
         val w = (size.width - gap * (n - 1)) / n
         val filled = (animated * n).roundToInt()
-        val r = CornerRadius(minOf(w, 4.dp.toPx()) / 2f)
+        val r = CornerRadius(minOf(w, SegmentCorner.toPx()) / 2f)
         for (i in 0 until n) {
             drawRoundRect(if (i < filled) filledColor else emptyColor, Offset(i * (w + gap), 0f), Size(w, size.height), r)
         }

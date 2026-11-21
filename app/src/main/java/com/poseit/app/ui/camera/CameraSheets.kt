@@ -1,7 +1,12 @@
 package com.poseit.app.ui.camera
 
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.LazyRow
+import com.poseit.app.ui.components.SegmentedPill
+import androidx.compose.ui.text.font.FontWeight
+import com.poseit.app.ui.theme.PoseitRadius
+import com.poseit.app.ui.components.selectedRing
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +15,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,7 +62,6 @@ import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.pose.library.BuiltInPoses
 import com.poseit.app.ui.components.CameraSetup
-import com.poseit.app.ui.components.CapsLabel
 import com.poseit.app.ui.components.CardVariant
 import com.poseit.app.ui.components.FilterPill
 import com.poseit.app.ui.components.IconGlyphInset
@@ -83,7 +86,6 @@ import com.poseit.app.ui.library.factsPhrase
 import com.poseit.app.ui.settings.CountdownChips
 import com.poseit.app.ui.settings.SettingCopy
 import com.poseit.app.ui.theme.PoseitColors
-import com.poseit.app.ui.theme.PoseitMotion
 import com.poseit.app.ui.theme.PoseitShapes
 import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
@@ -394,13 +396,15 @@ private fun GuideStyleRow(pose: PoseTemplate, current: OverlayStyle, onSelect: (
                         .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(style) }),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    // The chosen style: a lavender ring inside the dark tile (on the cream sheet a ring at the edge
+                    // would be a faint halo) and its name in Medium ink.
                     Box(
                         Modifier
                             .fillMaxWidth()
                             .height(88.dp)
                             .clip(PoseitShapes.Control)
                             .background(PoseitColors.backgroundStage)
-                            .then(if (selected) Modifier.border(2.dp, PoseitColors.accent, PoseitShapes.Control) else Modifier),
+                            .selectedRing(selected, PoseitRadius.control),
                     ) {
                         PoseThumbnail(
                             template = pose,
@@ -413,7 +417,7 @@ private fun GuideStyleRow(pose: PoseTemplate, current: OverlayStyle, onSelect: (
                     }
                     Text(
                         style.label,
-                        style = PoseitType.supporting,
+                        style = if (selected) PoseitType.supporting.copy(fontWeight = FontWeight.Medium) else PoseitType.supporting,
                         color = if (selected) PoseitColors.textPrimary else PoseitColors.textSecondary,
                         textAlign = TextAlign.Center,
                         maxLines = 2,
@@ -484,13 +488,22 @@ internal fun AllPosesSheet(
             )
         } else {
             val current = tabs[tabIndex.coerceIn(0, tabs.lastIndex)]
-            PillTabs(
-                labels = tabs.map { it.label },
-                selectedIndex = tabIndex.coerceIn(0, tabs.lastIndex),
-                onSelect = { selectedTab = tabs[it] },
-                edgePadding = Space.edge,
-                modifier = Modifier.padding(top = Space.s),
-            )
+            // The same filter pills as the library's category row: one is always chosen, and the row scrolls cleanly.
+            LazyRow(
+                modifier = Modifier
+                    .padding(top = Space.s)
+                    .selectableGroup(),
+                contentPadding = PaddingValues(horizontal = Space.edge),
+                horizontalArrangement = Arrangement.spacedBy(Space.s),
+            ) {
+                itemsIndexed(tabs, key = { _, tab -> tab.label }) { index, tab ->
+                    FilterPill(
+                        label = tab.label,
+                        selected = index == tabIndex.coerceIn(0, tabs.lastIndex),
+                        onClick = { selectedTab = tab },
+                    )
+                }
+            }
             val items = remember(current, poses, favorites) { current.filter(poses, favorites) }
             LazyVerticalGrid(
                 // Two columns on a small phone, so names have room; three from about 390dp.
@@ -670,21 +683,30 @@ internal fun PhotoshootDialog(
         title = "Photoshoot",
         content = {
             Column {
+                // Both are one value out of a few, so both use the segmented pill, like the countdown in Settings.
+                // The photo counts differ a lot in length ("3" and "Until I stop"), so each hugs its label.
                 Text("Number of photos", style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
                 Spacer(Modifier.height(Space.s))
-                PillRow {
-                    TimerOption.SHOT_CHOICES.forEach { n ->
-                        CameraPill(if (n == 0) "Until I stop" else "$n", shots == n, onClick = { shots = n })
-                    }
-                }
+                val shotChoices = TimerOption.SHOT_CHOICES
+                PillTabs(
+                    labels = shotChoices.map { if (it == 0) "Until I stop" else "$it" },
+                    descriptions = shotChoices.map { if (it == 0) "Until I stop" else "$it photos" },
+                    selectedIndex = shotChoices.indexOf(shots),
+                    onSelect = { shots = shotChoices[it] },
+                    role = Role.RadioButton,
+                )
                 Spacer(Modifier.height(Space.l))
                 Text("Time between photos", style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
                 Spacer(Modifier.height(Space.s))
-                PillRow {
-                    TimerOption.INTERVAL_CHOICES.forEach { s ->
-                        CameraPill("$s s", interval == s, onClick = { interval = s })
-                    }
-                }
+                val intervalChoices = TimerOption.INTERVAL_CHOICES
+                SegmentedPill(
+                    options = intervalChoices.map { "$it s" },
+                    descriptions = intervalChoices.map { "$it seconds" },
+                    selectedIndex = intervalChoices.indexOf(interval),
+                    onSelect = { interval = intervalChoices[it] },
+                    modifier = Modifier.fillMaxWidth(),
+                    optionPadding = 6.dp,
+                )
                 Spacer(Modifier.height(Space.l))
                 Text(
                     "Press the shutter or a volume button to start. The first photo is taken after " +

@@ -103,6 +103,12 @@ object PoseitType {
      */
     val caps = Base.copy(fontWeight = FontWeight.SemiBold, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.8.sp)
 
+    /**
+     * The capitals of a pill button's label: [caps] a step up (13sp), because a button label is read, not glanced at
+     * like a badge. Keep button labels to one to three words.
+     */
+    val capsButton = caps.copy(fontSize = 13.sp, lineHeight = 18.sp)
+
     /** Light 72/72 numerals: the capture countdown, a timer. */
     val numeralDisplay = numeral(72.sp)
 

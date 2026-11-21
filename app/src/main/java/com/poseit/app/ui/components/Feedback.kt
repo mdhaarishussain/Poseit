@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -158,14 +158,14 @@ fun DialogCard(
                 }
             }
             Spacer(Modifier.height(Space.l))
-            Row(
-                Modifier.align(Alignment.End),
-                horizontalArrangement = Arrangement.spacedBy(Space.s),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                dismissButton?.invoke()
-                confirmButton()
-            }
+            // Packed to the end; stacked full width (confirm on top) when the two don't fit side by side.
+            ButtonPair(
+                first = dismissButton,
+                second = confirmButton,
+                modifier = Modifier.align(Alignment.End),
+                fill = false,
+                gap = Space.s,
+            )
         }
     }
 }
@@ -197,11 +197,15 @@ fun PoseitBottomSheet(
     }
 }
 
-/** The drag handle of a [PoseitBottomSheet]: 36x4dp, ink at 24%, 12dp from the top. */
+/**
+ * The drag handle of a [PoseitBottomSheet]: 36x4dp, ink at 24%, 12dp from the top. Named "Drag handle" like M3's
+ * own, since the sheet hangs its dismiss and expand actions on this node.
+ */
 @Composable
 fun SheetHandle(modifier: Modifier = Modifier) {
     Box(
         modifier
+            .semantics { contentDescription = "Drag handle" }
             .padding(top = Space.m, bottom = Space.s)
             .size(width = 36.dp, height = 4.dp)
             .background(PoseitColors.textPrimary.copy(alpha = 0.24f), PoseitShapes.Pill),

@@ -4,10 +4,11 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -33,11 +34,14 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.poseit.app.ui.theme.LocalSurfaceTone
@@ -51,35 +55,40 @@ import kotlinx.coroutines.launch
  * The segmented pill (docs/DESIGN.md, "Segmented pill"; Astryx SegmentedControl): a dark pill track holding two to
  * four options in the tiny capitals; the selected option sits on a lavender pill with dark capitals, the others are
  * cream. It is the one place the accent marks a selection. The selection slides between options in 200ms.
+ *
+ * Every option fills the track's full height, so each one is a full 48dp touch target in the accessibility tree too;
+ * the lavender pill is only drawn 4dp inside its option.
  */
 
 /**
- * Heights of a [SegmentedPill]: [Medium] (40dp) in content, [Touch] (48dp) for a value choice with many short
- * options where each option must be a full touch target (the five-option countdown), [Large] (52dp) in the
- * [FloatingPillBar].
+ * Heights of a [SegmentedPill]: [Medium] (48dp, a full touch target per option) in content and sheets, [Large]
+ * (52dp) in the [FloatingPillBar].
  */
 enum class SegmentedPillSize(internal val height: Dp) {
-    Medium(40.dp),
-    Touch(48.dp),
+    Medium(48.dp),
     Large(52.dp),
 }
 
-/** Inset between the track and the selected option's pill. */
+/** Inset between the track's edge and the selected option's lavender pill (drawn; the options fill the track). */
 private val TrackInset = 4.dp
 
 /**
- * A segmented pill with equal-width options (two or three; four if the words are short). It hugs its widest option
- * times the count, or fills the width it is given (`Modifier.fillMaxWidth()` / `weight(1f)`).
+ * A segmented pill with equal-width options (two to five short ones). It hugs its widest option times the count, or
+ * fills the width it is given (`Modifier.fillMaxWidth()` / `weight(1f)`).
  *
  * Semantics: a selectable group; each option is a selectable node with [role] and its selected state, and its
- * sentence-case label as text.
+ * sentence-case label as text. An option whose entry in [optionRoles] is [Role.Button] is a plain button instead
+ * (no selected state): use it for an option that leaves the screen rather than switching a view in place, like
+ * Photos in the home screen's floating bar.
  *
  * @param options sentence-case labels ("Poses", "Photos"); shown in capitals
  * @param role [Role.Tab] when the options switch views (the floating bar), [Role.RadioButton] when they choose a
  *   value (a countdown of "Off", "3 s", "10 s")
- * @param size the track's height: [SegmentedPillSize.Medium] (40dp), Touch (48dp) or Large (52dp)
+ * @param size the track's height: [SegmentedPillSize.Medium] (48dp) or Large (52dp)
  * @param descriptions optional spoken form per option, for labels that don't read well aloud ("3 seconds" for
  *   "3 s"; Astryx SegmentedControlItem's label); null entries keep the visible label
+ * @param optionRoles optional role per option, overriding [role]; [Role.Button] makes that option a button
+ * @param onClickLabels optional action label per option ("Open your photos"), read as "double-tap to ..."
  * @param optionPadding side padding inside each option; lower it (to 6dp) so five short options fit a 360dp phone
  *   at 130% text
  */
@@ -93,6 +102,8 @@ fun SegmentedPill(
     role: Role = Role.RadioButton,
     enabled: Boolean = true,
     descriptions: List<String?>? = null,
+    optionRoles: List<Role?>? = null,
+    onClickLabels: List<String?>? = null,
     optionPadding: Dp = 16.dp,
 ) {
     if (options.isEmpty()) return
@@ -104,11 +115,12 @@ fun SegmentedPill(
             .height(size.height)
             .clip(PoseitShapes.Pill)
             .background(track)
-            .padding(TrackInset)
             .drawBehind {
                 if (selectedIndex in options.indices) {
+                    val inset = TrackInset.toPx()
                     val w = this.size.width / options.size
-                    drawRoundRect(PoseitColors.accent, Offset(w * position, 0f), Size(w, this.size.height), CornerRadius(this.size.height / 2f))
+                    val h = this.size.height - inset * 2
+                    drawRoundRect(PoseitColors.accent, Offset(w * position + inset, inset), Size(w - inset * 2, h), CornerRadius(h / 2f))
                 }
             }
             .selectableGroup(),
@@ -121,12 +133,20 @@ fun SegmentedPill(
                 PoseitMotion.standard(PoseitMotion.FAST),
                 label = "segmentLabel",
             )
+            val optionRole = optionRoles?.getOrNull(index) ?: role
+            val clickLabel = onClickLabels?.getOrNull(index)
             Box(
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .clip(PoseitShapes.Pill)
-                    .selectable(selected = selected, enabled = enabled, role = role, onClick = { onSelect(index) })
+                    .then(
+                        if (optionRole == Role.Button) {
+                            Modifier.clickable(enabled = enabled, onClickLabel = clickLabel, role = Role.Button, onClick = { onSelect(index) })
+                        } else {
+                            Modifier.selectable(selected = selected, enabled = enabled, role = optionRole, onClick = { onSelect(index) })
+                        },
+                    )
                     .then(descriptions?.getOrNull(index)?.let { d -> Modifier.semantics { contentDescription = d } } ?: Modifier)
                     .padding(horizontal = optionPadding),
                 contentAlignment = Alignment.Center,
@@ -137,15 +157,25 @@ fun SegmentedPill(
     }
 }
 
+/** Side padding of a tab's label inside its option (12dp to the lavender pill's edge). */
+private val TabPadding = 16.dp
+
+/** The padding tabs close up to (large text) before the row has to scroll. */
+private val TightTabPadding = 8.dp
+
 /**
- * Tabs as a segmented pill (docs/DESIGN.md, "Tabs"): options hug their labels, the row scrolls horizontally when
- * they don't fit (the selected tab is scrolled into view), and the lavender selection slides to the chosen tab.
- * For three to five views of one list (All / Favourites / Recent / My poses).
+ * Tabs as a segmented pill (docs/DESIGN.md, "Tabs"), for three to five views of one list (All / Favourites /
+ * Recent / My poses). When the tabs fit, the track fills the width it is given and the spare space is shared out
+ * between the tabs; when they don't (long labels, large text), the labels first close up, and only if that isn't
+ * enough does each tab hug its label and the row scroll horizontally, keeping the selected tab in view. The lavender selection slides to the chosen tab.
  *
- * Each tab is a selectable node with [Role.Tab] and its selected state, inside a selectable group.
+ * Each tab is a selectable node with [role] and its selected state, inside a selectable group, and fills the
+ * 48dp track height. Also the shape for a value choice whose options differ a lot in length ("3", "5", "10",
+ * "Until I stop"): pass [Role.RadioButton].
  *
  * @param edgePadding space before the first and after the last tab, so the pill lines up with content when the
  *   row scrolls edge to edge
+ * @param descriptions optional spoken form per option ("3 seconds" for "3 s"); null entries keep the label
  */
 @Composable
 fun PillTabs(
@@ -154,6 +184,8 @@ fun PillTabs(
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
     edgePadding: Dp = 0.dp,
+    role: Role = Role.Tab,
+    descriptions: List<String?>? = null,
 ) {
     // x and width (px) of each tab, measured on placement, so the selection can slide between them.
     val bounds = remember { mutableStateMapOf<Int, Pair<Float, Float>>() }
@@ -174,54 +206,82 @@ fun PillTabs(
         }
     }
     val track = if (LocalSurfaceTone.current == SurfaceTone.Dark) PoseitColors.backgroundCardRaised else PoseitColors.backgroundCard
-    Box(modifier.horizontalScroll(rememberScrollState())) {
-        Row(
-            Modifier
-                .padding(horizontal = edgePadding)
-                .height(SegmentedPillSize.Medium.height)
-                .clip(PoseitShapes.Pill)
-                .background(track)
-                .padding(TrackInset)
-                .drawBehind {
-                    if (placed) {
-                        drawRoundRect(
-                            PoseitColors.accent,
-                            Offset(indicatorX.value, 0f),
-                            Size(indicatorW.value, size.height),
-                            CornerRadius(size.height / 2f),
-                        )
+    BoxWithConstraints(modifier) {
+        val available = if (constraints.hasBoundedWidth) constraints.maxWidth - 2 * with(LocalDensity.current) { edgePadding.roundToPx() } else Int.MAX_VALUE
+        Box(Modifier.horizontalScroll(rememberScrollState())) {
+            Layout(
+                modifier = Modifier
+                    .padding(horizontal = edgePadding)
+                    .height(SegmentedPillSize.Medium.height)
+                    .clip(PoseitShapes.Pill)
+                    .background(track)
+                    .drawBehind {
+                        if (placed) {
+                            val inset = TrackInset.toPx()
+                            val h = size.height - inset * 2
+                            drawRoundRect(
+                                PoseitColors.accent,
+                                Offset(indicatorX.value + inset, inset),
+                                Size((indicatorW.value - inset * 2).coerceAtLeast(0f), h),
+                                CornerRadius(h / 2f),
+                            )
+                        }
                     }
-                }
-                .selectableGroup(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            labels.forEachIndexed { index, label ->
-                val selected = index == selectedIndex
-                val requester = remember { BringIntoViewRequester() }
-                LaunchedEffect(selected) { if (selected) requester.bringIntoView() }
-                val color by animateColorAsState(
-                    if (selected) PoseitColors.onAccent else PoseitColors.textPrimaryInverted,
-                    PoseitMotion.standard(PoseitMotion.FAST),
-                    label = "tabLabel",
-                )
-                Box(
-                    Modifier
-                        .fillMaxHeight()
-                        .onPlaced { bounds[index] = it.positionInParent().x to it.size.width.toFloat() }
-                        .bringIntoViewRequester(requester)
-                        .clip(PoseitShapes.Pill)
-                        .selectable(
-                            selected = selected,
-                            role = Role.Tab,
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = androidx.compose.material3.ripple(),
-                            onClick = { onSelect(index) },
+                    .selectableGroup(),
+                content = {
+                    labels.forEachIndexed { index, label ->
+                        val selected = index == selectedIndex
+                        val requester = remember { BringIntoViewRequester() }
+                        LaunchedEffect(selected) { if (selected) requester.bringIntoView() }
+                        val color by animateColorAsState(
+                            if (selected) PoseitColors.onAccent else PoseitColors.textPrimaryInverted,
+                            PoseitMotion.standard(PoseitMotion.FAST),
+                            label = "tabLabel",
                         )
-                        .padding(horizontal = 16.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CapsLabel(label, color = color)
+                        Box(
+                            Modifier
+                                .onPlaced { bounds[index] = it.positionInParent().x to it.size.width.toFloat() }
+                                .bringIntoViewRequester(requester)
+                                .clip(PoseitShapes.Pill)
+                                .selectable(
+                                    selected = selected,
+                                    role = role,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = androidx.compose.material3.ripple(),
+                                    onClick = { onSelect(index) },
+                                )
+                                .then(descriptions?.getOrNull(index)?.let { d -> Modifier.semantics { contentDescription = d } } ?: Modifier),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CapsLabel(label, color = color)
+                        }
+                    }
+                },
+            ) { measurables, c ->
+                val h = c.maxHeight
+                val labels = measurables.map { it.maxIntrinsicWidth(h) }
+                fun padded(side: Dp) = labels.map { it + 2 * side.roundToPx() }
+                fun fill(widths: List<Int>): List<Int> {
+                    // They fit: share the spare width out so the track spans the whole row.
+                    val spare = available - widths.sum()
+                    return widths.mapIndexed { i, w -> w + spare / widths.size + if (i < spare % widths.size) 1 else 0 }
+                }
+                val roomy = padded(TabPadding)
+                val tight = padded(TightTabPadding)
+                val widths = when {
+                    available == Int.MAX_VALUE -> roomy
+                    roomy.sum() <= available -> fill(roomy)
+                    // Large text: closer labels keep the whole track in view before falling back to scrolling.
+                    tight.sum() <= available -> fill(tight)
+                    else -> roomy
+                }
+                val placeables = measurables.mapIndexed { i, m -> m.measure(Constraints.fixed(widths[i], h)) }
+                layout(widths.sum(), h) {
+                    var x = 0
+                    placeables.forEach { p ->
+                        p.place(x, 0)
+                        x += p.width
+                    }
                 }
             }
         }

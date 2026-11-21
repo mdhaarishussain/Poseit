@@ -1,5 +1,6 @@
 package com.poseit.app.ui.camera
 
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -187,11 +188,15 @@ private fun ScoreNumeral(p: Int) {
     // Three digits ("100") need a smaller size to clear the ring.
     val digits = with(density) { (if (p >= 100) 17.dp else 21.dp).toSp() }
     val sign = with(density) { 11.dp.toSp() }
-    Text(
+    // Remembered per value: this recomposes at the detector's rate while someone is in frame.
+    val text = remember(p, sign) {
         buildAnnotatedString {
             append("$p")
             withStyle(SpanStyle(fontSize = sign, fontWeight = FontWeight.Normal, letterSpacing = 0.sp)) { append("%") }
-        },
+        }
+    }
+    Text(
+        text,
         color = ChromeContent,
         style = PoseitType.numeral(digits, FontWeight.Light),
         maxLines = 1,
@@ -438,10 +443,12 @@ internal fun ToolRail(
             CircleIconToggle(
                 // The padlock closes as well as the disc turning cream: the state is in the shape too.
                 icon = if (ui.overlayLocked) Icons.Outlined.Lock else Icons.Outlined.LockOpen,
-                contentDescription = if (ui.overlayLocked) "Unlock pose guide" else "Lock pose guide in place",
+                // A fixed name for what it toggles; the state is announced as "Locked" / "Unlocked".
+                contentDescription = "Lock pose guide in place",
                 checked = ui.overlayLocked,
                 onCheckedChange = { onToggleLock() },
                 size = CameraControlSize,
+                modifier = Modifier.semantics { stateDescription = if (ui.overlayLocked) "Locked" else "Unlocked" },
             )
             CircleIconToggle(Icons.Outlined.Flip, "Mirror pose", checked = ui.poseMirrored, onCheckedChange = { onToggleMirror() }, size = CameraControlSize)
             val modes = ui.availableOverlayModes
@@ -451,10 +458,11 @@ internal fun ToolRail(
         }
         CircleIconToggle(
             icon = Icons.Outlined.Wallpaper,
-            contentDescription = if (ui.sceneLock != null) "Clear locked background" else "Lock background to match the framing",
+            contentDescription = "Lock background to match the framing",
             checked = ui.sceneLock != null,
             onCheckedChange = { onToggleSceneLock() },
             size = CameraControlSize,
+            modifier = Modifier.semantics { stateDescription = if (ui.sceneLock != null) "Locked" else "Unlocked" },
         )
     }
 }

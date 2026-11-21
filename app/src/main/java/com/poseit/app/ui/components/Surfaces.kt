@@ -15,6 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
@@ -22,7 +27,9 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.poseit.app.ui.theme.LocalSurfaceTone
 import com.poseit.app.ui.theme.PoseitColors
@@ -126,9 +133,18 @@ fun CapsLabel(
     color: Color = Color.Unspecified,
     style: TextStyle = PoseitType.caps,
     maxLines: Int = 1,
+    textAlign: TextAlign? = null,
 ) {
     Box(modifier.clearAndSetSemantics { this.text = AnnotatedString(text) }) {
-        Text(capsForDisplay(text), style = style, color = color, maxLines = maxLines, overflow = TextOverflow.Ellipsis, softWrap = maxLines > 1)
+        Text(
+            capsForDisplay(text),
+            style = style,
+            color = color,
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis,
+            softWrap = maxLines > 1,
+            textAlign = textAlign,
+        )
     }
 }
 
@@ -147,3 +163,27 @@ internal fun capsForDisplay(text: String): String {
         }
     }.joinToString(" ")
 }
+
+/**
+ * Marks a selected dark tile (a pose tile, a guide-style preview) with a 2dp lavender ring drawn 4dp inside its
+ * edge, so the ring always sits on the dark stage, where lavender has strong contrast, whatever surface the tile is
+ * on (on cream, a ring at the edge would be a faint halo). Draw it over the tile's content, with the tile's corner
+ * [radius]. Pair it with words or semantics (an "In use" caption, a selected state): never colour alone.
+ */
+fun Modifier.selectedRing(selected: Boolean, radius: Dp, color: Color = PoseitColors.accent): Modifier =
+    if (!selected) {
+        this
+    } else {
+        drawWithContent {
+            drawContent()
+            val inset = 4.dp.toPx()
+            val stroke = 2.dp.toPx()
+            drawRoundRect(
+                color,
+                topLeft = Offset(inset + stroke / 2, inset + stroke / 2),
+                size = Size(size.width - 2 * inset - stroke, size.height - 2 * inset - stroke),
+                cornerRadius = CornerRadius((radius - 4.dp).toPx().coerceAtLeast(0f)),
+                style = Stroke(stroke),
+            )
+        }
+    }

@@ -25,23 +25,27 @@ import com.poseit.app.ui.theme.toneColors
  */
 
 /**
- * A real sequence (the steps of a pose, the steps of making a pose from a photo): small Medium numerals in the
- * secondary colour in a 28dp column, on the text's baseline. Colours follow the surface.
+ * A real sequence (the steps of a pose, the steps of making a pose from a photo), set like the mockups' list rows:
+ * each step a row with its number in light numerals in the secondary colour, in a fixed 40dp column so the text
+ * lines up, and hairlines between the rows. Colours follow the surface (inside a dark card, on a cream sheet, or
+ * in an outlined cream card on the canvas).
  */
 @Composable
 fun NumberedSteps(items: List<String>, modifier: Modifier = Modifier) {
+    val colors = toneColors()
     Column(modifier) {
         items.forEachIndexed { index, item ->
-            Row(Modifier.padding(vertical = Space.s)) {
+            if (index > 0) HairlineDivider()
+            Row(Modifier.padding(vertical = Space.m)) {
                 Text(
                     "${index + 1}",
-                    style = PoseitType.numeral(15.sp, FontWeight.Medium),
-                    color = toneColors().textSecondary,
+                    style = PoseitType.numeral(22.sp, FontWeight.Light),
+                    color = colors.textSecondary,
                     modifier = Modifier
-                        .width(28.dp)
+                        .width(40.dp)
                         .alignByBaseline(),
                 )
-                Text(item, style = PoseitType.body, color = toneColors().textPrimary, modifier = Modifier.alignByBaseline())
+                Text(item, style = PoseitType.body, color = colors.textPrimary, modifier = Modifier.alignByBaseline())
             }
         }
     }

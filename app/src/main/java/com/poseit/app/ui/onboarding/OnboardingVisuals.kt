@@ -1,5 +1,6 @@
 package com.poseit.app.ui.onboarding
 
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -11,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -24,7 +23,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import androidx.compose.ui.unit.sp
 import com.poseit.app.pose.BodyPart
 import com.poseit.app.pose.Joint
 import com.poseit.app.ui.components.FigurePaint
@@ -62,31 +60,42 @@ internal fun FigurePicture(modifier: Modifier = Modifier) {
 
 /**
  * Page 2: the camera's guide with the raised arm still red (off) and the rest green (matched), and the hint that
- * fixes it, in the camera's place for hints (top centre). The figure is fitted below the hint, so the hint never
- * covers the red arm.
+ * fixes it above the frame, across the picture card, as the camera puts hints at the top. The hint wraps rather
+ * than shrinking or being cut (it carries the meaning; the red and green don't on their own), and when the card is
+ * too short for both, only the hint shows.
  */
 @Composable
 internal fun MatchPicture(modifier: Modifier = Modifier) {
     val target = remember { DemoPoses.raisedArm }
     // The camera's bright signal colours, as they read on the dark stage; the hint's words carry the meaning too.
     val partColors = remember { BodyPart.entries.associateWith { if (it == BodyPart.RIGHT_ARM) PoseitColors.signalMissBright else PoseitColors.signalMatchBright } }
-    Viewfinder(
-        aspect = target.frameAspect,
-        modifier = modifier.clearAndSetSemantics {
-            contentDescription = "The camera view. The guide's raised arm is red and the rest of it is green. " +
-                "A hint says: Raise your right arm."
-        },
+    BoxWithConstraints(
+        modifier
+            .fillMaxSize()
+            .clearAndSetSemantics {
+                contentDescription = "The camera view. The guide's raised arm is red and the rest of it is green. " +
+                    "A hint says: Raise your right arm."
+            },
     ) {
+        val showFrame = maxHeight >= 160.dp
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-            CueCard("Raise your right arm", Modifier.padding(start = Space.s, end = Space.s, top = Space.s))
-            Canvas(
+            CueCard(
+                "Raise your right arm",
                 Modifier
-                    .weight(1f)
                     .fillMaxWidth()
-                    .padding(start = Space.m, end = Space.m, top = Space.xs, bottom = Space.m),
-            ) {
-                val rect = fitFrameRect(size, target.frameAspect)
-                drawPoseFigure(target.figures.first(), target.frameAspect, rect, FigurePaint(partColors = partColors, alpha = 0.7f))
+                    .padding(start = Space.xl, end = Space.xl, top = Space.xl),
+            )
+            if (showFrame) {
+                Viewfinder(aspect = target.frameAspect, modifier = Modifier.weight(1f)) {
+                    Canvas(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(Space.m),
+                    ) {
+                        val rect = fitFrameRect(size, target.frameAspect)
+                        drawPoseFigure(target.figures.first(), target.frameAspect, rect, FigurePaint(partColors = partColors, alpha = 0.7f))
+                    }
+                }
             }
         }
     }
@@ -190,16 +199,17 @@ private fun Viewfinder(aspect: Float, modifier: Modifier = Modifier, content: @C
 }
 
 /**
- * The camera's hint banner in miniature: the cream cue card with ink text, always one line. It is part of a picture, so
- * when the frame is narrow (large font on a small phone) the text shrinks rather than wrapping over the figure.
+ * The camera's hint banner in miniature: the cream cue card with ink text in the label size. It wraps to up to three
+ * lines rather than shrinking (large font on a small phone), because the words are what tell you which limb is off.
  */
 @Composable
 private fun CueCard(text: String, modifier: Modifier = Modifier) {
-    BasicText(
+    Text(
         text,
-        style = PoseitType.label.copy(color = PoseitColors.textPrimary),
-        maxLines = 1,
-        autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = PoseitType.label.fontSize, stepSize = 0.5.sp),
+        style = PoseitType.label,
+        color = PoseitColors.textPrimary,
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis,
         modifier = modifier
             .background(PoseitColors.backgroundSurface, PoseitShapes.Control)
             .padding(horizontal = Space.m, vertical = Space.s),

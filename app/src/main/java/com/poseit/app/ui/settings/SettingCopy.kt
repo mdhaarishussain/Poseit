@@ -7,7 +7,6 @@ import androidx.compose.ui.unit.dp
 import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.countdownChoiceFor
 import com.poseit.app.ui.components.SegmentedPill
-import com.poseit.app.ui.components.SegmentedPillSize
 import kotlin.math.roundToInt
 
 /**
@@ -74,8 +73,8 @@ internal fun strictnessLabel(threshold: Float): String = when {
 /**
  * The countdown choices ([COUNTDOWN_CHOICES]) as one segmented pill across the width it is given, used by Settings
  * (inside a dark card) and by the camera's Quick settings (on the cream sheet). The selected option is lavender;
- * screen readers hear "No countdown", "3 seconds" for each option. 48dp tall with 6dp option padding, so all five
- * are full touch targets and still fit a 360dp phone at 130% text.
+ * screen readers hear "No countdown", "3 seconds" for each option. Each option fills the 48dp track (a full touch
+ * target in the accessibility tree too); 6dp option padding lets all five fit a 360dp phone at 130% text.
  */
 @Composable
 internal fun CountdownChips(seconds: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
@@ -86,7 +85,6 @@ internal fun CountdownChips(seconds: Int, onSelect: (Int) -> Unit, modifier: Mod
         selectedIndex = COUNTDOWN_CHOICES.indexOf(selected),
         onSelect = { onSelect(COUNTDOWN_CHOICES[it]) },
         modifier = modifier.fillMaxWidth(),
-        size = SegmentedPillSize.Touch,
         optionPadding = 6.dp,
     )
 }

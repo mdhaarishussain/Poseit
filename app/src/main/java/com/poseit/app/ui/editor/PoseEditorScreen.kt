@@ -1,5 +1,10 @@
 package com.poseit.app.ui.editor
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.foundation.border
+import com.poseit.app.ui.components.ButtonHeight
+import com.poseit.app.ui.components.TogglePill
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,7 +12,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -22,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -58,8 +61,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -72,7 +73,6 @@ import com.poseit.app.ui.components.ButtonSize
 import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.CapsLabel
 import com.poseit.app.ui.components.DestructiveButton
-import com.poseit.app.ui.components.FilterPill
 import com.poseit.app.ui.components.HairlineDivider
 import com.poseit.app.ui.components.IconSize
 import com.poseit.app.ui.components.PlainIconButton
@@ -222,10 +222,10 @@ private fun CanvasCard(viewModel: PoseEditorViewModel) {
             if (!viewModel.loading) {
                 // View options: they change what the stage shows, not the pose, so they live with the stage.
                 Spacer(Modifier.width(Space.s))
-                FilterPill("Grid", selected = viewModel.showGrid, onClick = { viewModel.showGrid = !viewModel.showGrid })
+                TogglePill("Grid", checked = viewModel.showGrid, onCheckedChange = { viewModel.showGrid = it })
                 if (viewModel.referenceBitmap != null) {
                     Spacer(Modifier.width(Space.s))
-                    FilterPill("Photo", selected = viewModel.showReference, onClick = { viewModel.showReference = !viewModel.showReference })
+                    TogglePill("Photo", checked = viewModel.showReference, onCheckedChange = { viewModel.showReference = it })
                 }
             }
         }
@@ -297,65 +297,53 @@ private fun ToolsCard(viewModel: PoseEditorViewModel, modifier: Modifier = Modif
     }
 }
 
+/**
+ * The pose tools as the mockups' outlined pills, two by two in equal widths: Mirror and Reset, then Add person and
+ * Remove.
+ */
 @Composable
 private fun EditorToolbar(viewModel: PoseEditorViewModel) {
-    // Each tool has 4dp of air of its own, so with 12dp here the outer tools sit 16dp in from the card edge. The four
-    // pose tools fit one line on a 360dp phone at 130% text; beyond that the rest wrap to a second line, so every
-    // tool stays in view rather than hiding behind a scroll.
-    FlowRow(
+    Column(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = Space.m),
-        horizontalArrangement = SpreadOrGap,
-        verticalArrangement = Arrangement.spacedBy(Space.xs),
+            .padding(horizontal = Space.l),
+        verticalArrangement = Arrangement.spacedBy(Space.s),
     ) {
-        ToolButton(Icons.Outlined.Flip, "Mirror", onClick = viewModel::mirrorSelected)
-        ToolButton(Icons.Outlined.RestartAlt, "Reset", onClick = viewModel::reset)
-        ToolButton(Icons.Outlined.PersonAdd, "Add person", enabled = viewModel.canAddPerson, onClick = viewModel::addPerson)
-        ToolButton(Icons.Outlined.PersonRemove, "Remove", enabled = viewModel.canRemovePerson, onClick = viewModel::removeSelected)
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+            ToolPill(Icons.Outlined.Flip, "Mirror", Modifier.weight(1f), onClick = viewModel::mirrorSelected)
+            ToolPill(Icons.Outlined.RestartAlt, "Reset", Modifier.weight(1f), onClick = viewModel::reset)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+            ToolPill(Icons.Outlined.PersonAdd, "Add person", Modifier.weight(1f), enabled = viewModel.canAddPerson, onClick = viewModel::addPerson)
+            ToolPill(Icons.Outlined.PersonRemove, "Remove", Modifier.weight(1f), enabled = viewModel.canRemovePerson, onClick = viewModel::removeSelected)
+        }
     }
 }
 
 /**
- * Spreads a line of tools across the card like SpaceBetween while they fit; a line that doesn't (the wrapped
- * remainder) keeps a 4dp gap from the start.
+ * A tool on the dark card: the outlined secondary pill (1dp mist outline, 48dp) with an 18dp glyph (dropped at
+ * large text sizes) and the tiny capitals, one Role.Button target. Disabled tools fade their glyph, label and outline.
  */
-private object SpreadOrGap : Arrangement.Horizontal {
-    override val spacing = Space.xs
-
-    override fun Density.arrange(totalSize: Int, sizes: IntArray, layoutDirection: LayoutDirection, outPositions: IntArray) {
-        val gap = spacing.roundToPx()
-        if (sizes.size > 1 && sizes.sum() + gap * (sizes.size - 1) <= totalSize) {
-            with(Arrangement.SpaceBetween) { arrange(totalSize, sizes, layoutDirection, outPositions) }
-        } else {
-            var x = 0
-            sizes.forEachIndexed { i, size ->
-                outPositions[i] = if (layoutDirection == LayoutDirection.Ltr) x else totalSize - x - size
-                x += size + gap
-            }
-        }
-    }
-}
-
-/** A tool on the dark card: a cream glyph in a 40dp area over its Supporting caption, one Role.Button target. */
 @Composable
-private fun ToolButton(icon: ImageVector, label: String, enabled: Boolean = true, onClick: () -> Unit) {
+private fun ToolPill(icon: ImageVector, label: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
     val content = if (enabled) PoseitColors.textPrimaryInverted else PoseitColors.textDisabledInverted
-    Column(
-        Modifier
-            .clip(PoseitShapes.Control)
+    val edge = if (enabled) PoseitColors.borderEmphasizedInverted else PoseitColors.borderEmphasizedInverted.copy(alpha = 0.38f)
+    Row(
+        modifier
+            .heightIn(min = ButtonHeight)
+            .clip(PoseitShapes.Pill)
+            .border(1.dp, edge, PoseitShapes.Pill)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .widthIn(min = 56.dp)
-            .heightIn(min = 56.dp)
-            .padding(horizontal = Space.xs, vertical = Space.xs),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+            .padding(horizontal = Space.m),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = content, modifier = Modifier.size(IconSize.standalone))
+        // At large text sizes the label needs the glyph's room (two pills share a phone's width).
+        if (LocalDensity.current.fontScale <= 1.15f) {
+            Icon(icon, contentDescription = null, tint = content, modifier = Modifier.size(IconSize.inline))
+            Spacer(Modifier.width(Space.s))
         }
-        Spacer(Modifier.height(2.dp))
-        Text(label, style = PoseitType.supporting, color = content, maxLines = 1, softWrap = false)
+        CapsLabel(label, color = content, style = PoseitType.capsButton)
     }
 }
 
@@ -393,7 +381,7 @@ private fun SaveSheet(viewModel: PoseEditorViewModel, onDismiss: () -> Unit) {
                     .padding(horizontal = Space.cardPadding)
                     .padding(top = Space.s, bottom = Space.xl),
             ) {
-                Text("Save pose", style = PoseitType.title, color = PoseitColors.textPrimary)
+                Text("Save pose", style = PoseitType.title, color = PoseitColors.textPrimary, modifier = Modifier.semantics { heading() })
                 if (base != null && base.source == PoseSource.BUILT_IN) {
                     Spacer(Modifier.height(Space.xs))
                     Text(
@@ -456,5 +444,5 @@ private fun SaveActions(
 
 @Composable
 private fun SavingLabel(saving: Boolean, label: String) {
-    if (saving) PoseitSpinner(size = IconSize.inline) else CapsLabel(label)
+    if (saving) PoseitSpinner(size = IconSize.inline) else CapsLabel(label, style = PoseitType.capsButton)
 }

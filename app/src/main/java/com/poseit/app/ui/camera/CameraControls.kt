@@ -70,6 +70,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.poseit.app.camera.FlashMode
 import com.poseit.app.camera.SceneAspect
@@ -204,11 +205,10 @@ private fun AspectToggle(aspect: SceneAspect, onClick: () -> Unit) {
             .padding(horizontal = Space.xs),
         contentAlignment = Alignment.Center,
     ) {
-        // A fixed graphic: sized in dp so it keeps its proportions in the bar at any font scale.
-        val size = with(LocalDensity.current) { 13.dp.toSp() }
+        // In sp, so it grows with the user's text size like every other label.
         Text(
             aspect.label,
-            style = PoseitType.numeral(size, FontWeight.Medium),
+            style = PoseitType.numeral(13.sp, FontWeight.Medium),
             color = PoseitColors.textPrimaryInverted,
             maxLines = 1,
             modifier = Modifier
@@ -379,12 +379,13 @@ private fun StripActionTile(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(icon, contentDescription = null, tint = PoseitColors.textPrimaryInverted, modifier = Modifier.size(IconSize.standalone))
             Spacer(Modifier.height(Space.s))
-            // A fixed graphic inside a fixed tile: sized in dp so "NONE" always fits.
-            val size = with(LocalDensity.current) { 10.dp.toSp() }
+            // In sp, so it grows with the user's text size; at the very largest sizes it ends in an ellipsis, and the
+            // glyph and the tile's description still say what it does.
             CapsLabel(
                 label,
                 color = PoseitColors.textSecondaryInverted,
-                style = PoseitType.caps.copy(fontSize = size, lineHeight = size * 1.3f, letterSpacing = PoseitType.caps.letterSpacing * 0.8f),
+                style = PoseitType.caps.copy(letterSpacing = PoseitType.caps.letterSpacing * 0.5f),
+                modifier = Modifier.padding(horizontal = 2.dp),
             )
         }
     }
