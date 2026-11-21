@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -72,6 +73,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -93,7 +95,7 @@ fun LibraryScreen(
 ) {
     val appContext = LocalContext.current.applicationContext
     val vm: LibraryViewModel = viewModel(
-        factory = viewModelFactory { initializer { LibraryViewModel(appContext.appContainer.poseRepository) } },
+        factory = viewModelFactory { initializer { LibraryViewModel(appContext.appContainer.poseRepository, savedState = createSavedStateHandle()) } },
     )
     val state by vm.state.collectAsStateWithLifecycle()
     LibraryContent(
@@ -178,7 +180,8 @@ private fun LibraryContent(
                 ExtendedFloatingActionButton(
                     onClick = { onOpenCamera(null) },
                     expanded = fabExpanded,
-                    icon = { Icon(Icons.Filled.CameraAlt, contentDescription = null) },
+                    // The expandable FAB hides its text from accessibility (it can collapse away): label the icon.
+                    icon = { Icon(Icons.Filled.CameraAlt, contentDescription = "Pose camera") },
                     text = { Text("Pose camera") },
                     containerColor = PoseitColors.Violet,
                     contentColor = Color.White,
@@ -420,6 +423,8 @@ private fun CreatePoseSheet(onDismiss: () -> Unit, onFromPhoto: () -> Unit, onDr
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        // Full-height sheets would otherwise slide under the status bar (M3 1.3 only insets the bottom).
+        modifier = Modifier.statusBarsPadding(),
     ) {
         Column(
             Modifier

@@ -1,12 +1,14 @@
 package com.poseit.app.ui.camera
 
 import android.Manifest
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -40,6 +42,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -152,6 +155,8 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
     LaunchedEffect(Unit) {
         if (context.needsLegacyStoragePermission() && !storage.askedBefore) askStorage(thenShoot = false)
     }
+    // Without it the view model keeps auto-capture and the hand-raise trigger off; say so instead of failing silently.
+    val storageBlocked = Build.VERSION.SDK_INT <= Build.VERSION_CODES.P && !storage.granted
 
     val onShutter: () -> Unit = {
         if (session == null && context.needsLegacyStoragePermission()) askStorage(thenShoot = true) else vm.onShutterPressed()
@@ -275,7 +280,9 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                     ui = ui,
                     session = session,
                     pillVisible = pillVisible,
+                    storageBlocked = storageBlocked,
                     onOpenTips = { showTips = true },
+                    onAllowStorage = { askStorage(thenShoot = false) },
                 )
                 Box(
                     Modifier
@@ -290,6 +297,9 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .onSizeChanged { controlsHeightPx = it.height }
+                    // Makes the whole panel a hit target (without consuming anything), so touches in its gaps and
+                    // padding don't fall through to the preview below (tap-to-focus, dragging the guide).
+                    .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }
                     .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.55f), Color.Black.copy(alpha = 0.75f))))
                     .navigationBarsPadding()
                     .padding(top = 12.dp),
@@ -379,7 +389,9 @@ private fun PreviewHud(
     ui: CameraUiState,
     session: SessionInfo?,
     pillVisible: Boolean,
+    storageBlocked: Boolean,
     onOpenTips: () -> Unit,
+    onAllowStorage: () -> Unit,
 ) {
     // Collected here so hint / countdown changes only recompose the HUD.
     val coaching by vm.coaching.collectAsStateWithLifecycle()
@@ -415,6 +427,14 @@ private fun PreviewHud(
                 hint = coaching.lighting.takeIf { countdown == null },
                 modifier = Modifier.padding(top = 6.dp),
             )
+            if (storageBlocked) {
+                CameraErrorNotice(
+                    STORAGE_BLOCKED_NOTICE,
+                    Modifier
+                        .padding(top = 6.dp)
+                        .clickable(onClickLabel = "Allow storage access", onClick = onAllowStorage),
+                )
+            }
         }
         ToolRail(
             ui = ui,
@@ -481,3 +501,5 @@ internal fun buildStripPoses(
 
 private const val POSE_PILL_MILLIS = 4000L
 private const val REAPPLY_DELAY_MILLIS = 600L
+internal const val STORAGE_BLOCKED_NOTICE =
+    "Allow storage access to save photos. Auto-capture and hand-raise are paused until then."

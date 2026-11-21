@@ -1,10 +1,14 @@
 package com.poseit.app.ui.theme
 
+import android.content.res.Configuration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -77,5 +81,15 @@ private val typography = Typography().let { t ->
 
 @Composable
 fun PoseitTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = scheme, typography = typography, content = content)
+    // The app is always dark. Report night mode to Compose too, so anything keyed on isSystemInDarkTheme() (the M3
+    // bottom-sheet dialogs set their system-bar icon colours from it) matches the UI instead of the system setting.
+    val config = LocalConfiguration.current
+    val darkConfig = remember(config) {
+        Configuration(config).apply {
+            uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or Configuration.UI_MODE_NIGHT_YES
+        }
+    }
+    CompositionLocalProvider(LocalConfiguration provides darkConfig) {
+        MaterialTheme(colorScheme = scheme, typography = typography, content = content)
+    }
 }

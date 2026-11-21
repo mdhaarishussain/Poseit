@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.poseit.app.data.PoseRepository
@@ -42,16 +43,20 @@ data class LibraryUiState(
 class LibraryViewModel(
     private val repository: PoseRepository,
     private val clock: () -> Long = System::currentTimeMillis,
+    /** Keeps the search text and the tab across process death. */
+    private val savedState: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
     /**
      * The search text lives in snapshot state (not a flow) so the text field updates synchronously while typing;
      * it is fed into the pipeline with [snapshotFlow].
      */
-    var query by mutableStateOf("")
+    var query by mutableStateOf(savedState.get<String>(KEY_QUERY).orEmpty())
         private set
 
-    private val refinements = MutableStateFlow(LibraryFilter())
+    private val refinements = MutableStateFlow(
+        LibraryFilter(tab = savedState.get<String>(KEY_TAB)?.let { n -> LibraryTab.entries.firstOrNull { it.name == n } } ?: LibraryTab.ALL),
+    )
 
     val state: StateFlow<LibraryUiState> = combine(
         repository.allPoses,
@@ -81,9 +86,13 @@ class LibraryViewModel(
 
     fun onQueryChange(text: String) {
         query = text
+        savedState[KEY_QUERY] = text
     }
 
-    fun selectTab(tab: LibraryTab) = refinements.update { it.copy(tab = tab) }
+    fun selectTab(tab: LibraryTab) {
+        refinements.update { it.copy(tab = tab) }
+        savedState[KEY_TAB] = tab.name
+    }
 
     fun selectPeople(people: PeopleFilter) = refinements.update { it.copy(people = people) }
 
@@ -99,6 +108,7 @@ class LibraryViewModel(
 
     fun clearRefinements() {
         query = ""
+        savedState[KEY_QUERY] = ""
         refinements.update { it.cleared() }
     }
 
@@ -117,5 +127,7 @@ class LibraryViewModel(
     private companion object {
         const val TAG = "LibraryViewModel"
         const val STOP_TIMEOUT_MS = 5_000L
+        const val KEY_QUERY = "library.query"
+        const val KEY_TAB = "library.tab"
     }
 }

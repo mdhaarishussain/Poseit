@@ -41,7 +41,9 @@ internal object PhotoLoader {
     private fun decode(context: Context, uri: Uri, maxSide: Int): Bitmap? {
         val resolver = context.contentResolver
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) } ?: return null
+        // A bounds-only decode always returns null (only the out* fields are filled in), so don't test its result.
+        val boundsStream = resolver.openInputStream(uri) ?: return null
+        boundsStream.use { BitmapFactory.decodeStream(it, null, bounds) }
         if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
 
         // Power-of-two subsampling while the result stays >= maxSide, then an exact scale below.

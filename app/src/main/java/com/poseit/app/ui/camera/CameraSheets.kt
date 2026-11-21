@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -72,7 +73,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.poseit.app.data.AppSettings
+import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.OverlayStyle
+import com.poseit.app.data.countdownChoiceFor
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.PoseTemplate
@@ -109,6 +112,8 @@ internal fun QuickSettingsSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = PoseitColors.Surface,
+        // Full-height sheets would otherwise slide under the status bar (M3 1.3 only insets the bottom).
+        modifier = Modifier.statusBarsPadding(),
     ) {
         Column(
             Modifier
@@ -149,8 +154,9 @@ internal fun QuickSettingsSheet(
             }
             Text("Countdown before auto-capture", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 8.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(vertical = 4.dp)) {
+                val selectedCountdown = countdownChoiceFor(settings.countdownSeconds)
                 COUNTDOWN_CHOICES.forEach { s ->
-                    ChoiceChip(if (s == 0) "None" else "${s}s", settings.countdownSeconds == s) {
+                    ChoiceChip(if (s == 0) "None" else "${s}s", selectedCountdown == s) {
                         onUpdateSettings { it.copy(countdownSeconds = s) }
                     }
                 }
@@ -267,7 +273,6 @@ internal fun QuickSettingsSheet(
 
 private const val STRICT_MIN = 0.60f
 private const val STRICT_MAX = 0.95f
-private val COUNTDOWN_CHOICES = listOf(0, 2, 3, 5)
 private val ZOOM_PRESETS = listOf(1f, 2f, 3f, 5f, 10f)
 
 @Composable
@@ -372,6 +377,8 @@ internal fun AllPosesSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = PoseitColors.Surface,
+        // Full-height sheets would otherwise slide under the status bar (M3 1.3 only insets the bottom).
+        modifier = Modifier.statusBarsPadding(),
     ) {
         Column(Modifier.fillMaxWidth()) {
             Text("Choose a pose", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 20.dp))
@@ -488,7 +495,7 @@ internal fun PoseTipsSheet(
     onToggleFavorite: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = PoseitColors.Surface) {
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = PoseitColors.Surface, modifier = Modifier.statusBarsPadding()) {
         Column(
             Modifier
                 .fillMaxWidth()

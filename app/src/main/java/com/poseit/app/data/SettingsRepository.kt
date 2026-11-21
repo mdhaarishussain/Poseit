@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlin.math.abs
 
 enum class OverlayStyle(val label: String) { SILHOUETTE("Silhouette"), OUTLINE("Outline"), STICK("Stick figure") }
 enum class GridType(val label: String) { NONE("Off"), THIRDS("Rule of thirds"), GOLDEN("Golden ratio"), CENTER("Centre cross") }
@@ -34,6 +35,12 @@ data class AppSettings(
     val shutterSound: Boolean = true,
     val onboardingDone: Boolean = false,
 )
+
+/** Countdown lengths offered by both Settings and the camera's quick settings, so each shows the other's choice. */
+val COUNTDOWN_CHOICES = listOf(0, 2, 3, 5, 10)
+
+/** The offered countdown closest to [seconds] (an exact match when it is one of [COUNTDOWN_CHOICES]). */
+fun countdownChoiceFor(seconds: Int): Int = COUNTDOWN_CHOICES.minBy { abs(it - seconds) }
 
 private val Context.settingsStore by preferencesDataStore(name = "settings")
 

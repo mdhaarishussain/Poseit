@@ -77,21 +77,22 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.poseit.app.BuildConfig
 import com.poseit.app.appContainer
 import com.poseit.app.data.AppSettings
+import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.GridType
 import com.poseit.app.data.OverlayStyle
+import com.poseit.app.data.countdownChoiceFor
 import com.poseit.app.ui.onboarding.DemoPoses
 import com.poseit.app.ui.theme.PoseitColors
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-private val countdownOptions = listOf(0, 3, 5, 10)
 private const val STRICTNESS_MIN = 0.60f
 private const val STRICTNESS_MAX = 0.95f
 private const val OPACITY_MIN = 0.15f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
     val appContext = LocalContext.current.applicationContext
     val vm: SettingsViewModel = viewModel(
         factory = viewModelFactory {
@@ -185,10 +186,8 @@ fun SettingsScreen(onBack: () -> Unit) {
             item(key = "about") {
                 AboutSection(
                     onShowLicenses = { showLicenses = true },
-                    onShowIntro = {
-                        vm.update { it.copy(onboardingDone = false) }
-                        vm.showMessage("The intro will play again")
-                    },
+                    // Plays it right away; the stored "intro seen" flag stays set (the intro sets it again on finish).
+                    onShowIntro = onShowIntro,
                 )
             }
         }
@@ -247,17 +246,17 @@ private fun CoachingSection(s: AppSettings, update: ((AppSettings) -> AppSetting
             title = "Countdown",
             subtitle = "Seconds between “matched” and the photo",
         )
-        val selected = countdownOptions.minBy { kotlin.math.abs(it - s.countdownSeconds) }
+        val selected = countdownChoiceFor(s.countdownSeconds)
         SingleChoiceSegmentedButtonRow(
             Modifier
                 .fillMaxWidth()
                 .padding(start = 68.dp, end = 16.dp, bottom = 14.dp),
         ) {
-            countdownOptions.forEachIndexed { index, seconds ->
+            COUNTDOWN_CHOICES.forEachIndexed { index, seconds ->
                 SegmentedButton(
                     selected = seconds == selected,
                     onClick = { update { it.copy(countdownSeconds = seconds) } },
-                    shape = SegmentedButtonDefaults.itemShape(index, countdownOptions.size),
+                    shape = SegmentedButtonDefaults.itemShape(index, COUNTDOWN_CHOICES.size),
                     icon = {},
                     colors = SegmentedButtonDefaults.colors(activeContainerColor = PoseitColors.Violet.copy(alpha = 0.35f)),
                 ) { Text(if (seconds == 0) "Off" else "${seconds}s", maxLines = 1) }

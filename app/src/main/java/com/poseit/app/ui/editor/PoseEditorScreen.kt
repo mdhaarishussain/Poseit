@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -72,11 +73,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.poseit.app.appContainer
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseSource
-import com.poseit.app.pose.PoseTag
 import com.poseit.app.ui.create.PoseDetailsForm
 import com.poseit.app.ui.theme.PoseitColors
 import kotlinx.coroutines.launch
@@ -88,7 +89,7 @@ fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (String) 
     val context = LocalContext.current
     val repository = remember(context) { context.appContainer.poseRepository }
     val viewModel: PoseEditorViewModel = viewModel(key = "editor:${basePoseId.orEmpty()}") {
-        PoseEditorViewModel(repository, basePoseId)
+        PoseEditorViewModel(repository, basePoseId, createSavedStateHandle())
     }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -120,7 +121,7 @@ fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (String) 
             TopAppBar(
                 title = {
                     Column {
-                        Text("Pose editor", maxLines = 1)
+                        Text("Pose editor", maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
                         Text(
                             text = viewModel.base?.name?.let { "Based on $it" } ?: "New pose",
                             style = MaterialTheme.typography.bodySmall,
@@ -309,13 +310,10 @@ private fun SaveSheet(viewModel: PoseEditorViewModel, onDismiss: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val base = viewModel.base
-    var name by rememberSaveable { mutableStateOf(viewModel.suggestedName) }
-    var categoryName by rememberSaveable {
-        mutableStateOf((base?.takeIf { it.source != PoseSource.BUILT_IN }?.category ?: PoseCategory.CUSTOM).name)
-    }
-    var tagNames by rememberSaveable { mutableStateOf<List<String>>(base?.tags?.map { it.name } ?: emptyList()) }
-    val category = PoseCategory.entries.firstOrNull { it.name == categoryName } ?: PoseCategory.CUSTOM
-    val tags = tagNames.mapNotNull { n -> PoseTag.entries.firstOrNull { it.name == n } }.toSet()
+    // The draft lives in the view model, so "Keep editing" (or swiping the sheet away) keeps what was entered.
+    val name = viewModel.draftName ?: viewModel.suggestedName
+    val category = viewModel.draftCategory ?: base?.takeIf { it.source != PoseSource.BUILT_IN }?.category ?: PoseCategory.CUSTOM
+    val tags = viewModel.draftTags ?: base?.tags ?: emptySet()
     val canSave = name.isNotBlank() && !viewModel.saving
 
     fun save(asNew: Boolean) = viewModel.save(name, category, tags, asNew)
@@ -324,6 +322,8 @@ private fun SaveSheet(viewModel: PoseEditorViewModel, onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
+        // Full-height sheets would otherwise slide under the status bar (M3 1.3 only insets the bottom).
+        modifier = Modifier.statusBarsPadding(),
     ) {
         Column(
             Modifier
@@ -345,11 +345,11 @@ private fun SaveSheet(viewModel: PoseEditorViewModel, onDismiss: () -> Unit) {
             }
             PoseDetailsForm(
                 name = name,
-                onNameChange = { name = it },
+                onNameChange = viewModel::updateDraftName,
                 category = category,
-                onCategoryChange = { categoryName = it.name },
+                onCategoryChange = viewModel::updateDraftCategory,
                 tags = tags,
-                onTagsChange = { set -> tagNames = set.map { it.name } },
+                onTagsChange = viewModel::updateDraftTags,
             )
             if (viewModel.canOverwriteBase) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

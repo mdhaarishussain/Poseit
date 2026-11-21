@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.poseit.app.data.PoseRepository
@@ -31,6 +32,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.UUID
 import kotlin.math.max
@@ -43,11 +47,13 @@ sealed interface EditorEvent {
 
 /**
  * State of the pose editor: the figures being edited (frame-normalised), the selected figure, undo/redo history and
- * the drag currently in progress.
+ * the drag currently in progress. The figures, the selection and the save-sheet draft also go into [savedState], so
+ * unsaved work survives the process being killed in the background (the undo history does not).
  */
 class PoseEditorViewModel(
     private val poseRepository: PoseRepository,
     private val basePoseId: String?,
+    private val savedState: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
     private data class Snapshot(val figures: List<Skeleton>, val selected: Int)
@@ -101,6 +107,34 @@ class PoseEditorViewModel(
     var suggestedName by mutableStateOf("")
         private set
 
+    /**
+     * What the user entered in the save sheet (null = not touched yet: use the suggestion / the base pose's values).
+     * Kept here so closing the sheet with "Keep editing" or a swipe doesn't throw it away.
+     */
+    var draftName by mutableStateOf(savedState.get<String>(KEY_DRAFT_NAME))
+        private set
+    var draftCategory by mutableStateOf(savedState.get<String>(KEY_DRAFT_CATEGORY)?.let { n -> PoseCategory.entries.firstOrNull { it.name == n } })
+        private set
+    var draftTags by mutableStateOf(
+        savedState.get<ArrayList<String>>(KEY_DRAFT_TAGS)?.mapNotNull { n -> PoseTag.entries.firstOrNull { it.name == n } }?.toSet(),
+    )
+        private set
+
+    fun updateDraftName(name: String) {
+        draftName = name
+        savedState[KEY_DRAFT_NAME] = name
+    }
+
+    fun updateDraftCategory(category: PoseCategory) {
+        draftCategory = category
+        savedState[KEY_DRAFT_CATEGORY] = category.name
+    }
+
+    fun updateDraftTags(tags: Set<PoseTag>) {
+        draftTags = tags
+        savedState[KEY_DRAFT_TAGS] = ArrayList(tags.map { it.name })
+    }
+
     private var initialFigures: List<Skeleton> = emptyList()
     private var savedFigures by mutableStateOf<List<Skeleton>>(emptyList())
     private val undoStack = ArrayDeque<Snapshot>()
@@ -135,12 +169,13 @@ class PoseEditorViewModel(
         val frameAspect = template?.frameAspect?.takeIf { it.isFinite() && it > 0.2f && it < 5f } ?: DEFAULT_ASPECT
         val start = template?.figures?.filter { it.points.isNotEmpty() }?.take(MAX_PEOPLE)?.takeIf { it.isNotEmpty() }
             ?: listOf(SkeletonEditing.neutralFigure(frameAspect))
+        val restored = restoreFigures()
         base = template
         aspect = frameAspect
-        figures = start
+        figures = restored ?: start
         initialFigures = start
         savedFigures = start
-        selected = 0
+        selected = if (restored != null) (savedState.get<Int>(KEY_SELECTED) ?: 0).coerceIn(0, restored.lastIndex) else 0
         suggestedName = when {
             template == null -> nextDefaultName()
             template.source == PoseSource.BUILT_IN -> "${template.name} (my version)"
@@ -148,6 +183,32 @@ class PoseEditorViewModel(
         }
         loading = false
         template?.referenceImage?.let { path -> referenceBitmap = loadReference(path) }
+    }
+
+    /** The unsaved figures stored before the process was killed, or null. */
+    private fun restoreFigures(): List<Skeleton>? {
+        val stored = savedState.get<String>(KEY_FIGURES) ?: return null
+        return try {
+            stateJson.decodeFromString(ListSerializer(Skeleton.serializer()), stored)
+                .filter { it.points.isNotEmpty() }
+                .take(MAX_PEOPLE)
+                .takeIf { it.isNotEmpty() }
+        } catch (e: SerializationException) {
+            null
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
+
+    /** Stores the figures and selection for process death; called after every committed change (not every drag frame). */
+    private fun persist() {
+        if (loading) return
+        try {
+            savedState[KEY_FIGURES] = stateJson.encodeToString(ListSerializer(Skeleton.serializer()), figures)
+            savedState[KEY_SELECTED] = selected
+        } catch (e: SerializationException) {
+            Log.w(TAG, "Could not store the editor state", e)
+        }
     }
 
     private fun nextDefaultName(): String {
@@ -220,6 +281,7 @@ class PoseEditorViewModel(
         gesture = null
         activeTarget = null
         if (g.moved && figures != g.before.figures) pushUndo(g.before)
+        persist()
     }
 
     /** A second finger arrived (view zoom): put the figure back as it was. */
@@ -228,10 +290,12 @@ class PoseEditorViewModel(
         gesture = null
         activeTarget = null
         if (g.moved) figures = g.before.figures
+        persist()
     }
 
     fun select(index: Int) {
         if (index in figures.indices) selected = index
+        persist()
     }
 
     // ---- toolbar ---------------------------------------------------------------------------------------------
@@ -258,6 +322,7 @@ class PoseEditorViewModel(
         pushUndo(Snapshot(figures, selected))
         figures = initialFigures
         selected = selected.coerceIn(0, initialFigures.lastIndex)
+        persist()
     }
 
     fun addPerson() {
@@ -286,6 +351,7 @@ class PoseEditorViewModel(
         pushUndo(before)
         figures = list
         selected = newSelected.coerceIn(0, list.lastIndex)
+        persist()
     }
 
     private fun pushUndo(snapshot: Snapshot) {
@@ -299,6 +365,7 @@ class PoseEditorViewModel(
         figures = snapshot.figures
         selected = snapshot.selected.coerceIn(0, snapshot.figures.lastIndex.coerceAtLeast(0))
         updateHistoryFlags()
+        persist()
     }
 
     private fun updateHistoryFlags() {
@@ -359,6 +426,12 @@ class PoseEditorViewModel(
         private const val LOAD_TIMEOUT_MS = 2_000L
         private const val REFERENCE_MAX_SIDE = 1024
         private const val TAG = "PoseEditor"
+        private const val KEY_FIGURES = "editor.figures"
+        private const val KEY_SELECTED = "editor.selected"
+        private const val KEY_DRAFT_NAME = "editor.draftName"
+        private const val KEY_DRAFT_CATEGORY = "editor.draftCategory"
+        private const val KEY_DRAFT_TAGS = "editor.draftTags"
+        private val stateJson = Json { ignoreUnknownKeys = true }
         private const val DEFAULT_DESCRIPTION = "Your own pose, drawn in the Poseit editor."
         private val DEFAULT_TIPS = listOf(
             "Match the guide one body part at a time – feet first, then hips, then arms.",

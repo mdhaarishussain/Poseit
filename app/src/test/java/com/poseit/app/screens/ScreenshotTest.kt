@@ -64,7 +64,7 @@ class ScreenshotTest {
     }
 
     @Test
-    fun settings() = shot("settings") { SettingsScreen(onBack = {}) }
+    fun settings() = shot("settings") { SettingsScreen(onBack = {}, onShowIntro = {}) }
 
     @Test
     fun onboarding() = shot("onboarding") { OnboardingScreen(onDone = {}) }

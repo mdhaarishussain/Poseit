@@ -50,7 +50,14 @@ fun PoseitNavHost(startOnboarding: Boolean) {
     NavHost(navController = nav, startDestination = if (startOnboarding) Routes.ONBOARDING else Routes.LIBRARY) {
         composable(Routes.ONBOARDING) { entry ->
             OnboardingScreen(onDone = {
-                nav.ifCurrent(entry) { navigate(Routes.LIBRARY) { popUpTo(Routes.ONBOARDING) { inclusive = true } } }
+                nav.ifCurrent(entry) {
+                    // Replayed from Settings: go back there. First run (the intro is the start destination): Library.
+                    if (previousBackStackEntry != null) {
+                        popBackStack()
+                    } else {
+                        navigate(Routes.LIBRARY) { popUpTo(Routes.ONBOARDING) { inclusive = true } }
+                    }
+                }
             })
         }
         composable(Routes.LIBRARY) { entry ->
@@ -102,7 +109,10 @@ fun PoseitNavHost(startOnboarding: Boolean) {
             )
         }
         composable(Routes.SETTINGS) { entry ->
-            SettingsScreen(onBack = { nav.ifCurrent(entry) { popBackStack() } })
+            SettingsScreen(
+                onBack = { nav.ifCurrent(entry) { popBackStack() } },
+                onShowIntro = { nav.ifCurrent(entry) { navigate(Routes.ONBOARDING) } },
+            )
         }
     }
 }

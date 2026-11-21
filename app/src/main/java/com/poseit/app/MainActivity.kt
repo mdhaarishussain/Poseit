@@ -1,9 +1,11 @@
 package com.poseit.app
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -25,7 +27,12 @@ import kotlinx.coroutines.flow.first
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // The app is always dark, so the bars must not follow the system light/dark setting (SystemBarStyle.auto):
+        // light mode would give dark status icons on the dark UI and a white nav-bar scrim on Android 8-9.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+        )
         val settingsFlow = appContainer.settingsRepository.settings
         setContent {
             PoseitTheme {

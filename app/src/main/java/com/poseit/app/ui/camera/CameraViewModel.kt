@@ -719,6 +719,8 @@ class CameraViewModel(
         if (hint == null || !s.voiceGuidance || captureInFlight) return
         val state = _capture.value
         if (state is CaptureState.Countdown || state is CaptureState.Capture) return
+        // "Hold it" would promise an auto-capture that can't happen until storage access is granted (Android <= 9).
+        if (hint.kind == HintKind.PERFECT && storageMissing) return
         if (lastSpokenAt != Long.MIN_VALUE && now - lastSpokenAt < SPEAK_POLL_MS) return
         lastSpokenAt = now
         safely { voice.say(if (hint.kind == HintKind.PERFECT) PERFECT_SPEECH else hint.speech) }

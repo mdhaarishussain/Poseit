@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -54,6 +56,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -326,8 +329,20 @@ private fun DetailBottomBar(isCustom: Boolean, onEdit: () -> Unit, onTry: () -> 
                 colors = ButtonDefaults.buttonColors(containerColor = PoseitColors.Violet, contentColor = Color.White),
             ) {
                 Icon(Icons.Filled.CameraAlt, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(10.dp))
-                Text("Try this pose", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.width(8.dp))
+                // Shrinks instead of ellipsizing to "Try this …" with a large font on a narrow phone.
+                val labelStyle = LocalTextStyle.current
+                BasicText(
+                    "Try this pose",
+                    style = labelStyle.copy(color = LocalContentColor.current),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = 10.sp,
+                        maxFontSize = labelStyle.fontSize.takeIf { it.isSp } ?: 14.sp,
+                        stepSize = 0.5.sp,
+                    ),
+                )
             }
         }
     }
