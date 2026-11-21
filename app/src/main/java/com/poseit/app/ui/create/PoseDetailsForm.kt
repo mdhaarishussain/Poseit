@@ -3,7 +3,10 @@ package com.poseit.app.ui.create
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -15,23 +18,24 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
-import com.poseit.app.ui.components.StudioChip
+import com.poseit.app.ui.components.FilterPill
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitShapes
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
-import com.poseit.app.ui.theme.StudioType
 
 /** Longest pose name the forms accept. */
 internal const val POSE_NAME_MAX_LENGTH = 40
 
 /**
  * Name, category and optional tags of a pose being saved (used by "create from photo" and the editor's save
- * sheet): a Sheet text field, then text-only chips for the category (pick one) and the tags (pick any). Each part
- * has a Label caption above it.
+ * sheet), laid out like Astryx fields: a label above each part (with an "Optional" indicator where it applies),
+ * a cream text field with a 1dp dark outline, then filter pills for the category (pick one) and the tags (pick
+ * any). On cream only: the canvas or a sheet.
  */
 @Composable
 internal fun PoseDetailsForm(
@@ -45,21 +49,24 @@ internal fun PoseDetailsForm(
 ) {
     val focusManager = LocalFocusManager.current
     Column(modifier, verticalArrangement = Arrangement.spacedBy(Space.xl)) {
-        Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-            Caption("Name")
+        Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
+            FieldLabel("Name")
             NameField(name, onNameChange, onDone = { focusManager.clearFocus() })
         }
-        ChipGroup("Category") {
+        PillGroup("Category") {
             PoseCategory.entries.forEach { option ->
-                StudioChip(label = option.label, selected = option == category, onClick = { onCategoryChange(option) })
+                FilterPill(label = option.label, selected = option == category, onClick = { onCategoryChange(option) })
             }
         }
-        TagGroup("Mood (optional)", PoseTag.entries.filter { !it.isLocation }, tags, onTagsChange)
-        TagGroup("Where (optional)", PoseTag.entries.filter { it.isLocation }, tags, onTagsChange)
+        TagGroup("Mood", PoseTag.entries.filter { !it.isLocation }, tags, onTagsChange)
+        TagGroup("Where", PoseTag.entries.filter { it.isLocation }, tags, onTagsChange)
     }
 }
 
-/** A Sheet field with a Hairline outline: Ink when focused, Miss while the name is empty. */
+/**
+ * A cream field (the surface colour) with 12dp corners and a 1dp dark outline, 2dp while focused; signal red with
+ * a prompt below while the name is empty, the character count below otherwise.
+ */
 @Composable
 private fun NameField(name: String, onNameChange: (String) -> Unit, onDone: () -> Unit) {
     OutlinedTextField(
@@ -70,32 +77,37 @@ private fun NameField(name: String, onNameChange: (String) -> Unit, onDone: () -
         supportingText = {
             // The count sits at the end, under the field's right edge; the prompt reads from the start.
             if (name.isBlank()) {
-                Text("Give your pose a name")
+                Text("Give your pose a name", style = PoseitType.supporting)
             } else {
-                Text("${name.length} / $POSE_NAME_MAX_LENGTH", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+                Text(
+                    "${name.length} / $POSE_NAME_MAX_LENGTH",
+                    style = PoseitType.numeral(PoseitType.supporting.fontSize),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End,
+                )
             }
         },
-        textStyle = StudioType.body,
-        shape = StudioShapes.Small,
+        textStyle = PoseitType.bodyLarge,
+        shape = PoseitShapes.Control,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Studio.Sheet,
-            unfocusedContainerColor = Studio.Sheet,
-            errorContainerColor = Studio.Sheet,
-            focusedTextColor = Studio.Ink,
-            unfocusedTextColor = Studio.Ink,
-            errorTextColor = Studio.Ink,
-            cursorColor = Studio.Ink,
-            errorCursorColor = Studio.Miss,
-            focusedBorderColor = Studio.Ink,
-            unfocusedBorderColor = Studio.Hairline,
-            errorBorderColor = Studio.Miss,
-            focusedSupportingTextColor = Studio.Graphite,
-            unfocusedSupportingTextColor = Studio.Graphite,
-            errorSupportingTextColor = Studio.Miss,
+            focusedContainerColor = PoseitColors.backgroundSurface,
+            unfocusedContainerColor = PoseitColors.backgroundSurface,
+            errorContainerColor = PoseitColors.backgroundSurface,
+            focusedTextColor = PoseitColors.textPrimary,
+            unfocusedTextColor = PoseitColors.textPrimary,
+            errorTextColor = PoseitColors.textPrimary,
+            cursorColor = PoseitColors.textPrimary,
+            errorCursorColor = PoseitColors.signalMiss,
+            focusedBorderColor = PoseitColors.borderEmphasized,
+            unfocusedBorderColor = PoseitColors.borderEmphasized,
+            errorBorderColor = PoseitColors.signalMiss,
+            focusedSupportingTextColor = PoseitColors.textSecondary,
+            unfocusedSupportingTextColor = PoseitColors.textSecondary,
+            errorSupportingTextColor = PoseitColors.signalMiss,
         ),
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { onDone() }),
-        // The caption above is a separate Text, so the field names itself for screen readers.
+        // The label above is a separate Text, so the field names itself for screen readers.
         modifier = Modifier
             .fillMaxWidth()
             .semantics { contentDescription = "Name" },
@@ -104,10 +116,10 @@ private fun NameField(name: String, onNameChange: (String) -> Unit, onDone: () -
 
 @Composable
 private fun TagGroup(title: String, options: List<PoseTag>, selected: Set<PoseTag>, onChange: (Set<PoseTag>) -> Unit) {
-    ChipGroup(title) {
+    PillGroup(title, optional = true) {
         options.forEach { tag ->
             val isSelected = tag in selected
-            StudioChip(
+            FilterPill(
                 label = tag.label,
                 selected = isSelected,
                 onClick = { onChange(if (isSelected) selected - tag else selected + tag) },
@@ -116,17 +128,23 @@ private fun TagGroup(title: String, options: List<PoseTag>, selected: Set<PoseTa
     }
 }
 
-/** The Label-style Graphite caption over a field or a chip group. */
+/** A field's label (Label, primary) and, for an optional part, "Optional" in Supporting secondary beside it. */
 @Composable
-private fun Caption(text: String) {
-    Text(text, style = StudioType.label, color = Studio.Graphite)
+private fun FieldLabel(text: String, optional: Boolean = false) {
+    Row(Modifier.semantics(mergeDescendants = true) {}) {
+        Text(text, style = PoseitType.label, color = PoseitColors.textPrimary, modifier = Modifier.alignByBaseline())
+        if (optional) {
+            Spacer(Modifier.width(Space.s))
+            Text("Optional", style = PoseitType.supporting, color = PoseitColors.textSecondary, modifier = Modifier.alignByBaseline())
+        }
+    }
 }
 
-/** A caption over a wrapping row of chips, 8dp apart. */
+/** A label over a wrapping row of filter pills, 8dp apart. */
 @Composable
-private fun ChipGroup(title: String, chips: @Composable () -> Unit) {
+private fun PillGroup(title: String, optional: Boolean = false, pills: @Composable () -> Unit) {
     Column {
-        Caption(title)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(Space.s)) { chips() }
+        FieldLabel(title, optional)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(Space.s)) { pills() }
     }
 }
