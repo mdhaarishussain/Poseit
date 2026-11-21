@@ -354,7 +354,7 @@ private fun AboutGroup(onShowLicenses: () -> Unit, onShowIntro: () -> Unit) {
                 color = Studio.Ink,
             )
             Text(
-                "Pose detection uses MediaPipe (Apache License 2.0). The typeface is Archivo (SIL Open Font License 1.1).",
+                "Pose detection uses MediaPipe (Apache License 2.0). The typeface is Hanken Grotesk (SIL Open Font License 1.1).",
                 style = StudioType.label,
                 color = Studio.Graphite,
             )
@@ -376,7 +376,8 @@ private val notices = listOf(
     Notice("Material Icons", "Google LLC", "Apache License 2.0"),
     Notice("Coil", "Coil Contributors", "Apache License 2.0"),
     Notice("Kotlin, kotlinx.coroutines, kotlinx.serialization", "JetBrains s.r.o. and contributors", "Apache License 2.0"),
-    Notice("Archivo typeface", "The Archivo Project Authors (Omnibus-Type)", "SIL Open Font License 1.1"),
+    Notice("Hanken Grotesk typeface", "The Hanken Grotesk Project Authors", "SIL Open Font License 1.1"),
+    Notice("Astryx design system (token and component model)", "Meta Platforms, Inc.", "MIT License"),
 )
 
 @Composable
@@ -398,8 +399,9 @@ private fun LicensesDialog(onDismiss: () -> Unit) {
                     }
                 }
                 Text(
-                    "The Apache License 2.0 is at apache.org/licenses/LICENSE-2.0 and the SIL Open Font License 1.1 " +
-                        "at openfontlicense.org. Software and fonts under these licences are distributed \"as is\", " +
+                    "The Apache License 2.0 is at apache.org/licenses/LICENSE-2.0, the SIL Open Font License 1.1 " +
+                        "at openfontlicense.org and the MIT License at opensource.org/license/mit. Software and fonts " +
+                        "under these licences are distributed \"as is\", " +
                         "without warranties or conditions of any kind.",
                     style = StudioType.label,
                     color = Studio.Graphite,

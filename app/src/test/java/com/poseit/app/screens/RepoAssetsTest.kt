@@ -78,6 +78,7 @@ import com.poseit.app.ui.detail.PoseDetailScreen
 import com.poseit.app.ui.editor.PoseEditorScreen
 import com.poseit.app.ui.library.LibraryScreen
 import com.poseit.app.ui.settings.SettingsScreen
+import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitTheme
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
@@ -148,10 +149,10 @@ class RepoAssetsTest {
     @Test
     @Config(qualifiers = "w128dp-h128dp-xhdpi")
     fun icon() = render("icon") {
-        // The adaptive icon flat: the Set background layer, then the 108dp foreground layer, of which the launcher
-        // shows the central 72dp. scripts/repo_assets.py cuts it to the disc the app ships for launchers without
-        // adaptive icons (res/mipmap/ic_launcher.xml).
-        Box(Modifier.fillMaxSize().background(Studio.Set), contentAlignment = Alignment.Center) {
+        // The adaptive icon flat: the dark card background layer (ic_launcher_background), then the 108dp foreground
+        // layer, of which the launcher shows the central 72dp. scripts/repo_assets.py cuts it to the disc the app
+        // ships for launchers without adaptive icons (res/mipmap/ic_launcher.xml).
+        Box(Modifier.fillMaxSize().background(PoseitColors.backgroundCard), contentAlignment = Alignment.Center) {
             Image(
                 painterResource(R.drawable.ic_launcher_foreground),
                 contentDescription = null,

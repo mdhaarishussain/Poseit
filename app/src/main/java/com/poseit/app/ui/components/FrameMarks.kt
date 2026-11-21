@@ -12,12 +12,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.PoseitColors
 
 /**
- * Viewfinder frame marks (docs/DESIGN.md): thin corner brackets at the four corners of this element, drawn over its
- * content. They show the framing of a pose's photo, like the frame lines in a viewfinder. Used on the detail
- * preview and the editor canvas.
+ * Viewfinder frame marks (docs/DESIGN.md, "Frame marks"): thin corner brackets at the four corners of this element,
+ * drawn over its content. They show the framing of a pose's photo, like the frame lines in a viewfinder. Used on the
+ * detail preview and the editor canvas, which are dark stages in v2, so they default to cream; pass
+ * [PoseitColors.textPrimary] on cream.
  *
  * Apply it to the element whose bounds ARE the photo frame (e.g. a Box with `aspectRatio(template.frameAspect)`).
  * When the frame is only part of a canvas, call [drawFrameMarks] with the frame rect (e.g. from `fitFrameRect`).
@@ -25,7 +26,7 @@ import com.poseit.app.ui.theme.Studio
  * @param inset moves the marks inside the bounds, e.g. to keep them clear of a rounded clip
  */
 fun Modifier.frameMarks(
-    color: Color = Studio.Ink,
+    color: Color = PoseitColors.textPrimaryInverted,
     stroke: Dp = 1.5.dp,
     length: Dp = 12.dp,
     inset: Dp = 0.dp,
@@ -41,7 +42,7 @@ fun Modifier.frameMarks(
  */
 fun DrawScope.drawFrameMarks(
     frame: Rect,
-    color: Color = Studio.Ink,
+    color: Color = PoseitColors.textPrimaryInverted,
     strokePx: Float = 1.5.dp.toPx(),
     lengthPx: Float = 12.dp.toPx(),
 ) {

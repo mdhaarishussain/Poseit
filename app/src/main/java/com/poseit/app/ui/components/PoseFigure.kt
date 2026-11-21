@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.BodyPart
 import com.poseit.app.pose.Bone
@@ -34,14 +33,15 @@ import com.poseit.app.pose.Skeleton
 import com.poseit.app.pose.Vec2
 import com.poseit.app.pose.render.FigureShape
 import com.poseit.app.pose.render.FigureShapes
-import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.PoseitColors
 import kotlin.math.max
 
 enum class FigureStyle { SILHOUETTE, OUTLINE, STICK }
 
 /**
- * How to paint a figure. The defaults are the Studio lay figure: [Studio.Mannequin] fill, [Studio.MannequinContour]
- * contour and an [Studio.Ink] face dot.
+ * How to paint a figure. The defaults are the v2 lay figure, which reads on both the dark stage (by its cream fill)
+ * and the cream canvas (by its contour): [PoseitColors.figureFill] fill, [PoseitColors.figureContour] contour and a
+ * [PoseitColors.figureFace] dot.
  * @param fill body colour (SILHOUETTE) / line colour (OUTLINE, STICK) when no part colour is given
  * @param outline colour of the contour drawn around a silhouette (Color.Transparent = none)
  * @param partColors optional per-body-part colours (e.g. match feedback); overrides [fill]
@@ -51,13 +51,13 @@ enum class FigureStyle { SILHOUETTE, OUTLINE, STICK }
  */
 data class FigurePaint(
     val style: FigureStyle = FigureStyle.SILHOUETTE,
-    val fill: Color = Studio.Mannequin,
-    val outline: Color = Studio.MannequinContour,
+    val fill: Color = PoseitColors.figureFill,
+    val outline: Color = PoseitColors.figureContour,
     val partColors: Map<BodyPart, Color> = emptyMap(),
     val alpha: Float = 1f,
     val strokeWidthPx: Float = 0f,
     val showFaceMarker: Boolean = true,
-    val faceColor: Color = Studio.Ink,
+    val faceColor: Color = PoseitColors.figureFace,
 )
 
 /**
@@ -101,7 +101,7 @@ fun DrawScope.drawPoseFigure(
                 // 2) body: fill (silhouette) or punch a hole (outline)
                 for (s in shapes) {
                     if (paint.style == FigureStyle.OUTLINE) {
-                        drawShape(s, ::px, h, inflatePx = 0f, color = Studio.Ink, blendMode = BlendMode.Clear)
+                        drawShape(s, ::px, h, inflatePx = 0f, color = PoseitColors.textPrimary, blendMode = BlendMode.Clear)
                     } else {
                         drawShape(s, ::px, h, inflatePx = 0f, color = colorFor(s.part))
                     }
@@ -216,11 +216,14 @@ fun fitFrameRect(size: Size, aspect: Float): Rect {
 }
 
 /**
- * A whole pose template (all figures) standing on a flat patch of studio paper, with a soft contact shadow under
- * each figure's feet. Respects the template's frame aspect; letterboxed inside the given modifier bounds.
- * People in a multi-person pose take [Studio.FigureTones] in order.
- * @param background fill behind the figures, [Studio.Set] by default; null draws nothing (the caller paints it)
- * @param showGround draws the contact shadows
+ * A whole pose template (all figures) standing on the stage, each figure on a flat floor spot. Respects the
+ * template's frame aspect; letterboxed inside the given modifier bounds. People in a multi-person pose take
+ * [PoseitColors.figureTones] in order.
+ * @param background fill behind the figures, the dark stage ([PoseitColors.backgroundStage]) by default; null draws
+ *   nothing (the caller paints it)
+ * @param showGround draws the floor spots
+ * @param floorColor the floor spot: [PoseitColors.figureFloorOnDark] on the stage, [PoseitColors.figureFloorOnLight]
+ *   on cream
  */
 @Composable
 fun PoseThumbnail(
@@ -228,8 +231,9 @@ fun PoseThumbnail(
     modifier: Modifier = Modifier,
     style: FigureStyle = FigureStyle.SILHOUETTE,
     mirrored: Boolean = false,
-    background: Brush? = SetBrush,
+    background: Brush? = StageBrush,
     showGround: Boolean = true,
+    floorColor: Color = PoseitColors.figureFloorOnDark,
 ) {
     val figures = remember(template, mirrored) { if (mirrored) template.figures.map { it.mirrored() } else template.figures }
     BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
@@ -241,11 +245,11 @@ fun PoseThumbnail(
             Canvas(Modifier.fillMaxSize()) {
                 val rect = Rect(Offset.Zero, size)
                 clipRect {
-                    if (showGround) figures.forEach { drawContactShadow(it) }
+                    if (showGround) figures.forEach { drawFloorSpot(it, floorColor) }
                     figures.forEachIndexed { i, sk ->
                         drawPoseFigure(
                             sk, template.frameAspect, rect,
-                            FigurePaint(style = style, fill = Studio.FigureTones[i % Studio.FigureTones.size]),
+                            FigurePaint(style = style, fill = PoseitColors.figureTones[i % PoseitColors.figureTones.size]),
                         )
                     }
                 }
@@ -254,27 +258,15 @@ fun PoseThumbnail(
     }
 }
 
-private val SetBrush = SolidColor(Studio.Set)
+private val StageBrush = SolidColor(PoseitColors.backgroundStage)
 
-/** The one shadow in Studio: a soft oval under the feet that puts the figure on the floor. */
-private fun DrawScope.drawContactShadow(sk: Skeleton) {
+/** A flat oval under the feet that puts the figure on the floor (v2 has no shadows and no gradients). */
+private fun DrawScope.drawFloorSpot(sk: Skeleton, color: Color) {
     val l = sk[Joint.LEFT_ANKLE] ?: return
     val r = sk[Joint.RIGHT_ANKLE] ?: return
     if (l.y !in 0f..1.02f) return
     val center = Offset((l.x + r.x) / 2f * size.width, max(l.y, r.y) * size.height + size.height * 0.014f)
-    val radius = size.width * 0.19f
-    // A radial fade squashed into an oval: dense under the feet, gone at the rim.
-    scale(scaleX = 1f, scaleY = 0.16f, pivot = center) {
-        drawCircle(
-            Brush.radialGradient(
-                0f to Studio.Ink.copy(alpha = 0.18f),
-                0.55f to Studio.Ink.copy(alpha = 0.10f),
-                1f to Color.Transparent,
-                center = center,
-                radius = radius,
-            ),
-            radius = radius,
-            center = center,
-        )
-    }
+    val rx = size.width * 0.17f
+    val ry = rx * 0.16f
+    drawOval(color, topLeft = Offset(center.x - rx, center.y - ry), size = Size(rx * 2f, ry * 2f))
 }

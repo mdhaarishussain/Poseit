@@ -13,13 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioType
+import com.poseit.app.ui.theme.PoseitType
+import com.poseit.app.ui.theme.toneColors
 
 /**
- * The heading that starts a group or section: the heading style (Archivo SemiBold 17/24, normal width, so the wide
- * cut stays with the screen title), Ink, sentence case, marked as a heading for accessibility. Leave [Space.section][com.poseit.app.ui.theme.Space.section] (32dp) above it between
- * groups. No eyebrow labels above it, no caps.
+ * The heading that starts a group or section (Astryx Section heading): the Heading style (Medium 16/22), primary
+ * colour for the surface, sentence case, marked as a heading for accessibility. On the canvas, start it on
+ * [Space.textInset][com.poseit.app.ui.theme.Space.textInset] so it lines up with text inside cards, and leave
+ * [Space.section][com.poseit.app.ui.theme.Space.section] above it. No eyebrow labels, no capitals.
  *
  * @param action optional trailing control on the same line, e.g. a TertiaryButton("Show all")
  */
@@ -28,8 +29,8 @@ fun SectionHeading(text: String, modifier: Modifier = Modifier, action: (@Compos
     Row(modifier.fillMaxWidth().heightIn(min = 32.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(
             text,
-            style = StudioType.heading,
-            color = Studio.Ink,
+            style = PoseitType.heading,
+            color = toneColors().textPrimary,
             modifier = Modifier
                 .weight(1f)
                 .semantics { heading() },
@@ -39,16 +40,16 @@ fun SectionHeading(text: String, modifier: Modifier = Modifier, action: (@Compos
 }
 
 /**
- * A 1dp Hairline rule. Only between rows of the same group (setting rows, list items); never as decoration between
- * sections, which are separated by space. Inset it with padding to line up with the row text.
+ * A 1dp hairline in the surface's border colour. Only between rows of one group (RowGroup draws its own) or list
+ * items; never as decoration between sections, which are separated by space.
  */
 @Composable
 fun HairlineDivider(modifier: Modifier = Modifier) {
-    HorizontalDivider(modifier, thickness = 1.dp, color = Studio.Hairline)
+    HorizontalDivider(modifier, thickness = 1.dp, color = toneColors().border)
 }
 
-/** A vertical 1dp Hairline rule, e.g. between two groups of chips in one row. Give it a height. */
+/** A vertical 1dp hairline, e.g. between two groups of filter pills in one row. Give it a height. */
 @Composable
 fun VerticalHairline(modifier: Modifier = Modifier) {
-    VerticalDivider(modifier, thickness = 1.dp, color = Studio.Hairline)
+    VerticalDivider(modifier, thickness = 1.dp, color = toneColors().border)
 }

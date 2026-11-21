@@ -150,8 +150,10 @@ The code is split into two modules:
 - `app/`: the Android app, with the Jetpack Compose UI, CameraX, MediaPipe, TextToSpeech and storage.
 
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) covers coordinate spaces, mirroring and the contracts between
-modules. [docs/DESIGN.md](docs/DESIGN.md) specifies the visual design, "Studio": white lay figures on
-studio-grey paper, Archivo type, and colour only for match feedback.
+modules. [docs/DESIGN.md](docs/DESIGN.md) specifies the visual design, "Poseit design system v2": deep
+green-black cards fused by small necks on a warm off-white canvas, one lavender accent, Hanken Grotesk, and white
+lay figures. It follows the token and component model of Meta's open-source [Astryx](https://github.com/meta/astryx)
+design system, implemented natively in Jetpack Compose.
 
 ## Build from source
 
@@ -193,8 +195,11 @@ install yours.
   The models are downloaded at build time and bundled in the APK.
 - AndroidX, Jetpack Compose, CameraX, DataStore, Navigation and Material Icons; Coil; Kotlin,
   kotlinx.coroutines and kotlinx.serialization (all Apache-2.0).
-- Typeface: [Archivo](https://github.com/Omnibus-Type/Archivo) by Omnibus-Type (SIL Open Font License 1.1),
-  bundled so it works offline.
+- Typeface: [Hanken Grotesk](https://github.com/marcologous/hanken-grotesk) by the Hanken Grotesk Project
+  Authors (SIL Open Font License 1.1), bundled so it works offline.
+- Design system model: [Astryx](https://github.com/meta/astryx) by Meta Platforms, Inc. (MIT). Poseit ports its
+  semantic token and component model to Compose; no Astryx code is bundled. Notice in
+  `app/src/main/assets/licenses/MIT-Astryx.txt`.
 - All pose figures are original. Poseit's own DSL generates them from joint angles; no images were copied from
   other apps.
 
