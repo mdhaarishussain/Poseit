@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureScreenRoboImage
@@ -64,6 +65,13 @@ class SmallPhoneCameraTest {
             compose.onAllNodes(hasContentDescription("Quick settings") and hasClickAction()).onFirst().performClick()
             settle(800)
             captureScreenRoboImage("build/screenshots/review-small-camera-quick-settings.png")
+            // Further down the sheet: the countdown's segmented pill and the guide style tiles at 130 % text.
+            compose.onAllNodes(hasText("Hand-raise trigger") and hasClickAction()).onFirst().performScrollTo()
+            settle(300)
+            captureScreenRoboImage("build/screenshots/review-small-camera-quick-settings-countdown.png")
+            compose.onAllNodes(hasText("Guide opacity")).onFirst().performScrollTo()
+            settle(300)
+            captureScreenRoboImage("build/screenshots/review-small-camera-quick-settings-guide.png")
             androidx.test.espresso.Espresso.pressBack()
             settle(500)
             compose.onAllNodes(hasContentDescription("All poses") and hasClickAction()).onFirst().performClick()

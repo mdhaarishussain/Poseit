@@ -47,7 +47,7 @@ import com.poseit.app.ui.components.FigureStyle
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.fitFrameRect
 import com.poseit.app.ui.components.drawFrameMarks
-import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.PoseitColors
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -61,9 +61,9 @@ private const val SCENE_LOCK_ALPHA = 0.4f
 /** The detected body as thin white lines, quieter than the guide figure. */
 private const val LIVE_SKELETON_ALPHA = 0.7f
 
-/** Viewfinder white for the grid, level and focus marks, with a faint black line under it for bright scenes. */
-private val MarkWhite = Studio.Mannequin
-private val MarkShade = Studio.LiveView.copy(alpha = 0.18f)
+/** Viewfinder cream for the grid, level and focus marks, with a faint black line under it for bright scenes. */
+private val MarkWhite = PoseitColors.cameraContent
+private val MarkShade = PoseitColors.backgroundCamera.copy(alpha = 0.18f)
 
 internal fun OverlayStyle.toFigureStyle(): FigureStyle = when (this) {
     OverlayStyle.SILHOUETTE -> FigureStyle.SILHOUETTE
@@ -220,11 +220,11 @@ private fun DrawScope.drawTemplateFigures(
     figures.forEachIndexed { i, figure ->
         val figureMatch = match?.figures?.getOrNull(i)
         val partColors = if (figureMatch?.detectedIndex != null) {
-            figureMatch.partScores.mapValues { (_, score) -> Studio.forScore(score, onDark = true) }
+            figureMatch.partScores.mapValues { (_, score) -> PoseitColors.forScore(score, onDark = true) }
         } else {
             emptyMap()
         }
-        val neutral = Studio.FigureTones[i % Studio.FigureTones.size]
+        val neutral = PoseitColors.figureTones[i % PoseitColors.figureTones.size]
         drawPoseFigure(
             skeleton = figure,
             aspect = aspect,
@@ -240,7 +240,7 @@ private fun DrawScope.drawLiveSkeletons(people: List<Skeleton>, aspect: Float, f
     val rect = Rect(Offset.Zero, size)
     val paint = FigurePaint(
         style = FigureStyle.STICK,
-        fill = Studio.Mannequin,
+        fill = PoseitColors.figureFill,
         alpha = LIVE_SKELETON_ALPHA,
         strokeWidthPx = 2.5.dp.toPx(),
         showFaceMarker = false,
@@ -370,7 +370,7 @@ private fun DrawScope.drawLevel(tilt: DeviceTilt) {
 }
 
 /**
- * Tap-to-focus mark: viewfinder corner brackets (the Studio frame marks) that close in on the point, hold, then
+ * Tap-to-focus mark: viewfinder corner brackets (the frame marks) that close in on the point, hold, then
  * fade out.
  */
 private fun DrawScope.drawFocusRing(point: Offset, progress: Float) {

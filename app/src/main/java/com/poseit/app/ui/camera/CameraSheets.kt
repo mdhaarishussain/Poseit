@@ -1,18 +1,25 @@
 package com.poseit.app.ui.camera
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -23,11 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -41,50 +44,65 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.poseit.app.data.AppSettings
+import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.OverlayStyle
+import com.poseit.app.data.countdownChoiceFor
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.PoseTemplate
+import com.poseit.app.pose.library.BuiltInPoses
 import com.poseit.app.ui.components.CameraSetup
+import com.poseit.app.ui.components.CapsLabel
+import com.poseit.app.ui.components.CardVariant
+import com.poseit.app.ui.components.FilterPill
+import com.poseit.app.ui.components.IconGlyphInset
+import com.poseit.app.ui.components.PillTabs
+import com.poseit.app.ui.components.PlainIconButton
 import com.poseit.app.ui.components.PoseSteps
+import com.poseit.app.ui.components.PoseThumbnail
 import com.poseit.app.ui.components.PoseTile
+import com.poseit.app.ui.components.PoseitAlertDialog
+import com.poseit.app.ui.components.PoseitBottomSheet
+import com.poseit.app.ui.components.PoseitCard
+import com.poseit.app.ui.components.PoseitIcons
 import com.poseit.app.ui.components.PrimaryButton
-import com.poseit.app.ui.components.SectionHeading
 import com.poseit.app.ui.components.RadioRow
+import com.poseit.app.ui.components.RowGroup
+import com.poseit.app.ui.components.RowPadding
+import com.poseit.app.ui.components.SectionHeading
 import com.poseit.app.ui.components.SliderRow
-import com.poseit.app.ui.components.StudioAlertDialog
-import com.poseit.app.ui.components.StudioChip
-import com.poseit.app.ui.components.StudioIconButton
-import com.poseit.app.ui.components.StudioIconSize
-import com.poseit.app.ui.components.StudioSlider
-import com.poseit.app.ui.components.StudioTabs
 import com.poseit.app.ui.components.SwitchRow
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.library.factsPhrase
-import com.poseit.app.ui.settings.CountdownChips
-import com.poseit.app.ui.settings.RowDivider
 import com.poseit.app.ui.settings.SettingCopy
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitMotion
+import com.poseit.app.ui.theme.PoseitShapes
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
-import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /*
- * Sheets and the dialog opened from the camera. They use the light Studio colours (Sheet background, Ink text):
- * the camera is dark, but everything you read and set is on paper.
+ * Sheets and the dialog opened from the camera. They are cream (PoseitBottomSheet, PoseitAlertDialog): the camera is
+ * dark, but everything you read and set is on the light cards. Settings sit in outlined row groups 8dp from the
+ * sheet's sides with their headings on the 32dp text inset, the same layout as the Settings screen.
  */
 
 /** Poses the user made (from a photo or in the editor). */
@@ -95,7 +113,7 @@ internal val PoseTemplate.stripCategory: PoseCategory get() = if (isCustom) Pose
 
 // ===================================================================== quick settings
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun QuickSettingsSheet(
     settings: AppSettings,
@@ -111,10 +129,9 @@ internal fun QuickSettingsSheet(
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(
+    PoseitBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Studio.Sheet,
         // Full-height sheets would otherwise slide under the status bar (M3 1.3 only insets the bottom).
         modifier = Modifier.statusBarsPadding(),
     ) {
@@ -128,65 +145,53 @@ internal fun QuickSettingsSheet(
             SheetHeader("Quick settings") { DoneButton(sheetState, onDismiss) }
 
             GroupHeading(SettingCopy.COACHING, first = true)
-            SwitchRow(
-                title = SettingCopy.VOICE,
-                subtitle = SettingCopy.VOICE_SUBTITLE,
-                checked = settings.voiceGuidance,
-                onCheckedChange = { v -> onUpdateSettings { it.copy(voiceGuidance = v) } },
-            )
-            RowDivider()
-            SwitchRow(
-                title = SettingCopy.AUTO_CAPTURE,
-                subtitle = SettingCopy.AUTO_CAPTURE_SUBTITLE,
-                checked = settings.autoCapture,
-                onCheckedChange = { v -> onUpdateSettings { it.copy(autoCapture = v) } },
-            )
-            RowDivider()
-            var strictness by remember(settings.matchThreshold) {
-                mutableFloatStateOf(settings.matchThreshold.coerceIn(SettingCopy.STRICTNESS_MIN, SettingCopy.STRICTNESS_MAX))
-            }
-            SliderRow(
-                title = SettingCopy.STRICTNESS,
-                subtitle = SettingCopy.strictnessHint(strictness),
-                valueLabel = SettingCopy.strictnessValue(strictness),
-                value = strictness,
-                onValueChange = { strictness = it },
-                onValueChangeFinished = {
-                    val v = SettingCopy.snapStrictness(strictness)
-                    onUpdateSettings { it.copy(matchThreshold = v) }
-                },
-                valueRange = SettingCopy.STRICTNESS_MIN..SettingCopy.STRICTNESS_MAX,
-                steps = 6,
-            )
-            RowDivider()
-            Column(Modifier.padding(horizontal = Space.gutter, vertical = Space.m)) {
-                Text(SettingCopy.COUNTDOWN, style = StudioType.bodyStrong, color = Studio.Ink)
-                Text(SettingCopy.COUNTDOWN_SUBTITLE, style = StudioType.label, color = Studio.Graphite)
-                Spacer(Modifier.height(Space.m))
-                CountdownChips(
+            SheetGroup {
+                SwitchRow(
+                    title = SettingCopy.VOICE,
+                    subtitle = SettingCopy.VOICE_SUBTITLE,
+                    checked = settings.voiceGuidance,
+                    onCheckedChange = { v -> onUpdateSettings { it.copy(voiceGuidance = v) } },
+                )
+                SwitchRow(
+                    title = SettingCopy.AUTO_CAPTURE,
+                    subtitle = SettingCopy.AUTO_CAPTURE_SUBTITLE,
+                    checked = settings.autoCapture,
+                    onCheckedChange = { v -> onUpdateSettings { it.copy(autoCapture = v) } },
+                )
+                var strictness by remember(settings.matchThreshold) {
+                    mutableFloatStateOf(settings.matchThreshold.coerceIn(SettingCopy.STRICTNESS_MIN, SettingCopy.STRICTNESS_MAX))
+                }
+                SliderRow(
+                    title = SettingCopy.STRICTNESS,
+                    subtitle = SettingCopy.strictnessHint(strictness),
+                    valueLabel = SettingCopy.strictnessValue(strictness),
+                    value = strictness,
+                    onValueChange = { strictness = it },
+                    onValueChangeFinished = {
+                        val v = SettingCopy.snapStrictness(strictness)
+                        onUpdateSettings { it.copy(matchThreshold = v) }
+                    },
+                    valueRange = SettingCopy.STRICTNESS_MIN..SettingCopy.STRICTNESS_MAX,
+                    steps = 6,
+                )
+                CountdownRow(
                     seconds = settings.countdownSeconds,
                     onSelect = { s -> onUpdateSettings { it.copy(countdownSeconds = s) } },
                 )
+                SwitchRow(
+                    title = "Hand-raise trigger",
+                    subtitle = if (ui.templateRaisesHand) {
+                        "Paused for this pose because a hand is at head height"
+                    } else {
+                        "Hold a hand above your head for a moment to start the timer"
+                    },
+                    checked = ui.handRaiseEnabled,
+                    onCheckedChange = onHandRaise,
+                )
             }
-            RowDivider()
-            SwitchRow(
-                title = "Hand-raise trigger",
-                subtitle = if (ui.templateRaisesHand) {
-                    "Paused for this pose because a hand is at head height"
-                } else {
-                    "Hold a hand above your head for a moment to start the timer"
-                },
-                checked = ui.handRaiseEnabled,
-                onCheckedChange = onHandRaise,
-            )
-            RowDivider()
-            Text(
-                "Hints are for",
-                style = StudioType.bodyStrong,
-                color = Studio.Ink,
-                modifier = Modifier.padding(start = Space.gutter, end = Space.gutter, top = Space.m),
-            )
-            Column(Modifier.selectableGroup()) {
+
+            GroupHeading("Hints are for")
+            SheetGroup(Modifier.selectableGroup()) {
                 AudienceMode.entries.forEach { mode ->
                     RadioRow(
                         title = mode.label,
@@ -202,80 +207,82 @@ internal fun QuickSettingsSheet(
             }
 
             GroupHeading(SettingCopy.GUIDE)
-            ChipRow(Modifier.padding(horizontal = Space.gutter, vertical = Space.s)) {
-                OverlayStyle.entries.forEach { style ->
-                    CameraChip(style.label, settings.overlayStyle == style, onClick = { onUpdateSettings { it.copy(overlayStyle = style) } })
+            SheetGroup {
+                GuideStyleRow(
+                    pose = ui.pose?.takeIf { it.figures.isNotEmpty() } ?: BuiltInPoses.all.first(),
+                    current = settings.overlayStyle,
+                    onSelect = { style -> onUpdateSettings { it.copy(overlayStyle = style) } },
+                )
+                var opacity by remember(settings.overlayOpacity) {
+                    mutableFloatStateOf(settings.overlayOpacity.coerceIn(SettingCopy.OPACITY_MIN, 1f))
                 }
+                SliderRow(
+                    title = SettingCopy.GUIDE_OPACITY,
+                    valueLabel = "${(opacity * 100).roundToInt()}%",
+                    value = opacity,
+                    onValueChange = { opacity = it },
+                    onValueChangeFinished = { onUpdateSettings { it.copy(overlayOpacity = opacity) } },
+                    valueRange = SettingCopy.OPACITY_MIN..1f,
+                )
+                SwitchRow(
+                    title = SettingCopy.LIVE_SKELETON,
+                    subtitle = SettingCopy.LIVE_SKELETON_SUBTITLE,
+                    checked = settings.showLiveSkeleton,
+                    onCheckedChange = { v -> onUpdateSettings { it.copy(showLiveSkeleton = v) } },
+                )
+                SwitchRow(
+                    title = SettingCopy.LEVEL,
+                    subtitle = SettingCopy.LEVEL_SUBTITLE,
+                    checked = settings.showLevel,
+                    onCheckedChange = { v -> onUpdateSettings { it.copy(showLevel = v) } },
+                )
             }
-            RowDivider()
-            var opacity by remember(settings.overlayOpacity) {
-                mutableFloatStateOf(settings.overlayOpacity.coerceIn(SettingCopy.OPACITY_MIN, 1f))
-            }
-            SliderRow(
-                title = SettingCopy.GUIDE_OPACITY,
-                valueLabel = "${(opacity * 100).roundToInt()}%",
-                value = opacity,
-                onValueChange = { opacity = it },
-                onValueChangeFinished = { onUpdateSettings { it.copy(overlayOpacity = opacity) } },
-                valueRange = SettingCopy.OPACITY_MIN..1f,
-            )
-            RowDivider()
-            SwitchRow(
-                title = SettingCopy.LIVE_SKELETON,
-                subtitle = SettingCopy.LIVE_SKELETON_SUBTITLE,
-                checked = settings.showLiveSkeleton,
-                onCheckedChange = { v -> onUpdateSettings { it.copy(showLiveSkeleton = v) } },
-            )
-            RowDivider()
-            SwitchRow(
-                title = SettingCopy.LEVEL,
-                subtitle = SettingCopy.LEVEL_SUBTITLE,
-                checked = settings.showLevel,
-                onCheckedChange = { v -> onUpdateSettings { it.copy(showLevel = v) } },
-            )
 
             val hasExposure = !exposureRange.isEmpty() && exposureRange.first < exposureRange.last
             val hasZoom = maxZoom > 1.05f
-            if (hasExposure || hasZoom) GroupHeading("Camera")
-            if (hasExposure) {
-                var exposure by remember(ui.exposureIndex) { mutableFloatStateOf(ui.exposureIndex.toFloat()) }
-                val ev = exposure.roundToInt() * exposureStepEv
-                SliderRow(
-                    title = "Brightness",
-                    valueLabel = String.format(Locale.US, "%+.1f", ev),
-                    value = exposure.coerceIn(exposureRange.first.toFloat(), exposureRange.last.toFloat()),
-                    onValueChange = {
-                        exposure = it
-                        onExposure(it.roundToInt())
-                    },
-                    valueRange = exposureRange.first.toFloat()..exposureRange.last.toFloat(),
-                    steps = (exposureRange.last - exposureRange.first - 1).coerceAtLeast(0),
-                )
-            }
-            if (hasExposure && hasZoom) RowDivider()
-            if (hasZoom) {
-                var zoom by remember(ui.zoom) { mutableFloatStateOf(ui.zoom) }
-                SliderRow(
-                    title = "Zoom",
-                    valueLabel = String.format(Locale.US, "%.1fx", zoom),
-                    value = zoom.coerceIn(1f, maxZoom),
-                    onValueChange = {
-                        zoom = it
-                        onZoom(it)
-                    },
-                    valueRange = 1f..maxZoom,
-                    above = {
-                        ChipRow {
-                            ZOOM_PRESETS.filter { it <= maxZoom + 0.01f }.forEach { preset ->
-                                val label = if (preset % 1f == 0f) "${preset.toInt()}x" else "${preset}x"
-                                CameraChip(label, abs(zoom - preset) < 0.05f, onClick = {
-                                    zoom = preset
-                                    onZoom(preset)
-                                })
-                            }
-                        }
-                    },
-                )
+            if (hasExposure || hasZoom) {
+                GroupHeading("Camera")
+                SheetGroup {
+                    if (hasExposure) {
+                        var exposure by remember(ui.exposureIndex) { mutableFloatStateOf(ui.exposureIndex.toFloat()) }
+                        val ev = exposure.roundToInt() * exposureStepEv
+                        SliderRow(
+                            title = "Brightness",
+                            valueLabel = String.format(Locale.US, "%+.1f", ev),
+                            value = exposure.coerceIn(exposureRange.first.toFloat(), exposureRange.last.toFloat()),
+                            onValueChange = {
+                                exposure = it
+                                onExposure(it.roundToInt())
+                            },
+                            valueRange = exposureRange.first.toFloat()..exposureRange.last.toFloat(),
+                            steps = (exposureRange.last - exposureRange.first - 1).coerceAtLeast(0),
+                        )
+                    }
+                    if (hasZoom) {
+                        var zoom by remember(ui.zoom) { mutableFloatStateOf(ui.zoom) }
+                        SliderRow(
+                            title = "Zoom",
+                            valueLabel = String.format(Locale.US, "%.1fx", zoom),
+                            value = zoom.coerceIn(1f, maxZoom),
+                            onValueChange = {
+                                zoom = it
+                                onZoom(it)
+                            },
+                            valueRange = 1f..maxZoom,
+                            above = {
+                                PillRow {
+                                    ZOOM_PRESETS.filter { it <= maxZoom + 0.01f }.forEach { preset ->
+                                        val label = if (preset % 1f == 0f) "${preset.toInt()}x" else "${preset}x"
+                                        CameraPill(label, abs(zoom - preset) < 0.05f, onClick = {
+                                            zoom = preset
+                                            onZoom(preset)
+                                        })
+                                    }
+                                }
+                            },
+                        )
+                    }
+                }
             }
         }
     }
@@ -283,21 +290,21 @@ internal fun QuickSettingsSheet(
 
 private val ZOOM_PRESETS = listOf(1f, 2f, 3f, 5f, 10f)
 
-/** The header of a sheet: its title in the Title style and an optional action at the end. */
+/** The header of a sheet: its title in the Title style on the text inset, and an optional action at the end. */
 @Composable
 private fun SheetHeader(title: String, action: (@Composable () -> Unit)? = null) {
     Row(
         Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
-            // An action's text lands on the gutter (TertiaryButton has 12dp of its own padding).
-            .padding(start = Space.gutter, end = if (action != null) Space.s else Space.gutter),
+            // An action's text lands on the inset (TertiaryButton has 12dp of its own padding).
+            .padding(start = Space.textInset, end = if (action != null) Space.textInset - Space.m else Space.textInset),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             title,
-            style = StudioType.title,
-            color = Studio.Ink,
+            style = PoseitType.title,
+            color = PoseitColors.textPrimary,
             modifier = Modifier
                 .weight(1f)
                 .semantics { heading() },
@@ -316,33 +323,176 @@ private fun DoneButton(sheetState: SheetState, onDismiss: () -> Unit) {
     })
 }
 
-/** A group heading on the gutter, 32dp below the previous group (16dp below the sheet header). */
+/** A group heading on the text inset, [Space.section] below the previous group. */
 @Composable
 private fun GroupHeading(text: String, first: Boolean = false) {
     SectionHeading(
         text,
-        Modifier.padding(start = Space.gutter, end = Space.gutter, top = if (first) Space.l else Space.section, bottom = Space.xs),
+        Modifier.padding(start = Space.textInset, end = Space.textInset, top = if (first) Space.s else Space.section, bottom = Space.s),
     )
 }
 
-/** Chips 8dp apart, wrapping onto more lines when needed. */
+/** An outlined row group 8dp from the sheet's sides: each direct child is one row. */
+@Composable
+private fun SheetGroup(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    RowGroup(modifier.padding(horizontal = Space.edge), content = content)
+}
+
+/** Filter pills 8dp apart, wrapping onto more lines when needed (at large font sizes). */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ChipRow(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+private fun PillRow(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     FlowRow(
-        modifier,
+        modifier.selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(Space.s),
         verticalArrangement = Arrangement.spacedBy(Space.s),
     ) { content() }
 }
 
 /**
- * A [StudioChip] at least 48dp wide, so one-character chips ("3", "2s") fill their own touch target instead of
- * floating in it, and a row of chips keeps even 8dp gaps.
+ * A [FilterPill] at least 48dp wide, so one-character pills ("3", "2x") fill their own touch target instead of
+ * floating in it, and a row of pills keeps even 8dp gaps.
  */
 @Composable
-private fun CameraChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    StudioChip(label, selected, onClick = onClick, modifier = Modifier.widthIn(min = 48.dp))
+private fun CameraPill(label: String, selected: Boolean, onClick: () -> Unit) {
+    FilterPill(label, selected, onClick = onClick, modifier = Modifier.widthIn(min = 48.dp))
+}
+
+/** The countdown: title, subtitle and the choices as one segmented pill. */
+@Composable
+private fun CountdownRow(seconds: Int, onSelect: (Int) -> Unit) {
+    val selected = countdownChoiceFor(seconds)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(RowPadding),
+    ) {
+        Text(SettingCopy.COUNTDOWN, style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
+        Text(SettingCopy.COUNTDOWN_SUBTITLE, style = PoseitType.supporting, color = PoseitColors.textSecondary)
+        Spacer(Modifier.height(Space.m))
+        ChoicePill(
+            choices = COUNTDOWN_CHOICES.map { Choice(SettingCopy.countdownLabel(it), SettingCopy.countdownDescription(it)) },
+            selectedIndex = COUNTDOWN_CHOICES.indexOf(selected),
+            onSelect = { onSelect(COUNTDOWN_CHOICES[it]) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+/** One option of a [ChoicePill]: its short label and, when the label doesn't read well aloud, a spoken form. */
+private class Choice(val label: String, val description: String? = null)
+
+/**
+ * The segmented pill for a value choice inside a sheet (docs/DESIGN.md, "Segmented pill"): a dark track, the
+ * lavender selection sliding to the chosen option with ink capitals, cream capitals for the rest, equal widths.
+ *
+ * A private variant of the shared SegmentedPill for two needs it doesn't cover: each option can carry a spoken
+ * form ("2 seconds" for "2s", like Astryx's SegmentedControlItem label), and the track is 48dp with tighter option
+ * padding, so five choices fit a small phone at 130% text and every option is a full 48dp target.
+ */
+@Composable
+private fun ChoicePill(choices: List<Choice>, selectedIndex: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+    if (choices.isEmpty()) return
+    val position by animateFloatAsState(
+        selectedIndex.coerceIn(0, choices.lastIndex).toFloat(),
+        PoseitMotion.standard(PoseitMotion.MEDIUM),
+        label = "choicePosition",
+    )
+    Row(
+        modifier
+            .height(48.dp)
+            .clip(PoseitShapes.Pill)
+            .background(PoseitColors.backgroundCard)
+            .padding(Space.xs)
+            .drawBehind {
+                if (selectedIndex in choices.indices) {
+                    val w = size.width / choices.size
+                    drawRoundRect(PoseitColors.accent, Offset(w * position, 0f), Size(w, size.height), CornerRadius(size.height / 2f))
+                }
+            }
+            .selectableGroup(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        choices.forEachIndexed { index, choice ->
+            val selected = index == selectedIndex
+            val color by animateColorAsState(
+                if (selected) PoseitColors.onAccent else PoseitColors.textPrimaryInverted,
+                PoseitMotion.standard(PoseitMotion.FAST),
+                label = "choiceLabel",
+            )
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(PoseitShapes.Pill)
+                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(index) })
+                    .then(if (choice.description != null) Modifier.semantics { contentDescription = choice.description } else Modifier)
+                    .padding(horizontal = Space.xs),
+                contentAlignment = Alignment.Center,
+            ) {
+                CapsLabel(choice.label, color = color)
+            }
+        }
+    }
+}
+
+/**
+ * The guide style as three small stage tiles, each drawing the current pose in that style: the chosen one takes
+ * the lavender outline and an ink label (the others are slate), and is announced as selected.
+ */
+@Composable
+private fun GuideStyleRow(pose: PoseTemplate, current: OverlayStyle, onSelect: (OverlayStyle) -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(RowPadding),
+    ) {
+        Text("Guide style", style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
+        Spacer(Modifier.height(Space.m))
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(Space.s),
+        ) {
+            OverlayStyle.entries.forEach { style ->
+                val selected = style == current
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .clip(PoseitShapes.Control)
+                        .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(style) }),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(88.dp)
+                            .clip(PoseitShapes.Control)
+                            .background(PoseitColors.backgroundStage)
+                            .then(if (selected) Modifier.border(2.dp, PoseitColors.accent, PoseitShapes.Control) else Modifier),
+                    ) {
+                        PoseThumbnail(
+                            template = pose,
+                            style = style.toFigureStyle(),
+                            background = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(Space.s),
+                        )
+                    }
+                    Text(
+                        style.label,
+                        style = PoseitType.supporting,
+                        color = if (selected) PoseitColors.textPrimary else PoseitColors.textSecondary,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        modifier = Modifier.padding(top = Space.s, bottom = Space.xs),
+                    )
+                }
+            }
+        }
+    }
 }
 
 // ===================================================================== all poses
@@ -389,38 +539,35 @@ internal fun AllPosesSheet(
         mutableStateOf<PoseTab?>(selected?.let { PoseTab.Category(it.stripCategory) })
     }
     val tabIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
-    ModalBottomSheet(
+    PoseitBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Studio.Sheet,
         // Full-height sheets would otherwise slide under the status bar (M3 1.3 only insets the bottom).
         modifier = Modifier.statusBarsPadding(),
     ) {
-        Column(Modifier.fillMaxWidth()) {
-            SheetHeader("All poses")
-            if (tabs.isEmpty()) {
-                Text(
-                    "No poses available",
-                    style = StudioType.body,
-                    color = Studio.Graphite,
-                    modifier = Modifier.padding(horizontal = Space.gutter, vertical = Space.xl),
-                )
-                return@Column
-            }
+        SheetHeader("All poses")
+        if (tabs.isEmpty()) {
+            Text(
+                "No poses available",
+                style = PoseitType.body,
+                color = PoseitColors.textSecondary,
+                modifier = Modifier.padding(horizontal = Space.textInset, vertical = Space.xl),
+            )
+        } else {
             val current = tabs[tabIndex.coerceIn(0, tabs.lastIndex)]
-            StudioTabs(
+            PillTabs(
                 labels = tabs.map { it.label },
                 selectedIndex = tabIndex.coerceIn(0, tabs.lastIndex),
                 onSelect = { selectedTab = tabs[it] },
-                edgePadding = Space.gutter,
+                edgePadding = Space.edge,
                 modifier = Modifier.padding(top = Space.s),
             )
             val items = remember(current, poses, favorites) { current.filter(poses, favorites) }
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 100.dp),
-                contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, top = Space.l, bottom = Space.section),
-                horizontalArrangement = Arrangement.spacedBy(Space.m),
-                verticalArrangement = Arrangement.spacedBy(Space.l),
+                // Two columns on a small phone, so names have room; three from about 390dp.
+                columns = GridCells.Adaptive(minSize = 116.dp),
+                contentPadding = PaddingValues(start = Space.edge, end = Space.edge, top = Space.m, bottom = Space.section),
+                horizontalArrangement = Arrangement.spacedBy(Space.edge),
+                verticalArrangement = Arrangement.spacedBy(Space.edge),
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding(),
@@ -429,8 +576,10 @@ internal fun AllPosesSheet(
                     val isSelected = pose.id == selected?.id
                     PoseTile(
                         pose = pose,
-                        // The tab already names the category, except on the mixed favourites tab.
+                        // The tab already names the category, except on the mixed favourites tab. The pose in use says
+                        // so in words as well as with the lavender outline.
                         detail = when {
+                            isSelected -> "In use"
                             current == PoseTab.Favorites -> pose.stripCategory.label
                             pose.personCount > 1 -> "${pose.personCount} people"
                             else -> null
@@ -455,7 +604,10 @@ internal fun AllPosesSheet(
 
 // ===================================================================== tips
 
-/** Description, posing tips and camera advice of the current pose. */
+/**
+ * The current pose's card (its figure on the stage, the name, the facts and the favourite heart), then its
+ * description, posing steps and camera advice, and how to move the guide.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun PoseTipsSheet(
@@ -464,52 +616,112 @@ internal fun PoseTipsSheet(
     onToggleFavorite: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = Studio.Sheet, modifier = Modifier.statusBarsPadding()) {
+    PoseitBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(),
+        modifier = Modifier.statusBarsPadding(),
+    ) {
         Column(
             Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Space.gutter)
                 .padding(bottom = Space.xl)
                 .navigationBarsPadding(),
         ) {
-            Row(verticalAlignment = Alignment.Top) {
-                Column(Modifier.weight(1f)) {
-                    Text(pose.name, style = StudioType.title, color = Studio.Ink, modifier = Modifier.semantics { heading() })
-                    Spacer(Modifier.height(Space.xs))
-                    Text(pose.factsPhrase(), style = StudioType.label, color = Studio.Graphite)
+            TipsPoseCard(pose, favorite, onToggleFavorite)
+            Column(Modifier.padding(horizontal = Space.textInset)) {
+                if (pose.description.isNotBlank()) {
+                    Spacer(Modifier.height(Space.section))
+                    Text(pose.description, style = PoseitType.body, color = PoseitColors.textPrimary)
                 }
-                Spacer(Modifier.width(Space.s))
-                StudioIconButton(
-                    icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = if (favorite) "Remove ${pose.name} from favourites" else "Add ${pose.name} to favourites",
-                    onClick = onToggleFavorite,
-                    // The glyph, not the touch target, lines up with the gutter (and the name's cap height).
-                    modifier = Modifier.offset(x = (48.dp - StudioIconSize) / 2, y = -Space.s),
+                // The same sections as the pose's detail screen.
+                if (pose.tips.isNotEmpty()) PoseSteps(pose.tips, Modifier.padding(top = Space.section))
+                CameraSetup(pose.camera, Modifier.padding(top = Space.section))
+                // The guide gestures are otherwise only described to screen readers.
+                SectionHeading("Moving the guide", Modifier.padding(top = Space.section, bottom = Space.xs))
+                Text(
+                    "Drag the guide to move it, pinch to resize it and twist to rotate it. Double-tap to reset it. " +
+                        "Tap the padlock to keep it in place; pinching then zooms the camera. Zoom is also in Quick settings.",
+                    style = PoseitType.body,
+                    color = PoseitColors.textPrimary,
                 )
             }
-            if (pose.description.isNotBlank()) {
-                Spacer(Modifier.height(Space.l))
-                Text(pose.description, style = StudioType.body, color = Studio.Ink)
-            }
-            // The same sections as the pose's detail screen.
-            if (pose.tips.isNotEmpty()) PoseSteps(pose.tips, Modifier.padding(top = Space.section))
-            CameraSetup(pose.camera, Modifier.padding(top = Space.section))
-            // The guide gestures are otherwise only described to screen readers.
-            TipsHeading("Moving the guide")
-            Text(
-                "Drag the guide to move it, pinch to resize it and twist to rotate it. Double-tap to reset it. " +
-                    "Tap the padlock to keep it in place; pinching then zooms the camera. Zoom is also in Quick settings.",
-                style = StudioType.body,
-                color = Studio.Ink,
-            )
         }
     }
 }
 
+/** Height of the tips card: the heart's target above the figure, plus the card padding. */
+private val TipsCardHeight = 208.dp
+
+/**
+ * The pose as a dark card, like the mockups' headline card: the name in Headline and the facts at the top left, two
+ * small label and value pairs (camera height, framing) at its foot, and the figure on the stage at the right under
+ * the favourite heart.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TipsHeading(text: String) {
-    SectionHeading(text, Modifier.padding(top = Space.section, bottom = Space.xs))
+private fun TipsPoseCard(pose: PoseTemplate, favorite: Boolean, onToggleFavorite: () -> Unit) {
+    PoseitCard(
+        Modifier
+            .padding(horizontal = Space.edge)
+            .fillMaxWidth(),
+        variant = CardVariant.Dark,
+        contentPadding = PaddingValues(0.dp),
+    ) {
+        Row {
+            Column(
+                Modifier
+                    .weight(1f)
+                    .heightIn(min = TipsCardHeight)
+                    .padding(start = Space.cardPadding, top = Space.cardPadding, bottom = Space.cardPadding),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column {
+                    Text(
+                        pose.name,
+                        style = PoseitType.headline,
+                        color = PoseitColors.textPrimaryInverted,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Spacer(Modifier.height(Space.xs))
+                    Text(pose.factsPhrase(), style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+                }
+                FlowRow(
+                    Modifier.padding(top = Space.l),
+                    horizontalArrangement = Arrangement.spacedBy(Space.l),
+                    verticalArrangement = Arrangement.spacedBy(Space.s),
+                ) {
+                    LabelledValue("Camera", pose.camera.height.label)
+                    LabelledValue("Shot", pose.camera.shot.label)
+                }
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                PlainIconButton(
+                    icon = if (favorite) PoseitIcons.favouriteOn else PoseitIcons.favouriteOff,
+                    contentDescription = if (favorite) "Remove ${pose.name} from favourites" else "Add ${pose.name} to favourites",
+                    onClick = onToggleFavorite,
+                    // The glyph, not the touch target, lands on the card padding.
+                    modifier = Modifier.padding(top = Space.cardPadding - IconGlyphInset, end = Space.cardPadding - IconGlyphInset),
+                )
+                PoseThumbnail(
+                    template = pose,
+                    background = null,
+                    modifier = Modifier
+                        .padding(end = Space.l, bottom = Space.l)
+                        .size(width = 112.dp, height = TipsCardHeight - 48.dp - Space.cardPadding + IconGlyphInset - Space.l),
+                )
+            }
+        }
+    }
+}
+
+/** A small label over its value, in one node (the mockups' "Account / Bohdan"). */
+@Composable
+private fun LabelledValue(label: String, value: String) {
+    Column(Modifier.semantics(mergeDescendants = true) {}) {
+        Text(label, style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+        Text(value, style = PoseitType.body, color = PoseitColors.textPrimaryInverted)
+    }
 }
 
 // ===================================================================== photoshoot
@@ -523,32 +735,32 @@ internal fun PhotoshootDialog(
 ) {
     var shots by remember { mutableIntStateOf(initial?.shots ?: 5) }
     var interval by remember { mutableIntStateOf(initial?.intervalSeconds ?: 3) }
-    StudioAlertDialog(
+    PoseitAlertDialog(
         onDismissRequest = onDismiss,
         title = "Photoshoot",
         content = {
             Column {
-                Text("Number of photos", style = StudioType.bodyStrong, color = Studio.Ink)
+                Text("Number of photos", style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
                 Spacer(Modifier.height(Space.s))
-                ChipRow {
+                PillRow {
                     TimerOption.SHOT_CHOICES.forEach { n ->
-                        CameraChip(if (n == 0) "Until I stop" else "$n", shots == n, onClick = { shots = n })
+                        CameraPill(if (n == 0) "Until I stop" else "$n", shots == n, onClick = { shots = n })
                     }
                 }
                 Spacer(Modifier.height(Space.l))
-                Text("Time between photos", style = StudioType.bodyStrong, color = Studio.Ink)
+                Text("Time between photos", style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
                 Spacer(Modifier.height(Space.s))
-                ChipRow {
+                PillRow {
                     TimerOption.INTERVAL_CHOICES.forEach { s ->
-                        CameraChip("${s}s", interval == s, onClick = { interval = s })
+                        CameraPill("${s}s", interval == s, onClick = { interval = s })
                     }
                 }
                 Spacer(Modifier.height(Space.l))
                 Text(
                     "Press the shutter or a volume button to start. The first photo is taken after " +
                         "${TimerOption.PHOTOSHOOT_START_DELAY_SECONDS} seconds. Press stop to end early.",
-                    style = StudioType.label,
-                    color = Studio.Graphite,
+                    style = PoseitType.supporting,
+                    color = PoseitColors.textSecondary,
                 )
             }
         },
