@@ -336,16 +336,35 @@ they are; where a label changes, its tests change with it.
 
 **Camera** (`camera/`)
 - Stays a dark viewfinder on true black. Wrap the HUD in `ProvideSurfaceTone(SurfaceTone.Dark)`.
-- Controls: `CircleIconButton(variant = Camera)` and `CircleIconToggle` (cream disc when on). The shutter stays a
-  circle: cream ring and fill.
-- Score: numerals (`numeral(…)`, Light) inside the ring; the ring takes the `Bright` signal colour only while a
-  person is detected, else cream 60%. Per-limb colours use the `Bright` signals. The words of the hint always say
-  what is wrong, so colour is never alone.
-- Hint banner: a cream cue card (`backgroundSurface`, 12dp corners, ink `body`), legible over any scene.
-- Countdown: `numeralDisplay` (or larger) in cream; the one orchestrated moment.
+- Three cards on the black, 8dp from the sides and from each other: a 56dp top bar card (back, then flash, grid,
+  the aspect ratio as a small outlined pill, timer, quick settings as cream glyphs; a set timer turns its glyph into
+  a cream disc), the viewfinder itself clipped to the `card` radius, and the dock: the pose strip fused to the
+  shutter row by the connected-card necks (`CameraDock`). On black the camera's cards take `backgroundCardRaised`
+  (1.4:1 against black, so they read as cards); the pose tiles, "All" / "None" tiles and the round side controls
+  inside take the stage colour and sit in them as inset tiles.
+- Where a short screen pushes the dock over the bottom of the preview it turns translucent (62%), so feet stay
+  visible, and below 600dp of height it goes compact (48dp tiles, 64dp shutter). The HUD then lays out only in the
+  part of the preview the dock leaves clear, and the tool rail drops below the score badge when centring it would
+  collide.
+- Controls over the preview: `CircleIconButton(variant = Camera)` and `CircleIconToggle` (cream disc when on; the
+  padlock also closes). The shutter stays a circle: cream ring and fill.
+- Score: Light numerals with a smaller percent sign inside the ring, on a solid `backgroundCard` disc so the thin
+  figures read over any scene; the ring takes the `Bright` signal colour only while a person is detected, else
+  cream 60%, and the hold arc runs round it in the same colour. Per-limb colours use the `Bright` signals. The words
+  of the hint always say what is wrong, so colour is never alone.
+- Cue cards (hint, pose card, notices): cream `backgroundSurface` with the mockups' 1dp ink outline, 12dp corners;
+  the hint in `bodyLarge` so it reads at arm's length, with a small signal dot. The photoshoot counter is a cream
+  pill.
+- Countdown: 120sp Light numerals in cream with an ink contour; the one orchestrated moment.
 - Pose strip: `PoseTile(size = Compact, onDark = true)`; selected = lavender outline.
-- Sheets (quick settings, pose tips, all poses): `PoseitBottomSheet` in cream; countdown and grid choices as
-  `SegmentedPill`s; dialogs as `PoseitAlertDialog`.
+- Sheets (quick settings, pose tips, all poses): `PoseitBottomSheet` in cream with headings on `textInset` and
+  `RowGroup`s on `edge`, like Settings. The countdown is a segmented pill (a 48dp private variant whose options carry
+  a spoken form, "2 seconds" for "2s"); the guide style is three small stage tiles drawing the pose in each style;
+  zoom presets and the photoshoot choices are `FilterPill`s. The tips sheet opens with the pose as a dark card
+  (name, facts, camera height and framing as label/value pairs, the figure). Dialogs as `PoseitAlertDialog`.
+- Permission screen: the top bar card joined to a headline card ("Let Poseit use the camera") and, when there is
+  room, a picture card with a figure in viewfinder marks; `AccentButton("Allow camera")` and
+  `TertiaryButton("Not now")` at the foot.
 
 **Settings** (`settings/`)
 - `TopBarCard("Settings", onBack)`. Groups: `SectionHeading` on `textInset`, then a `RowGroup` of rows; places to

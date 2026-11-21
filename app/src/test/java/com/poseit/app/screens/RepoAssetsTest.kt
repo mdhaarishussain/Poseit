@@ -58,6 +58,7 @@ import com.poseit.app.pose.match.MatchResult
 import com.poseit.app.pose.match.PoseMatcher
 import com.poseit.app.pose.scene.OverlayTransform
 import com.poseit.app.pose.scene.SceneMapping
+import com.poseit.app.ui.camera.CameraDock
 import com.poseit.app.ui.camera.CameraTopBar
 import com.poseit.app.ui.camera.CameraUiState
 import com.poseit.app.ui.camera.HintBanner
@@ -476,14 +477,16 @@ private fun CameraStill(pose: PoseTemplate) {
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .onSizeChanged { controlsHeightPx = it.height }
-                    .background(Studio.ControlScrim)
-                    .padding(top = Space.m),
+                    .padding(Space.edge),
             ) {
-                PoseStrip(poses = strip, selectedId = pose.id, favorites = emptySet(), onSelect = {}, onOpenAll = {})
-                ShutterRow(
-                    lastPhoto = null, sessionActive = false, timer = TimerOption.Off, capturing = false,
-                    onGallery = {}, onShutter = {}, onFlip = {},
-                )
+                // The dock: the pose strip fused to the shutter row, as CameraContent draws it.
+                CameraDock(overPreview = false) {
+                    PoseStrip(poses = strip, selectedId = pose.id, favorites = emptySet(), onSelect = {}, onOpenAll = {})
+                    ShutterRow(
+                        lastPhoto = null, sessionActive = false, timer = TimerOption.Off, capturing = false,
+                        onGallery = {}, onShutter = {}, onFlip = {},
+                    )
+                }
             }
         }
     }

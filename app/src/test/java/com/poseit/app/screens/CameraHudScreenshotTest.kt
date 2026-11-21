@@ -10,8 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Text
@@ -32,15 +31,19 @@ import com.poseit.app.ui.camera.DetectorNotice
 import com.poseit.app.ui.camera.HintBanner
 import com.poseit.app.ui.camera.LightingChip
 import com.poseit.app.ui.camera.PosePill
-import com.poseit.app.ui.camera.RoundControl
-import com.poseit.app.ui.camera.RoundToggle
 import com.poseit.app.ui.camera.ScoreRing
 import com.poseit.app.ui.camera.SessionInfo
 import com.poseit.app.ui.camera.ShotCounter
+import com.poseit.app.ui.components.CircleIconButton
+import com.poseit.app.ui.components.CircleIconToggle
+import com.poseit.app.ui.components.CircleVariant
+import com.poseit.app.ui.components.PoseitIcons
+import com.poseit.app.ui.components.ProvideSurfaceTone
+import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitTheme
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioType
+import com.poseit.app.ui.theme.SurfaceTone
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,7 +69,7 @@ class CameraHudScreenshotTest {
         compose.setContent {
             PoseitTheme {
                 Row(Modifier.fillMaxSize()) {
-                    Panel(Studio.LiveView, Modifier.width(430.dp))
+                    Panel(PoseitColors.backgroundCamera, Modifier.width(430.dp))
                     // A pale wall: the hardest case for white chrome.
                     Panel(Color(0xFFE8E6DF), Modifier.width(430.dp))
                 }
@@ -77,11 +80,11 @@ class CameraHudScreenshotTest {
     }
 
     @Composable
-    private fun Panel(scene: Color, modifier: Modifier) {
+    private fun Panel(scene: Color, modifier: Modifier) = ProvideSurfaceTone(SurfaceTone.Dark) {
         Column(
             modifier
                 .background(scene)
-                .padding(Space.gutter),
+                .padding(Space.l),
             verticalArrangement = Arrangement.spacedBy(Space.l),
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
@@ -93,10 +96,10 @@ class CameraHudScreenshotTest {
                 ScoreRing(percent = null, detectorReady = true, detectorError = "x", holdProgress = { null })
             }
             Row(horizontalArrangement = Arrangement.spacedBy(Space.xs), verticalAlignment = Alignment.CenterVertically) {
-                RoundControl(Icons.Outlined.Info, "Pose tips", onClick = {})
-                RoundControl(Icons.Outlined.Timer, "Timer", onClick = {}, active = true)
-                RoundToggle(Icons.Outlined.LockOpen, Icons.Filled.Lock, "Lock", checked = false, onCheckedChange = {})
-                RoundToggle(Icons.Outlined.LockOpen, Icons.Filled.Lock, "Lock", checked = true, onCheckedChange = {})
+                CircleIconButton(PoseitIcons.info, "Pose tips", onClick = {}, variant = CircleVariant.Camera)
+                CircleIconButton(Icons.Outlined.Timer, "Timer", onClick = {}, variant = CircleVariant.Light)
+                CircleIconToggle(Icons.Outlined.LockOpen, "Lock", checked = false, onCheckedChange = {})
+                CircleIconToggle(Icons.Outlined.Lock, "Lock", checked = true, onCheckedChange = {})
                 ShotCounter(SessionInfo(3, 10), onStop = {})
             }
             HintBanner(CoachHint("Perfect. Hold it", HintKind.PERFECT, 0f))
@@ -109,13 +112,13 @@ class CameraHudScreenshotTest {
             }
             PosePill(BuiltInPoses.all.first(), visible = true, onClick = {})
             CameraErrorNotice("No camera is available on this device")
-            Box(Modifier.height(140.dp)) {
+            Box(Modifier.height(150.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Space.xl)) {
                     CountdownNumber(3)
                     CountdownNumber(10)
                 }
             }
-            Text("Scene", style = StudioType.label, color = Studio.Graphite)
+            Text("Scene", style = PoseitType.supporting, color = PoseitColors.textSecondary)
         }
     }
 }
