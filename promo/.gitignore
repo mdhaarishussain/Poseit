@@ -16,3 +16,9 @@ public/audio/mix.wav
 public/audio/cues.json
 # voice.py reads ./.env for the ElevenLabs key: never commit it
 .env
+# Stock footage (scripts/detect.py, footage/catalogue.*): clips are never committed, only the catalogue and derived data.
+public/footage/*.mp4
+public/footage/src/
+# Python venv and bytecode for scripts/detect.py (MediaPipe)
+.venv/
+__pycache__/
