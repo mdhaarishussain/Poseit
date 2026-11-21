@@ -33,6 +33,8 @@ Every step resumes: pages, clips, files and images already done are skipped.
 | `posematch.py` | Python port of pose-core `PoseMatcher` (segments, weights, coverage, critical joints, framing, assignment) and `SceneMapping.templateToScene` |
 | `score.py` | ranks every candidate against every pose (pose as drawn and flipped), people count, framing fit |
 | `sheets.py` | contact sheets per pose |
+| `picks/gaps-r1_search.py` | gap filling, round 1: whole Commons categories (Files from Pexels, Hands in pockets, People leaning, ...) and per-pose searches in the Unsplash/Pixabay CC0 imports; more pages of pose-related Mixkit tags and searches; title-picked clips scanned (licence check, 360p preview, full model, scored against the gap poses, 1-fps strips); outputs in `WORK/gaps-r1/` |
+| `picks/gaps-r1_finalize.py` | round-1 picks -> `app/src/main/assets/pose_photos/`, `landmarks/`, `picks/gaps-r1.json` (credits, or why a pose stays empty) |
 
 `posematch.py` reproduces the Kotlin matcher: on the promo film's nine chorus shots (`promo/public/footage/chorus.json`,
 scores written by pose-core `PromoChorusMatch`) it gives the same score to 4 decimals (largest difference 0.0001) and

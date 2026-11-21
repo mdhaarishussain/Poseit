@@ -1,0 +1,645 @@
+[
+ {
+  "pose_id": "stand_hands_in_pockets",
+  "pose_name": "Hands in pockets",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "Round 1 read the whole Commons category 'Hands in pockets' (222 files): the full-length photos that pass the licence rules name the person ('Valentine at the university of Zambia', 'Paja2019' = a named singer, 'KhristenkoPS'), the clean stock one ('Striped Mock Neck Top, Leather Jacket, and Wayfarers', CC BY-SA 2.0) is cut above the knees, and '35mm 2017' (Unsplash) may show a teenager. Mixkit has no hands-in-pockets title other than pocket watches."
+ },
+ {
+  "pose_id": "stand_look_away",
+  "pose_name": "Candid look away",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "Still no full-body relaxed stance with the head turned away: the new looks-away (Mixkit 32742 woman with a flower, Commons 'Calvin Lupiya 2016' by a lamp post, Mixkit 1296 on a balcony) are thigh- or knee-up, and Mixkit 460 is a low-angle hand-on-headphones shot."
+ },
+ {
+  "pose_id": "stand_arms_crossed",
+  "pose_name": "Relaxed arms crossed",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No full-body crossed arms: Mixkit 43806 (green screen) and Commons 'Karat é' (karate gi) cut at the thighs or knees, 50924 is a waist-up couple, and the three titled 'crossing her arms' / 'confident businesswoman' (45753, 45748, 45988) are Mixkit Restricted."
+ },
+ {
+  "pose_id": "stand_over_shoulder",
+  "pose_name": "Over the shoulder",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "Nobody looks back over the shoulder in a full-body shot: the round-1 Mixkit 'looking over shoulder' results are close-ups (100146) or people at computers, and the Commons 'looking back' search (Unsplash/Pixabay imports) gave no full-length look-back."
+ },
+ {
+  "pose_id": "stand_power_pose",
+  "pose_name": "Power pose",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No wide-stance hands-on-hips: the only new hands-on-hips photo (Commons 'Indian man standing in doorway', Unsplash CC0) is a travel portrait of an elderly local man with his feet together, not the bold stance; Mixkit 45680 and 49423 ('standing confidently', 'posing confidently') are Restricted and 43186 is a face close-up."
+ },
+ {
+  "pose_id": "stand_sunglasses",
+  "pose_name": "Sunglasses touch",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No full-body sunglasses touch: Mixkit 436 and 43181 are seated or close-ups, the 'puts on sunglasses' clips (24293, 8846) and 27637 / 24707 are Restricted, and Mixkit 695 (hand on a hat brim) is a backlit near-silhouette."
+ },
+ {
+  "pose_id": "sit_one_knee_up",
+  "pose_name": "One knee up",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No one sitting on steps with one foot a step higher: Mixkit 47996 (sitting on steps) is Restricted, 552 sits forward with both feet level, and Mixkit 436 sits on a floor against a wall."
+ },
+ {
+  "pose_id": "sit_side_saddle",
+  "pose_name": "Side-saddle",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No knees-together sit to one side: Mixkit 48066 (woman on a park bench) is Restricted and 965 is a close-up through flowers."
+ },
+ {
+  "pose_id": "sit_steps_sideways",
+  "pose_name": "Sideways on steps",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No one sitting along a step with the back to the wall; the nearest new frame (Mixkit 436 at 13 s, one leg long and one knee up) sits facing the camera on a floor."
+ },
+ {
+  "pose_id": "sit_hug_knees",
+  "pose_name": "Hugging knees",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No both-arms knee hug: the yoga/meditation clips scanned in round 1 (32628, 42904, 32751, 32753, 43798, 5058 and others) sit cross-legged; Commons 'Girl with Afro' (Pixabay) crouches with the arms hidden and the feet cut off."
+ },
+ {
+  "pose_id": "sit_armchair_lounge",
+  "pose_name": "Armchair lounge",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No one draped over an armchair: Mixkit 4959 sits upright with a tablet, 4958 lounges along a sofa seat (legs not over an armrest), 406 is a face close-up, and 49537 / 48843 are Restricted."
+ },
+ {
+  "pose_id": "sit_chair_backwards",
+  "pose_name": "Backwards chair",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No backwards chair in any new candidate."
+ },
+ {
+  "pose_id": "sit_ankle_on_knee",
+  "pose_name": "Ankle on knee",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No clean ankle-on-knee: Mixkit 41188 (man with a newspaper) and 406 do not show it, 34130 is Restricted."
+ },
+ {
+  "pose_id": "sit_high_perch",
+  "pose_name": "High perch",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No stool perch: the bar titles found are alcohol scenes (excluded) or Restricted."
+ },
+ {
+  "pose_id": "lean_shoulder_wall",
+  "pose_name": "Shoulder lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No full-body shoulder lean: Commons 'Man in hat and black vest' (Pexels CC0) leans his shoulder on a wall but is cut at the hips; Mixkit 2553 walks past a graffiti wall, 325 is a face close-up, and 'Pair of girls leaning against a wall with graffiti' (33908) fails the minors rule."
+ },
+ {
+  "pose_id": "lean_hand_on_wall",
+  "pose_name": "Hand on the wall",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No palm on a wall: the best new frame (Mixkit 42577 at 10.5 s) is a woman holding a bus handrail overhead with a seated man beside her."
+ },
+ {
+  "pose_id": "lean_railing_forward",
+  "pose_name": "Railing lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "Nobody bent forward over a railing on the forearms: the balcony clips (Mixkit 3202, 10440, 1296, 42729, 43183, 12169) show people standing at the rail, from behind or on the phone; 25531 and 27871 are Restricted."
+ },
+ {
+  "pose_id": "lean_door_frame",
+  "pose_name": "Doorway lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No doorway lean: the one doorway photo found (Commons 'Indian man standing in doorway') stands in the doorway with both hands on his hips, no hand on the frame; the Mixkit doorway titles are a worried woman peering out and door details."
+ },
+ {
+  "pose_id": "lean_pole_swing",
+  "pose_name": "Pole swing",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "Nobody swinging around a pole: the Mixkit 'pole' titles are pole dancing, pole vault, flags and a barber pole; the Commons 'pole woman' search gave nothing that passes."
+ },
+ {
+  "pose_id": "lean_table_edge",
+  "pose_name": "Table-edge perch",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No table-edge perch: the Mixkit 'sitting on desk' search returns people seated at desks, and the Commons search found two desk photos without a person perched."
+ },
+ {
+  "pose_id": "walk_look_back",
+  "pose_name": "Walk away, look back",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No one walking away and looking back: Mixkit 49670 (walking on a red pier) does not turn, and the Commons 'walking away' search found one file without the pose."
+ },
+ {
+  "pose_id": "walk_kerb_step",
+  "pose_name": "Off the kerb",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No step down from a kerb: Mixkit 4832 is a head-and-shoulders back view, 98 shows legs on a crosswalk, and the Commons 'curb' search found nobody stepping."
+ },
+ {
+  "pose_id": "walk_skip",
+  "pose_name": "Happy skip",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No skip with a knee lifted: the Mixkit 'skipping' tag is mostly rope skipping (11538 Restricted), and 4585 (jumping with a smoke flare) hides the legs in wheat and may show a teenager."
+ },
+ {
+  "pose_id": "walk_hat_hold",
+  "pose_name": "Hat in the wind",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No hand on a hat while walking in daylight: Mixkit 42374 is a sunset silhouette, 695 is backlit and standing, and 'Woman holding her hat in a meadow' (33498) is Restricted."
+ },
+ {
+  "pose_id": "walk_pockets",
+  "pose_name": "Pocket stroll",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No walking with hands in pockets: nothing in the Commons 'Hands in pockets' category walks, and the Mixkit 'businessman walking' clips (21371, 33034) are Restricted."
+ },
+ {
+  "pose_id": "walk_coffee_run",
+  "pose_name": "Coffee run",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No one walking with a cup: all six clips titled 'walking ... with coffee' (6247, 6306, 32004, 33045, 45560, 8969) plus 6282 are Mixkit Restricted, 46650 / 46360 fail the minors rule ('girls'), and the Commons search found nobody walking with a cup."
+ },
+ {
+  "pose_id": "walk_jacket_shoulder",
+  "pose_name": "Jacket over shoulder",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No jacket over the shoulder: Mixkit 1391 ('holding a black leather jacket') is a close-up of an arm; the Commons search returned nothing that passes."
+ },
+ {
+  "pose_id": "floor_street_squat",
+  "pose_name": "Street squat",
+  "category": "FLOOR",
+  "photo": "app/src/main/assets/pose_photos/floor_street_squat.webp",
+  "bytes": 97220,
+  "source": "Mixkit",
+  "title": "Young woman getting into position for sprinting",
+  "page_url": "https://mixkit.co/free-stock-video/young-woman-getting-into-position-for-sprinting-32800/",
+  "file_url": "https://mixkit.co/free-stock-video/download/32800/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/32800/32800-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 10.242,
+  "hold_time_s_in_preview": 10.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/gaps-r1/mixkit/clips/32800.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/young-woman-getting-into-position-for-sprinting-32800/)",
+  "changes": [
+   "still frame at 10.242 s of the 1080p download",
+   "cropped to [665, 80, 1415, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 68, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   665,
+   80,
+   1415,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.4899,
+  "score_detail": {
+   "score_source_frame": 0.4793,
+   "score_shipped_file": 0.4899,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "A man in a deep, flat-footed squat on a running track, knees wide and forearms resting on the knees (checking his watch): exactly the drawn street squat, whole body in frame, sharp and evenly lit. Chosen from a clip found by its title in round 1 (the sprinter in the clip is out of frame at this moment)."
+ },
+ {
+  "pose_id": "floor_low_crouch",
+  "pose_name": "Low crouch",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No knees-together crouch on the balls of the feet: Mixkit 32800's runner crouches into a sprint start with the hands on the track, Mixkit 699 (woman crouching in a junkyard) is cut off at the feet, and Commons 'Girl with Afro' hides the arms and feet."
+ },
+ {
+  "pose_id": "floor_one_knee",
+  "pose_name": "One knee down",
+  "category": "FLOOR",
+  "photo": "app/src/main/assets/pose_photos/floor_one_knee.webp",
+  "bytes": 31470,
+  "source": "Mixkit",
+  "title": "A young man proposes by the campfire",
+  "page_url": "https://mixkit.co/free-stock-video/a-young-man-proposes-by-the-campfire-51645/",
+  "file_url": "https://mixkit.co/free-stock-video/download/51645/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/51645/51645-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 8.992,
+  "hold_time_s_in_preview": 9.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/gaps-r1/mixkit/clips/51645.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-young-man-proposes-by-the-campfire-51645/)",
+  "changes": [
+   "still frame at 8.992 s of the 1080p download",
+   "cropped to [330, 280, 930, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   330,
+   280,
+   930,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.1524,
+  "score_detail": {
+   "score_source_frame": 0.209,
+   "score_shipped_file": 0.1524,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.736,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "knees",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "A man kneeling on one knee, side-on, front knee up with one hand resting on it: the drawn 'one knee down' from the same side. It is a proposal scene (the raised hand holds a ring box); the crop leaves his partner out. Evening light by a fire pit, but the figure is well exposed and sharp."
+ },
+ {
+  "pose_id": "floor_feet_up",
+  "pose_name": "Feet in the air",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No one lying on the stomach with the feet up in any candidate."
+ },
+ {
+  "pose_id": "floor_overhead_lie",
+  "pose_name": "Overhead dreamer",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No overhead shot of someone lying down: Mixkit 2301 is a couple, head and shoulders; 14303 ('lying on the meadow') and 36043 are Restricted."
+ },
+ {
+  "pose_id": "floor_sit_on_heels",
+  "pose_name": "Sit on your heels",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No one sitting back on the heels: sixteen yoga and meditation clips were scanned in round 1 (e.g. 32628, 43798, 5058, 32625, 4947) and all sit cross-legged or stand; the kneeling titles are prayer or church scenes (excluded) and plasticine close-ups."
+ },
+ {
+  "pose_id": "port_chin_on_hand",
+  "pose_name": "Café chin rest",
+  "category": "PORTRAIT",
+  "photo": null,
+  "reason": "No chin on the knuckles over a table; the round-1 title matches were café and laptop scenes without the gesture."
+ },
+ {
+  "pose_id": "selfie_hand_on_cheek",
+  "pose_name": "Cheek rest selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "No cheek-rest selfie: Mixkit 41181 holds the phone up without a hand on the cheek, 43388 and 43382 are dark purple-lit frames, and the other selfie clips found (27891, 34865, 48665, 16241, 28095, 36915) are Restricted."
+ },
+ {
+  "pose_id": "selfie_look_up",
+  "pose_name": "Sky gaze selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "No selfie looking up past the phone: in Mixkit 41181 the phone leaves the frame when she looks up; the other selfie clips found are Restricted or night/purple-lit."
+ },
+ {
+  "pose_id": "selfie_lean_in",
+  "pose_name": "Lean-in selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "No lean toward the phone with a hand on the hip: the new selfie frames are seated (41181) or dark (43388)."
+ },
+ {
+  "pose_id": "pro_arms_crossed",
+  "pose_name": "Confident crossed arms",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "As for stand_arms_crossed: no full-body confident crossed arms; the businesswoman clip (45748) is Restricted and the other crossed-arms frames are cut at the thighs."
+ },
+ {
+  "pose_id": "pro_desk_edge",
+  "pose_name": "Desk-edge perch",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "No desk perch in any candidate; the Commons phrase 'businessman sitting on edge of desk' returns nothing and the Mixkit desk clips are people seated at computers."
+ },
+ {
+  "pose_id": "pro_open_palm",
+  "pose_name": "Open-palm speaker",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "No open-palm speaker in a three-quarter shot: every new speaker/presentation clip found by title (23861, 23117, 37031, 37035) is Mixkit Restricted."
+ },
+ {
+  "pose_id": "pro_table_lean",
+  "pose_name": "Boardroom lean",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "Nobody leaning on a table with both hands; the Commons 'leaning table' search gave one photo without the pose."
+ },
+ {
+  "pose_id": "pro_cuff_adjust",
+  "pose_name": "Cuff adjust",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "No full-body cuff adjust: Mixkit 28888 shows only hands and a watch, 5185 is a bow-tie close-up, and 45749 / 24581 / 48959 are Restricted."
+ },
+ {
+  "pose_id": "pro_folder_hold",
+  "pose_name": "Folder in hand",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "Nobody holds a folder or tablet to the chest full length: 1810 shows only hands, and the eleven businessman/businesswoman-with-tablet clips found in round 1 (17698, 34098, 35428, 35408, 33040-33042, 33299, 14097, 9081, 25262) are all Mixkit Restricted."
+ },
+ {
+  "pose_id": "fun_star_jump",
+  "pose_name": "Star jump",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No star jump: 'Woman jumping in a field' (6388) and 'Women jumping and making exercise' (23643) are Mixkit Restricted, and 4585 (jumping with a smoke flare) hides the legs in wheat and may show a teenager."
+ },
+ {
+  "pose_id": "fun_tuck_jump",
+  "pose_name": "Knee-tuck jump",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No knee-tuck jump: the jump clips found are Restricted (6388, 16233, 24880) or gym box jumps."
+ },
+ {
+  "pose_id": "fun_twirl",
+  "pose_name": "Heel-flick twirl",
+  "category": "FUN",
+  "photo": "app/src/main/assets/pose_photos/fun_twirl.webp",
+  "bytes": 90846,
+  "source": "Mixkit",
+  "title": "Trendy woman dancing in the street",
+  "page_url": "https://mixkit.co/free-stock-video/trendy-woman-dancing-in-the-street-276/",
+  "file_url": "https://mixkit.co/free-stock-video/download/276/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/276/276-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 9.2,
+  "hold_time_s_in_preview": 9.2,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/gaps-r1/mixkit/clips/276.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/trendy-woman-dancing-in-the-street-276/)",
+  "changes": [
+   "still frame at 9.2 s of the 1080p download",
+   "cropped to [430, 0, 1240, 1080] px of the 1920x1080 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 74, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   430,
+   0,
+   1240,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.2406,
+  "score_detail": {
+   "score_source_frame": 0.4535,
+   "score_shipped_file": 0.2406,
+   "shipped_matches_flipped_pose": true,
+   "fit": 1.0,
+   "tcov": 0.636,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "knees",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "A woman in a long floral dress spinning in front of a graffiti wall, one arm raised high overhead with her shirt flying out and one heel flicked up behind: the drawn heel-flick twirl, whole body in frame, sharp daylight. Mirrored so the raised arm is on the same side as the figure's. The frame was picked by hand (9.200 s): the sharpest one nearby (9.242 s) cuts the raised hand at the top."
+ },
+ {
+  "pose_id": "fun_laugh_bend",
+  "pose_name": "Laughing bend",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No one doubled over laughing: the three laughing-woman clips found (45468, 6153, 28914) are Mixkit Restricted."
+ },
+ {
+  "pose_id": "fun_high_kick",
+  "pose_name": "High kick",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No front kick with open arms: the karate clips show side kicks with guard fists (Mixkit 49630 at 1.9 s is sharp, but the kicker may be a teenager and the arms are in guard), and 12971 / 12973 are Restricted."
+ },
+ {
+  "pose_id": "fun_peace_lean",
+  "pose_name": "Double peace lean",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No double peace sign: 'Happy girl on top of mountain making peace sign' (49342) is Restricted; the other peace-sign titles are doctors in masks."
+ },
+ {
+  "pose_id": "couple_side_hug",
+  "pose_name": "Side hug",
+  "category": "COUPLE",
+  "photo": null,
+  "reason": "No side-by-side hug: the green-screen embraces (Mixkit 100746, 100742, 100734) are front-on hugs, 932 is two women seated, and the park-hug titles (29955, 45974, 45467, 45465, 26113) are Restricted."
+ },
+ {
+  "pose_id": "couple_dip",
+  "pose_name": "Romantic dip",
+  "category": "COUPLE",
+  "photo": null,
+  "reason": "No dance dip: the dancing couples scanned (4637, 4667, 42262, 4841, 4639) never dip, and the ballroom/salsa/wedding-dance clips (39551, 49514, 49530, 49532, 5382) are Restricted."
+ },
+ {
+  "pose_id": "couple_cheek_kiss",
+  "pose_name": "Cheek kiss",
+  "category": "COUPLE",
+  "photo": "app/src/main/assets/pose_photos/couple_cheek_kiss.webp",
+  "bytes": 32092,
+  "source": "Mixkit",
+  "title": "Girl surprises her boyfriend with a kiss on the cheek",
+  "page_url": "https://mixkit.co/free-stock-video/girl-surprises-her-boyfriend-with-a-kiss-on-the-cheek-39962/",
+  "file_url": "https://mixkit.co/free-stock-video/download/39962/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/39962/39962-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 6.742,
+  "hold_time_s_in_preview": 7.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/gaps-r1/mixkit/clips/39962.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/girl-surprises-her-boyfriend-with-a-kiss-on-the-cheek-39962/)",
+  "changes": [
+   "still frame at 6.742 s of the 1080p download",
+   "cropped to [600, 0, 1410, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   600,
+   0,
+   1410,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": null,
+  "score_detail": {
+   "score_source_frame": null,
+   "score_shipped_file": null,
+   "shipped_matches_flipped_pose": null,
+   "fit": null,
+   "tcov": null,
+   "people_detected_source": 0,
+   "people_detected_shipped": 1,
+   "framing": null,
+   "note": "not scorable: the detector finds 1 separate person(s) in the shipped photo and the pose needs 2",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "She kisses him on the cheek while he smiles with his eyes lowered: the gesture of the drawn cheek kiss, kisser on the left as drawn. A tight close-up of the two faces rather than the drawn three-quarter framing, and he does not look at the camera. Both are adults (the clip's own description calls him 'a man'; the related clip 39960 says 'young man'); no text or logos."
+ },
+ {
+  "pose_id": "group_arms_around",
+  "pose_name": "Shoulder line-up",
+  "category": "GROUP",
+  "photo": "app/src/main/assets/pose_photos/group_arms_around.webp",
+  "bytes": 73502,
+  "source": "Wikimedia Commons",
+  "title": "File:Pexels-mentatdgt-1206059.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Pexels-mentatdgt-1206059.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Pexels-mentatdgt-1206059.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Pexels-mentatdgt-1206059.jpg/1920px-Pexels-mentatdgt-1206059.jpg",
+  "author": "mentatdgt",
+  "credit_line": "https://web.archive.org/web/20180730204647/https://www.pexels.com/photo/woman-falling-in-line-holding-each-other-1206059/",
+  "licence": {
+   "name": "CC0",
+   "url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "attribution_required": "false",
+   "restrictions": "",
+   "usage_terms": "Creative Commons Zero, Public Domain Dedication",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: mentatdgt, CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Pexels-mentatdgt-1206059.jpg)",
+  "changes": [
+   "cropped to [328, 273, 1672, 1281] px of the 1920x1281 source (4:3)",
+   "resized to 900x675, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   328,
+   273,
+   1672,
+   1281
+  ],
+  "source_size": [
+   1920,
+   1281
+  ],
+  "app_matcher_score": 0.4391,
+  "score_detail": {
+   "score_source_frame": 0.3171,
+   "score_shipped_file": 0.4391,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.554,
+   "people_detected_source": 3,
+   "people_detected_shipped": 4,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Seven women standing shoulder to shoulder against a plain white wall, arms wrapped around each other's shoulders and waists, all laughing: the shoulder line-up the pose describes ('it fits any number of people'), whole bodies in frame, sharp and evenly lit. Seven people against three drawn figures: the detector (up to 4 people) finds four, so the matcher score is only indicative."
+ },
+ {
+  "pose_id": "group_v_formation",
+  "pose_name": "V-formation",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No V-formation: Mixkit 30003 shows two men standing and a woman seated higher behind them, thigh-up; 'A group of friends standing in the countryside' (23606) is Restricted."
+ },
+ {
+  "pose_id": "group_jump",
+  "pose_name": "Jump together",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No group jump: 'Dreamy sunset view of people jumping' (13191) is Restricted and the other jump titles are concerts."
+ },
+ {
+  "pose_id": "group_walk_line",
+  "pose_name": "Walking line",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No friends walking toward the camera: the eleven 'friends walking' clips found in round 1 (21423, 9211, 21368, 8985, 6690, 8845, 9043, 8979, 23884, 33182, 36044) are all Mixkit Restricted, and 3185 is two women walking away."
+ },
+ {
+  "pose_id": "group_sitting_row",
+  "pose_name": "Sitting row",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No relaxed sitting row: the round-1 titles are a seminar, board games at a table and a car trunk picnic."
+ },
+ {
+  "pose_id": "group_levels",
+  "pose_name": "Stacked levels",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No three head heights: the nearest (Mixkit 30003) has two levels, thigh-up."
+ },
+ {
+  "pose_id": "group_back_to_back",
+  "pose_name": "Back to back",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No three-person back-to-back: the Mixkit 'back to back' search gives couples (340, 4737, 48038) and silhouetted dancers (870)."
+ }
+]
