@@ -34,6 +34,9 @@ jobs:
       - name: Unit tests (pose engine)
         run: ./gradlew :pose-core:test --console=plain
 
+      - name: App tests (Robolectric UI flows + screenshots)
+        run: ./gradlew :app:testDebugUnitTest --console=plain
+
       - name: Build debug + release APKs
         run: ./gradlew :app:assembleDebug :app:assembleRelease --console=plain
 

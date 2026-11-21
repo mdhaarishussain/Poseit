@@ -10,7 +10,7 @@ usage statistics to Google when you're online):
 
 | Idea | From | In Poseit |
 |---|---|---|
-| Pose library + see-through overlay you can move, resize, rotate, flip | Poseful | ✅ 90+ original poses, drag / pinch / rotate / mirror, opacity |
+| Pose library + see-through overlay you can move, resize, rotate, flip | Poseful | ✅ 99 original poses in 11 categories, drag / pinch / rotate / mirror, opacity, grid, level |
 | Use **your own photo** as the reference | Poseful | ✅ "Create from photo": traces the pose and makes a ghost / outline overlay |
 | Outline figures for 1–4 people, background-match mode | SOVS2 | ✅ couple & group poses, "Lock scene" background match |
 | Hands-free self-timer, interval photoshoot, spoken countdown | Lens Buddy | ✅ 3/5/10 s timer, photoshoot (N shots every X s), volume-key shutter |
@@ -33,10 +33,39 @@ Requirements: JDK 17+ and the Android SDK (platform 36). Android Studio works to
 ./gradlew :app:assembleDebug          # → app/build/outputs/apk/debug/app-debug.apk
 ./gradlew :app:assembleRelease        # minified, signed with the debug key for easy sideloading
 ./gradlew :pose-core:test             # engine unit tests (+ renders pose preview sheets)
+./gradlew :app:testDebugUnitTest      # app tests: Robolectric UI flows + screenshots in app/build/screenshots/
 ```
 
 The MediaPipe models (pose landmarker lite/full + DeepLab v3, all Apache-2.0) are downloaded automatically into
 `app/src/main/assets/models/` on the first build.
+
+## Status
+
+Version 1.0.0. It has been tested on the JVM but **not yet run on a real phone**:
+
+* 261 automated tests pass:
+  * engine tests, including a check that every built-in pose can actually be matched;
+  * Robolectric UI-flow tests on Android 7.0, 9 and 15 (onboarding, library, detail, editor, settings, gallery,
+    create-from-photo, camera permission and controls);
+  * screenshot tests, including small phones and large fonts.
+* Three independent review rounds fixed 50 issues.
+* Things a JVM can't exercise still need a device check: live CameraX + MediaPipe detection, voice (TextToSpeech),
+  saving to the gallery, and how well real detections score.
+
+Known limitations:
+
+* Lying-down and landscape (couple/group) poses are shown smaller, because the camera is portrait-only.
+* Arms that go around a partner are drawn across the partner's figure. The figures have no depth or props.
+* "Export my poses" saves the poses but not the photos behind photo-based poses.
+* The release APK is signed with the Android debug key, for easy sideloading. Sign it with your own key before
+  publishing it anywhere.
+
+Ideas for later:
+
+* Remember the lens, aspect ratio and timer between camera visits.
+* A review screen limited to the shots from the last photoshoot.
+* Switch to the front camera automatically for selfie poses.
+* Include reference photos in exports.
 
 ## How it works
 
