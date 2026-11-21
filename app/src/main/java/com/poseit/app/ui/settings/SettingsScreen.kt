@@ -3,22 +3,33 @@ package com.poseit.app.ui.settings
 import android.content.ActivityNotFoundException
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -35,6 +46,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,23 +60,32 @@ import com.poseit.app.appContainer
 import com.poseit.app.data.AppSettings
 import com.poseit.app.data.GridType
 import com.poseit.app.data.OverlayStyle
-import com.poseit.app.ui.components.SettingRow
+import com.poseit.app.ui.components.CardSegment
+import com.poseit.app.ui.components.ConnectedCardStack
+import com.poseit.app.ui.components.OutlinedRow
+import com.poseit.app.ui.components.PoseitAlertDialog
+import com.poseit.app.ui.components.PoseitSnackbarHost
+import com.poseit.app.ui.components.PoseitSpinner
+import com.poseit.app.ui.components.RowChevron
+import com.poseit.app.ui.components.SectionHeading
 import com.poseit.app.ui.components.SliderRow
-import com.poseit.app.ui.components.StudioAlertDialog
-import com.poseit.app.ui.components.StudioSnackbarHost
-import com.poseit.app.ui.components.StudioTopBar
 import com.poseit.app.ui.components.SwitchRow
 import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.components.TopBarContent
+import com.poseit.app.ui.components.ValueSlider
 import com.poseit.app.ui.onboarding.DemoPoses
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
-import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-/** A row title with its picture tiles or countdown chips underneath (no bottom padding of its own). */
-private val TitleAbovePadding = PaddingValues(start = Space.gutter, end = Space.gutter, top = Space.m, bottom = Space.m)
+/*
+ * Settings (docs/DESIGN.md, "Screen map"): the top bar card fused to two dark cards that decide when the photo is
+ * taken (match strictness, countdown), then the other settings as outlined cream row groups under section
+ * headings, places to go as outlined rows, and an About stack of dark cards at the foot. Everything scrolls under a
+ * canvas band that covers the status bar.
+ */
 
 @Composable
 fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
@@ -98,69 +122,75 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
     }
 
     Scaffold(
-        containerColor = Studio.Paper,
-        snackbarHost = { StudioSnackbarHost(snackbar) },
-        topBar = {
-            Column {
-                StudioTopBar("Settings", onBack = onBack)
-                // Always 2dp tall, so the list doesn't jump when an import or export starts.
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(2.dp),
-                ) {
-                    if (busy) {
-                        LinearProgressIndicator(Modifier.fillMaxSize(), color = Studio.Ink, trackColor = Studio.Hairline)
+        containerColor = PoseitColors.backgroundBody,
+        snackbarHost = { PoseitSnackbarHost(snackbar, Modifier.navigationBarsPadding()) },
+        contentWindowInsets = WindowInsets(0),
+    ) { _ ->
+        val current = settings
+        val layoutDirection = LocalLayoutDirection.current
+        val sides = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues()
+        val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        Box(Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = sides.calculateStartPadding(layoutDirection) + Space.edge,
+                    end = sides.calculateEndPadding(layoutDirection) + Space.edge,
+                    top = top + Space.edge,
+                    bottom = bottom + Space.section,
+                ),
+                verticalArrangement = Arrangement.spacedBy(Space.section),
+            ) {
+                item(key = "header") {
+                    ConnectedCardStack(Modifier.fillMaxWidth()) {
+                        TopBarContent("Settings", onBack = onBack)
+                        if (current != null) {
+                            StrictnessCard(current, vm::update)
+                            CountdownCard(current, vm::update)
+                        }
+                    }
+                }
+                if (current == null) {
+                    item(key = "loading") {
+                        Box(Modifier.fillMaxWidth().padding(vertical = Space.xxl), contentAlignment = Alignment.Center) {
+                            PoseitSpinner(color = PoseitColors.textPrimary)
+                        }
+                    }
+                } else {
+                    item(key = "coaching") { CoachingGroup(current, vm::update) }
+                    item(key = "guide") { GuideGroup(current, vm::update) }
+                    item(key = "camera") { CameraGroup(current, vm::update) }
+                    item(key = "poses") {
+                        YourPosesGroup(
+                            customCount = customCount,
+                            busy = busy,
+                            onExport = {
+                                if (customCount == 0) {
+                                    scope.launch { snackbar.showSnackbar("You haven't made any poses yet") }
+                                } else {
+                                    launchSafely { exportLauncher.launch(PoseBackup.FILE_NAME) }
+                                }
+                            },
+                            onImport = { launchSafely { importLauncher.launch(PoseBackup.IMPORT_MIME_TYPES) } },
+                        )
+                    }
+                    item(key = "about") {
+                        AboutStack(
+                            onShowLicenses = { showLicenses = true },
+                            // Plays it right away; the stored "intro seen" flag stays set (the intro sets it again on finish).
+                            onShowIntro = onShowIntro,
+                        )
                     }
                 }
             }
-        },
-    ) { padding ->
-        val current = settings
-        if (current == null) {
+            // The list scrolls under the status bar onto this canvas band, never through it.
             Box(
                 Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator(color = Studio.Ink) }
-            return@Scaffold
-        }
-        val layoutDirection = LocalLayoutDirection.current
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = padding.calculateStartPadding(layoutDirection),
-                end = padding.calculateEndPadding(layoutDirection),
-                top = padding.calculateTopPadding() + Space.s,
-                bottom = padding.calculateBottomPadding() + Space.section,
-            ),
-            verticalArrangement = Arrangement.spacedBy(Space.section),
-        ) {
-            item(key = "coaching") { CoachingGroup(current, vm::update) }
-            item(key = "guide") { GuideGroup(current, vm::update) }
-            item(key = "camera") { CameraGroup(current, vm::update) }
-            item(key = "poses") {
-                YourPosesGroup(
-                    customCount = customCount,
-                    busy = busy,
-                    onExport = {
-                        if (customCount == 0) {
-                            scope.launch { snackbar.showSnackbar("You haven't made any poses yet") }
-                        } else {
-                            launchSafely { exportLauncher.launch(PoseBackup.FILE_NAME) }
-                        }
-                    },
-                    onImport = { launchSafely { importLauncher.launch(PoseBackup.IMPORT_MIME_TYPES) } },
-                )
-            }
-            item(key = "about") {
-                AboutGroup(
-                    onShowLicenses = { showLicenses = true },
-                    // Plays it right away; the stored "intro seen" flag stays set (the intro sets it again on finish).
-                    onShowIntro = onShowIntro,
-                )
-            }
+                    .fillMaxWidth()
+                    .windowInsetsTopHeight(WindowInsets.statusBars)
+                    .background(PoseitColors.backgroundBody),
+            )
         }
     }
 
@@ -168,6 +198,63 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * The first card under the top bar, like the mockups' "Your progress 79%": what the strictness means, then the value
+ * in light numerals beside its slider. The numerals are hidden from screen readers; the slider announces the value.
+ */
+@Composable
+private fun StrictnessCard(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
+    var strictness by remember(s.matchThreshold) {
+        mutableFloatStateOf(s.matchThreshold.coerceIn(SettingCopy.STRICTNESS_MIN, SettingCopy.STRICTNESS_MAX))
+    }
+    CardSegment {
+        Text(SettingCopy.STRICTNESS, style = PoseitType.bodyLarge, color = PoseitColors.textPrimaryInverted)
+        Text(SettingCopy.strictnessHint(strictness), style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+        Spacer(Modifier.height(Space.l))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "${(strictness * 100).roundToInt()}%",
+                style = PoseitType.numeralLarge,
+                color = PoseitColors.textPrimaryInverted,
+                maxLines = 1,
+                modifier = Modifier.clearAndSetSemantics {},
+            )
+            Spacer(Modifier.width(Space.l))
+            val valueLabel = SettingCopy.strictnessValue(strictness)
+            ValueSlider(
+                value = strictness,
+                onValueChange = { strictness = it },
+                onValueChangeFinished = {
+                    val v = SettingCopy.snapStrictness(strictness)
+                    update { it.copy(matchThreshold = v) }
+                },
+                valueRange = SettingCopy.STRICTNESS_MIN..SettingCopy.STRICTNESS_MAX,
+                steps = 6,
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics {
+                        contentDescription = SettingCopy.STRICTNESS
+                        stateDescription = valueLabel
+                    },
+            )
+        }
+    }
+}
+
+/** The countdown as a segmented pill across the card, fused under the strictness card. */
+@Composable
+private fun CountdownCard(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
+    CardSegment {
+        Text(SettingCopy.COUNTDOWN, style = PoseitType.bodyLarge, color = PoseitColors.textPrimaryInverted)
+        Text(SettingCopy.COUNTDOWN_SUBTITLE, style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+        Spacer(Modifier.height(Space.l))
+        CountdownChips(
+            seconds = s.countdownSeconds,
+            onSelect = { seconds -> update { it.copy(countdownSeconds = seconds) } },
+        )
+    }
+}
 
 @Composable
 private fun CoachingGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
@@ -178,40 +265,11 @@ private fun CoachingGroup(s: AppSettings, update: ((AppSettings) -> AppSettings)
             checked = s.voiceGuidance,
             onCheckedChange = { v -> update { it.copy(voiceGuidance = v) } },
         )
-        RowDivider()
         SwitchRow(
             title = SettingCopy.AUTO_CAPTURE,
             subtitle = SettingCopy.AUTO_CAPTURE_SUBTITLE,
             checked = s.autoCapture,
             onCheckedChange = { v -> update { it.copy(autoCapture = v) } },
-        )
-        RowDivider()
-        var strictness by remember(s.matchThreshold) {
-            mutableFloatStateOf(s.matchThreshold.coerceIn(SettingCopy.STRICTNESS_MIN, SettingCopy.STRICTNESS_MAX))
-        }
-        SliderRow(
-            title = SettingCopy.STRICTNESS,
-            valueLabel = SettingCopy.strictnessValue(strictness),
-            subtitle = SettingCopy.strictnessHint(strictness),
-            value = strictness,
-            onValueChange = { strictness = it },
-            onValueChangeFinished = {
-                val v = SettingCopy.snapStrictness(strictness)
-                update { it.copy(matchThreshold = v) }
-            },
-            valueRange = SettingCopy.STRICTNESS_MIN..SettingCopy.STRICTNESS_MAX,
-            steps = 6,
-        )
-        RowDivider()
-        SettingRow(
-            title = SettingCopy.COUNTDOWN,
-            subtitle = SettingCopy.COUNTDOWN_SUBTITLE,
-            contentPadding = TitleAbovePadding,
-        )
-        CountdownChips(
-            seconds = s.countdownSeconds,
-            onSelect = { seconds -> update { it.copy(countdownSeconds = seconds) } },
-            modifier = Modifier.padding(start = Space.gutter, end = Space.gutter, bottom = Space.m),
         )
     }
 }
@@ -221,23 +279,19 @@ private fun GuideGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) ->
     val demo = remember { DemoPoses.handOnHip }
     var opacity by remember(s.overlayOpacity) { mutableFloatStateOf(s.overlayOpacity.coerceIn(SettingCopy.OPACITY_MIN, 1f)) }
     SettingsGroup(SettingCopy.GUIDE) {
-        SettingRow(
-            title = "Guide style",
-            subtitle = "How the pose is drawn over the camera",
-            contentPadding = TitleAbovePadding,
-        )
-        TileRow { weight ->
-            OverlayStyle.entries.forEach { style ->
-                ChoiceTile(
-                    label = style.label,
-                    selected = s.overlayStyle == style,
-                    onClick = { update { it.copy(overlayStyle = style) } },
-                    description = "${style.label} guide",
-                    modifier = weight,
-                ) { OverlayPreview(demo, style, opacity) }
+        TitledRow("Guide style", "How the pose is drawn over the camera") {
+            TileRow { weight ->
+                OverlayStyle.entries.forEach { style ->
+                    ChoiceTile(
+                        label = style.label,
+                        selected = s.overlayStyle == style,
+                        onClick = { update { it.copy(overlayStyle = style) } },
+                        description = "${style.label} guide",
+                        modifier = weight,
+                    ) { OverlayPreview(demo, style, opacity) }
+                }
             }
         }
-        RowDivider()
         SliderRow(
             title = SettingCopy.GUIDE_OPACITY,
             valueLabel = "${(opacity * 100).roundToInt()}%",
@@ -246,31 +300,25 @@ private fun GuideGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) ->
             onValueChangeFinished = { update { it.copy(overlayOpacity = opacity) } },
             valueRange = SettingCopy.OPACITY_MIN..1f,
         )
-        RowDivider()
         SwitchRow(
             title = SettingCopy.LIVE_SKELETON,
             subtitle = SettingCopy.LIVE_SKELETON_SUBTITLE,
             checked = s.showLiveSkeleton,
             onCheckedChange = { v -> update { it.copy(showLiveSkeleton = v) } },
         )
-        RowDivider()
-        SettingRow(
-            title = "Grid",
-            subtitle = s.grid.label,
-            contentPadding = TitleAbovePadding,
-        )
-        TileRow { weight ->
-            GridType.entries.forEach { grid ->
-                ChoiceTile(
-                    label = grid.shortLabel,
-                    selected = s.grid == grid,
-                    onClick = { update { it.copy(grid = grid) } },
-                    description = "Grid: ${grid.label}",
-                    modifier = weight,
-                ) { GridPreview(grid) }
+        TitledRow("Grid", s.grid.label) {
+            TileRow { weight ->
+                GridType.entries.forEach { grid ->
+                    ChoiceTile(
+                        label = grid.shortLabel,
+                        selected = s.grid == grid,
+                        onClick = { update { it.copy(grid = grid) } },
+                        description = "Grid: ${grid.label}",
+                        modifier = weight,
+                    ) { GridPreview(grid) }
+                }
             }
         }
-        RowDivider()
         SwitchRow(
             title = SettingCopy.LEVEL,
             subtitle = SettingCopy.LEVEL_SUBTITLE,
@@ -289,20 +337,17 @@ private fun CameraGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -
             checked = s.accurateModel,
             onCheckedChange = { v -> update { it.copy(accurateModel = v) } },
         )
-        RowDivider()
         SwitchRow(
             title = "Mirror front-camera photos",
             subtitle = "Saves selfies the way they look in the preview",
             checked = s.mirrorFrontPhotos,
             onCheckedChange = { v -> update { it.copy(mirrorFrontPhotos = v) } },
         )
-        RowDivider()
         SwitchRow(
             title = "Shutter sound",
             checked = s.shutterSound,
             onCheckedChange = { v -> update { it.copy(shutterSound = v) } },
         )
-        RowDivider()
         SwitchRow(
             title = "Haptics",
             subtitle = "Vibrates when a photo is taken or a raised hand starts the timer",
@@ -312,10 +357,26 @@ private fun CameraGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -
     }
 }
 
+/** Places to go, as separate outlined rows (they open a file picker). A spinner by the heading while one runs. */
 @Composable
 private fun YourPosesGroup(customCount: Int, busy: Boolean, onExport: () -> Unit, onImport: () -> Unit) {
-    SettingsGroup("Your poses") {
-        SettingRow(
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.edge)) {
+        SectionHeading(
+            "Your poses",
+            Modifier.padding(horizontal = Space.cardPadding),
+            action = if (busy) {
+                {
+                    PoseitSpinner(
+                        size = 20.dp,
+                        color = PoseitColors.textPrimary,
+                        modifier = Modifier.semantics { contentDescription = "Working on your poses" },
+                    )
+                }
+            } else {
+                null
+            },
+        )
+        OutlinedRow(
             title = "Export poses",
             subtitle = if (customCount == 0) {
                 "Nothing to export yet"
@@ -324,45 +385,69 @@ private fun YourPosesGroup(customCount: Int, busy: Boolean, onExport: () -> Unit
             },
             onClick = onExport,
             enabled = !busy,
-        ) { RowChevron() }
-        RowDivider()
-        SettingRow(
+        )
+        OutlinedRow(
             title = "Import poses",
             subtitle = "Add poses from a Poseit file",
             onClick = onImport,
             enabled = !busy,
-        ) { RowChevron() }
+        )
     }
 }
 
+/**
+ * About, at the foot: a dark card with the wordmark, the version and Poseit's promise in the card headline, fused to
+ * two dark rows that open the notices and replay the intro.
+ */
 @Composable
-private fun AboutGroup(onShowLicenses: () -> Unit, onShowIntro: () -> Unit) {
-    SettingsGroup("About") {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Space.gutter, vertical = Space.m),
-            verticalArrangement = Arrangement.spacedBy(Space.m),
-        ) {
-            Column {
-                Text("Poseit", style = StudioType.bodyStrong, color = Studio.Ink)
-                Text("Version ${BuildConfig.VERSION_NAME}", style = StudioType.label, color = Studio.Graphite)
+private fun AboutStack(onShowLicenses: () -> Unit, onShowIntro: () -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        SectionHeading("About", Modifier.padding(horizontal = Space.cardPadding))
+        Spacer(Modifier.height(Space.s))
+        ConnectedCardStack(Modifier.fillMaxWidth()) {
+            CardSegment {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Poseit", style = PoseitType.wordmark, color = PoseitColors.textPrimaryInverted, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(Space.l))
+                    Text("Version ${BuildConfig.VERSION_NAME}", style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+                }
+                Spacer(Modifier.height(Space.xl))
+                Text(
+                    "Works offline, with no ads and no account.",
+                    style = PoseitType.headline,
+                    color = PoseitColors.textPrimaryInverted,
+                )
+                Spacer(Modifier.height(Space.s))
+                Text(
+                    "The camera feed and your photos stay on this phone.",
+                    style = PoseitType.body,
+                    color = PoseitColors.textSecondaryInverted,
+                )
+                Spacer(Modifier.height(Space.l))
+                Text(
+                    "Pose detection uses MediaPipe (Apache License 2.0). The typeface is Hanken Grotesk (SIL Open Font License 1.1).",
+                    style = PoseitType.supporting,
+                    color = PoseitColors.textSecondaryInverted,
+                )
             }
-            Text(
-                "Works offline, with no ads and no account. The camera feed and your photos stay on this phone.",
-                style = StudioType.body,
-                color = Studio.Ink,
-            )
-            Text(
-                "Pose detection uses MediaPipe (Apache License 2.0). The typeface is Hanken Grotesk (SIL Open Font License 1.1).",
-                style = StudioType.label,
-                color = Studio.Graphite,
-            )
+            LinkSegment("Open-source notices", onShowLicenses)
+            LinkSegment("Show intro again", onShowIntro)
         }
-        RowDivider()
-        SettingRow(title = "Open-source notices", onClick = onShowLicenses) { RowChevron() }
-        RowDivider()
-        SettingRow(title = "Show intro again", onClick = onShowIntro) { RowChevron() }
+    }
+}
+
+/** A dark card in a connected stack that opens something: the title in cream and a chevron. One button. */
+@Composable
+private fun LinkSegment(title: String, onClick: () -> Unit) {
+    CardSegment(
+        contentPadding = PaddingValues(start = Space.cardPadding, end = Space.l, top = Space.l, bottom = Space.l),
+        onClick = onClick,
+    ) {
+        Row(Modifier.heightIn(min = 32.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(title, style = PoseitType.bodyLarge, color = PoseitColors.textPrimaryInverted, modifier = Modifier.weight(1f))
+            Spacer(Modifier.width(Space.l))
+            RowChevron()
+        }
     }
 }
 
@@ -382,7 +467,7 @@ private val notices = listOf(
 
 @Composable
 private fun LicensesDialog(onDismiss: () -> Unit) {
-    StudioAlertDialog(
+    PoseitAlertDialog(
         onDismissRequest = onDismiss,
         title = "Open-source notices",
         content = {
@@ -393,9 +478,9 @@ private fun LicensesDialog(onDismiss: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(Space.m),
             ) {
                 notices.forEach { n ->
-                    Column {
-                        Text(n.name, style = StudioType.bodyStrong, color = Studio.Ink)
-                        Text("${n.owner}, ${n.license}", style = StudioType.label, color = Studio.Graphite)
+                    Column(Modifier.semantics(mergeDescendants = true) {}) {
+                        Text(n.name, style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
+                        Text("${n.owner}, ${n.license}", style = PoseitType.supporting, color = PoseitColors.textSecondary)
                     }
                 }
                 Text(
@@ -403,13 +488,13 @@ private fun LicensesDialog(onDismiss: () -> Unit) {
                         "at openfontlicense.org and the MIT License at opensource.org/license/mit. Software and fonts " +
                         "under these licences are distributed \"as is\", " +
                         "without warranties or conditions of any kind.",
-                    style = StudioType.label,
-                    color = Studio.Graphite,
+                    style = PoseitType.supporting,
+                    color = PoseitColors.textSecondary,
                 )
                 Text(
                     "All pose illustrations in Poseit are original and generated by the app itself.",
-                    style = StudioType.label,
-                    color = Studio.Graphite,
+                    style = PoseitType.supporting,
+                    color = PoseitColors.textSecondary,
                 )
             }
         },

@@ -22,40 +22,38 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CameraAlt
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.pullToRefreshIndicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -71,9 +69,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -84,17 +83,30 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.poseit.app.appContainer
 import com.poseit.app.data.SavedPhoto
+import com.poseit.app.ui.components.AccentButton
+import com.poseit.app.ui.components.Badge
+import com.poseit.app.ui.components.Banner
+import com.poseit.app.ui.components.ButtonForm
+import com.poseit.app.ui.components.CardSegment
+import com.poseit.app.ui.components.ConnectedCardStack
 import com.poseit.app.ui.components.EmptyState
-import com.poseit.app.ui.components.PrimaryButton
-import com.poseit.app.ui.components.StudioInlineIconSize
-import com.poseit.app.ui.components.StudioSnackbarHost
-import com.poseit.app.ui.components.StudioTopBar
+import com.poseit.app.ui.components.PoseitSnackbarHost
+import com.poseit.app.ui.components.PoseitSpinner
+import com.poseit.app.ui.components.SectionHeading
 import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.components.TopBarContent
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitMotion
+import com.poseit.app.ui.theme.PoseitShapes
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
-import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.launch
+
+/*
+ * Your photos (docs/DESIGN.md, "Screen map"): the top bar card with the photo count, fused to a dark card that starts
+ * a review, then the photos under a heading per day as 3:4 tiles with 20dp corners, 8dp apart. Empty, the top bar is
+ * fused to a dark card that says what to do. The full-screen viewer opens over it.
+ */
 
 /** Photos taken with Poseit, with a full-screen viewer, share and delete. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -198,24 +210,15 @@ fun GalleryScreen(onBack: () -> Unit, onOpenCamera: () -> Unit) {
         if (viewerOpen && !state.loading && state.photos.isEmpty()) viewerOpen = false
     }
     BackHandler(enabled = viewerOpen) { viewerOpen = false }
-    Box(Modifier.fillMaxSize().background(Studio.Paper)) {
+    fun openViewer(photo: SavedPhoto) {
+        viewerUri = photo.uri.toString()
+        viewerOpen = true
+    }
+    Box(Modifier.fillMaxSize().background(PoseitColors.backgroundBody)) {
         Scaffold(
-            topBar = {
-                StudioTopBar(title = "Your photos", onBack = onBack) {
-                    if (state.photos.isNotEmpty()) {
-                        TertiaryButton(
-                            text = "Review",
-                            onClick = {
-                                viewerUri = state.photos.first().uri.toString()
-                                viewerOpen = true
-                            },
-                        )
-                    }
-                }
-            },
-            snackbarHost = { if (!viewerOpen) StudioSnackbarHost(snackbar, Modifier.navigationBarsPadding()) },
-            containerColor = Studio.Paper,
-            contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
+            snackbarHost = { if (!viewerOpen) PoseitSnackbarHost(snackbar, Modifier.navigationBarsPadding()) },
+            containerColor = PoseitColors.backgroundBody,
+            contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
         ) { padding ->
             val refreshState = rememberPullToRefreshState()
             PullToRefreshBox(
@@ -223,59 +226,50 @@ fun GalleryScreen(onBack: () -> Unit, onOpenCamera: () -> Unit) {
                 onRefresh = { viewModel.refresh(userInitiated = true) },
                 modifier = Modifier.fillMaxSize().padding(padding),
                 state = refreshState,
-                // A bare Ink spinner, like every other one in the app: no disc, so no shadow.
-                indicator = {
-                    Box(
-                        Modifier
-                            .align(Alignment.TopCenter)
-                            .pullToRefreshIndicator(
-                                state = refreshState,
-                                isRefreshing = state.refreshing,
-                                containerColor = Color.Transparent,
-                                elevation = 0.dp,
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        if (state.refreshing) {
-                            CircularProgressIndicator(Modifier.size(28.dp), color = Studio.Ink, strokeWidth = 2.dp)
-                        } else {
-                            CircularProgressIndicator(
-                                progress = { refreshState.distanceFraction.coerceIn(0f, 1f) },
-                                modifier = Modifier.size(28.dp),
-                                color = Studio.Ink,
-                                strokeWidth = 2.dp,
-                                trackColor = Color.Transparent,
-                            )
-                        }
-                    }
-                },
+                indicator = { RefreshIndicator(refreshState, state.refreshing, Modifier.align(Alignment.TopCenter)) },
             ) {
                 when {
-                    state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(Modifier.size(28.dp), color = Studio.Ink, strokeWidth = 2.dp)
+                    state.loading -> Column(Modifier.fillMaxSize().padding(top = topInset(), start = Space.edge, end = Space.edge)) {
+                        GalleryHeader(photoCount = 0, onBack = onBack)
+                        Box(Modifier.fillMaxWidth().padding(vertical = Space.xxl), contentAlignment = Alignment.Center) {
+                            PoseitSpinner(color = PoseitColors.textPrimary)
+                        }
                     }
                     state.photos.isEmpty() -> EmptyGallery(
                         permissionMissing = permissionMissing,
                         onGrantPermission = ::requestPermission,
                         onOpenCamera = onOpenCamera,
+                        onBack = onBack,
                     )
                     else -> PhotoGrid(
                         photos = state.photos,
                         permissionMissing = permissionMissing,
                         onGrantPermission = ::requestPermission,
-                        onOpen = { photo ->
-                            viewerUri = photo.uri.toString()
-                            viewerOpen = true
+                        onOpen = ::openViewer,
+                        header = {
+                            GalleryHeader(photoCount = state.photos.size, onBack = onBack) {
+                                ReviewCard(onReview = { openViewer(state.photos.first()) })
+                            }
                         },
                     )
                 }
             }
         }
+        // The grid scrolls under the status bar onto this canvas band, never through it.
+        Box(
+            Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .windowInsetsTopHeight(WindowInsets.statusBars)
+                .background(PoseitColors.backgroundBody),
+        )
 
         AnimatedVisibility(
             visible = viewerOpen && state.photos.isNotEmpty(),
-            enter = fadeIn(tween(200)) + scaleIn(tween(200), initialScale = 0.96f),
-            exit = fadeOut(tween(160)) + scaleOut(tween(160), targetScale = 0.96f),
+            enter = fadeIn(PoseitMotion.standard(PoseitMotion.MEDIUM)) +
+                scaleIn(PoseitMotion.standard(PoseitMotion.MEDIUM), initialScale = 0.96f),
+            exit = fadeOut(tween(PoseitMotion.FAST, easing = PoseitMotion.EaseExit)) +
+                scaleOut(tween(PoseitMotion.FAST, easing = PoseitMotion.EaseExit), targetScale = 0.96f),
         ) {
             PhotoViewer(
                 photos = state.photos,
@@ -296,40 +290,135 @@ fun GalleryScreen(onBack: () -> Unit, onOpenCamera: () -> Unit) {
     }
 }
 
-/** Gap between photos in the grid: a contact sheet, so the squares nearly touch. */
-private val GridGap = 2.dp
+/** Space above the first card: the status bar plus the edge gap. */
+@Composable
+private fun topInset(): Dp = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + Space.edge
 
-/** The photos, newest first, under a heading per day: square thumbnails 2dp apart, like a contact sheet. */
+/** "12 photos", "1 photo". */
+internal fun photoCountLabel(count: Int): String = if (count == 1) "1 photo" else "$count photos"
+
+/**
+ * The top bar card ("Your photos", back, the count as a lavender badge) with the cards in [joined] fused under it.
+ * Place it [Space.edge] in from the screen sides.
+ */
+@Composable
+internal fun GalleryHeader(
+    photoCount: Int,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    joined: (@Composable () -> Unit)? = null,
+) {
+    ConnectedCardStack(modifier.fillMaxWidth()) {
+        TopBarContent(
+            title = "Your photos",
+            onBack = onBack,
+            badge = if (photoCount > 0) {
+                { Badge(photoCountLabel(photoCount)) }
+            } else {
+                null
+            },
+        )
+        joined?.invoke()
+    }
+}
+
+/**
+ * The card under the top bar, like the mockups' "New challenge ... START": what Review does, and the block button that
+ * starts it at the newest photo. The button sits beside the words while the title still fits on one line there, and
+ * moves under them otherwise (large font sizes on a small phone).
+ */
+@Composable
+internal fun ReviewCard(onReview: () -> Unit) {
+    CardSegment {
+        Layout(
+            content = {
+                Text("Keep the good ones", style = PoseitType.bodyLarge, color = PoseitColors.textPrimaryInverted)
+                Text(
+                    "Go through your photos one at a time and delete the rest",
+                    style = PoseitType.supporting,
+                    color = PoseitColors.textSecondaryInverted,
+                )
+                AccentButton("Review", onClick = onReview, form = ButtonForm.Block)
+            },
+        ) { measurables, constraints ->
+            val (title, subtitle, button) = measurables
+            val loose = constraints.copy(minWidth = 0, minHeight = 0)
+            val b = button.measure(loose)
+            val width = constraints.maxWidth
+            val gap = Space.l.roundToPx()
+            val besideWidth = width - b.width - gap
+            val beside = besideWidth >= title.maxIntrinsicWidth(Constraints.Infinity)
+            val textWidth = if (beside) besideWidth else width
+            val t = title.measure(loose.copy(maxWidth = textWidth))
+            val s = subtitle.measure(loose.copy(maxWidth = textWidth))
+            val words = t.height + s.height
+            if (beside) {
+                val height = maxOf(words, b.height)
+                val top = (height - words) / 2
+                layout(width, height) {
+                    t.place(0, top)
+                    s.place(0, top + t.height)
+                    b.place(width - b.width, (height - b.height) / 2)
+                }
+            } else {
+                layout(width, words + gap + b.height) {
+                    t.place(0, 0)
+                    s.place(0, t.height)
+                    b.place(0, words + gap)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The photos, newest first, under a heading per day: 3:4 tiles (most photos are portraits, so the whole person shows)
+ * with the tile radius, [Space.edge] apart and from the screen sides. [header] is the first, full-width item.
+ */
 @Composable
 internal fun PhotoGrid(
     photos: List<SavedPhoto>,
     permissionMissing: Boolean,
     onGrantPermission: () -> Unit,
     onOpen: (SavedPhoto) -> Unit,
+    header: (@Composable () -> Unit)? = null,
 ) {
     val days = remember(photos) { groupByDay(photos) }
     val context = LocalContext.current
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 104.dp),
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
-        horizontalArrangement = Arrangement.spacedBy(GridGap),
-        verticalArrangement = Arrangement.spacedBy(GridGap),
+        contentPadding = PaddingValues(
+            start = Space.edge,
+            end = Space.edge,
+            top = topInset(),
+            bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + Space.xl,
+        ),
+        horizontalArrangement = Arrangement.spacedBy(Space.edge),
+        verticalArrangement = Arrangement.spacedBy(Space.edge),
     ) {
+        if (header != null) {
+            item(key = "header", span = { GridItemSpan(maxLineSpan) }, contentType = "header") { header() }
+        }
         if (permissionMissing) {
             item(key = "permission", span = { GridItemSpan(maxLineSpan) }) {
-                PermissionNotice(onGrantPermission, Modifier.padding(top = Space.s))
+                Banner(
+                    message = "Some older photos are hidden. Allow photo access to see them all.",
+                    // Pulled left by the text button's own padding, so its words line up with the message.
+                    action = { TertiaryButton("Allow access", onClick = onGrantPermission, modifier = Modifier.offset(x = -Space.m)) },
+                    modifier = Modifier.padding(top = if (header != null) Space.l else 0.dp),
+                )
             }
         }
         days.forEachIndexed { index, day ->
-            item(key = "day_${day.key}", span = { GridItemSpan(maxLineSpan) }, contentType = "header") {
-                Text(
-                    text = day.label,
-                    style = StudioType.bodyStrong,
-                    color = Studio.Ink,
-                    modifier = Modifier
-                        .padding(top = if (index == 0 && !permissionMissing) Space.s else Space.xl, bottom = Space.s)
-                        .semantics { heading() },
+            item(key = "day_${day.key}", span = { GridItemSpan(maxLineSpan) }, contentType = "day") {
+                SectionHeading(
+                    day.label,
+                    Modifier.padding(
+                        start = Space.cardPadding,
+                        end = Space.cardPadding,
+                        top = if (index == 0) Space.l else Space.xl,
+                    ),
                 )
             }
             items(day.photos, key = { it.uri.toString() }, contentType = { "photo" }) { photo ->
@@ -341,20 +430,24 @@ internal fun PhotoGrid(
                     contentDescription = "Photo from ${formatPhotoDateTime(photo.dateTakenMillis, context)}",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .aspectRatio(1f)
-                        .background(Studio.Set)
-                        .clickable { onOpen(photo) },
+                        .aspectRatio(3f / 4f)
+                        .clip(PoseitShapes.Tile)
+                        .background(PoseitColors.backgroundMuted)
+                        .clickable(onClickLabel = "View") { onOpen(photo) },
                 )
             }
-        }
-        item(key = "bottom_inset", span = { GridItemSpan(maxLineSpan) }) {
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
     }
 }
 
+/** Nothing to show: the top bar fused to a dark card that says why and offers the one thing to do. */
 @Composable
-private fun EmptyGallery(permissionMissing: Boolean, onGrantPermission: () -> Unit, onOpenCamera: () -> Unit) {
+private fun EmptyGallery(
+    permissionMissing: Boolean,
+    onGrantPermission: () -> Unit,
+    onOpenCamera: () -> Unit,
+    onBack: () -> Unit,
+) {
     // Scrollable so pull-to-refresh works and the message fits on small screens.
     BoxWithConstraints(Modifier.fillMaxSize()) {
         Column(
@@ -362,45 +455,58 @@ private fun EmptyGallery(permissionMissing: Boolean, onGrantPermission: () -> Un
                 .verticalScroll(rememberScrollState())
                 .heightIn(min = maxHeight)
                 .fillMaxWidth()
+                .padding(top = topInset(), start = Space.edge, end = Space.edge)
                 .navigationBarsPadding(),
         ) {
-            if (permissionMissing) {
-                EmptyState(
-                    title = "Let Poseit see your photos",
-                    message = "Allow access to photos to see the shots you took with Poseit. They stay on this phone.",
-                    action = { PrimaryButton("Allow access", onClick = onGrantPermission) },
-                )
-            } else {
-                EmptyState(
-                    title = "No photos yet",
-                    message = "Photos you take with the pose camera show up here, and in Pictures/Poseit on this phone.",
-                    action = { PrimaryButton("Open the pose camera", onClick = onOpenCamera, icon = Icons.Outlined.CameraAlt) },
-                )
+            GalleryHeader(photoCount = 0, onBack = onBack) {
+                CardSegment(contentPadding = PaddingValues(horizontal = Space.cardPadding)) {
+                    if (permissionMissing) {
+                        EmptyState(
+                            title = "Let Poseit see your photos",
+                            message = "Allow access to photos to see the shots you took with Poseit. They stay on this phone.",
+                            horizontalPadding = 0.dp,
+                            action = { AccentButton("Allow access", onClick = onGrantPermission) },
+                        )
+                    } else {
+                        EmptyState(
+                            title = "No photos yet",
+                            message = "Photos you take with the pose camera show up here, and in Pictures/Poseit on this phone.",
+                            horizontalPadding = 0.dp,
+                            action = { AccentButton("Open the pose camera", onClick = onOpenCamera) },
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-/** A quiet Sheet row above the grid: some photos stay hidden until photo access is allowed. */
+/**
+ * The pull-to-refresh spinner on a small cream disc without a shadow, so it reads over the dark top bar card as well
+ * as over the canvas.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PermissionNotice(onGrantPermission: () -> Unit, modifier: Modifier = Modifier) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
-            .clip(StudioShapes.Medium)
-            .background(Studio.Sheet)
-            .padding(start = Space.l, end = Space.xs, top = Space.xs, bottom = Space.xs),
-        verticalAlignment = Alignment.CenterVertically,
+private fun RefreshIndicator(state: PullToRefreshState, refreshing: Boolean, modifier: Modifier = Modifier) {
+    Box(
+        modifier.pullToRefreshIndicator(
+            state = state,
+            isRefreshing = refreshing,
+            containerColor = PoseitColors.backgroundSurface,
+            elevation = 0.dp,
+        ),
+        contentAlignment = Alignment.Center,
     ) {
-        Icon(Icons.Outlined.Lock, contentDescription = null, tint = Studio.Graphite, modifier = Modifier.size(StudioInlineIconSize))
-        Spacer(Modifier.width(Space.m))
-        Text(
-            "Some older photos are hidden. Allow photo access to see them all.",
-            style = StudioType.label,
-            color = Studio.Ink,
-            modifier = Modifier.weight(1f),
-        )
-        TertiaryButton("Allow", onClick = onGrantPermission)
+        if (refreshing) {
+            PoseitSpinner(color = PoseitColors.textPrimary)
+        } else {
+            CircularProgressIndicator(
+                progress = { state.distanceFraction.coerceIn(0f, 1f) },
+                modifier = Modifier.size(24.dp),
+                color = PoseitColors.textPrimary,
+                strokeWidth = 2.dp,
+                trackColor = Color.Transparent,
+            )
+        }
     }
 }

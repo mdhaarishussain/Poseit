@@ -11,7 +11,6 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
@@ -52,10 +51,11 @@ import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.size.Precision
-import com.poseit.app.ui.components.StudioIconSize
+import com.poseit.app.ui.components.IconSize
+import com.poseit.app.ui.components.PoseitSpinner
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioType
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitType
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -206,17 +206,17 @@ internal fun ZoomableImage(
         )
         when (loadState) {
             is AsyncImagePainter.State.Loading ->
-                CircularProgressIndicator(Modifier.size(28.dp), color = Studio.Mannequin.copy(alpha = 0.72f), strokeWidth = 2.dp)
+                PoseitSpinner(color = PoseitColors.textSecondaryInverted)
             is AsyncImagePainter.State.Error -> Column(
-                Modifier.padding(horizontal = Space.gutter),
+                Modifier.padding(horizontal = Space.textInset),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(Space.s),
             ) {
-                Icon(Icons.Outlined.BrokenImage, contentDescription = null, tint = Studio.Mannequin.copy(alpha = 0.72f), modifier = Modifier.size(StudioIconSize))
+                Icon(Icons.Outlined.BrokenImage, contentDescription = null, tint = PoseitColors.textSecondaryInverted, modifier = Modifier.size(IconSize.standalone))
                 Text(
                     "Couldn't open this photo. It may have been moved or deleted.",
-                    style = StudioType.body,
-                    color = Studio.Mannequin.copy(alpha = 0.72f),
+                    style = PoseitType.body,
+                    color = PoseitColors.textSecondaryInverted,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.widthIn(max = 320.dp),
                 )

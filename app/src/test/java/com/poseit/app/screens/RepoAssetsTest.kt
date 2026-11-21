@@ -184,7 +184,7 @@ class RepoAssetsTest {
     fun screenCreate() = screen("5-create", ready = "Choose a photo") { CreateFromPhotoScreen(onBack = {}, onSaved = {}) }
 
     @Test
-    fun screenSettings() = screen("6-settings", ready = "Guide opacity") { SettingsScreen(onBack = {}, onShowIntro = {}) }
+    fun screenSettings() = screen("6-settings", ready = "Match strictness") { SettingsScreen(onBack = {}, onShowIntro = {}) }
 
     /** The matcher's verdict for the camera still is a real one: the PERFECT hint at a score in the 90s. */
     @Test
