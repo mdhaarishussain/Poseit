@@ -164,7 +164,7 @@ class PoseEditorViewModel(
                 ?: withTimeoutOrNull(LOAD_TIMEOUT_MS) { poseRepository.poseFlow(id).filterNotNull().first() }
         }
         if (basePoseId != null && template == null) {
-            _events.send(EditorEvent.Message("Couldn't find that pose – starting from a neutral mannequin"))
+            _events.send(EditorEvent.Message("Couldn't find that pose, so the editor starts from a neutral mannequin"))
         }
         val frameAspect = template?.frameAspect?.takeIf { it.isFinite() && it > 0.2f && it < 5f } ?: DEFAULT_ASPECT
         val start = template?.figures?.filter { it.points.isNotEmpty() }?.take(MAX_PEOPLE)?.takeIf { it.isNotEmpty() }
@@ -434,7 +434,7 @@ class PoseEditorViewModel(
         private val stateJson = Json { ignoreUnknownKeys = true }
         private const val DEFAULT_DESCRIPTION = "Your own pose, drawn in the Poseit editor."
         private val DEFAULT_TIPS = listOf(
-            "Match the guide one body part at a time – feet first, then hips, then arms.",
+            "Match the guide one body part at a time: feet first, then hips, then arms.",
             "Relax your shoulders and breathe out just before the shot.",
         )
 

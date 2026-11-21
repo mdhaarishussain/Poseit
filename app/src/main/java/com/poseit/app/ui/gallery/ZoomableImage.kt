@@ -14,7 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BrokenImage
+import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -34,7 +34,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
@@ -49,6 +48,9 @@ import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.size.Precision
+import com.poseit.app.ui.components.StudioIconSize
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -199,13 +201,13 @@ internal fun ZoomableImage(
         )
         when (loadState) {
             is AsyncImagePainter.State.Loading ->
-                CircularProgressIndicator(Modifier.size(36.dp), color = Color.White.copy(alpha = 0.7f), strokeWidth = 3.dp)
+                CircularProgressIndicator(Modifier.size(28.dp), color = Studio.Mannequin.copy(alpha = 0.72f), strokeWidth = 2.dp)
             is AsyncImagePainter.State.Error -> Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(Icons.Rounded.BrokenImage, contentDescription = null, tint = Color.White.copy(alpha = 0.6f), modifier = Modifier.size(48.dp))
-                Text("Couldn't open this photo", color = Color.White.copy(alpha = 0.7f))
+                Icon(Icons.Outlined.BrokenImage, contentDescription = null, tint = Studio.Mannequin.copy(alpha = 0.72f), modifier = Modifier.size(StudioIconSize))
+                Text("Couldn't open this photo", style = StudioType.body, color = Studio.Mannequin.copy(alpha = 0.72f))
             }
             else -> Unit
         }

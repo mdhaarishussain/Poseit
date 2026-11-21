@@ -72,7 +72,7 @@ class PhotoViewerReviewTest {
         compose.onAllNodes(hasText("Keep") and hasClickAction()).onFirst().performClick()
         compose.waitForIdle()
         assertTrue("Keep should move to photo 3", compose.onAllNodesWithText("3 / 3", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty())
-        compose.onAllNodes(hasText("Keep · done") and hasClickAction()).onFirst().performClick()
+        compose.onAllNodes(hasText("Keep and finish") and hasClickAction()).onFirst().performClick()
         compose.waitForIdle()
         assertEquals(1, finished)
 
