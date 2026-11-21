@@ -9,11 +9,14 @@
  * The composition needs no edit: src/audio/Soundtrack.tsx plays the mix. If a real line overruns its window, the
  * mixer prints a warning; move the line's `at` (and only the line), never the picture.
  *
- * Windows from sound-plan.md (v2 deltas), planned against STORYBOARD.md v2. Lines 3 and 4 sit in the live act,
- * whose frames are the app's verdicts on the footage: re-check them against src/events.ts once match.json is
- * computed. Line 4 must be silent 8 f before the capture (the stillness before the shutter). The voice is the
- * narrator's, never the people's: no line is in the first person and none is said over a person as theirs.
+ * Windows from sound-plan.md (v2 deltas), against STORYBOARD.md v2 as built. Lines 3 and 4 sit in the live act,
+ * whose frames are the app's verdicts on the footage, so their windows are derived from MATCH_EVENTS (as built:
+ * line 3 f344-401, from the first card's arrival to the lock; line 4 f426-504, from 4 f after the "3" to the
+ * stillness 8 f before the capture). The voice is the narrator's, never the people's: no line is in the first person
+ * and none is said over a person as theirs.
  */
+import { MATCH_EVENTS } from "../scenes/viewfinder/match";
+
 export type VoLine = {
   /** 1-based, = NN in lineNN.wav and the line number in vo.txt */
   i: number;
@@ -30,7 +33,13 @@ export type VoLine = {
 export const VO_LINES: VoLine[] = [
   { i: 1, text: "Poseit has ninety-nine poses to copy.", at: 150, window: [150, 222], duckDb: 6, beat: "B3 chorus (duck 6 dB, not 9: the chorus is the music's moment)" },
   { i: 2, text: "Pick one.", at: 292, window: [292, 310], duckDb: 9, beat: "B4 pick, on the frame marks after the unison, before the name is read" },
-  { i: 3, text: "It tells you what to fix.", at: 344, window: [344, 400], duckDb: 9, beat: "B5 coaching, ends by the planned lock (re-check against MATCH_EVENTS.hold)" },
-  { i: 4, text: "Hold it, and it takes the photo.", at: 426, window: [426, 505], duckDb: 9, beat: "B6 countdown, silent 8 f before the capture (re-check against MATCH_EVENTS.capture)" },
+  {
+    i: 3, text: "It tells you what to fix.", at: MATCH_EVENTS.card1 - 4, window: [MATCH_EVENTS.card1 - 4, MATCH_EVENTS.hold], duckDb: 9,
+    beat: "B5 coaching: starts as the first card lands (the card is read, not voiced) and ends by the lock",
+  },
+  {
+    i: 4, text: "Hold it, and it takes the photo.", at: MATCH_EVENTS.digit3 + 4, window: [MATCH_EVENTS.digit3 + 4, MATCH_EVENTS.capture - 8], duckDb: 9,
+    beat: "B6 countdown: after the \"3\" lands, silent for the 8 f of stillness before the capture",
+  },
   { i: 5, text: "No account and no ads.", at: 590, window: [590, 650], duckDb: 9, beat: "B8, slower and warm, over the chord, after the relax" },
 ];

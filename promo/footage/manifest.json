@@ -594,11 +594,11 @@
       },
       "crop": {
         "x": 140,
-        "y": 230,
+        "y": 30,
         "w": 864,
         "h": 1536
       },
-      "cropNote": "1.25x, centred on her hold position: head top about 0.21 H, feet about 0.79 H in the crop, which is where the app's fitted 3:4 template sits in a 9:16 scene, so the guide needs almost no adjustment. A sliver of the softbox and both light stands stay in: a real photo studio.",
+      "cropNote": "1.25x, her hold position low in the frame: head top about 0.34 H, feet about 0.92 H, so the HUD's cue card (0.13-0.31 H, two lines of PHOTOGRAPHER phrasing at 0.04 H) and the countdown sit in the headroom above her head, never over her face or her hands (BUILDER LIVE moved it from y 230, where the card covered her face). The guide takes an offset of about +0.12 H (a drag any user makes). The softbox along the right edge and both light stands stay in: a real photo studio.",
       "grade": {
         "look": "duotone until the capture, then colour",
         "trim": -0.1

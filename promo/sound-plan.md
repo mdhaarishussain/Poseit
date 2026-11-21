@@ -1,6 +1,7 @@
 # Poseit promo: sound plan
 
-**v2:** the deltas for the real-people film are in the next section; the rest of this file is v1 as built.
+**v2:** the deltas for the real-people film are in the next two sections (the plan, then the build); the rest of this
+file is v1 as built and stays the reference for the timbres.
 
 Film: 664 frames at 30 fps (22.13 s), see `STORYBOARD.md`. All audio is synthesized in Node by our own scripts
 (deterministic, seeded, 48 kHz 16-bit WAV), because there is no ElevenLabs key in this session. The voice-over is
@@ -11,7 +12,7 @@ into the windows below and the music is ducked under it; the picture does not mo
 
 Same film length (664 f), same grid (112.5 BPM, bar lines f16 + 64n), same kit, same mix targets. The sound is still
 placed from `src/events.ts`, so most cues move by themselves once the scenes and `match.json` change; this list says
-what moves, what goes and what is new. Everything below "As built" is v1 and stays the reference for the timbres.
+what moves, what goes and what is new. Everything from "v1 as built" down is v1 and stays the reference for the timbres.
 
 **Unchanged:** room tone from f0; the hook's silence and fidget (f0-62); the f80 cut with the groove's first kick and
 the whoosh peaking on it; the drop f248-272 (music out, the reversed swell); hit 1 on the f272 unison; the frame-mark
@@ -65,7 +66,41 @@ move (f248-272).
 | Shutter and colour | capture-555 | The shutter, then the chord blooming with the colour |
 | The name | 555-664 | The chord rings; low A re-strike at f600; room tone to the end |
 
-## As built
+## v2 as built (integrated)
+
+`npm run audio` places every cue from `src/events.ts`, which now reads the v2 picture: the chorus shots from
+`chorus.json` and act IV from the app's verdicts on the footage (`public/footage/b5-live.match.json`). The frames:
+
+| Cue | v2 frame | Note |
+|---|---|---|
+| Whoosh into the cut, groove's first kick | f80 | the hook's rush peaks on the cut |
+| Chorus landings (shutter-click family) | f144, 160, 176, 192 (beats), 208, 216, 224, 232, 240 (eighths, rising a semitone each) | f240 is c9, one figure on the couple clip, so a single click (the fifth eighth-family click, +4) |
+| The drop, reversed swell | f248-272 | unchanged |
+| Hit 1, the unison | f272 | "Hands in pockets" |
+| Frame-mark pop, the 4 dB dip under the name | f288 | unchanged |
+| Push whoosh into the match cut | f336 | unchanged |
+| Card tick | f348 | "Ask them to bend their right elbow more"; "Perfect. Hold it" (f413, 12 f after the lock) gets none, as in v1 |
+| Hit 2, the lock | f401 | the app's hold frame (score 75 at strictness 0.75); every limb is green from f404 |
+| Countdown beeps | f422, 452, 482 | the app's 1 s digits |
+| Stillness | f504-512 | music out |
+| Hit 3, the shutter | f512 | the app's capture |
+| The final chord, Am(add9) | f520 | capture + 8: the flash has decayed off the colour photo; it rings through the f555 cut |
+| Low A re-strike (bass A1 and a soft A-E fifth) | f600 | under the pull back, to the last frame |
+| Relax ticks on twos | f578-588 | unchanged |
+
+Changes in `scripts/gen-audio.mjs` for v2: the final chord moved from the pull back to `CUES.colour` and the music
+automation un-mutes there (not at f597); the low A re-strike is new; the bass climb now starts on bar 3 (f208, the
+first eighth cut), so the octave A figure waits until after it (the two overlapped on f208-240); the v1 labels (Disco
+point, score 90, "black -> studio") are gone. The B2 fabric swish was optional and is left out: the groove leaves no
+room for it. Measured on the integrated draft: -14.0 LUFS, true peak -1.1 dBTP after the AAC encode; unison f272
+-10.3 LUFS momentary, lock f401 -15.0, shutter f512 -14.5 (-1.8 dBFS peak, the loudest SFX); colour chord, photo and
+relax f520-600 -18.1 LUFS mean; the name f600-664 -20.8.
+
+Voice-over windows as built (`src/audio/voiceover.ts`; lines 3 and 4 are derived from the app's verdicts): line 1
+f150-222, line 2 f292-310, line 3 f344-401 (from 4 f before the first card to the lock), line 4 f426-504 (from 4 f
+after the "3" to the stillness), line 5 f590-650.
+
+## v1 as built
 
 `src/events.ts` is the source of truth for every picture frame (print it with `npm run events`, which writes
 `out/events.json`): the cuts, every chorus snap including the ripple, the three hits and the two silences. The act III
@@ -150,7 +185,7 @@ Four families reused as a system, plus two one-offs. Each file in `public/audio/
 The score (kick, clap, shutter-click hats, plucked bass, FM keys, an air crash, a riser, room tone) is synthesized by
 the same script straight to the film's length, 22.133 s, so it covers the whole cut.
 
-## Voice-over windows (for later)
+## Voice-over windows (v1; the v2 windows are in "v2 as built")
 
 The slot is `src/audio/voiceover.ts` (`VO_LINES`, read by `npm run audio`); `README.md` has the steps to voice it.
 

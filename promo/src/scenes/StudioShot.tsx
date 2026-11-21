@@ -1,35 +1,36 @@
 /**
- * StudioShot.tsx: act II, B2-B4 (f80-335), one continuous shot of the studio (STORYBOARD B2, B3, B4).
+ * StudioShot.tsx: act III, B4 (f272-335), the pick (STORYBOARD v2 B4).
  *
  *   <StudioShot frame={global frame} />
- *     B2  f80   the hero lay figure exactly where the hook skeleton was; the camera snaps back and settles on the
- *               wide framing: 99 lay figures, all in the same stiff stance (studio/camera.ts, studio/chorus.ts)
- *     B3  f112  the chorus: every slot snaps through a category per beat, then per eighth (rippling back), then the
- *               couples and groups; the camera dollies in two pushes
- *     B4  f272  the unison: all 99 in Disco point, a one-frame scale cut; f288 the detail screen's frame marks
- *               snap around the hero and its name resolves under them; f304 the push into the hero: the marks
- *               open out past the frame edges and the name leaves under the bottom edge
+ *     f272  hard cut on the unison hit after the drop: all 99 slots of the lit studio in "Hands in pockets" (the pick,
+ *           drawn unflipped like act IV's guide), set down at once (studio/chorus.ts), the one-frame scale cut and
+ *           its softLand tail (studio/camera.ts)
+ *     f288  the detail screen's frame marks snap around the hero and its real name resolves under them (blur, rise
+ *           and opacity, 5 f); the focus racks onto the hero's row
+ *     f304  the accelerating push into the hero, solved every frame onto act IV's guide frame (shots.ts HERO_AT_CUT):
+ *           the marks open out past the frame edges and the name leaves under the bottom edge; hard cut at f336 at
+ *           peak speed
  * The world: StudioPaper (shaded per pixel from the camera), StudioFigures (depth-sorted, contact shadows, depth of
  * field that follows the hero), FilmGrain. Frame marks and the name are Studio Ink on paper (DESIGN.md).
  */
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import { theme } from "../theme";
-import { COPY } from "../beats";
+import { COPY, POSES } from "../beats";
 import { poseById, poseInkBounds } from "../figure/poses";
 import { StudioPaper } from "../world/StudioPaper";
 import { StudioFigures } from "../world/StudioFigures";
 import { FilmGrain } from "../world/Grain";
 import { FrameMarks } from "../ui/Hud";
-import { focusIn, tween } from "../motion";
+import { focusIn, land, tween } from "../motion";
 import { focusLook, heroDepth, heroFrameAt, shallowAt, studioCamAt } from "./studio/camera";
 import { chorusItems } from "./studio/chorus";
 import { STUDIO_TIMING } from "./timing";
 
 const { W, H } = theme.size;
 const E = theme.ease;
-const DISCO = poseById("fun_disco_point");
-const INK = poseInkBounds(DISCO);
+const PICK = poseById(POSES.pick);
+const INK = poseInkBounds(PICK);
 
 const MARKS_AT = STUDIO_TIMING.marks; // f288, a beat after the unison
 const PUSH = STUDIO_TIMING.push;
@@ -37,8 +38,8 @@ const PUSH = STUDIO_TIMING.push;
 /** The frame marks' rectangle: hugging the hero's ink (the detail screen's brackets), opening out with the push
  * and leaving past the frame edges before the cut. */
 const marksRect = (f: number, hero: { x: number; y: number; height: number; width: number }) => {
-  // flipped for display: ink x runs 1 - maxX .. 1 - minX of the frame
-  const ix0 = hero.x + (1 - INK.maxX) * hero.width, ix1 = hero.x + (1 - INK.minX) * hero.width;
+  // drawn unflipped (the back camera): ink x runs minX .. maxX of the frame
+  const ix0 = hero.x + INK.minX * hero.width, ix1 = hero.x + INK.maxX * hero.width;
   const iy0 = hero.y + INK.minY * hero.height, iy1 = hero.y + INK.maxY * hero.height;
   const pad = 0.08 * (iy1 - iy0);
   const around = { x: ix0 - pad, y: iy0 - pad, w: ix1 - ix0 + 2 * pad, h: iy1 - iy0 + 2 * pad };
@@ -54,10 +55,11 @@ export const StudioShot: React.FC<{ frame: number }> = ({ frame }) => {
   const cam = studioCamAt(frame);
   const dh = heroDepth(cam);
   const items = chorusItems(frame);
-  const hero = heroFrameAt(cam, DISCO)!;
+  const hero = heroFrameAt(cam, PICK)!;
   const showMarks = frame >= MARKS_AT;
   const r = marksRect(frame, hero);
   const name = focusIn(frame, MARKS_AT);
+  const rise = land(frame, MARKS_AT, { from: 0.012 * H, frames: 8 });
   const nameSize = theme.type.poseName.size;
   const markLen = Math.max(12 * theme.size.dp, 0.075 * r.w);
   const markW = Math.max(1.5 * theme.size.dp, 0.0065 * r.w);
@@ -83,6 +85,7 @@ export const StudioShot: React.FC<{ frame: number }> = ({ frame }) => {
               color: theme.color.ink,
               opacity: name.opacity,
               filter: name.blur > 0.05 ? `blur(${name.blur}px)` : undefined,
+              transform: `translateY(${rise}px)`,
             }}
           >
             {COPY.poseName}

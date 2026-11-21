@@ -5,7 +5,7 @@
  * the 33 raw MediaPipe landmarks and the app's smoothed skeletons (LandmarkMapping.toScene + LandmarkSmoother), in
  * the plate's scene space. public/footage/<plate>.match.json (app PromoFootageMatch.kt): per film frame the app's
  * PoseMatcher / HintStabilizer / CaptureCoach verdicts against the plate's guide, the guide itself in scene space and
- * the events; the same records as public/match.json. public/footage/nearest.json: the library poses nearest to each
+ * the events; the same records as v1's match.json. public/footage/nearest.json: the library poses nearest to each
  * chorus person.
  *
  *   peopleAt(lm, n)            the smoothed app skeletons on plate frame n (Skeleton, scene coordinates, unit 0)

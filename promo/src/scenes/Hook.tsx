@@ -1,16 +1,18 @@
 /**
- * Hook.tsx: act I, B1 (f0-79), "What do I do with my hands?" (STORYBOARD B1).
+ * Hook.tsx: act I, B1 (f0-79), "What do I do with my hands?" (STORYBOARD v2 B1).
  *
  *   <Hook frame={global frame} />
  * The camera's live view (black, thirds grid, sensor noise) with nobody's pose picked yet: only the live stick
  * skeleton (the app's paint), standing stiff, arms dead straight (the illustrative promo_stiff stance). It fidgets
  * (weight shifts, the head turns one way then the other), and on "hands?" the wrists flick up to the waist and flop
- * back (promo_stiff_flick): the body acts out the question. Then the awkward pause. The film camera pushes
- * 1.00 -> 1.04 (shots.ts HOOK). The question rises a word at a time at speech rhythm (WordReveal "rise"), screen
- * fixed, white, in the top of the safe zone.
+ * back (promo_stiff_flick): the body acts out the question. Then the awkward pause. The question rises a word at a
+ * time at speech rhythm (WordReveal "rise"), screen fixed, white, in the top of the safe zone.
  *
- * Seam: on f80 the studio's hero lay figure takes this skeleton's exact frame (studio/camera.ts solves its zoom from
- * hookScreenFrame), so the fidget is back to neutral at f80 and the head is passing through centre (mid-turn).
+ * v2: the question leaves before any person appears (f61-69: each line accelerates upward, 2 f apart, with a 3 f
+ * opacity helper at the end), so it never shares a frame with a real person. f70-79 the film camera rushes into the
+ * skeleton (shots.ts HOOK.cam: gentleIn, peak speed on f79), solved so that on f79 the skeleton stands exactly on
+ * B2's real body (nose, ankles, mid-hip) as it appears on f80; People (B2) then turns this skeleton into hers. The
+ * stick lines keep their on-screen width through the rush (the app draws the overlay at screen dp).
  */
 import React from "react";
 import { AbsoluteFill } from "remotion";
@@ -24,6 +26,7 @@ import { LiveView } from "../world/LiveView";
 import { CameraGroup } from "../motion/CameraGroup";
 import { WordReveal } from "../motion/WordReveal";
 import { keys, sway, tween } from "../motion";
+import { B2 } from "./people/data";
 import { HOOK } from "./shots";
 import { HOOK_TIMING } from "./timing";
 
@@ -61,13 +64,27 @@ export const hookSkeleton = (f: number): Skeleton => {
   return mapJoints(s, (p, j) => (j.endsWith("SHOULDER") || FACE.includes(j) || j.includes("ELBOW") || j.includes("WRIST") || j.includes("HAND") ? [p[0], p[1] + b] : p));
 };
 
+/** A line of the question leaving: accelerating upward, faster than it arrived, with a 3 f opacity helper at the end. */
+const exitOf = (f: number, line: number) => {
+  const [a, b] = HOOK_TIMING.exit;
+  const start = a - 1 + 2 * line; // f61, f63
+  const end = Math.min(b, start + 6);
+  return {
+    y: tween(f, [start, end], [0, -0.05 * H], E.accelExit),
+    opacity: tween(f, [end - 3, end], [1, 0], E.softInOut),
+  };
+};
+
 export const Hook: React.FC<{ frame: number }> = ({ frame }) => {
   const type = theme.type.hook;
-  // baselines at y 0.205 and 0.262: the line box top sits a cap-ascent above the first baseline
-  const lineGap = (0.262 - 0.205) * H - type.size;
+  const cam = HOOK.cam(frame);
+  // the overlay's stroke stays at its on-screen width while the camera rushes in (the app draws it in screen dp);
+  // on f79 it equals what B2 draws through its plate at 1.06
+  const strokeScale = cam.s > B2.landFrom ? B2.landFrom / cam.s : 1;
+  const baselines = [0.205 * H, 0.262 * H];
   return (
     <AbsoluteFill>
-      <CameraGroup scale={HOOK.scale(frame)} origin={HOOK.origin}>
+      <CameraGroup scale={cam.s} origin={[0, 0]} x={cam.x} y={cam.y}>
         <LiveView />
         <svg width={W} height={H} style={{ position: "absolute", inset: 0 }}>
           <FigureG
@@ -79,26 +96,41 @@ export const Hook: React.FC<{ frame: number }> = ({ frame }) => {
             style="stick"
             fill={theme.color.mannequin}
             lineAlpha={theme.hud.liveAlpha}
-            lineWidth={theme.hud.liveStroke * theme.hud.px}
+            lineWidth={theme.hud.liveStroke * theme.hud.px * strokeScale}
             showFace={false}
           />
         </svg>
       </CameraGroup>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 0.205 * H - type.size * 0.92 }}>
-        <WordReveal
-          lines={HOOK_WORDS}
-          mode="rise"
-          lineGap={lineGap}
-          style={{
-            fontFamily: type.family,
-            fontWeight: type.weight,
-            fontSize: type.size,
-            letterSpacing: type.tracking,
-            lineHeight: 1,
-            color: theme.color.mannequin,
-          }}
-        />
-      </div>
+      {frame < HOOK_TIMING.exit[1] &&
+        HOOK_WORDS.map((line, i) => {
+          const x = exitOf(frame, i);
+          return (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                top: baselines[i] - type.size * 0.92,
+                transform: `translateY(${x.y}px)`,
+                opacity: x.opacity,
+              }}
+            >
+              <WordReveal
+                lines={[line]}
+                mode="rise"
+                style={{
+                  fontFamily: type.family,
+                  fontWeight: type.weight,
+                  fontSize: type.size,
+                  letterSpacing: type.tracking,
+                  lineHeight: 1,
+                  color: theme.color.mannequin,
+                }}
+              />
+            </div>
+          );
+        })}
     </AbsoluteFill>
   );
 };

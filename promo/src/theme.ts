@@ -239,11 +239,14 @@ export const theme = {
    */
   footage: {
     ramp: { shadow: studio.ink, highlight: studio.sheet, contrast: 1.06, saturation: 0 },
-    /** the chorus guides (B3): Mannequin fill at this alpha with the usual contour; act IV keeps hud.guideAlpha */
-    chorusGuideAlpha: 0.62,
+    /**
+     * the chorus guides (B3): a Mannequin veil that lands at `land` and settles at `settled`, under a white edge at
+     * `edge` (the board planned a 62% fill with the contour; on the render that hid the person it was fitted to, so
+     * the person now reads through the figure). Act IV keeps hud.guideAlpha (the app's 55%).
+     */
+    chorusVeil: { land: 0.7, settled: 0.34, edge: 0.95 },
     /** a chorus guide lands from this scale about the person's mid-hip (softLand 5 f on beats, 4 f on eighths) */
     guideLandFrom: 1.25,
-    guideLandAlpha: 0.9,
     /** the colour photo's slow push (B7) */
     photoPush: [1, 1.03] as [number, number],
     /** the chorus film camera's push across f144-248 */

@@ -6,8 +6,7 @@
  *   HOOK_TIMING   B1: the word onsets live in beats.ts HOOK_WORDS; the wrist flick and flop; v2: the words leave
  *                 and the camera rushes into the stiff body (the push is solved onto B2's body at f80)
  *   PEOPLE_TIMING B2-B3 (v2): the first real person, the chorus cuts, the film camera's push, the drop
- *   STUDIO_TIMING B4 (v2 renders the studio from the unison only; the earlier frames remain because the studio
- *                 camera is a function of the frame: its dolly and truck reach their f272 state through them)
+ *   STUDIO_TIMING B4: the unison, the marks and the name, the rack focus, the push into the hero
  *   LIVE_PLAN     B5-B7 targets (superseded by MATCH_EVENTS once match.json is computed on the footage)
  *   NAME_TIMING   B8: the cut from the photo, the relax (on twos), the pull back, the wordmark, the end line
  * Owners (STORYBOARD.md section 13): BUILDER WORLD owns HOOK/PEOPLE/STUDIO/NAME_TIMING, BUILDER LIVE owns LIVE_PLAN.
@@ -29,21 +28,16 @@ export const PEOPLE_TIMING = {
   plateLanded: 88,
   armsUp: [88, 144] as [number, number], // her hands go behind her head (source 3.58-5.42 s), landing on the downbeat
   chorus: 144, // the first guide lands
-  /** every chorus cut: one shutter-click each, the guide lands from 1.25x (softLand 5 f on beats, 4 f on eighths) */
-  snaps: [144, 160, 176, 192, 208, 216, 224, 232, 240] as const,
+  /** every chorus cut is beats.ts PEOPLE_SHOTS; the guide lands from 1.25x there (softLand 5 f on beats, 4 f on eighths) */
   /** the film camera pushes 1.00 -> 1.08 across every chorus shot, then only drifts in the drop */
   push: [144, 248] as [number, number],
   drop: 248, // the music stops; the couple holds (the designed breath before the unison)
   unison: 272,
 };
 
+/** B4 (v2: the studio is on screen from the unison only; its camera keeps v1's dolly so the f272 framing holds). */
 export const STUDIO_TIMING = {
-  cut: 80, // the hard cut: the hero lay figure takes the skeleton's frame
-  snapBack: 81, // one-frame snap to 0.7 of the match zoom
-  settled: 100, // softLand tail to the wide framing; the dolly begins
-  dollyStop: 176, // the dolly's two pushes meet here
-  drop: 248, // the group crowd holds: the planned breath before the unison
-  unison: 272, // all 99 snap to Disco point, one-frame scale cut
+  unison: 272, // hard cut after the drop: all 99 in Hands in pockets, set down at once; one-frame scale cut
   scaleSettled: 284,
   marks: 288, // frame marks snap on; the name resolves (5 f); the focus racks onto the hero's row (8 f)
   rackEnd: 296,
@@ -64,11 +58,8 @@ export const LIVE_PLAN = {
 };
 
 export const NAME_TIMING = {
-  cut: 555, // v2: hard cut from the colour photo to the paper; the figure stands where she stood
-  // v2: the capture flash belongs to the live act (Viewfinder) and lands on MATCH_EVENTS.capture. These two keep
-  // the planned capture so TheName draws no flash after the cut.
-  flash: 513,
-  flashEnd: 522,
+  cut: 555, // v2: hard cut from the colour photo to the paper; the figure stands where she stood (the capture
+  // flash belongs to the live act, Viewfinder, on MATCH_EVENTS.capture)
   relax: [576, 588] as [number, number], // on twos: the pointing arm drops, the launcher pose
   pull: [600, 624] as [number, number], // the camera pulls back (softLand 24 f)
   wordmark: 620, // lands from 1.3x and 6 px blur (snapSettle 10 f)

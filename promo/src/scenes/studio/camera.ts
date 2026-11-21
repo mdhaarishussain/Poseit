@@ -1,13 +1,10 @@
 /**
- * studio/camera.ts: the act II camera, one continuous shot from f80 to f335 (B2-B4). Pure.
+ * studio/camera.ts: the act III camera (B4, f272-335; v2 shows the studio only from the unison). Pure.
  *
  *   HERO                     the hero slot (row 1, col 4) and its floor point
- *   dollyCam(f)              WIDE_CAM dollied forward in two pushes (f100-176, f176-272), 0.85 m (about 1.15 on
- *                            the hero), and trucking right from 0.45 m left of the hero to square on it (parallax)
+ *   dollyCam(f)              WIDE_CAM dollied forward 0.85 m (about 1.15 on the hero) and trucked from 0.45 m left of
+ *                            the hero to square on it: v1's chorus dolly, kept because it defines the f272 framing
  *   studioCamAt(f)           the shot:
- *     f80        a lens zoom about a fixed point so the hero's frame IS the hook skeleton's frame (hookScreenFrame)
- *     f81-100    a one-frame snap to 0.7 of that zoom, then a softLand tail to the wide framing (1.00)
- *     f100-271   the dolly (row parallax), lens at 1.00
  *     f272       a one-frame scale cut (x1.0926 = 1.08 -> 1.18) that re-frames the hero's feet to y 0.725,
  *                softLand tail to x1.111 (1.20) and y 0.72 by f284, then a slow drift to f304
  *     f304-335   the push into the hero: dolly forward 2.5 m (gentleIn) while the lens is solved every frame so the
@@ -19,12 +16,13 @@
  *                            at the pick (f288) and deepens it through the push, so the army behind goes soft
  */
 import { theme } from "../../theme";
-import { illustrative, poseById, poseGround } from "../../figure/poses";
+import { poseById, poseGround } from "../../figure/poses";
+import { POSES } from "../../beats";
 import type { Pose } from "../../figure/types";
-import { WIDE_CAM, frameOn, placePose, project, slotPosition, zoomAbout, zoomed, type StudioCam } from "../../world/camera";
+import { WIDE_CAM, frameOn, placePose, project, slotPosition, zoomed, type StudioCam } from "../../world/camera";
 import type { DepthLook } from "../../world/StudioFigures";
 import { keys, snapTail, tween } from "../../motion";
-import { HERO_AT_CUT, hookScreenFrame, type Rect } from "../shots";
+import { HERO_AT_CUT, type Rect } from "../shots";
 import { STUDIO_TIMING } from "../timing";
 
 const E = theme.ease;
@@ -32,8 +30,8 @@ const E = theme.ease;
 const [HX, HZ] = slotPosition(1, 4);
 export const HERO = { row: 1, col: 4, x: HX, z: HZ };
 
-const STIFF = illustrative("promo_stiff");
-const DISCO = poseById("fun_disco_point");
+/** the picked pose: every slot at the unison, the hero the push lands on act IV's guide frame */
+const PICK = poseById(POSES.pick);
 
 export const dollyZ = (f: number) => keys(f, [[100, 0], [176, 0.4, E.drift], [272, 0.85, E.drift]]);
 /** A slow truck right across the chorus (row parallax), arriving square on the hero for the unison. */
@@ -55,20 +53,6 @@ const heroGround = (cam: StudioCam): [number, number] => {
   return [q.x, q.y];
 };
 
-// ---- B2: the zoom that matches the hook skeleton --------------------------------------------------------------
-const B2 = (() => {
-  const target = hookScreenFrame(80); // the skeleton's frame on the first studio frame (the cut keeps the push)
-  const wide = heroFrameAt(dollyCam(80), STIFF)!;
-  const k0 = target.height / wide.height;
-  // fixed point P with P + (wide - P) * k0 = target, solved on the frame's top-left corner
-  const px = (target.x - k0 * wide.x) / (1 - k0);
-  const py = (target.y - k0 * wide.y) / (1 - k0);
-  return { k0, p: [px, py] as [number, number] };
-})();
-
-const b2Zoom = (f: number) =>
-  snapTail(f, STUDIO_TIMING.snapBack, { from: B2.k0, snap: 0.7 * B2.k0, to: 1, tail: STUDIO_TIMING.settled - STUDIO_TIMING.snapBack });
-
 // ---- B4: the scale cut and the push --------------------------------------------------------------------------
 const CUT = STUDIO_TIMING.unison;
 const PUSH = STUDIO_TIMING.push;
@@ -80,7 +64,7 @@ const holdCam = (f: number): StudioCam => aim(dollyCam(CUT), cutZoom(f), [S271[0
 const PUSH_DOLLY = 2.5; // metres forward during the push (parallax: the front row sweeps out first)
 const pushStart = (() => {
   const cam = holdCam(PUSH[0]);
-  const fr = heroFrameAt(cam, DISCO)!;
+  const fr = heroFrameAt(cam, PICK)!;
   return { cam, frame: fr };
 })();
 /** Ground point of a pose frame: frame-centre x, lowest ink y (placePose stands the lowest ink on the floor). */
@@ -88,7 +72,7 @@ const groundOf = (r: Rect, pose: Pose): [number, number] => [r.x + r.width / 2, 
 const PUSH_PATH = (() => {
   const a = pushStart.frame, b = HERO_AT_CUT;
   const r = b.height / a.height;
-  const ga = groundOf(a, DISCO), gb = groundOf(b, DISCO);
+  const ga = groundOf(a, PICK), gb = groundOf(b, PICK);
   const p: [number, number] = [(gb[0] - r * ga[0]) / (1 - r), (gb[1] - r * ga[1]) / (1 - r)];
   return { a, r, ga, p };
 })();
@@ -103,13 +87,12 @@ const pushCam = (f: number): StudioCam => {
     PUSH_PATH.p[1] + (PUSH_PATH.ga[1] - PUSH_PATH.p[1]) * scale,
   ];
   // solve the focal: the hero frame height is proportional to the focal at a fixed depth
-  const now = heroFrameAt(base, DISCO)!;
+  const now = heroFrameAt(base, PICK)!;
   const k = (PUSH_PATH.a.height * scale) / now.height;
   return aim(base, k, g);
 };
 
 export const studioCamAt = (f: number): StudioCam => {
-  if (f < 100) return zoomAbout(dollyCam(f), b2Zoom(f), B2.p);
   if (f < CUT) return dollyCam(f);
   if (f < PUSH[0]) return holdCam(f);
   return pushCam(Math.min(f, PUSH[1]));
@@ -141,4 +124,4 @@ export const shallowAt = (f: number) =>
   keys(f, [[STUDIO_TIMING.marks, 0], [STUDIO_TIMING.rackEnd, 1, E.softInOut], [PUSH[0], 1], [PUSH[1], 1.4, E.gentleIn]]);
 
 /** Debug/print: the solved seam numbers. */
-export const STUDIO_SEAMS = { b2Zoom0: B2.k0, b2Point: B2.p, pushRatio: PUSH_PATH.r };
+export const STUDIO_SEAMS = { pushRatio: PUSH_PATH.r };

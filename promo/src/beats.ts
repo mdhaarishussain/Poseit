@@ -8,8 +8,6 @@
  *   ACTS           one world each: I hook, II people (B2-B3), III the library (B4), IV live view + photo (B5-B7),
  *                  V the name (B8). Promo.tsx switches scenes on these.
  *   PEOPLE_SHOTS   B2 and the chorus: which manifest shot is on screen when (footage/manifest.json)
- *   CHORUS         v1's studio chorus snaps (still read by scenes/studio/chorus.ts and events.ts until BUILDER WORLD
- *                  retires the studio chorus; v2 uses PEOPLE_SHOTS)
  *   HOOK_WORDS     the hook's word onsets (unchanged)
  *   COPY           the real strings
  */
@@ -61,21 +59,6 @@ export const PEOPLE_SHOTS = [
   { shot: "c7", from: 224, to: 232 },
   { shot: "c8", from: 232, to: 240 },
   { shot: "c9", from: 240, to: 272 },
-] as const;
-
-/** v1 studio chorus snaps (category -> frame). Retired in v2 (see PEOPLE_SHOTS); kept so the v1 studio still builds. */
-export const CHORUS = [
-  { category: "STANDING", at: 112 },
-  { category: "SITTING", at: 128 },
-  { category: "LEANING", at: 144 },
-  { category: "WALKING", at: 160 },
-  { category: "FLOOR", at: 176 },
-  { category: "PORTRAIT", at: 184 },
-  { category: "SELFIE", at: 192 },
-  { category: "PROFESSIONAL", at: 200 },
-  { category: "FUN", at: 208 },
-  { category: "COUPLE", at: 224 },
-  { category: "GROUP", at: 240 },
 ] as const;
 
 /**

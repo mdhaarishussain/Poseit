@@ -1,53 +1,73 @@
 /**
- * Viewfinder.tsx: act III, B5-B7 (f336 to the capture), the camera screen (STORYBOARD B5, B6, B7).
+ * Viewfinder.tsx: act IV, B5-B7 (f336 to the f555 cut): the app's camera screen over a real woman in a real photo
+ * studio, then the photo it takes (STORYBOARD v2 B5, B6, B7).
  *
  *   <Viewfinder frame={global frame} />
- * The live view (black, thirds grid, sensor noise) under the film camera (shots.ts vfScale): the see-through Disco
- * point guide (Mannequin at the app's default 55% overlay opacity, per-limb colours once a person is assigned) and
- * the live stick skeleton (the app's paint: Mannequin lines at 70%, 2.5 dp, visible joints only). The HUD is screen
- * fixed: the score ring, the hint card and the countdown, rebuilt from CameraHud.kt and magnified (theme.hud).
  *
- * Every number, colour and word comes from public/match.json (the app's PoseMatcher, HintStabilizer and
- * CaptureCoach run over the performer, see viewfinder/match.ts). The HUD's motion is the app's: hint cards
- * crossfade (180 ms in, 120 ms out), the banner is removed when the countdown starts, each digit lands from 115%
- * (200 ms) with a 150 ms fade while the last one fades in 100 ms.
+ * The picture is the b5-live plate (Mixkit 39676, src/footage Footage: OffthreadVideo on the film's clock, printed in
+ * the Studio ramp), zoomed by the film camera (shots.ts vfScale about the guide's mid-hip). Over it, through the same
+ * transform so they stay on her, what the app's CameraOverlay draws with its default settings: the "Hands in pockets"
+ * guide in the silhouette style at the default 55% overlay opacity, each part in Studio.forScore's bright camera
+ * colour once a person is assigned, and the live skeleton (the app's own smoothed detections of her, stick style,
+ * Mannequin at 70%, visible joints only). Screen-fixed on top: the score ring with its hold arc, the hint card, the
+ * countdown, and the capture flash. The grid is set to Off (a real setting; the default thirds grid put a line
+ * through her head and the countdown).
+ *
+ * Every number, colour, card, the hold, the countdown and the capture frame are the app's verdicts on this footage
+ * (viewfinder/match.ts reads public/footage/b5-live.match.json, written by PromoFootageMatch.kt). The plate shows
+ * exactly the frames those verdicts were computed on (b5-live's time remap is baked into the plate).
+ *
+ * Film choices, on top of the app's behaviour (NOTE.md, "Act IV as built"):
+ *   - the HUD is CameraHud.kt's, magnified by theme.hud.k; its arrangement is the film's: the card and then the
+ *     countdown sit in the headroom above her head (the plate is cropped low for it), the ring at the right below
+ *     the softbox. The app centres the countdown in the preview, which here would sit on her hands.
+ *   - one card at a time: a new hint replaces the old one on one frame and settles from 104% (the app crossfades
+ *     180/120 ms, which at 1.95x reads as a double exposure); the first card arrives from 106% with a 4 f opacity
+ *     helper. When the countdown starts the banner is gone in the same frame, as CameraScreen composes it out.
+ *   - each digit lands from 115% over 200 ms (the app's scaleIn) and replaces the last on one frame (the app overlaps
+ *     a 100 ms fade-out).
+ *   - B7: under the app's capture flash (85% white, 280 ms decay) the frozen capture frame in colour, the whole frame
+ *     (the photo is the full scene), no overlays, pushing 1.00 -> 1.03 to the cut.
  */
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import { theme } from "../theme";
-import { illustrative, poseById } from "../figure/poses";
 import { FigureG } from "../figure/Mannequin";
-import { flipForDisplay } from "../figure/interpolate";
-import { LiveView } from "../world/LiveView";
-import { CameraGroup } from "../motion/CameraGroup";
-import { CountdownNumeral, CueCard, ScoreRing, type HintKind as CardKind } from "../ui/Hud";
+import { Footage } from "../footage/Footage";
+import { useLandmarks } from "../footage/hooks";
+import type { FootageTransform } from "../footage/transform";
+import { CaptureFlash, CountdownNumeral, CueCard, ScoreRing, type HintKind as CardKind } from "../ui/Hud";
+import { FilmGrain } from "../world/Grain";
 import { tween } from "../motion";
-import { SCENE_ASPECT, guideScene, visibleOnly } from "./viewfinder/rig";
-import { performerAt } from "./viewfinder/performer";
-import { MATCH_EVENTS, matchAt, partColorsAt, type HintKind } from "./viewfinder/match";
-import { VF, vfScale } from "./shots";
+import { MATCH_EVENTS, MATCH_GUIDE, MATCH_PLATE, matchAt, partColorsAt, type HintKind } from "./viewfinder/match";
+import { PHOTO, VF, photoScale, vfScale } from "./shots";
+import { LIVE_PLAN } from "./timing";
 
 const { W, H, fps } = theme.size;
 const E = theme.ease;
-const POSES = { disco: poseById("fun_disco_point"), stiff: illustrative("promo_stiff") };
-const GUIDE = flipForDisplay(guideScene(POSES.disco));
+const ASPECT = 9 / 16;
 const ms = (v: number) => (v * fps) / 1000;
 
-/** HUD layout (STORYBOARD section 9, safe zone 0.13-0.80 H): card on top, ring at the right below it. */
+/** HUD layout (STORYBOARD section 9, adjusted to the footage): everything clear of her face and hands. */
 export const HUD_LAYOUT = {
   cardTop: 0.13 * H,
-  cardMaxWidth: 0.84 * W,
-  ring: [0.83 * W, 0.4 * H] as [number, number],
-  countdown: [0.5 * W, 0.5 * H] as [number, number], // the preview's centre, as CameraScreen aligns it
+  cardMaxWidth: 0.94 * W,
+  /**
+   * the countdown takes the card's place in the headroom: the glyph spans about 0.09-0.28 H, clear of her hair
+   * (about 0.33 H unpushed, 0.30 H under the film camera's last push)
+   */
+  countdown: [0.5 * W, 0.185 * H] as [number, number],
+  /** right of her body, under the softbox (a white ring on white would vanish there) */
+  ring: [0.845 * W, 0.58 * H] as [number, number],
 };
 
 const cardKind = (k: HintKind): CardKind =>
   k === "PERFECT" ? "perfect" : k === "POSE" ? "pose" : k === "FRAMING" ? "framing" : k === "VISIBILITY" ? "visibility" : "none";
 
-/** Displayed-hint segments [{text, kind, from, to}] from match.json, for the crossfade. */
+/** Displayed-hint segments [{text, kind, from, to}] from the verdicts, until the countdown removes the banner. */
 const SEGMENTS = (() => {
   const out: { text: string; kind: HintKind; from: number; to: number }[] = [];
-  for (let f = 336; f < MATCH_EVENTS.capture; f++) {
+  for (let f = LIVE_PLAN.cut; f < MATCH_EVENTS.countdown; f++) {
     const s = matchAt(f).shown;
     const last = out[out.length - 1];
     if (s && (!last || last.text !== s.text || last.to !== f)) out.push({ text: s.text, kind: s.kind, from: f, to: f + 1 });
@@ -57,72 +77,71 @@ const SEGMENTS = (() => {
 })();
 
 const HintLayer: React.FC<{ frame: number }> = ({ frame }) => {
-  if (frame >= MATCH_EVENTS.digit3) return null; // CameraScreen removes the banner during the countdown
+  const i = SEGMENTS.findIndex((s) => frame >= s.from && frame < s.to);
+  if (i < 0) return null;
+  const s = SEGMENTS[i];
+  const first = i === 0 || SEGMENTS[i - 1].to !== s.from;
+  const scale = tween(frame, [s.from, s.from + (first ? 8 : 6)], [first ? 1.06 : 1.04, 1], E.snapSettle);
+  const opacity = first ? tween(frame, [s.from, s.from + 4], [0.3, 1], E.softInOut) : 1;
   return (
-    <>
-      {SEGMENTS.map((s, i) => {
-        if (frame < s.from) return null;
-        const fadeOut = i < SEGMENTS.length - 1 ? tween(frame, [s.to, s.to + ms(120)], [1, 0], E.softInOut) : 1;
-        if (fadeOut <= 0) return null;
-        const fadeIn = tween(frame, [s.from - 1, s.from - 1 + ms(180)], [0, 1], E.softInOut); // first frame already fading in
-        return (
-          <div key={i} style={{ opacity: Math.min(fadeIn, fadeOut) }}>
-            <CueCard text={s.text} kind={cardKind(s.kind)} y={HUD_LAYOUT.cardTop} maxWidth={HUD_LAYOUT.cardMaxWidth} />
-          </div>
-        );
-      })}
-    </>
+    <div style={{ position: "absolute", inset: 0, opacity, transform: `scale(${scale})`, transformOrigin: `${W / 2}px ${HUD_LAYOUT.cardTop}px` }}>
+      <CueCard text={s.text} kind={cardKind(s.kind)} y={HUD_LAYOUT.cardTop} maxWidth={HUD_LAYOUT.cardMaxWidth} />
+    </div>
   );
 };
 
-const DIGITS = [
-  { v: 3, from: MATCH_EVENTS.digit3, to: MATCH_EVENTS.digit2 },
-  { v: 2, from: MATCH_EVENTS.digit2, to: MATCH_EVENTS.digit1 },
-  { v: 1, from: MATCH_EVENTS.digit1, to: MATCH_EVENTS.capture },
-];
+const DIGITS = MATCH_EVENTS.digits.map((d, i, all) => ({ v: d.v, from: d.from, to: i < all.length - 1 ? all[i + 1].from : MATCH_EVENTS.capture }));
 
-const CountdownLayer: React.FC<{ frame: number }> = ({ frame }) => (
-  <>
-    {DIGITS.map((d) => {
-      if (frame < d.from || frame >= d.to + ms(100)) return null;
-      const scale = tween(frame, [d.from, d.from + ms(200)], [1.15, 1], E.snapSettle);
-      const inO = tween(frame, [d.from - 1, d.from - 1 + ms(150)], [0, 1], E.softInOut);
-      const outO = tween(frame, [d.to, d.to + ms(100)], [1, 0], E.softInOut);
-      return <CountdownNumeral key={d.v} value={d.v} cx={HUD_LAYOUT.countdown[0]} cy={HUD_LAYOUT.countdown[1]} scale={scale} opacity={Math.min(inO, outO)} />;
-    })}
-  </>
-);
+const CountdownLayer: React.FC<{ frame: number }> = ({ frame }) => {
+  const d = DIGITS.find((x) => frame >= x.from && frame < x.to);
+  if (!d) return null;
+  const scale = tween(frame, [d.from, d.from + ms(200)], [1.15, 1], E.snapSettle);
+  const opacity = tween(frame, [d.from, d.from + 3], [0.35, 1], E.softInOut);
+  return <CountdownNumeral value={d.v} cx={HUD_LAYOUT.countdown[0]} cy={HUD_LAYOUT.countdown[1]} scale={scale} opacity={opacity} />;
+};
+
+const GUIDE = MATCH_GUIDE.figures[0];
 
 export const Viewfinder: React.FC<{ frame: number }> = ({ frame }) => {
+  const photo = frame >= PHOTO.from;
+  const lm = useLandmarks(MATCH_PLATE, frame, { freezeAt: PHOTO.from });
   const m = matchAt(frame);
-  const person = performerAt(frame, POSES);
-  const live = person ? flipForDisplay(visibleOnly(person)) : null;
   const hold = m.capture.state === "Holding" ? m.capture.progress : null;
+  const transform: FootageTransform = photo
+    ? { scale: photoScale(frame), anchor: PHOTO.anchor, dx: 0, dy: 0 }
+    : { scale: vfScale(frame), anchor: VF.anchor, dx: 0, dy: 0 };
+  const live = lm?.drawn[0];
+  const flash = photo ? tween(frame, [PHOTO.from, PHOTO.from + ms(280)], [0.85, 0], E.softLand) : 0;
   return (
     <AbsoluteFill style={{ background: theme.color.liveView }}>
-      <CameraGroup scale={vfScale(frame)} origin={VF.origin}>
-        <LiveView />
-        <svg width={W} height={H} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-          <FigureG skeleton={GUIDE} aspect={SCENE_ASPECT} x={0} y={0} height={H} partColors={partColorsAt(frame)} opacity={theme.hud.guideAlpha} />
-          {live && (
-            <FigureG
-              skeleton={live}
-              aspect={SCENE_ASPECT}
-              x={0}
-              y={0}
-              height={H}
-              style="stick"
-              fill={theme.color.mannequin}
-              lineAlpha={theme.hud.liveAlpha}
-              lineWidth={theme.hud.liveStroke * theme.hud.px}
-              showFace={false}
-            />
-          )}
-        </svg>
-      </CameraGroup>
-      <ScoreRing score={m.percent} hold={hold} cx={HUD_LAYOUT.ring[0]} cy={HUD_LAYOUT.ring[1]} />
-      <HintLayer frame={frame} />
-      <CountdownLayer frame={frame} />
+      <Footage id={MATCH_PLATE} frame={frame} transform={transform} look={photo ? "colour" : "duotone"} freezeAt={PHOTO.from}>
+        {!photo && (
+          <svg width={W} height={H} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
+            <FigureG skeleton={GUIDE} aspect={ASPECT} height={H} style="silhouette" partColors={partColorsAt(frame)} opacity={theme.hud.guideAlpha} />
+            {live && (
+              <FigureG
+                skeleton={live}
+                aspect={ASPECT}
+                height={H}
+                style="stick"
+                fill={theme.color.mannequin}
+                lineAlpha={theme.hud.liveAlpha}
+                lineWidth={theme.hud.liveStroke * theme.hud.px}
+                showFace={false}
+              />
+            )}
+          </svg>
+        )}
+      </Footage>
+      {!photo && (
+        <>
+          <ScoreRing score={m.percent} hold={hold} cx={HUD_LAYOUT.ring[0]} cy={HUD_LAYOUT.ring[1]} />
+          <HintLayer frame={frame} />
+          <CountdownLayer frame={frame} />
+        </>
+      )}
+      <CaptureFlash opacity={flash} />
+      <FilmGrain />
     </AbsoluteFill>
   );
 };

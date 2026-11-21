@@ -543,9 +543,10 @@ const cue = (f, sfx, gainDb, label, pan = 0) => cues.push({ f, sfx, gainDb, pan,
 cue(C.flick[0], "fabric_flick", -18, "wrists flick up", -0.1);
 cue(C.flop[0], "fabric_flop", -22, "hands flop back", 0.1);
 // the cut: a short in-breath that peaks on the cut, where the groove's first kick lands
-cue(C.cut1, "whoosh_cut", -15, "hard cut black -> studio (peak on the cut)");
-// the chorus: one click per snap, one sound family. On-beat snaps sit on the kick; the eighth-note snaps rise a
-// semitone each and ripple (the next rows snapping 1-3 f later); couples click twice, groups three times.
+cue(C.cut1, "whoosh_cut", -15, "the rush: hard cut black -> the first real person (peak on the cut)");
+// the chorus: one click per guide landing, one sound family. On-beat landings sit on the kick; the eighth-note ones
+// rise a semitone each (v1 also rippled the next lattice rows 1-3 f later: v2 has one person per shot, so CUES.ripple
+// is empty); couples click twice, groups three times.
 const eighthSnaps = C.chorus.filter((c, k) => k > 0 && c.f - C.chorus[k - 1].f === BEAT / 2 || (C.chorus[k + 1] && C.chorus[k + 1].f - c.f === BEAT / 2));
 C.chorus.forEach((c) => {
   const k = eighthSnaps.indexOf(c);
@@ -567,15 +568,15 @@ C.chorus.forEach((c) => {
 });
 // the drop, then HIT 1
 cue(C.unison, "swell", -13, "the drop: reverse swell, cut dead on the unison");
-cue(C.unison, "hit", -9, "HIT 1: all 99 snap to Disco point (low hit)");
+cue(C.unison, "hit", -9, "HIT 1: all 99 snap to Hands in pockets (low hit)");
 cue(C.unison, "snap", -11, "HIT 1: the unison snap");
 cue(C.marks, "pop", -17, "frame marks snap on");
 cue(C.cut2, "whoosh_push", -12, "accelerating push, peak on the match cut");
-// act III: the coaching. Cards tick; the lock is hit 2.
+// act IV: the coaching. Cards tick; the lock is hit 2.
 // ("Perfect. Hold it" arrives 12 f after the lock and is up for 9 f: the lock already says it, so it gets no tick;
 // lock, tick and beep inside 21 frames would be wall-to-wall)
 C.cards.forEach((f, k) => { if (!(f > C.lock && f - C.lock < 20)) cue(f, "tick", -17, `hint card ${k + 1}`); });
-cue(C.lock, "lock", -7, "HIT 2: the lock (score 90, every limb green, hold arc starts)");
+cue(C.lock, "lock", -7, "HIT 2: the lock (the app's hold frame: the score reaches the threshold, the hold arc starts)");
 C.digits.forEach((f, k) => cue(f, "beep", -14, `countdown ${3 - k}`));
 // HIT 3: the shutter, the loudest sound in the film, after half a beat of silence
 cue(C.capture, "shutter", 2.5, "HIT 3: the shutter and the capture flash");
@@ -608,7 +609,7 @@ bass(bassBus, S(bar(1) + 3 * BEAT), hz("C2"), 0.48, 0.12); // a chromatic walk-u
 bass(bassBus, S(bar(1) + 3.5 * BEAT), hz("C#2"), 0.5, 0.12);
 octave(bar(2), eighthFrom, "D2", "D3");
 ["D2", "E2", "F#2", "G#2"].forEach((nm, k) => bass(bassBus, S(eighthFrom + k * BEAT / 2), hz(nm), 0.52 + 0.03 * k, 0.24)); // climbs with the snaps
-octave(bar(3), C.chorus[C.chorus.length - 1].f, "A1", "A2");
+octave(Math.max(bar(3), eighthFrom + 2 * BEAT), C.chorus[C.chorus.length - 1].f, "A1", "A2"); // after the climb (v2: the eighths start on bar 3)
 bass(bassBus, S(C.chorus[C.chorus.length - 1].f), hz("E2"), 0.55, (A1 - C.chorus[C.chorus.length - 1].f) / C.fps - 0.02); // held into the drop
 [bar(2) + 1.5 * BEAT, bar(2) + 3.5 * BEAT].forEach((f) => chord(keys, S(f), D9, 0.2, { len: 0.1, index: 1.4, tau: 0.5 }));
 chord(keys, S(bar(3) + 1.5 * BEAT), AM9, 0.2, { len: 0.1, index: 1.4, tau: 0.5 });
@@ -668,10 +669,17 @@ beats(C.digits[2], STILL, P / 8).forEach((f, k) => clickHat(drums, S(f), 0.12 + 
   });
 })();
 
-// ---- the end: one chord when the camera starts to pull back, left to ring under the name to the last frame.
-chord(keys, S(C.pull[0]), AM_ADD9, 0.36, { len: 3, index: 0.8, tau: 1.25 });
-bass(bassBus, S(C.pull[0]), hz("A1"), 0.36, (C.end - C.pull[0]) / C.fps, { cutoff: 500, decay: 0.7 });
-mixInto(send, keys.L.subarray(S(C.pull[0]), S(C.end)), S(C.pull[0]), 0.25);
+// ---- the end (v2): the final chord blooms with the colour, on the first colour frame after the capture flash
+// (CUES.colour), and rings over the photo and through the cut to paper; a soft low A re-strike under the pull back
+// keeps the name off a dying tail, ringing to the last frame.
+const COLOUR = C.colour ?? C.pull[0];
+chord(keys, S(COLOUR), AM_ADD9, 0.36, { len: 3, index: 0.8, tau: 1.25 });
+bass(bassBus, S(COLOUR), hz("A1"), 0.36, (C.pull[0] - COLOUR) / C.fps, { cutoff: 500, decay: 0.7 });
+mixInto(send, keys.L.subarray(S(COLOUR), S(C.end)), S(COLOUR), 0.25);
+if (COLOUR < C.pull[0]) {
+  bass(bassBus, S(C.pull[0]), hz("A1"), 0.3, (C.end - C.pull[0]) / C.fps, { cutoff: 420, decay: 0.9 });
+  chord(keys, S(C.pull[0]), ["A2", "E3"], 0.16, { len: 2.2, index: 0.5, tau: 1.6 });
+}
 
 // ---- the room on the music bus (clap and keys sends)
 const sendMono = new Float32Array(N);
@@ -704,11 +712,11 @@ mixInto(music, musicRoom, 0, dB(-4));
 const MUTE = -90;
 const AUTOMATION = [
   [0, 0],
-  [C.nameRead[0], 0], [C.nameRead[0] + 3, -4], // "Disco point" is read: the groove makes room
+  [C.nameRead[0], 0], [C.nameRead[0] + 3, -4], // "Hands in pockets" is read: the groove makes room
   [C.push[0] + 6, -4], [C.push[0] + 18, 0], // and comes back for the push
   [C.cut2, 0], [C.cut2 + 1, -6], // the coaching: 6 dB down under the cards
   [C.digits[0], -6], [C.digits[0] + 2, -7], [C.still, -3], // the countdown builds, but stays under the shutter
-  [C.still + 0.3, MUTE], [C.pull[0] - 4, MUTE], [C.pull[0] - 3, 0], // half a beat of silence; the shutter alone
+  [C.still + 0.3, MUTE], [COLOUR - 1, MUTE], [COLOUR, 0], // half a beat of silence; the shutter alone, then the colour chord
   [C.end, 0],
 ];
 const gainAt = (keysDb, f) => {
@@ -938,7 +946,8 @@ writeFileSync(join(OUT, "cues.json"), JSON.stringify(cueJson, null, 1));
 const sections = [
   ["act I hook (room, fidget)", 0, C.cut1], ["groove A + chorus", C.cut1, C.drop], ["the drop", C.drop, C.unison],
   ["unison + groove B", C.unison, C.cut2], ["coaching (music -6 dB)", C.cut2, C.digits[0]], ["countdown build", C.digits[0], C.still],
-  ["stillness", C.still, C.capture], ["shutter + relax", C.capture, C.pull[0]], ["final chord + name", C.pull[0], C.end],
+  ["stillness", C.still, C.capture], ["shutter + flash", C.capture, COLOUR], ["colour chord, photo, relax", COLOUR, C.pull[0]],
+  ["low A re-strike + name", C.pull[0], C.end],
 ];
 console.log(`gen-audio: ${Object.keys(KIT).length} SFX, ${cues.length} cues, ${C.frames} f (${(N / SR).toFixed(3)} s) at ${SR} Hz${vo ? ", with voice-over" : ", no voice-over (slot empty)"}`);
 console.log(`  mix.wav  integrated ${loud.toFixed(2)} LUFS  true peak ${tp.toFixed(2)} dBTP  master gain ${(20 * Math.log10(gain)).toFixed(1)} dB  limiter max ${gr.toFixed(1)} dB  sha256 ${mixHash}`);

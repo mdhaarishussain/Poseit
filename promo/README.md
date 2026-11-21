@@ -1,23 +1,27 @@
 # Poseit promo film
 
 A 22-second vertical film (1080 x 1920, 30 fps, 664 frames) that promotes Poseit, built in
-[Remotion](https://www.remotion.dev/) from the app's own pose data, with a soundtrack synthesized in Node. The plan is in
-`STORYBOARD.md`, the sound design in `sound-plan.md`, the voice-over script in `vo.txt`, and the build notes (what is
-real, what was measured, what changed) in `NOTE.md`.
+[Remotion](https://www.remotion.dev/): real people from free stock footage (Mixkit, credited in `CREDITS.md`) with the
+app's own graphics drawn on them (the live skeleton, the see-through lay figure, the per-limb colours, the score ring,
+the cue cards, the countdown), computed by the app's own pose model and matcher on that footage, plus the app's 99
+poses as lay figures, and a soundtrack synthesized in Node. The plan is in `STORYBOARD.md`, the sound design in
+`sound-plan.md`, the voice-over script in `vo.txt`, and the build notes (what is real, what was measured, what
+changed) in `NOTE.md`.
 
 ## Render it
 
 ```bash
 cd promo
 npm install
-npm run assets      # copy the app's screenshots into public/screens/ (needs the app's build/screenshots)
+npm run footage     # download the Mixkit clips and build the film-time plates (public/footage/, never committed)
 npm run draft       # half-size draft with sound -> out/draft.mp4   (about a minute)
 npm run render      # the full-size master        -> out/promo.mp4   (h264, crf 16, AAC 48 kHz)
 npm run studio      # Remotion Studio, to scrub frames
 ```
 
 `draft`, `render` and `studio` regenerate the soundtrack first (`npm run audio`, about 3 seconds), so the sound always
-matches the picture as it is now. Renders go to `out/` and are not committed.
+matches the picture as it is now. Renders go to `out/` and are not committed. The landmark and verdict files the
+overlays read (`public/footage/*.json`) are committed; rebuilding them needs the Python venv (`NOTE.md`, "Run it").
 
 Review a render with motionmaxxing's `look.py`, which gives a contact sheet, the cuts, the end hold and the AUDIO block
 (loudness, true peak, silences, onsets against the cuts):
@@ -48,7 +52,7 @@ with the picture, change the picture: the frames come from `src/events.ts`.
 
 ## Voice-over (when an ElevenLabs key is available)
 
-The film is built so a voice drops in without touching the picture or the composition. `vo.txt` has six lines, and
+The film is built so a voice drops in without touching the picture or the composition. `vo.txt` has five lines, and
 `src/audio/voiceover.ts` (the slot) gives the frame each line starts on, the window it must end inside, and how far the
 music ducks under it. Until real clips exist the slot stays empty, and no placeholder or fake voice goes into the
 film.
@@ -66,14 +70,15 @@ python3 $MM/scripts/voice.py voices                  # list voices; pick a plain
 python3 $MM/scripts/voice.py vo --script vo.txt --out public/audio/vo.mp3 --voice "<name>"
 #   -> public/audio/vo.mp3, vo.words.json, vo.lines.json (one entry per line of vo.txt, timings refined to the speech)
 python3 $MM/scripts/voice.py split --vo public/audio/vo.mp3 --lines public/audio/vo.lines.json --out public/audio/vo
-#   -> public/audio/vo/line01.wav ... line06.wav + lines.index.json (each clip's lead = silence before the first word)
+#   -> public/audio/vo/line01.wav ... line05.wav + lines.index.json (each clip's lead = silence before the first word)
 
 npm run audio      # places line N so its first word lands on VO_LINES[N-1].at, ducks the music, re-normalises
 npm run draft && python3 $MM/scripts/look.py out/draft.mp4 --out out/look --expect 22.13 --expect-audio --events out/cuts.events.json
 ```
 
 `npm run audio` prints one line per placed clip, and a warning when a line is still speaking past the end of its
-window. In particular, line 5 must be silent by f546, where the half beat of stillness before the shutter begins. If a
+window. In particular, line 4 must be silent by f504, where the half beat of stillness before the app's capture (f512)
+begins. If a
 line overruns, move its `at` in `src/audio/voiceover.ts`, or re-voice it a little faster (`voice.py vo ... --speed
 1.08 --force`). Never move the picture to fit the voice. The music ducks 9 dB under speech (6 dB under line 1, because
 the chorus is the music's moment), with 80 ms in and 300 ms out. Commit the clips in `public/audio/vo/`, because they

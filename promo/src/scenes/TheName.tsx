@@ -1,51 +1,49 @@
 /**
- * TheName.tsx: act IV, B8 (f554-663), the photo, then the name (STORYBOARD B8).
+ * TheName.tsx: act V, B8 (f555-663), the name (STORYBOARD v2 B8).
  *
  *   <TheName frame={global frame} />
- *   f554       the capture flash, the app's own (CameraScreen: white snapped to 85%, decaying over 280 ms,
- *              LinearOutSlowIn). Under it the ground is now the studio paper and the guide is a solid lay figure at
- *              the same size and place (the guide's screen frame on the last viewfinder frame): the photo
- *   f576-588   the figure relaxes ON TWOS (the posed clock): the pointing arm drops to its side, the hip hand stays,
- *              and it lands in stand_hand_on_hip, the launcher icon's pose
+ *   f555       hard cut from the colour photo to grey Studio paper: a solid lay figure in "Hands in pockets"
+ *              (the pick, unflipped) stands exactly where she stood in the photo on f554 (shots.ts
+ *              PHOTO_FIGURE_AT_CUT: the guide's frame with the photo's push), with its contact shadow. f555-576 a
+ *              designed breath (0.7 s) kept alive by a 0.4% creep: the colour has gone and the pose stands alone
+ *   f576-588   the figure relaxes ON TWOS (the posed clock): one hand leaves its pocket for the hip, landing in
+ *              stand_hand_on_hip, the launcher icon's pose
  *   f600-624   the camera pulls back (a lens zoom about a fixed point, softLand 24 f) to reveal the cove; the figure
  *              ends 0.24 H tall with its feet at y 0.50
  *   f620       the wordmark lands below it from 1.3x and 6 px blur (snapSettle 10 f), ink width 0.50 W
  *   f628-645   "Free for Android." / "Works offline." resolve a word at a time (3 f apart, blur 8 -> 0)
- *   f630-663   the resolved hold (1.1 s from the wordmark's landing; the end line finishes resolving at f645),
- *              kept alive by a 0.8% camera creep; the film ends on it (no fade)
- * Mirroring: the flipped Disco point guide and mirrored(disco) drawn un-flipped are the same picture, and only the
- * mirrored one has its labels on the launcher pose's sides, so the relax is mirrored(disco) -> stand_hand_on_hip.
+ *   f630-663   the resolved hold, kept alive by a 0.8% camera creep; the film ends on it (no fade)
+ * Both poses are drawn unflipped (the back camera, as act IV's guide), so the blend keeps every label on its side.
  */
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import { theme } from "../theme";
-import { COPY } from "../beats";
+import { COPY, POSES } from "../beats";
 import { poseById, poseGround, poseInkBounds } from "../figure/poses";
-import { mirrored, skeletonAt, mapJoints } from "../figure/interpolate";
+import { skeletonAt, mapJoints } from "../figure/interpolate";
 import type { Pose, Skeleton } from "../figure/types";
 import { WIDE_CAM, frameOn, placePose, zoomAbout, zoomed, type StudioCam } from "../world/camera";
 import { StudioPaper } from "../world/StudioPaper";
 import { StudioFigures } from "../world/StudioFigures";
 import { FilmGrain } from "../world/Grain";
-import { CaptureFlash } from "../ui/Hud";
 import { CameraGroup } from "../motion/CameraGroup";
 import { WordReveal, words } from "../motion/WordReveal";
 import { arrive, drift, tween } from "../motion";
 import { fitTextToWidth } from "../fonts";
-import { guideScreenFrame, type Rect } from "./shots";
+import { PHOTO_FIGURE_AT_CUT, type Rect } from "./shots";
 import { NAME_TIMING } from "./timing";
 
-const { W, H, fps } = theme.size;
+const { W, H } = theme.size;
 const E = theme.ease;
 const Z = 18; // the figure stands 8 m in front of the cove
 const ASPECT = 0.75;
 
 
-const DISCO = poseById("fun_disco_point");
-const ICON = poseById("stand_hand_on_hip");
-const FROM = mirrored({ joints: DISCO.figures[0].joints, visibility: DISCO.figures[0].visibility, unit: DISCO.figures[0].unit });
+const PICK = poseById(POSES.pick);
+const ICON = poseById(POSES.icon);
+const FROM: Skeleton = { joints: PICK.figures[0].joints, visibility: PICK.figures[0].visibility, unit: PICK.figures[0].unit };
 
-/** stand_hand_on_hip re-expressed in the Disco frame: same body unit, feet planted where the Disco feet are. */
+/** stand_hand_on_hip re-expressed in the pick's frame: same body unit, feet planted where the pick's feet are. */
 const TO: Skeleton = (() => {
   const f = ICON.figures[0];
   const k = FROM.unit / f.unit;
@@ -81,7 +79,7 @@ const frameOf = (cam: StudioCam, pose: Pose): Rect => {
 };
 
 const CAM_START: StudioCam = (() => {
-  const target = guideScreenFrame(NAME_TIMING.flash - 1);
+  const target = PHOTO_FIGURE_AT_CUT;
   const pose = asPose(FROM, "b8-from");
   const h0 = frameOf(WIDE_CAM, pose).height;
   const cam = zoomed(WIDE_CAM, target.height / h0);
@@ -112,13 +110,11 @@ const creep = (f: number) => drift(f, [NAME_TIMING.wordmarkLanded, NAME_TIMING.e
 
 const camAt = (f: number): StudioCam => {
   const e = tween(f, NAME_TIMING.pull, [0, 1], E.softLand);
-  const settle = drift(f, [NAME_TIMING.flash, NAME_TIMING.pull[0]], [1, 1.004]); // the held photo breathes
+  const settle = drift(f, [NAME_TIMING.cut, NAME_TIMING.pull[0]], [1, 1.004]); // the designed breath: a 0.4% creep
   const cam = zoomAbout(CAM_START, Math.pow(PULL.k, e) * settle, PULL.p);
   return zoomAbout(cam, creep(f), LOCKUP_ORIGIN);
 };
 
-const ms = (v: number) => (v * fps) / 1000;
-const flashAt = (f: number) => (f < NAME_TIMING.flash ? 0 : tween(f, [NAME_TIMING.flash, NAME_TIMING.flash + ms(280)], [0.85, 0], E.softLand));
 export { NAME_TIMING };
 
 export const TheName: React.FC<{ frame: number }> = ({ frame }) => {
@@ -166,7 +162,6 @@ export const TheName: React.FC<{ frame: number }> = ({ frame }) => {
         </div>
       </CameraGroup>
       <FilmGrain />
-      <CaptureFlash opacity={flashAt(frame)} />
     </AbsoluteFill>
   );
 };
