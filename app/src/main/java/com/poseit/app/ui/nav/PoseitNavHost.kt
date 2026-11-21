@@ -2,6 +2,8 @@ package com.poseit.app.ui.nav
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -17,6 +19,9 @@ import com.poseit.app.ui.gallery.GalleryScreen
 import com.poseit.app.ui.library.LibraryScreen
 import com.poseit.app.ui.onboarding.OnboardingScreen
 import com.poseit.app.ui.settings.SettingsScreen
+
+/** Key of a one-off confirmation ("Pose saved", "Pose deleted") handed to the screen below or above. */
+private const val MESSAGE = "message"
 
 object Routes {
     const val ONBOARDING = "onboarding"
@@ -48,6 +53,12 @@ private inline fun NavHostController.ifCurrent(entry: NavBackStackEntry, block: 
     if (currentBackStackEntry?.id == entry.id) block()
 }
 
+/** Shows a just-saved pose on its detail screen (above the library) with [message] as its confirmation. */
+private fun NavHostController.openSaved(id: String, message: String) {
+    navigate(Routes.detail(id)) { popUpTo(Routes.LIBRARY) }
+    currentBackStackEntry?.savedStateHandle?.set(MESSAGE, message)
+}
+
 @Composable
 fun PoseitNavHost(startOnboarding: Boolean) {
     val nav = rememberNavController()
@@ -65,6 +76,7 @@ fun PoseitNavHost(startOnboarding: Boolean) {
             })
         }
         composable(Routes.LIBRARY) { entry ->
+            val message by entry.savedStateHandle.getStateFlow<String?>(MESSAGE, null).collectAsState()
             LibraryScreen(
                 onOpenPose = { id -> nav.ifCurrent(entry) { navigate(Routes.detail(id)) } },
                 onOpenCamera = { id -> nav.ifCurrent(entry) { navigate(Routes.camera(id)) } },
@@ -72,15 +84,26 @@ fun PoseitNavHost(startOnboarding: Boolean) {
                 onCreateFromPhoto = { nav.ifCurrent(entry) { navigate(Routes.CREATE) } },
                 onOpenEditor = { id -> nav.ifCurrent(entry) { navigate(Routes.editor(id)) } },
                 onOpenSettings = { nav.ifCurrent(entry) { navigate(Routes.SETTINGS) } },
+                message = message,
+                onMessageShown = { entry.savedStateHandle[MESSAGE] = null },
             )
         }
         composable(Routes.DETAIL, arguments = listOf(navArgument("poseId") { type = NavType.StringType })) { entry ->
             val id = entry.arguments?.getString("poseId").orEmpty()
+            val message by entry.savedStateHandle.getStateFlow<String?>(MESSAGE, null).collectAsState()
             PoseDetailScreen(
                 poseId = id,
                 onBack = { nav.ifCurrent(entry) { popBackStack() } },
+                onDeleted = {
+                    nav.ifCurrent(entry) {
+                        previousBackStackEntry?.savedStateHandle?.set(MESSAGE, "Pose deleted")
+                        popBackStack()
+                    }
+                },
                 onTryPose = { poseId, mirrored -> nav.ifCurrent(entry) { navigate(Routes.camera(poseId, mirrored)) } },
                 onEdit = { poseId -> nav.ifCurrent(entry) { navigate(Routes.editor(poseId)) } },
+                message = message,
+                onMessageShown = { entry.savedStateHandle[MESSAGE] = null },
             )
         }
         composable(
@@ -98,12 +121,20 @@ fun PoseitNavHost(startOnboarding: Boolean) {
             )
         }
         composable(Routes.GALLERY) { entry ->
-            GalleryScreen(onBack = { nav.ifCurrent(entry) { popBackStack() } })
+            GalleryScreen(
+                onBack = { nav.ifCurrent(entry) { popBackStack() } },
+                onOpenCamera = {
+                    nav.ifCurrent(entry) {
+                        // Opened from the camera: go back to it rather than stacking a second one.
+                        if (previousBackStackEntry?.destination?.route == Routes.CAMERA) popBackStack() else navigate(Routes.camera(null))
+                    }
+                },
+            )
         }
         composable(Routes.CREATE) { entry ->
             CreateFromPhotoScreen(
                 onBack = { nav.ifCurrent(entry) { popBackStack() } },
-                onSaved = { id -> nav.ifCurrent(entry) { navigate(Routes.detail(id)) { popUpTo(Routes.LIBRARY) } } },
+                onSaved = { id -> nav.ifCurrent(entry) { openSaved(id, "Pose saved") } },
             )
         }
         composable(
@@ -113,7 +144,7 @@ fun PoseitNavHost(startOnboarding: Boolean) {
             PoseEditorScreen(
                 basePoseId = entry.arguments?.getString("poseId"),
                 onBack = { nav.ifCurrent(entry) { popBackStack() } },
-                onSaved = { id -> nav.ifCurrent(entry) { navigate(Routes.detail(id)) { popUpTo(Routes.LIBRARY) } } },
+                onSaved = { id, message -> nav.ifCurrent(entry) { openSaved(id, message) } },
             )
         }
         composable(Routes.SETTINGS) { entry ->

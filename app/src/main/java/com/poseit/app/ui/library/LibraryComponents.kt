@@ -4,19 +4,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,13 +33,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
 import com.poseit.app.pose.PoseTemplate
@@ -130,37 +123,11 @@ internal fun LibraryTabs(selected: LibraryTab, onSelect: (LibraryTab) -> Unit, m
     )
 }
 
-/** A horizontally scrolling row of chips that starts with a short caption, edge to edge on screen. */
-@Composable
-internal fun ChipRow(
-    caption: String,
-    modifier: Modifier = Modifier,
-    horizontalPadding: Dp = Space.gutter,
-    content: LazyListScope.() -> Unit,
-) {
-    LazyRow(
-        modifier = modifier
-            .fillMaxWidth()
-            .bleedHorizontally(horizontalPadding),
-        contentPadding = PaddingValues(horizontal = horizontalPadding),
-        horizontalArrangement = Arrangement.spacedBy(Space.s),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        item(key = "caption") {
-            Text(
-                caption,
-                style = StudioType.label,
-                color = Studio.Graphite,
-                modifier = Modifier
-                    .padding(end = Space.xs)
-                    .semantics { heading() },
-            )
-        }
-        content()
-    }
-}
-
-/** The three filter rows: people, category, place + mood. Category, place and mood chips are text only. */
+/**
+ * Every filter in one horizontally scrolling chip row, edge to edge with the first chip on the gutter: who's in the
+ * photo, then the category, the place and the mood, each group set off by a short vertical Hairline. The chips say
+ * what they filter, so the groups need no captions. A selected chip is cleared by tapping it again.
+ */
 @Composable
 internal fun LibraryFilters(
     filter: LibraryFilter,
@@ -173,87 +140,77 @@ internal fun LibraryFilters(
     onMood: (PoseTag) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier) {
-        ChipRow(caption = "Who's in the photo?") {
-            items(PeopleFilter.entries.size, key = { "people_$it" }) { i ->
-                val option = PeopleFilter.entries[i]
-                StudioChip(
-                    label = option.label,
-                    selected = filter.people == option,
-                    onClick = { onPeople(option) },
-                    leadingIcon = when (option) {
-                        PeopleFilter.ANY -> null
-                        PeopleFilter.SOLO -> peopleIcon(1)
-                        PeopleFilter.COUPLE -> peopleIcon(2)
-                        PeopleFilter.GROUP -> peopleIcon(3)
-                    },
-                )
+    // Couple and Group are already people chips, and My poses is a tab, so they aren't offered as categories too.
+    val shownCategories = categories.filter { it !in RedundantCategories || it == filter.category }
+    val people = PeopleFilter.entries.filter { it != PeopleFilter.ANY }
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .bleedHorizontally(Space.gutter),
+        contentPadding = PaddingValues(horizontal = Space.gutter),
+        horizontalArrangement = Arrangement.spacedBy(Space.s),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        items(people.size, key = { "people_${people[it].name}" }) { i ->
+            val option = people[i]
+            val selected = filter.people == option
+            StudioChip(
+                label = option.label,
+                selected = selected,
+                onClick = { onPeople(if (selected) PeopleFilter.ANY else option) },
+                leadingIcon = when (option) {
+                    PeopleFilter.SOLO -> peopleIcon(1)
+                    PeopleFilter.COUPLE -> peopleIcon(2)
+                    else -> peopleIcon(3)
+                },
+            )
+        }
+        if (shownCategories.size > 1) {
+            item(key = "divider_category") { GroupDivider() }
+            items(shownCategories.size, key = { "cat_${shownCategories[it].name}" }) { i ->
+                val category = shownCategories[i]
+                // The view model clears the category when the selected one is tapped again.
+                StudioChip(label = category.label, selected = filter.category == category, onClick = { onCategory(category) })
             }
         }
-        if (categories.size > 1) {
-            ChipRow(caption = "Category") {
-                item(key = "cat_all") {
-                    StudioChip(label = "All", selected = filter.category == null, onClick = { onCategory(null) })
-                }
-                items(categories.size, key = { "cat_${categories[it].name}" }) { i ->
-                    val category = categories[i]
-                    StudioChip(
-                        label = category.displayLabel,
-                        selected = filter.category == category,
-                        onClick = { onCategory(category) },
-                    )
-                }
+        if (locationTags.isNotEmpty()) {
+            item(key = "divider_location") { GroupDivider() }
+            items(locationTags.size, key = { "loc_${locationTags[it].name}" }) { i ->
+                val tag = locationTags[i]
+                StudioChip(label = tag.label, selected = filter.location == tag, onClick = { onLocation(tag) })
             }
         }
-        if (locationTags.isNotEmpty() || moodTags.isNotEmpty()) {
-            ChipRow(caption = "Where are you?") {
-                items(locationTags.size, key = { "loc_${locationTags[it].name}" }) { i ->
-                    val tag = locationTags[i]
-                    StudioChip(
-                        label = tag.label,
-                        selected = filter.location == tag,
-                        onClick = { onLocation(tag) },
-                    )
-                }
-                if (locationTags.isNotEmpty() && moodTags.isNotEmpty()) {
-                    item(key = "divider") {
-                        VerticalHairline(
-                            Modifier
-                                .height(20.dp)
-                                .padding(horizontal = Space.xs),
-                        )
-                    }
-                }
-                items(moodTags.size, key = { "mood_${moodTags[it].name}" }) { i ->
-                    val tag = moodTags[i]
-                    StudioChip(
-                        label = tag.label,
-                        selected = filter.mood == tag,
-                        onClick = { onMood(tag) },
-                    )
-                }
+        if (moodTags.isNotEmpty()) {
+            item(key = "divider_mood") { GroupDivider() }
+            items(moodTags.size, key = { "mood_${moodTags[it].name}" }) { i ->
+                val tag = moodTags[i]
+                StudioChip(label = tag.label, selected = filter.mood == tag, onClick = { onMood(tag) })
             }
         }
     }
 }
 
-/** The name in the featured row: the wide display cut, a step below the detail screen's 28sp. */
-private val FeaturedName = StudioType.display.copy(fontSize = 22.sp, lineHeight = 28.sp)
+private val RedundantCategories = setOf(PoseCategory.COUPLE, PoseCategory.GROUP, PoseCategory.CUSTOM)
+
+@Composable
+private fun GroupDivider() {
+    VerticalHairline(
+        Modifier
+            .height(20.dp)
+            .padding(horizontal = Space.xs),
+    )
+}
 
 /**
- * Today's pose: a larger figure on its patch of studio paper, the name in the wide cut, its category and
- * difficulty as two quiet words, and "Try it". Tapping anywhere else opens the pose.
+ * Today's pose: a larger figure on its patch of studio paper, the name in the Title cut, its facts as one short
+ * phrase and "Try this pose" right under them. Tapping anywhere else opens the pose.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun TodaysPose(pose: PoseTemplate, onOpen: () -> Unit, onTry: () -> Unit, modifier: Modifier = Modifier) {
     val source = remember { MutableInteractionSource() }
     BoxWithConstraints(modifier.fillMaxWidth()) {
         val gap = Space.l
         val tileWidth = (maxWidth - gap) * 0.44f
-        // The text column is at least as tall as the tile, so "Try it" sits level with the tile's foot; with a
-        // large font it grows past it instead of squeezing the button.
-        val tileHeight = tileWidth * (4f / 3f)
         Row(
             Modifier
                 .fillMaxWidth()
@@ -267,22 +224,15 @@ internal fun TodaysPose(pose: PoseTemplate, onOpen: () -> Unit, onTry: () -> Uni
                 interactionSource = source,
                 modifier = Modifier.width(tileWidth),
             )
-            Column(
-                Modifier
-                    .weight(1f)
-                    .heightIn(min = tileHeight),
-            ) {
+            Column(Modifier.weight(1f)) {
                 Text("Today's pose", style = StudioType.label, color = Studio.Graphite)
                 Spacer(Modifier.height(Space.xs))
-                Text(pose.name, style = FeaturedName, color = Studio.Ink, maxLines = 3, overflow = TextOverflow.Ellipsis)
-                Spacer(Modifier.height(Space.s))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                    Text(pose.categoryText, style = StudioType.label, color = Studio.Graphite)
-                    Text(Difficulty.label(pose.difficulty), style = StudioType.label, color = Studio.Graphite)
-                }
+                Text(pose.name, style = StudioType.title, color = Studio.Ink, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(Space.xs))
+                Text(pose.factsPhrase(), style = StudioType.label, color = Studio.Graphite)
                 Spacer(Modifier.height(Space.l))
-                Spacer(Modifier.weight(1f))
-                SecondaryButton("Try it", onClick = onTry)
+                // A secondary button: the floating Pose camera button is the screen's one primary action.
+                SecondaryButton("Try this pose", onClick = onTry)
             }
         }
     }

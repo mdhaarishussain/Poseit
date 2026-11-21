@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.BodyPart
 import com.poseit.app.pose.Bone
 import com.poseit.app.pose.Joint
@@ -76,7 +77,9 @@ fun DrawScope.drawPoseFigure(
     val h = frameRect.height
     fun px(p: Vec2): Offset = if (flipX) Offset(frameRect.right - p.x * h, frameRect.top + p.y * h) else Offset(frameRect.left + p.x * h, frameRect.top + p.y * h)
     val unitPx = skeleton.estimatedUnit(aspect) * h
-    val autoStroke = if (paint.strokeWidthPx > 0f) paint.strokeWidthPx else max(1.5f, unitPx * 0.045f)
+    // The contour grows with the figure but stays a fine line: at least 1.25dp so a small tile keeps a visible
+    // edge, at most 2.25dp so a big figure (onboarding, detail, editor) looks crisp instead of outlined in marker.
+    val autoStroke = if (paint.strokeWidthPx > 0f) paint.strokeWidthPx else (unitPx * 0.03f).coerceIn(1.25.dp.toPx(), 2.25.dp.toPx())
 
     fun colorFor(part: BodyPart): Color = paint.partColors[part] ?: paint.fill
 
@@ -98,7 +101,7 @@ fun DrawScope.drawPoseFigure(
                 // 2) body: fill (silhouette) or punch a hole (outline)
                 for (s in shapes) {
                     if (paint.style == FigureStyle.OUTLINE) {
-                        drawShape(s, ::px, h, inflatePx = 0f, color = Color.Black, blendMode = BlendMode.Clear)
+                        drawShape(s, ::px, h, inflatePx = 0f, color = Studio.Ink, blendMode = BlendMode.Clear)
                     } else {
                         drawShape(s, ::px, h, inflatePx = 0f, color = colorFor(s.part))
                     }
@@ -175,7 +178,7 @@ private fun DrawScope.drawStick(
     colorFor: (BodyPart) -> Color,
 ) {
     val iso = skeleton.toIsotropic(aspect)
-    val w = if (paint.strokeWidthPx > 0f) paint.strokeWidthPx else max(2f, unitPx * 0.09f)
+    val w = if (paint.strokeWidthPx > 0f) paint.strokeWidthPx else (unitPx * 0.09f).coerceIn(1.5.dp.toPx(), 3.dp.toPx())
     val alpha = paint.alpha
     for (bone in Bone.entries) {
         val a = iso[bone.from] ?: continue

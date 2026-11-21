@@ -86,11 +86,9 @@ class PhotoViewerReviewTest {
         // Confirmed delete from the top bar.
         compose.onAllNodes(hasContentDescription("Delete") and hasClickAction()).onFirst().performClick()
         compose.waitForIdle()
-        compose.onAllNodes(hasText("Delete") and hasClickAction()).fetchSemanticsNodes() // dialog shown
         compose.onAllNodes(hasText("Delete this photo?")).onFirst().assertExists()
-        // The dialog's confirm button is the last "Delete" text button.
-        val deleteButtons = compose.onAllNodes(hasText("Delete") and hasClickAction())
-        deleteButtons[deleteButtons.fetchSemanticsNodes().size - 1].performClick()
+        // The dialog's confirm button names what goes.
+        compose.onAllNodes(hasText("Delete photo") and hasClickAction()).onFirst().performClick()
         compose.waitForIdle()
         assertEquals(1, photos.size)
 

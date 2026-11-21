@@ -180,7 +180,7 @@ private fun CueCard(text: String, modifier: Modifier = Modifier) {
         text,
         style = StudioType.label.copy(color = Studio.Ink),
         maxLines = 1,
-        autoSize = TextAutoSize.StepBased(minFontSize = 8.sp, maxFontSize = StudioType.label.fontSize, stepSize = 0.5.sp),
+        autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = StudioType.label.fontSize, stepSize = 0.5.sp),
         modifier = modifier
             .background(Studio.Sheet, StudioShapes.Medium)
             .padding(horizontal = Space.m, vertical = Space.s),

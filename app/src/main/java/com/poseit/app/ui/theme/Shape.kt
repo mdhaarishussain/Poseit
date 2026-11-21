@@ -10,8 +10,11 @@ import androidx.compose.ui.unit.dp
  * round camera controls, the score ring).
  */
 object StudioShapes {
+    /** The radius of [Small], for drawing code (a Canvas round rect) that needs the number. */
+    val SmallRadius: Dp = 6.dp
+
     /** 6dp: chips, text fields, small buttons, tags, menus. */
-    val Small = RoundedCornerShape(6.dp)
+    val Small = RoundedCornerShape(SmallRadius)
 
     /** 12dp: pose tiles, buttons, dialogs, cards, the camera cue card. */
     val Medium = RoundedCornerShape(12.dp)

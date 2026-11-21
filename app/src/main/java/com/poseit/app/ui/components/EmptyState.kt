@@ -48,7 +48,7 @@ fun EmptyState(
             Icon(icon, contentDescription = null, tint = Studio.Graphite, modifier = Modifier.size(StudioIconSize))
             Spacer(Modifier.height(Space.m))
         }
-        Text(title, style = StudioType.title, color = Studio.Ink, modifier = Modifier.semantics { heading() })
+        Text(title, style = StudioType.heading, color = Studio.Ink, modifier = Modifier.semantics { heading() })
         Spacer(Modifier.height(Space.s))
         Text(message, style = StudioType.body, color = Studio.Graphite, modifier = Modifier.widthIn(max = 420.dp))
         if (action != null) {

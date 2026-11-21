@@ -144,7 +144,7 @@ class PhotoScreensScreenshotTest {
     @Config(qualifiers = "w400dp-h2400dp-xxhdpi")
     fun createReviewWholePage() {
         show { Review(reviewState(people = 2, selected = setOf(0), outline = true)) }
-        compose.onAllNodes(hasText("Outline") and hasClickAction()).onFirst().performClick()
+        compose.onAllNodes(hasText("Photo outline") and hasClickAction()).onFirst().performClick()
         compose.waitForIdle()
         capture("create-review-whole")
     }

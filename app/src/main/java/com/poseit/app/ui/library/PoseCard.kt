@@ -1,6 +1,5 @@
 package com.poseit.app.ui.library
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,8 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -39,13 +36,15 @@ import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.PoseTile
 import com.poseit.app.ui.components.StudioIconSize
+import com.poseit.app.ui.components.StudioMenu
+import com.poseit.app.ui.components.StudioMenuItem
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
 import com.poseit.app.ui.theme.StudioShapes
 import com.poseit.app.ui.theme.StudioType
 
 /**
- * One tile of the library grid. Tap opens the pose; long-press opens a small menu (try in camera / customize /
+ * One tile of the library grid. Tap opens the pose; long-press opens a small menu (try this pose / customise /
  * favourite), which TalkBack offers as custom actions.
  */
 @OptIn(ExperimentalFoundationApi::class)
@@ -56,13 +55,13 @@ internal fun PoseCard(
     onOpen: () -> Unit,
     onToggleFavorite: () -> Unit,
     onTry: () -> Unit,
-    onCustomize: () -> Unit,
+    onCustomise: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val haptics = LocalHapticFeedback.current
     val source = remember { MutableInteractionSource() }
-    val customizeLabel = if (pose.isCustom) "Edit" else "Customize"
+    val customizeLabel = if (pose.isCustom) "Edit" else "Customise"
     val favouriteLabel = if (isFavorite) "Remove from favourites" else "Add to favourites"
     Box(modifier) {
         PoseTile(
@@ -85,23 +84,23 @@ internal fun PoseCard(
                 )
                 .semantics {
                     customActions = listOf(
-                        CustomAccessibilityAction("Try in camera") { onTry(); true },
-                        CustomAccessibilityAction(customizeLabel) { onCustomize(); true },
+                        CustomAccessibilityAction("Try this pose") { onTry(); true },
+                        CustomAccessibilityAction(customizeLabel) { onCustomise(); true },
                         CustomAccessibilityAction(favouriteLabel) { onToggleFavorite(); true },
                     )
                 },
         )
         StudioMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-            StudioMenuItem("Try in camera") { menuOpen = false; onTry() }
-            StudioMenuItem(customizeLabel) { menuOpen = false; onCustomize() }
+            StudioMenuItem("Try this pose") { menuOpen = false; onTry() }
+            StudioMenuItem(customizeLabel) { menuOpen = false; onCustomise() }
             StudioMenuItem(favouriteLabel) { menuOpen = false; onToggleFavorite() }
         }
     }
 }
 
 /**
- * The "new pose" tile that opens the "My poses" tab: the same footprint as a pose tile, an empty patch of studio
- * paper marked out with a Hairline, and a caption that says what it makes.
+ * The "Create a pose" tile at the start of the "My poses" tab: the same footprint as a pose tile, an empty patch
+ * of studio paper marked out with a Hairline, and a caption that says what it makes.
  */
 @Composable
 internal fun CreatePoseCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -119,7 +118,7 @@ internal fun CreatePoseCard(onClick: () -> Unit, modifier: Modifier = Modifier) 
             Icon(Icons.Outlined.Add, contentDescription = null, tint = Studio.Ink, modifier = Modifier.size(StudioIconSize))
         }
         Spacer(Modifier.height(Space.s))
-        Text("New pose", style = StudioType.bodyStrong, color = Studio.Ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text("Create a pose", style = StudioType.bodyStrong, color = Studio.Ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(
             "Photo or drawing",
             style = StudioType.label,
@@ -128,36 +127,4 @@ internal fun CreatePoseCard(onClick: () -> Unit, modifier: Modifier = Modifier) 
             overflow = TextOverflow.Ellipsis,
         )
     }
-}
-
-/**
- * A Studio menu: Sheet, Small radius, a Hairline edge instead of a shadow (Studio has no elevation), text-only
- * items in Ink.
- */
-@Composable
-internal fun StudioMenu(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        shape = StudioShapes.Small,
-        containerColor = Studio.Sheet,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp,
-        border = BorderStroke(1.dp, Studio.Hairline),
-    ) { content() }
-}
-
-/** One text-only item of a [StudioMenu]. [destructive] items are Miss. */
-@Composable
-internal fun StudioMenuItem(text: String, destructive: Boolean = false, onClick: () -> Unit) {
-    DropdownMenuItem(
-        text = { Text(text, color = if (destructive) Studio.Miss else Studio.Ink) },
-        onClick = onClick,
-    )
 }

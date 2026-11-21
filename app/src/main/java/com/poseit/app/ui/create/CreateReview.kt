@@ -82,7 +82,7 @@ internal fun Skeleton.visibleOnly(): Skeleton {
 private enum class GuidePreview(val label: String, val caption: String) {
     MANNEQUIN("Mannequin", "A clean figure to line up with."),
     PHOTO("Photo", "Your photo, shown see-through over the camera."),
-    OUTLINE("Outline", "Just the person's outline, for exact framing."),
+    OUTLINE("Photo outline", "Just the person's outline, for exact framing."),
 }
 
 @Composable
@@ -216,7 +216,7 @@ private fun DetectedPhoto(
                             Studio.Sheet.copy(alpha = if (isOn) 1f else 0.6f),
                             topLeft = Offset(c.x - half, c.y - half),
                             size = Size(half * 2, half * 2),
-                            cornerRadius = CornerRadius(6.dp.toPx()),
+                            cornerRadius = CornerRadius(StudioShapes.SmallRadius.toPx()),
                         )
                         val label = textMeasurer.measure(
                             "${i + 1}",
@@ -323,7 +323,7 @@ private fun GuidePreviewSection(state: CreateUiState, name: String) {
         Text(mode.caption, style = StudioType.label, color = Studio.Ink)
         Spacer(Modifier.height(Space.xs))
         Text(
-            "The camera starts with the outline when there is one. Switch styles with its guide button.",
+            "The camera starts with the photo outline when there is one. Switch styles with its guide button.",
             style = StudioType.label,
             color = Studio.Graphite,
         )
@@ -348,6 +348,22 @@ private fun PhotoPreview(bitmap: Bitmap, aspect: Float, alpha: Float, colorFilte
 /** The one primary action of the review, pinned above the navigation bar and the keyboard. */
 @Composable
 internal fun ReviewBottomBar(saving: Boolean, canSave: Boolean, onSave: () -> Unit) {
+    PinnedActionBar {
+        PrimaryButton(onClick = onSave, enabled = canSave && !saving, modifier = Modifier.fillMaxWidth()) {
+            if (saving) {
+                CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = LocalContentColor.current)
+                Spacer(Modifier.width(Space.m))
+                Text("Saving…")
+            } else {
+                Text("Save pose")
+            }
+        }
+    }
+}
+
+/** A screen's main action pinned under the content, on Paper with a Hairline above it, so it never scrolls away. */
+@Composable
+internal fun PinnedActionBar(content: @Composable () -> Unit) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -359,16 +375,6 @@ internal fun ReviewBottomBar(saving: Boolean, canSave: Boolean, onSave: () -> Un
                 .navigationBarsPadding()
                 .imePadding()
                 .padding(horizontal = Space.gutter, vertical = Space.m),
-        ) {
-            PrimaryButton(onClick = onSave, enabled = canSave && !saving, modifier = Modifier.fillMaxWidth()) {
-                if (saving) {
-                    CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = LocalContentColor.current)
-                    Spacer(Modifier.width(Space.m))
-                    Text("Saving…")
-                } else {
-                    Text("Save pose")
-                }
-            }
-        }
+        ) { content() }
     }
 }

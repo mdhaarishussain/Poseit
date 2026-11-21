@@ -37,7 +37,6 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,7 +66,10 @@ import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.pose.dsl.pose
 import com.poseit.app.ui.components.FigurePaint
 import com.poseit.app.ui.components.PoseThumbnail
+import com.poseit.app.ui.components.NumberedSteps
 import com.poseit.app.ui.components.PrimaryButton
+import com.poseit.app.ui.components.StudioInlineIconSize
+import com.poseit.app.ui.components.StudioSnackbarHost
 import com.poseit.app.ui.components.StudioTopBar
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.frameMarks
@@ -111,12 +113,14 @@ fun CreateFromPhotoScreen(onBack: () -> Unit, onSaved: (String) -> Unit) {
     Scaffold(
         topBar = {
             StudioTopBar(
-                title = if (state.step == CreateStep.REVIEW) "Your new pose" else "Pose from photo",
+                title = if (state.step == CreateStep.REVIEW) "Your new pose" else "Pose from a photo",
                 onBack = { if (inFlow && !state.saving) viewModel.reset() else if (!state.saving) onBack() },
             )
         },
         bottomBar = {
-            if (state.step == CreateStep.REVIEW) {
+            if (state.step == CreateStep.INTRO) {
+                PinnedActionBar { PrimaryButton("Choose a photo", onClick = ::pickPhoto, modifier = Modifier.fillMaxWidth()) }
+            } else if (state.step == CreateStep.REVIEW) {
                 ReviewBottomBar(
                     saving = state.saving,
                     canSave = viewModel.name.isNotBlank() && state.selected.isNotEmpty(),
@@ -124,7 +128,7 @@ fun CreateFromPhotoScreen(onBack: () -> Unit, onSaved: (String) -> Unit) {
                 )
             }
         },
-        snackbarHost = { SnackbarHost(snackbar) },
+        snackbarHost = { StudioSnackbarHost(snackbar) },
         containerColor = Studio.Paper,
     ) { padding ->
         AnimatedContent(
@@ -137,7 +141,7 @@ fun CreateFromPhotoScreen(onBack: () -> Unit, onSaved: (String) -> Unit) {
             label = "createStep",
         ) { step ->
             when (step) {
-                CreateStep.INTRO -> IntroContent(onPick = ::pickPhoto)
+                CreateStep.INTRO -> IntroContent()
                 CreateStep.LOADING, CreateStep.DETECTING -> WorkingContent(state)
                 CreateStep.NO_PERSON -> ProblemContent(
                     photo = state.photo,
@@ -177,14 +181,13 @@ private val demoPose: PoseTemplate by lazy {
 }
 
 @Composable
-internal fun IntroContent(onPick: () -> Unit) {
+internal fun IntroContent() {
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = Space.gutter)
-            .padding(top = Space.s, bottom = Space.xl)
-            .navigationBarsPadding(),
+            .padding(top = Space.s, bottom = Space.xl),
     ) {
         Column(Modifier.widthIn(max = 560.dp)) {
             IntroDiagram(Modifier.fillMaxWidth())
@@ -201,17 +204,18 @@ internal fun IntroContent(onPick: () -> Unit) {
                 style = StudioType.body,
                 color = Studio.Graphite,
             )
-            Spacer(Modifier.height(Space.xl))
-            Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
-                IntroStep(1, "Choose a photo where the whole body is in view")
-                IntroStep(2, "Choose who to keep, up to four people")
-                IntroStep(3, "Save it, then line up with it in the camera")
-            }
-            Spacer(Modifier.height(Space.section))
-            PrimaryButton("Choose a photo", onClick = onPick, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(Space.l))
+            NumberedSteps(
+                listOf(
+                    "Choose a photo where the whole body is in view",
+                    "Choose who to keep, up to four people",
+                    "Save it, then line up with it in the camera",
+                ),
+            )
+            Spacer(Modifier.height(Space.xl))
+            // The main button is pinned below; the privacy note stays with the explanation.
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Lock, contentDescription = null, tint = Studio.Graphite, modifier = Modifier.size(16.dp))
+                Icon(Icons.Outlined.Lock, contentDescription = null, tint = Studio.Graphite, modifier = Modifier.size(StudioInlineIconSize))
                 Spacer(Modifier.width(Space.s))
                 Text(
                     "Everything happens on your phone. Your photo is never uploaded.",
@@ -220,20 +224,6 @@ internal fun IntroContent(onPick: () -> Unit) {
                 )
             }
         }
-    }
-}
-
-/** One step of the sequence: a small tabular numeral, then the step in Body. */
-@Composable
-private fun IntroStep(number: Int, text: String) {
-    Row {
-        Text(
-            "$number",
-            style = StudioType.numeral(15.sp).copy(lineHeight = 22.sp),
-            color = Studio.Ink,
-            modifier = Modifier.width(Space.xl),
-        )
-        Text(text, style = StudioType.body, color = Studio.Ink)
     }
 }
 

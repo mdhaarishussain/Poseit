@@ -30,15 +30,10 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,6 +55,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.poseit.app.data.SavedPhoto
 import com.poseit.app.ui.components.DestructiveButton
+import com.poseit.app.ui.components.IconGlyphInset
+import com.poseit.app.ui.components.StudioAlertDialog
+import com.poseit.app.ui.components.StudioInlineIconSize
+import com.poseit.app.ui.components.StudioMenu
+import com.poseit.app.ui.components.StudioMenuItem
+import com.poseit.app.ui.components.StudioSnackbarHost
 import com.poseit.app.ui.components.StudioButtonHeight
 import com.poseit.app.ui.components.StudioIconButton
 import com.poseit.app.ui.components.TertiaryButton
@@ -157,7 +158,7 @@ internal fun PhotoViewer(
                     .statusBarsPadding()
                     .height(64.dp)
                     // Glyphs land on the 20dp gutter (48dp targets around 22dp icons).
-                    .padding(horizontal = 7.dp),
+                    .padding(horizontal = Space.gutter - IconGlyphInset),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 StudioIconButton(Icons.AutoMirrored.Outlined.ArrowBack, "Close viewer", onClose, tint = OnPhoto)
@@ -181,25 +182,11 @@ internal fun PhotoViewer(
                 StudioIconButton(Icons.Outlined.Delete, "Delete", { confirmDelete = current }, enabled = current != null, tint = OnPhoto)
                 Box {
                     StudioIconButton(Icons.Outlined.MoreVert, "More options", { menuOpen = true }, tint = OnPhoto)
-                    DropdownMenu(
-                        expanded = menuOpen,
-                        onDismissRequest = { menuOpen = false },
-                        shape = StudioShapes.Small,
-                        containerColor = Studio.Sheet,
-                        tonalElevation = 0.dp,
-                        shadowElevation = 0.dp,
-                        border = BorderStroke(1.dp, Studio.Hairline),
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Open in gallery app", style = StudioType.body, color = Studio.Ink) },
-                            leadingIcon = {
-                                Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null, tint = Studio.Ink, modifier = Modifier.size(20.dp))
-                            },
-                            onClick = {
-                                menuOpen = false
-                                current?.let(onOpenExternally)
-                            },
-                        )
+                    StudioMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        StudioMenuItem("Open in gallery app", leadingIcon = Icons.AutoMirrored.Outlined.OpenInNew) {
+                            menuOpen = false
+                            current?.let(onOpenExternally)
+                        }
                     }
                 }
             }
@@ -212,20 +199,11 @@ internal fun PhotoViewer(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // On black, the snackbar inverts to Sheet with Ink text so it stays visible.
-            SnackbarHost(
+            // The Sheet card stays legible on black.
+            StudioSnackbarHost(
                 snackbarHostState,
                 Modifier.navigationBarsPadding().padding(bottom = if (chromeVisible) 0.dp else Space.s),
-            ) { data ->
-                Snackbar(
-                    data,
-                    shape = StudioShapes.Small,
-                    containerColor = Studio.Sheet,
-                    contentColor = Studio.Ink,
-                    actionColor = Studio.Ink,
-                    actionContentColor = Studio.Ink,
-                )
-            }
+            )
             AnimatedVisibility(
                 visible = chromeVisible,
                 enter = fadeIn(tween(180)),
@@ -248,16 +226,13 @@ internal fun PhotoViewer(
     }
 
     confirmDelete?.let { photo ->
-        AlertDialog(
+        StudioAlertDialog(
             onDismissRequest = { confirmDelete = null },
-            shape = StudioShapes.Medium,
-            containerColor = Studio.Sheet,
-            tonalElevation = 0.dp,
-            title = { Text("Delete this photo?", style = StudioType.title, color = Studio.Ink) },
-            text = { Text("It's removed from your phone's gallery. This can't be undone.", style = StudioType.body, color = Studio.Graphite) },
+            title = "Delete this photo?",
+            text = "It's removed from your phone's gallery. This can't be undone.",
             confirmButton = {
                 DestructiveButton(
-                    text = "Delete",
+                    text = "Delete photo",
                     filled = true,
                     onClick = {
                         confirmDelete = null
@@ -301,7 +276,7 @@ private fun ReviewBar(enabled: Boolean, isLast: Boolean, onDelete: () -> Unit, o
                 ),
                 border = BorderStroke(1.dp, OnPhoto.copy(alpha = 0.32f)),
             ) {
-                Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(StudioInlineIconSize))
                 Spacer(Modifier.width(Space.s))
                 Text("Delete", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -318,7 +293,7 @@ private fun ReviewBar(enabled: Boolean, isLast: Boolean, onDelete: () -> Unit, o
                     disabledContentColor = OnPhoto.copy(alpha = 0.38f),
                 ),
             ) {
-                Icon(Icons.Outlined.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Icons.Outlined.Check, contentDescription = null, modifier = Modifier.size(StudioInlineIconSize))
                 Spacer(Modifier.width(Space.s))
                 Text(if (isLast) "Keep and finish" else "Keep", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }

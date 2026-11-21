@@ -33,14 +33,12 @@ import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.PersonRemove
 import androidx.compose.material.icons.outlined.RestartAlt
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -62,6 +60,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -70,6 +70,9 @@ import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.ui.components.DestructiveButton
 import com.poseit.app.ui.components.HairlineDivider
+import com.poseit.app.ui.components.IconGlyphInset
+import com.poseit.app.ui.components.StudioAlertDialog
+import com.poseit.app.ui.components.StudioSnackbarHost
 import com.poseit.app.ui.components.PrimaryButton
 import com.poseit.app.ui.components.SecondaryButton
 import com.poseit.app.ui.components.StudioChip
@@ -87,7 +90,7 @@ import kotlinx.coroutines.launch
 /** Drag joints of a mannequin to create / edit a custom pose. [basePoseId] null = start from neutral. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (String) -> Unit) {
+fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (id: String, message: String) -> Unit) {
     val context = LocalContext.current
     val repository = remember(context) { context.appContainer.poseRepository }
     val viewModel: PoseEditorViewModel = viewModel(key = "editor:${basePoseId.orEmpty()}") {
@@ -104,7 +107,7 @@ fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (String) 
             when (event) {
                 is EditorEvent.Saved -> {
                     showSaveSheet = false
-                    currentOnSaved(event.id)
+                    currentOnSaved(event.id, event.message)
                 }
                 is EditorEvent.Message -> scope.launch { snackbar.showSnackbar(event.text) }
             }
@@ -120,24 +123,20 @@ fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (String) 
 
     Scaffold(
         topBar = {
+            // Undo and redo live with the tools at the bottom, so the title keeps its room on a narrow phone.
             StudioTopBar(title = "Pose editor", onBack = ::requestBack) {
-                StudioIconButton(Icons.AutoMirrored.Outlined.Undo, "Undo", viewModel::undo, enabled = viewModel.canUndo)
-                StudioIconButton(Icons.AutoMirrored.Outlined.Redo, "Redo", viewModel::redo, enabled = viewModel.canRedo)
                 PrimaryButton(
                     text = "Save",
                     onClick = { showSaveSheet = true },
                     enabled = !viewModel.loading,
-                    // Compact: 40dp tall inside the 56dp bar (the touch target stays 48dp). The bar pads 7dp for
-                    // icon glyphs, so the button's edge sits on the 20dp gutter.
-                    modifier = Modifier
-                        .padding(start = Space.xs, end = 13.dp)
-                        .height(40.dp),
+                    // The bar pads for icon glyphs; this puts the button's edge on the 20dp gutter.
+                    modifier = Modifier.padding(start = Space.s, end = IconGlyphInset),
                 )
             }
         },
         // In the bottom-bar slot so snackbars sit above the tools and the toolbar runs under the navigation bar.
         bottomBar = { if (!viewModel.loading) EditorBottomBar(viewModel) },
-        snackbarHost = { SnackbarHost(snackbar) },
+        snackbarHost = { StudioSnackbarHost(snackbar) },
         containerColor = Studio.Paper,
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
@@ -170,13 +169,10 @@ fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (String) 
     }
 
     if (showDiscard) {
-        AlertDialog(
+        StudioAlertDialog(
             onDismissRequest = { showDiscard = false },
-            shape = StudioShapes.Medium,
-            containerColor = Studio.Sheet,
-            tonalElevation = 0.dp,
-            title = { Text("Discard your changes?", style = StudioType.title, color = Studio.Ink) },
-            text = { Text("Your edits to this pose haven't been saved.", style = StudioType.body, color = Studio.Graphite) },
+            title = "Discard your changes?",
+            text = "Your edits to this pose haven't been saved.",
             confirmButton = {
                 DestructiveButton("Discard", filled = true, onClick = {
                     showDiscard = false
@@ -202,18 +198,29 @@ private fun EditorBottomBar(viewModel: PoseEditorViewModel) {
                 onSelect = viewModel::select,
             )
         }
-        Text(
-            text = if (viewModel.figures.size > 1) {
-                "Tap a person to edit them, then drag the dots."
-            } else {
-                "Drag a dot to bend, the body to move. Pinch to zoom."
-            },
-            style = StudioType.label,
-            color = Studio.Graphite,
-            modifier = Modifier
+        // The hint, with undo and redo at its end: the glyphs land on the gutter, in line with the tools.
+        Row(
+            Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Space.gutter, vertical = Space.s),
-        )
+                .padding(start = Space.gutter, end = Space.gutter - IconGlyphInset),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = if (viewModel.figures.size > 1) {
+                    "Tap a person to edit them, then drag the dots."
+                } else {
+                    "Drag a dot to bend, the body to move. Pinch to zoom."
+                },
+                style = StudioType.label,
+                color = Studio.Graphite,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = Space.xs),
+            )
+            Spacer(Modifier.width(Space.s))
+            StudioIconButton(Icons.AutoMirrored.Outlined.Undo, "Undo", viewModel::undo, enabled = viewModel.canUndo)
+            StudioIconButton(Icons.AutoMirrored.Outlined.Redo, "Redo", viewModel::redo, enabled = viewModel.canRedo)
+        }
         EditorToolbar(viewModel)
     }
 }
@@ -240,12 +247,13 @@ private fun EditorToolbar(viewModel: PoseEditorViewModel) {
             .fillMaxWidth()
             .navigationBarsPadding(),
     ) {
+        // Each tool has 4dp of air of its own, so with 16dp here the outer captions sit on the 20dp gutter.
         Row(
             Modifier
                 .horizontalScroll(rememberScrollState())
                 .widthIn(min = maxWidth)
-                .padding(horizontal = Space.s, vertical = Space.xs),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(horizontal = Space.l, vertical = Space.xs),
+            horizontalArrangement = SpreadOrGap,
         ) {
             ToolButton(Icons.Outlined.Flip, "Mirror", onClick = viewModel::mirrorSelected)
             ToolButton(Icons.Outlined.RestartAlt, "Reset", onClick = viewModel::reset)
@@ -255,6 +263,27 @@ private fun EditorToolbar(viewModel: PoseEditorViewModel) {
             }
             ToolButton(Icons.Outlined.PersonAdd, "Add person", enabled = viewModel.canAddPerson, onClick = viewModel::addPerson)
             ToolButton(Icons.Outlined.PersonRemove, "Remove", enabled = viewModel.canRemovePerson, onClick = viewModel::removeSelected)
+        }
+    }
+}
+
+/**
+ * Spreads the tools across the bar like SpaceBetween while they fit; once they don't (large font, narrow phone)
+ * they keep a 4dp gap and the bar scrolls.
+ */
+private object SpreadOrGap : Arrangement.Horizontal {
+    override val spacing = Space.xs
+
+    override fun Density.arrange(totalSize: Int, sizes: IntArray, layoutDirection: LayoutDirection, outPositions: IntArray) {
+        val gap = spacing.roundToPx()
+        if (sizes.size > 1 && sizes.sum() + gap * (sizes.size - 1) <= totalSize) {
+            with(Arrangement.SpaceBetween) { arrange(totalSize, sizes, layoutDirection, outPositions) }
+        } else {
+            var x = 0
+            sizes.forEachIndexed { i, size ->
+                outPositions[i] = if (layoutDirection == LayoutDirection.Ltr) x else totalSize - x - size
+                x += size + gap
+            }
         }
     }
 }
@@ -272,7 +301,7 @@ private fun ToolLayout(icon: ImageVector, label: String, color: Color, modifier:
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(StudioIconSize))
         Spacer(Modifier.height(Space.xs))
-        Text(label, style = StudioType.label, color = color, maxLines = 1)
+        Text(label, style = StudioType.label, color = color, maxLines = 1, softWrap = false)
     }
 }
 

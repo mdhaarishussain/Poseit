@@ -1,0 +1,102 @@
+package com.poseit.app.ui.settings
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import com.poseit.app.data.COUNTDOWN_CHOICES
+import com.poseit.app.data.countdownChoiceFor
+import com.poseit.app.ui.components.StudioChip
+import com.poseit.app.ui.theme.Space
+import kotlin.math.roundToInt
+
+/**
+ * The names and descriptions of the settings that both the Settings screen and the camera's Quick settings show, so
+ * the same setting reads the same in both places.
+ */
+internal object SettingCopy {
+    const val COACHING = "Coaching"
+    const val GUIDE = "Guide"
+
+    const val VOICE = "Voice guidance"
+    const val VOICE_SUBTITLE = "Spoken hints and countdown"
+
+    const val AUTO_CAPTURE = "Auto-capture"
+    const val AUTO_CAPTURE_SUBTITLE = "Takes the photo when you hold the pose"
+
+    const val STRICTNESS = "Match strictness"
+
+    const val COUNTDOWN = "Countdown"
+    const val COUNTDOWN_SUBTITLE = "Seconds between a match and the photo"
+
+    const val GUIDE_OPACITY = "Guide opacity"
+
+    const val LIVE_SKELETON = "Live skeleton"
+    const val LIVE_SKELETON_SUBTITLE = "Shows the body Poseit detects as dots and lines"
+
+    const val LEVEL = "Level indicator"
+    const val LEVEL_SUBTITLE = "Helps you keep the horizon straight"
+
+    const val STRICTNESS_MIN = 0.60f
+    const val STRICTNESS_MAX = 0.95f
+    const val OPACITY_MIN = 0.15f
+
+    /** "80%, balanced": the value label of the strictness slider. */
+    fun strictnessValue(threshold: Float): String =
+        "${(threshold * 100).roundToInt()}%, ${strictnessLabel(threshold).lowercase()}"
+
+    /** What the current strictness means, as the slider row's subtitle. */
+    fun strictnessHint(threshold: Float): String = when (strictnessLabel(threshold)) {
+        "Relaxed" -> "A rough match is enough. Suits kids and groups."
+        "Balanced" -> "Needs a close match before the photo"
+        else -> "Needs an almost exact match"
+    }
+
+    /** Snaps a strictness to 5% steps before it is stored. */
+    fun snapStrictness(threshold: Float): Float = (threshold * 20f).roundToInt() / 20f
+
+    /** "Off", "2s", "10s": the countdown's chip label, the same short form as the shutter and the photoshoot. */
+    fun countdownLabel(seconds: Int): String = if (seconds == 0) "Off" else "${seconds}s"
+
+    /** The spoken form of [countdownLabel]. */
+    fun countdownDescription(seconds: Int): String = if (seconds == 0) "No countdown" else "$seconds seconds"
+}
+
+internal fun strictnessLabel(threshold: Float): String = when {
+    threshold < 0.725f -> "Relaxed"
+    threshold < 0.875f -> "Balanced"
+    else -> "Strict"
+}
+
+/**
+ * The countdown choices ([COUNTDOWN_CHOICES]) as one row of Studio chips, used by Settings and Quick settings. Each
+ * chip is at least 48dp wide, so "2s" fills its own touch target and the row keeps even gaps; it wraps when the
+ * font is large.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun CountdownChips(seconds: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+    val selected = countdownChoiceFor(seconds)
+    FlowRow(
+        modifier.selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(Space.s),
+        verticalArrangement = Arrangement.spacedBy(Space.s),
+    ) {
+        COUNTDOWN_CHOICES.forEach { s ->
+            StudioChip(
+                label = SettingCopy.countdownLabel(s),
+                selected = s == selected,
+                onClick = { onSelect(s) },
+                modifier = Modifier
+                    .widthIn(min = 48.dp)
+                    .semantics { contentDescription = SettingCopy.countdownDescription(s) },
+            )
+        }
+    }
+}

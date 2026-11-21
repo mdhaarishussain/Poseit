@@ -15,7 +15,7 @@ import com.poseit.app.pose.dsl.pose
  */
 object GroupPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("group_arms_around", "Shoulder Line-Up", PoseCategory.GROUP) {
+        pose("group_arms_around", "Shoulder line-up", PoseCategory.GROUP) {
             description = "The classic friends photo: everyone close together, arms around shoulders and waists. " +
                 "Simple, warm and it fits any number of people."
             tips(
@@ -51,7 +51,7 @@ object GroupPoses {
                 rightLeg(thigh = 6f, shin = -6f)
             }
         },
-        pose("group_v_formation", "V-Formation", PoseCategory.GROUP) {
+        pose("group_v_formation", "V-formation", PoseCategory.GROUP) {
             description = "One person steps forward in the middle while the others stand behind on either side, " +
                 "turned in. It gives the group depth and a strong, team-poster look."
             tips(
@@ -89,14 +89,14 @@ object GroupPoses {
                 leftLeg(thigh = -9f, shin = 5f)
             }
         },
-        pose("group_jump", "Jump Together", PoseCategory.GROUP) {
+        pose("group_jump", "Jump together", PoseCategory.GROUP) {
             description = "Everyone jumping at once, each in their own style, captures the energy of a trip or a " +
                 "celebration like nothing else."
             tips(
                 "Count down out loud and jump on 'three'",
                 "Each person picks a different jump: star, knee tuck or heel kick",
                 "Throw your arms up high",
-                "Repeat a few times – somebody always jumps late",
+                "Repeat a few times: somebody always jumps late",
             )
             tags(PoseTag.PLAYFUL, PoseTag.CANDID, PoseTag.BEACH, PoseTag.NATURE, PoseTag.TRAVEL)
             camera(CameraHeight.KNEE, ShotType.FULL_BODY, landscape = true, note = "Shoot low in burst mode while everyone is in the air.")
@@ -126,9 +126,9 @@ object GroupPoses {
                 rightLeg(thigh = 0f, shin = 100f, foot = 110f)
             }
         },
-        pose("group_walk_line", "Walking Line", PoseCategory.GROUP) {
+        pose("group_walk_line", "Walking line", PoseCategory.GROUP) {
             description = "Four friends walking toward the camera, chatting and laughing, look natural and " +
-                "cinematic – the street-style squad shot."
+                "cinematic. The street-style squad shot."
             tips(
                 "Walk side by side toward the camera at a slow pace",
                 "Talk and laugh with the person next to you",
@@ -171,7 +171,7 @@ object GroupPoses {
                 rightLeg(thigh = 4f, shin = -8f, thighLen = 0.97f, shinLen = 0.86f)
             }
         },
-        pose("group_sitting_row", "Sitting Row", PoseCategory.GROUP) {
+        pose("group_sitting_row", "Sitting row", PoseCategory.GROUP) {
             description = "Friends sitting side by side, each with a different relaxed leg position, make a " +
                 "laid-back group shot on steps, benches or a low wall."
             tips(
@@ -211,8 +211,8 @@ object GroupPoses {
                 rightArm(upper = -6f, fore = 25f)
             }
         },
-        pose("group_levels", "Stacked Levels", PoseCategory.GROUP) {
-            description = "Putting heads at three different heights – one sitting, one crouching, one standing – " +
+        pose("group_levels", "Stacked levels", PoseCategory.GROUP) {
+            description = "Putting heads at three different heights (one sitting, one crouching, one standing) " +
                 "turns a flat line-up into a dynamic, magazine-style composition."
             tips(
                 "One person sits on a step or box, one crouches in front, one stands",
@@ -250,9 +250,9 @@ object GroupPoses {
                 leftLeg(thigh = -8f, shin = 6f)
             }
         },
-        pose("group_back_to_back", "Back to Back", PoseCategory.GROUP) {
+        pose("group_back_to_back", "Back to back", PoseCategory.GROUP) {
             description = "The middle person faces the camera while the outer two stand back-to-back against their " +
-                "shoulders, arms folded – a bold, album-cover look."
+                "shoulders, arms folded. A bold, album-cover look."
             tips(
                 "Middle person: face the camera and fold your arms",
                 "Outer people: turn sideways and lean your back against the middle person's shoulder",

@@ -37,17 +37,17 @@ class LightingAnalyzerTest {
         val r = LightingAnalyzer.analyze(grid(background = 120, faceLuma = 40), face)
         assertEquals(LightingIssue.FACE_TOO_DARK, r.issue)
         assertEquals(40f, r.faceLuma!!, 0.01f)
-        assertEquals("Your face is in shadow – turn toward the light", r.hint!!.text)
+        assertEquals("Your face is in shadow. Turn toward the light", r.hint!!.text)
         assertEquals(HintKind.FRAMING, r.hint!!.kind)
         val p = LightingAnalyzer.analyze(grid(background = 120, faceLuma = 40), face, FramingAudience.PHOTOGRAPHER)
-        assertEquals("Their face is in shadow – turn them toward the light", p.hint!!.text)
+        assertEquals("Their face is in shadow. Turn them toward the light", p.hint!!.text)
     }
 
     @Test
     fun backlitSubject() {
         val r = LightingAnalyzer.analyze(grid(background = 220, faceLuma = 90), face)
         assertEquals(LightingIssue.BACKLIT, r.issue)
-        assertEquals("Strong light behind you – turn around", r.hint!!.text)
+        assertEquals("Strong light behind you. Turn around", r.hint!!.text)
         val p = LightingAnalyzer.analyze(grid(background = 220, faceLuma = 90), face, FramingAudience.PHOTOGRAPHER)
         assertNotEquals(r.hint!!.text, p.hint!!.text)
         // A bright background alone (face well lit) is fine.
@@ -60,7 +60,7 @@ class LightingAnalyzerTest {
     fun darkScene() {
         val r = LightingAnalyzer.analyze(grid(background = 25, faceLuma = 30), face)
         assertEquals(LightingIssue.SCENE_TOO_DARK, r.issue)
-        assertEquals("It's too dark – find more light", r.hint!!.text)
+        assertEquals("Too dark. Find more light", r.hint!!.text)
         val noFace = LightingAnalyzer.analyze(grid(20), null)
         assertEquals(LightingIssue.SCENE_TOO_DARK, noFace.issue)
         assertNull(noFace.faceLuma)

@@ -17,7 +17,7 @@ import com.poseit.app.pose.dsl.pose
  */
 object StandingPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("stand_hand_on_hip", "Hand on Hip", PoseCategory.STANDING) {
+        pose("stand_hand_on_hip", "Hand on hip", PoseCategory.STANDING) {
             description = "The go-to confident pose: one hand on the waist creates a flattering triangle of space " +
                 "between arm and body, and the angled stance slims the silhouette."
             tips(
@@ -41,7 +41,7 @@ object StandingPoses {
                 rightLeg(thigh = 7f, shin = -14f)
             }
         },
-        pose("stand_hands_in_pockets", "Hands in Pockets", PoseCategory.STANDING) {
+        pose("stand_hands_in_pockets", "Hands in pockets", PoseCategory.STANDING) {
             description = "Relaxed and effortless. Hands tucked into the front pockets with the thumbs out keep " +
                 "the arms natural and the elbows away from the body."
             tips(
@@ -64,7 +64,7 @@ object StandingPoses {
                 leftLeg(thigh = -6f, shin = 12f)
             }
         },
-        pose("stand_crossed_ankles", "Crossed Ankles", PoseCategory.STANDING) {
+        pose("stand_crossed_ankles", "Crossed ankles", PoseCategory.STANDING) {
             description = "Crossing the feet at the ankles narrows the base, lengthens the legs and gives a chic, " +
                 "slightly playful stance."
             tips(
@@ -86,7 +86,7 @@ object StandingPoses {
                 rightLeg(thigh = 8f, shin = 7f)
             }
         },
-        pose("stand_collar_touch", "Collar Touch", PoseCategory.STANDING) {
+        pose("stand_collar_touch", "Collar touch", PoseCategory.STANDING) {
             description = "A weight shift plus a hand at the collar looks natural and draws the eye to the face. " +
                 "Great for a smart jacket or shirt."
             tips(
@@ -110,7 +110,7 @@ object StandingPoses {
                 leftLeg(thigh = -6f, shin = 12f)
             }
         },
-        pose("stand_look_away", "Candid Look Away", PoseCategory.STANDING) {
+        pose("stand_look_away", "Candid look away", PoseCategory.STANDING) {
             description = "Looking off to the side instead of into the lens makes the photo feel like a stolen " +
                 "moment rather than a posed one."
             tips(
@@ -134,7 +134,7 @@ object StandingPoses {
                 rightLeg(thigh = 8f, shin = -10f)
             }
         },
-        pose("stand_arms_crossed", "Relaxed Arms Crossed", PoseCategory.STANDING) {
+        pose("stand_arms_crossed", "Relaxed arms crossed", PoseCategory.STANDING) {
             description = "Crossed arms read as self-assured when the body is angled and the expression is warm. " +
                 "Keep it loose, not defensive."
             tips(
@@ -156,7 +156,7 @@ object StandingPoses {
                 leftLeg(thigh = -5f, shin = 13f)
             }
         },
-        pose("stand_hand_in_hair", "Hand in Hair", PoseCategory.STANDING) {
+        pose("stand_hand_in_hair", "Hand in hair", PoseCategory.STANDING) {
             description = "Raising one hand into the hair opens up the body, lifts the waistline and adds movement " +
                 "and attitude."
             tips(
@@ -180,7 +180,7 @@ object StandingPoses {
                 rightLeg(thigh = 7f, shin = -12f)
             }
         },
-        pose("stand_over_shoulder", "Over the Shoulder", PoseCategory.STANDING) {
+        pose("stand_over_shoulder", "Over the shoulder", PoseCategory.STANDING) {
             description = "Back turned, face turned: the look-back shows off an outfit's back and the line of the " +
                 "neck and shoulders."
             tips(
@@ -203,7 +203,7 @@ object StandingPoses {
                 rightLeg(thigh = -7f, shin = 9f)
             }
         },
-        pose("stand_power_pose", "Power Pose", PoseCategory.STANDING) {
+        pose("stand_power_pose", "Power pose", PoseCategory.STANDING) {
             description = "Feet planted wide and both hands on the hips: a bold, superhero-style stance that " +
                 "radiates confidence."
             tips(
@@ -223,7 +223,7 @@ object StandingPoses {
                 rightLeg(thigh = -9f, shin = -6f)
             }
         },
-        pose("stand_sunglasses", "Sunglasses Touch", PoseCategory.STANDING) {
+        pose("stand_sunglasses", "Sunglasses touch", PoseCategory.STANDING) {
             description = "Touching the sunglasses (or a hat brim) gives the hands a job and adds instant cool " +
                 "with the elbow framing the face."
             tips(

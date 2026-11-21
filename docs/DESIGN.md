@@ -19,7 +19,7 @@ Archivo, which recalls the lettering engraved on camera bodies. Everything else 
 | `Studio.Ink` | `#17181A` | Text, icons, primary buttons, selected states |
 | `Studio.Graphite` | `#5A5C5B` | Secondary text, inactive icons, helper text (4.5:1 or better on Paper) |
 | `Studio.Hairline` | Ink at 12% alpha | Rules that encode grouping (settings groups, tab underline track, outlines) |
-| `Studio.Mannequin` | `#FBFBF9` | Figure fill. Contour is Ink at 55%, the face dot is Ink |
+| `Studio.Mannequin` | `#FBFBF9` | Figure fill. Contour is Ink at 55%, the face dot is Ink (see "Lay figures" below) |
 | `Studio.LiveView` | `#000000` | Camera surround. True black, because it is a viewfinder |
 
 **Signal colours** are functional, never decorative. They appear only for the live match score, the per-limb
@@ -41,15 +41,24 @@ There is one family, **Archivo** (OFL, bundled in `res/font`), and its width axi
 
 | Role | Cut | Size / line height | Use |
 |---|---|---|---|
-| Display | Expanded SemiBold | 28/32, tracking -0.2sp | Pose name on detail, onboarding headline, wordmark (22/28) |
-| Title | Expanded Medium | 20/26 | Section headings, sheet titles, screen titles in top bars (18/24) |
+| Display | Expanded SemiBold | 28/32, tracking -0.2sp | Pose name on detail, onboarding and full-screen explainer headlines, wordmark (22/28) |
+| Title | Expanded Medium | 20/26 | Sheet and dialog titles, the featured pose name; screen titles in top bars (18/24) |
+| Heading | SemiBold | 17/24 | Section and group headings inside a screen or sheet, empty-state titles |
 | Body | Regular | 15/22 | Paragraphs, descriptions, tips |
 | Body strong | Medium | 15/22 | Row titles, the name under a pose tile |
-| Label | Medium | 13/18 | Buttons, chips, tabs, captions, helper text |
+| Label large | Medium | 14/20 | Buttons, tabs, menu items |
+| Label | Medium | 13/18 | Chips, captions, helper text, row subtitles |
 | Numeral | Expanded Bold, `tnum` | 15 to 96 | Match score, countdown, counts. Tabular figures; not monospace |
 
 Rules:
-- Sentence case everywhere. No ALL-CAPS labels and no tracked-out eyebrows.
+- The wide cut is the loud element, so spend it sparingly: the wordmark, Display, the one title of a screen, sheet or
+  dialog, and numerals. Headings inside a screen are the normal-width Heading role, so a screen shows at most one
+  Expanded element besides its bar title.
+- Display, Title and Heading balance their line lengths (`LineBreak.Heading`), so a two-line headline never ends on
+  one stranded word.
+- Sentence case everywhere, including pose names ("Hand on hip", "Jacket over shoulder") and categories
+  ("Walking", "On the ground"). Proper nouns keep their capitals ("LinkedIn headshot"). No ALL-CAPS labels and no
+  tracked-out eyebrows.
 - Never accent one word in a headline with italic, bold or colour.
 - Don't join metadata with middle dots ("A · B · C"). Show separate items with spacing, or write a short phrase
   ("Standing, easy").
@@ -67,8 +76,9 @@ Rules:
   sections is 32dp.
 - **Depth:** no shadows and no elevation tint. Separate things by tone (Paper vs Set vs Sheet) and by space. The
   only shadow is the soft oval contact shadow under a mannequin's feet, because it puts the figure on the floor.
-- **Icons:** Material Icons **Outlined**, 22dp, Ink (inactive: Graphite). Use filled icons only for an active
-  toggle (a filled heart for a favourite).
+- **Icons:** Material Icons **Outlined**, 22dp standalone and 18dp inline with button, chip or Label text; Ink
+  (inactive: Graphite). Use filled icons only for an active toggle (a filled heart for a favourite), never for a
+  passive badge.
 - **Motion:** respond to the user's action only, at 150 to 220ms with standard easing. No looping decoration and no
   staggered entrances. The one orchestrated moment is the capture flash and countdown.
 
@@ -80,25 +90,46 @@ Rules:
   - Tertiary: text only, Ink.
   - Destructive: Miss text, or a Miss fill when confirming.
   - One primary per screen.
+- **Icon toggles:** a view option on a light screen (Mirror on the detail screen, the editor's tools) inverts while
+  on: a 40dp Ink patch with Medium radius and a Sheet glyph.
 - **Tabs:** text tabs. The selected one is Ink with a 2dp Ink underline; the others are Graphite. No pill backgrounds.
-- **Chips (filters):** Small radius, 32dp tall, 1dp Hairline outline with Ink label. Selected chips are Ink-filled
-  with a Sheet label. No emoji and no leading icons, except the people count, which may use a person outline icon.
+  The Hairline track stops at the gutters while the tabs fit and runs edge to edge once the row scrolls.
+- **Chips (filters and choices):** Small radius, 32dp tall, 1dp Hairline outline with Ink label. Selected chips are
+  Ink-filled with a Sheet label. No emoji and no leading icons, except the people count, which may use a person
+  outline icon. A choice of a few values (the countdown: "Off", "2s", "3s") is a row of chips, the same in Settings
+  and Quick settings; there is no segmented control. The library's filters are one scrolling chip row with no
+  captions, its groups (people, category, place, mood) set off by short vertical Hairlines; tapping a selected chip
+  clears it.
 - **Pose tile:**
   - Set-coloured rectangle with Medium radius, holding the figure plus its contact shadow.
-  - Name below the tile on Paper in Body strong; the category in Label, Graphite.
+  - Name below the tile on Paper in Body strong, up to two lines; the category in Label, Graphite.
   - No container around the caption, no shadow and no gradient.
   - The favourite toggle is an outlined heart in the tile's top-right corner.
 - **Frame marks:** thin Ink corner brackets (1.5dp, 12dp long) at the corners of a pose's photo frame on the detail
   preview and the editor canvas. They show the framing of the shot, like viewfinder frame lines.
 - **Rows (settings, lists):**
   - Title in Body strong, subtitle in Label Graphite, control at the end; at least 56dp tall.
-  - Groups start with a Title-style heading in sentence case and are separated by 32dp.
+  - Groups start with a Heading-style heading in sentence case and are separated by 32dp.
   - Hairline dividers only between rows of the same group. No icon tiles.
 - **Switches:** checked track Ink, thumb Sheet; unchecked track Paper with a Graphite outline and a Graphite thumb.
 - **Sliders:** Ink active track, Hairline inactive track, Ink thumb.
-- **Sheets and dialogs:** Sheet background, Large top radius for sheets and Medium for dialogs, Title-style heading.
+- **Sheets and dialogs:** Sheet background, Large top radius for sheets and Medium for dialogs, a Title-style title
+  and Heading-style group headings. No tonal elevation: use `StudioAlertDialog`.
+- **Menus:** one `StudioMenu` everywhere, on Paper and over the camera: Sheet, Small radius, a Hairline edge instead
+  of a shadow, Label large items with an optional 22dp leading icon and a check for the chosen option.
+- **Snackbars:** `StudioSnackbarHost`: a Sheet card with Medium radius and a Hairline edge, Body text and a
+  Tertiary action. No shadow (the stock M3 snackbar casts one). Actions confirm with the button's own words:
+  "Save pose" leads to "Pose saved", "Delete pose" to "Pose deleted".
+- **Steps:** a real sequence (how to do a pose, how to make one from a photo) is numbered with small Ink numerals
+  in a 28dp column on the text's baseline. Nothing else gets numbers.
 - **Empty states:** left-aligned. A short sentence that says what to do and one button that does it. No emoji and no
   big illustrations.
+
+## Lay figures
+
+- The silhouette contour grows with the figure but stays a fine line: 3% of the body unit, clamped to 1.25dp to
+  2.25dp, so a small tile keeps a visible edge and a big figure (onboarding, detail, editor) looks crisp instead of
+  outlined in marker. The stick figure's line is clamped to 1.5dp to 3dp the same way.
 
 ## Camera screen
 
@@ -116,5 +147,9 @@ Rules:
 
 - Sentence case and plain verbs. Name things by what people understand: "Pose camera", "Your photos", "Make a pose
   from a photo".
-- Buttons keep the same name through a flow: "Save pose" leads to the message "Pose saved".
+- Buttons keep the same name through a flow: "Save pose" leads to the message "Pose saved". One action has one
+  name everywhere: "Try this pose", "Customise", "Draw a pose", "Pose from a photo".
+- British spelling: favourite, colour, centre, customise, licence.
+- Hints and tips are short sentences: the reason, a full stop, then what to do ("Their head is cut off. Tilt the
+  phone up"). No "X – fragment" labels and no exclamation marks.
 - Errors say what happened and what to do, without apologising. Empty screens invite one action.

@@ -23,16 +23,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -47,8 +40,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.GridType
 import com.poseit.app.data.OverlayStyle
 import com.poseit.app.pose.PoseTemplate
@@ -66,10 +57,10 @@ import com.poseit.app.ui.theme.StudioType
 
 /*
  * Pieces of the settings screen that the shared Studio rows don't cover: the group frame, the picture tiles for
- * the guide style and the grid, and the countdown control.
+ * the guide style and the grid.
  */
 
-/** A settings group: a Title-style heading on the gutter, then its rows. The list puts 32dp between groups. */
+/** A settings group: a heading on the gutter, then its rows. The list puts 32dp between groups. */
 @Composable
 internal fun SettingsGroup(title: String, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(modifier.fillMaxWidth()) {
@@ -209,44 +200,3 @@ internal val GridType.shortLabel: String
         GridType.GOLDEN -> "Golden"
         GridType.CENTER -> "Centre"
     }
-
-/** "Off", "2 s", "10 s": the number and unit never split across lines. */
-internal fun countdownLabel(seconds: Int): String = if (seconds == 0) "Off" else "$seconds s"
-
-/**
- * The countdown as a five-part segmented control: Small-radius Hairline outline, the selected part Ink with a
- * Sheet label. Labels shrink instead of breaking at the largest font sizes (five parts on a 360dp phone).
- */
-@Composable
-internal fun CountdownControl(selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
-    val colors = SegmentedButtonDefaults.colors(
-        activeContainerColor = Studio.Ink,
-        activeContentColor = Studio.Sheet,
-        activeBorderColor = Studio.Ink,
-        inactiveContainerColor = Color.Transparent,
-        inactiveContentColor = Studio.Ink,
-        // Solid, so the 1dp overlap between parts doesn't show as a darker seam.
-        inactiveBorderColor = MaterialTheme.colorScheme.outline,
-    )
-    SingleChoiceSegmentedButtonRow(modifier.fillMaxWidth()) {
-        COUNTDOWN_CHOICES.forEachIndexed { index, seconds ->
-            SegmentedButton(
-                selected = seconds == selected,
-                onClick = { onSelect(seconds) },
-                shape = SegmentedButtonDefaults.itemShape(index, COUNTDOWN_CHOICES.size, baseShape = StudioShapes.Small),
-                colors = colors,
-                icon = {},
-            ) {
-                BasicText(
-                    text = countdownLabel(seconds),
-                    style = MaterialTheme.typography.labelLarge.copy(color = LocalContentColor.current),
-                    maxLines = 1,
-                    autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 14.sp, stepSize = 0.5.sp),
-                    modifier = Modifier.semantics {
-                        contentDescription = if (seconds == 0) "No countdown" else "$seconds seconds"
-                    },
-                )
-            }
-        }
-    }
-}

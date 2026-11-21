@@ -17,13 +17,13 @@ import com.poseit.app.pose.dsl.pose
  */
 object PortraitPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("port_chin_rest", "Thoughtful Chin Rest", PoseCategory.PORTRAIT) {
+        pose("port_chin_rest", "Thoughtful chin rest", PoseCategory.PORTRAIT) {
             description = "A thoughtful classic: one arm folded across the waist props up the other elbow, and the " +
                 "knuckles rest lightly under the chin. It frames the face and gives the hands a natural job."
             tips(
                 "Turn your shoulders about 30° away from the camera",
                 "Fold one arm across your waist and rest the other elbow on that hand",
-                "Let your chin touch your knuckles lightly – don't push your face up",
+                "Let your chin touch your knuckles lightly, without pushing your face up",
                 "Look into the lens with a soft, closed-mouth smile",
             )
             tags(PoseTag.CONFIDENT, PoseTag.ELEGANT, PoseTag.CAFE, PoseTag.OFFICE, PoseTag.CITY)
@@ -38,11 +38,11 @@ object PortraitPoses {
                 rightArm(upper = -4f, fore = 92f, hand = 96f, upperLen = 0.92f, foreLen = 0.94f)
             }
         },
-        pose("port_face_frame", "Face Frame", PoseCategory.PORTRAIT) {
+        pose("port_face_frame", "Face frame", PoseCategory.PORTRAIT) {
             description = "Both hands softly frame the jawline, drawing every eye straight to the face. Great for " +
                 "beauty shots, new hairstyles and close-ups with a playful head tilt."
             tips(
-                "Rest your palms lightly along your jaw, fingers relaxed – don't squash your cheeks",
+                "Rest your palms lightly along your jaw, fingers relaxed, without squashing your cheeks",
                 "Bring your elbows in front of your body, close together",
                 "Tilt your head slightly toward one shoulder",
                 "Keep your shoulders down and relaxed",
@@ -58,7 +58,7 @@ object PortraitPoses {
                 rightArm(upper = -10f, fore = 149f, hand = 172f, upperLen = 0.61f)
             }
         },
-        pose("port_hand_in_hair", "Hand in Hair", PoseCategory.PORTRAIT) {
+        pose("port_hand_in_hair", "Fingers through hair", PoseCategory.PORTRAIT) {
             description = "Lifting one arm to run the fingers through the hair opens up the body and adds movement " +
                 "and attitude. A favourite for fashion and outdoor portraits."
             tips(
@@ -68,7 +68,7 @@ object PortraitPoses {
                 "Lift your chin just a touch and relax your mouth",
             )
             tags(PoseTag.COOL, PoseTag.ELEGANT, PoseTag.NATURE, PoseTag.BEACH, PoseTag.CITY)
-            camera(CameraHeight.EYE, ShotType.HALF_BODY, note = "Keep the raised elbow inside the frame – don't crop it off.")
+            camera(CameraHeight.EYE, ShotType.HALF_BODY, note = "Keep the raised elbow inside the frame. Don't crop it off.")
             difficulty = 2
             figure(cx = 0.463f, top = 0.1f, bodyHeight = 1.6f) {
                 facing = -25f
@@ -79,7 +79,7 @@ object PortraitPoses {
                 rightArm(upper = -8f, fore = 4f)
             }
         },
-        pose("port_over_shoulder", "Over the Shoulder", PoseCategory.PORTRAIT) {
+        pose("port_over_shoulder", "Shoulder glance", PoseCategory.PORTRAIT) {
             description = "Turning your back to the camera and glancing over your shoulder creates a graceful neck " +
                 "line and an inviting, candid feel. Works anywhere with a nice background."
             tips(
@@ -101,8 +101,8 @@ object PortraitPoses {
                 rightArm(upper = 9f, fore = 2f)
             }
         },
-        pose("port_arms_crossed_smile", "Crossed-Arm Smile", PoseCategory.PORTRAIT) {
-            description = "Folded arms with a warm smile read as confident and approachable at the same time – the " +
+        pose("port_arms_crossed_smile", "Crossed-arm smile", PoseCategory.PORTRAIT) {
+            description = "Folded arms with a warm smile read as confident and approachable at the same time. The " +
                 "smile keeps it friendly, the angled body keeps it slim."
             tips(
                 "Turn your body slightly away and fold your arms loosely",
@@ -122,7 +122,7 @@ object PortraitPoses {
                 rightArm(upper = -6f, fore = 94f, hand = 100f, upperLen = 0.91f)
             }
         },
-        pose("port_chin_on_hand", "Café Chin Rest", PoseCategory.PORTRAIT) {
+        pose("port_chin_on_hand", "Café chin rest", PoseCategory.PORTRAIT) {
             description = "Leaning forward over a table with the chin resting on the knuckles feels relaxed and " +
                 "intimate. Perfect for café, restaurant and desk shots."
             tips(
@@ -143,7 +143,7 @@ object PortraitPoses {
                 rightArm(upper = -11f, fore = 83f, hand = 88f, upperLen = 0.88f)
             }
         },
-        pose("port_dreamy_gaze", "Dreamy Gaze", PoseCategory.PORTRAIT) {
+        pose("port_dreamy_gaze", "Dreamy gaze", PoseCategory.PORTRAIT) {
             description = "Holding a warm cup and gazing off into the distance gives a calm, story-telling mood. " +
                 "The candid look hides any camera shyness."
             tips(
@@ -164,7 +164,7 @@ object PortraitPoses {
                 rightArm(upper = -5f, fore = 129f, hand = 110f, upperLen = 0.92f, foreLen = 0.82f)
             }
         },
-        pose("port_collar_adjust", "Collar Adjust", PoseCategory.PORTRAIT) {
+        pose("port_collar_adjust", "Collar adjust", PoseCategory.PORTRAIT) {
             description = "Pinching the collar as if fixing it adds a sharp, self-assured touch. A favourite for " +
                 "shirts, jackets and coats."
             tips(
@@ -185,9 +185,9 @@ object PortraitPoses {
                 rightArm(upper = -16f, fore = 22f)
             }
         },
-        pose("port_shoulder_touch", "Shoulder Touch", PoseCategory.PORTRAIT) {
+        pose("port_shoulder_touch", "Shoulder touch", PoseCategory.PORTRAIT) {
             description = "One hand resting on the opposite shoulder with the head tilted toward it creates soft " +
-                "lines across the body – elegant and gentle."
+                "lines across the body. Elegant and gentle."
             tips(
                 "Turn your body about 30° away from the camera",
                 "Reach your near hand across and rest it on your far shoulder",

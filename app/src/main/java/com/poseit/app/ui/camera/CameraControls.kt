@@ -34,7 +34,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.BurstMode
 import androidx.compose.material.icons.outlined.Cameraswitch
@@ -80,10 +79,12 @@ import com.poseit.app.camera.FlashMode
 import com.poseit.app.camera.SceneAspect
 import com.poseit.app.data.GridType
 import com.poseit.app.pose.PoseTemplate
-import com.poseit.app.ui.components.HairlineDivider
 import com.poseit.app.ui.components.PoseTile
 import com.poseit.app.ui.components.PoseTileSize
 import com.poseit.app.ui.components.StudioIconSize
+import com.poseit.app.ui.components.StudioMenu
+import com.poseit.app.ui.components.StudioMenuDivider
+import com.poseit.app.ui.components.StudioMenuItem
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
 import com.poseit.app.ui.theme.StudioShapes
@@ -111,7 +112,7 @@ private fun GridType.icon(): ImageVector = when (this) {
 internal fun SceneAspect.next(): SceneAspect = SceneAspect.entries[(ordinal + 1) % SceneAspect.entries.size]
 
 /** Width of a tile in the pose strip (the tile is 3:4). */
-private val StripTileWidth = 54.dp
+private val StripTileWidth = 56.dp
 
 /**
  * Back, flash, grid, aspect ratio, timer menu and quick settings, as round controls on the black surround. Flash and
@@ -197,29 +198,20 @@ private fun TimerMenuButton(timer: TimerOption, onTimer: (TimerOption) -> Unit, 
     Box {
         // The delay itself is shown on the shutter; the inverted disc says a timer is set.
         RoundControl(icon, description, onClick = { open = true }, active = timer != TimerOption.Off)
-        CameraMenu(expanded = open, onDismissRequest = { open = false }) {
+        StudioMenu(expanded = open, onDismissRequest = { open = false }) {
             @Composable
-            fun item(text: String, option: TimerOption, icon: ImageVector) = DropdownMenuItem(
-                text = { Text(text) },
-                leadingIcon = { Icon(icon, contentDescription = null) },
-                trailingIcon = { if (timer == option) Icon(Icons.Outlined.Check, contentDescription = "Selected") },
-                onClick = {
+            fun item(text: String, option: TimerOption, icon: ImageVector) =
+                StudioMenuItem(text, leadingIcon = icon, selected = timer == option) {
                     open = false
                     onTimer(option)
-                },
-            )
+                }
             item("Off", TimerOption.Off, Icons.Outlined.TimerOff)
             TimerOption.DELAYS.forEach { s -> item("$s seconds", TimerOption.Delay(s), Icons.Outlined.Timer) }
-            HairlineDivider(Modifier.padding(vertical = Space.xs))
-            DropdownMenuItem(
-                text = { Text("Photoshoot…") },
-                leadingIcon = { Icon(Icons.Outlined.BurstMode, contentDescription = null) },
-                trailingIcon = { if (timer is TimerOption.Photoshoot) Icon(Icons.Outlined.Check, contentDescription = "Selected") },
-                onClick = {
-                    open = false
-                    onPhotoshoot()
-                },
-            )
+            StudioMenuDivider()
+            StudioMenuItem("Photoshoot…", leadingIcon = Icons.Outlined.BurstMode, selected = timer is TimerOption.Photoshoot) {
+                open = false
+                onPhotoshoot()
+            }
         }
     }
 }
@@ -279,19 +271,7 @@ internal fun PoseStrip(
                         .width(StripTileWidth)
                         .selectable(selected = selected, interactionSource = source, indication = null, role = Role.Button) { onSelect(pose) }
                         .semantics { contentDescription = pose.name },
-                ) {
-                    if (pose.id in favorites) {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = null,
-                            tint = Studio.Ink,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(Space.xs)
-                                .size(12.dp),
-                        )
-                    }
-                }
+                )
             }
         }
     }
@@ -398,7 +378,7 @@ private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing:
         label = "shutterScale",
     )
     val description = when {
-        sessionActive -> "Stop timer"
+        sessionActive -> if (timer is TimerOption.Photoshoot) "Stop photoshoot" else "Stop timer"
         timer != TimerOption.Off -> "Start timer"
         else -> "Take photo"
     }

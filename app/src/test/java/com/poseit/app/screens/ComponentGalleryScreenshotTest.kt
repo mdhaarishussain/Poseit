@@ -135,10 +135,12 @@ private fun ColumnScope.LeftColumn() {
     }
     Gallery("Type") {
         TypeSample("Display 28/32", StudioType.display, "Hand on hip")
-        TypeSample("Title 20/26", StudioType.title, "Camera and timer")
+        TypeSample("Title 20/26", StudioType.title, "Quick settings")
         TypeSample("Bar title 18/24", StudioType.barTitle, "Your photos")
+        TypeSample("Heading 17/24", StudioType.heading, "Camera setup")
         TypeSample("Body 15/22", StudioType.body, "Turn your shoulders slightly away from the camera and drop your chin.")
         TypeSample("Body strong 15/22", StudioType.bodyStrong, "Voice coaching")
+        TypeSample("Label large 14/20", StudioType.labelLarge, "Try this pose")
         TypeSample("Label 13/18", StudioType.label, "Standing, easy")
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(Space.xl)) {
             Text("87", style = StudioType.numeral(64.sp), color = Studio.Ink)
@@ -171,7 +173,7 @@ private fun ColumnScope.RightColumn() {
         Row(horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
             SecondaryButton("Edit pose", {})
             TertiaryButton("Cancel", {})
-            DestructiveButton("Delete", {})
+            DestructiveButton("Delete pose", {})
         }
         Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
             DestructiveButton("Delete pose", {}, filled = true)
@@ -181,10 +183,10 @@ private fun ColumnScope.RightColumn() {
     Gallery("Tabs and chips", gap = Space.l) {
         var tab by remember { mutableIntStateOf(1) }
         StudioTabs(listOf("All", "Favourites", "Recent", "My poses"), tab, { tab = it })
-        var people by remember { mutableIntStateOf(1) }
+        var people by remember { mutableIntStateOf(0) }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(Space.s), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-            listOf("Any", "Solo", "Couple", "Group").forEachIndexed { i, label ->
-                StudioChip(label, selected = people == i, onClick = { people = i }, leadingIcon = if (i == 0) null else Icons.Outlined.Person)
+            listOf("Solo", "Couple", "Group").forEachIndexed { i, label ->
+                StudioChip(label, selected = people == i, onClick = { people = if (people == i) -1 else i }, leadingIcon = Icons.Outlined.Person)
             }
             StudioChip("Beach", selected = false, onClick = {})
             StudioChip("City street", selected = false, onClick = {})
@@ -195,11 +197,11 @@ private fun ColumnScope.RightColumn() {
         var voice by remember { mutableStateOf(true) }
         var level by remember { mutableStateOf(false) }
         var opacity by remember { mutableFloatStateOf(0.6f) }
-        SectionHeading("Camera", Modifier.padding(horizontal = Space.gutter))
+        SectionHeading("Guide", Modifier.padding(horizontal = Space.gutter))
         Spacer(Modifier.height(Space.xs))
-        SwitchRow("Voice coaching", voice, { voice = it }, subtitle = "Spoken hints while you pose")
+        SwitchRow("Voice guidance", voice, { voice = it }, subtitle = "Spoken hints and countdown")
         HairlineDivider(Modifier.padding(horizontal = Space.gutter))
-        SwitchRow("Level", level, { level = it })
+        SwitchRow("Level indicator", level, { level = it })
         HairlineDivider(Modifier.padding(horizontal = Space.gutter))
         SliderRow("Guide opacity", "${(opacity * 100).toInt()}%", opacity, { opacity = it })
         HairlineDivider(Modifier.padding(horizontal = Space.gutter))

@@ -16,7 +16,6 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,11 +36,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.launch
 
 /**
  * Text tabs (docs/DESIGN.md): the selected tab is Ink with a 2dp Ink underline, the others Graphite, all on a
- * full-width Hairline track. No pill backgrounds. Tabs sit left-aligned, 24dp apart, and the row scrolls
+ * Hairline track (inset to [edgePadding] while the tabs fit, edge to edge when the row scrolls). No pill backgrounds. Tabs sit left-aligned, 24dp apart, and the row scrolls
  * horizontally when they don't fit (the selected tab is scrolled into view).
  *
  * Each tab is a selectable node with [Role.Tab] and its selected state, inside a selectable group.
@@ -78,17 +78,21 @@ fun StudioTabs(
         }
     }
 
+    val scroll = rememberScrollState()
     Box(
         modifier
             .fillMaxWidth()
             .drawBehind {
+                // The track stops at the edge padding (the gutters) while all tabs fit, and runs edge to edge once
+                // the row scrolls, so it doesn't end in mid-air under a cut-off tab.
                 val track = 1.dp.toPx()
-                drawRect(Studio.Hairline, Offset(0f, size.height - track), Size(size.width, track))
+                val inset = if (scroll.maxValue == 0) edgePadding.toPx() else 0f
+                drawRect(Studio.Hairline, Offset(inset, size.height - track), Size(size.width - 2 * inset, track))
             },
     ) {
         Row(
             Modifier
-                .horizontalScroll(rememberScrollState())
+                .horizontalScroll(scroll)
                 .padding(horizontal = edgePadding)
                 .selectableGroup()
                 .drawBehind {
@@ -116,7 +120,7 @@ fun StudioTabs(
                         .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(index) }),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(label, style = MaterialTheme.typography.labelLarge, color = color, maxLines = 1, softWrap = false)
+                    Text(label, style = StudioType.labelLarge, color = color, maxLines = 1, softWrap = false)
                 }
             }
         }

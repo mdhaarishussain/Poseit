@@ -1,6 +1,7 @@
 package com.poseit.app.ui.gallery
 
 import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -17,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
@@ -49,6 +53,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.size.Precision
 import com.poseit.app.ui.components.StudioIconSize
+import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
 import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -106,7 +111,7 @@ internal fun ZoomableImage(
         val startScale = scale
         val startOffset = offset
         scope.launch {
-            animate(0f, 1f, animationSpec = tween(durationMillis = 260)) { t, _ ->
+            animate(0f, 1f, animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing)) { t, _ ->
                 scale = startScale + (targetScale - startScale) * t
                 offset = startOffset + (targetOffset - startOffset) * t
             }
@@ -203,11 +208,18 @@ internal fun ZoomableImage(
             is AsyncImagePainter.State.Loading ->
                 CircularProgressIndicator(Modifier.size(28.dp), color = Studio.Mannequin.copy(alpha = 0.72f), strokeWidth = 2.dp)
             is AsyncImagePainter.State.Error -> Column(
+                Modifier.padding(horizontal = Space.gutter),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(Space.s),
             ) {
                 Icon(Icons.Outlined.BrokenImage, contentDescription = null, tint = Studio.Mannequin.copy(alpha = 0.72f), modifier = Modifier.size(StudioIconSize))
-                Text("Couldn't open this photo", style = StudioType.body, color = Studio.Mannequin.copy(alpha = 0.72f))
+                Text(
+                    "Couldn't open this photo. It may have been moved or deleted.",
+                    style = StudioType.body,
+                    color = Studio.Mannequin.copy(alpha = 0.72f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.widthIn(max = 320.dp),
+                )
             }
             else -> Unit
         }

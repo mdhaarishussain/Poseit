@@ -9,6 +9,9 @@ import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,10 +26,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -66,6 +66,7 @@ import com.poseit.app.input.HardwareKeys
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.theme.LightSystemBarIcons
+import com.poseit.app.ui.components.StudioSnackbarHost
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
 import com.poseit.app.ui.theme.StudioShapes
@@ -180,7 +181,7 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
     }
     fun askStorage(thenShoot: Boolean) {
         if (storage.permanentlyDenied) {
-            showMessage("Allow storage access to save photos", "Settings") { context.openAppSettings() }
+            showMessage("Allow storage access to save photos", "Open settings") { context.openAppSettings() }
         } else {
             shutterAfterStorageGrant = thenShoot
             requestStorage()
@@ -359,13 +360,12 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                 )
             }
 
-            SnackbarHost(
+            StudioSnackbarHost(
                 snackbar,
                 Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = controlsHeight + Space.s)
-                    .widthIn(max = 560.dp),
-            ) { data -> CueSnackbar(data) }
+                    .padding(bottom = controlsHeight),
+            )
         }
     }
 
@@ -438,17 +438,26 @@ private fun PreviewHud(
             .fillMaxSize()
             .padding(Space.m),
     ) {
+        // The pose card and the top-left notices share the top edge, so they take turns: the photoshoot counter wins,
+        // then the pose card (for a few seconds after a pose change), then the detector notice.
+        val photoshoot = session != null && session.isPhotoshoot
+        val showPill = pillVisible && !photoshoot
         when {
-            session != null && session.isPhotoshoot -> ShotCounter(session, vm::stopSession, Modifier.align(Alignment.TopStart))
+            photoshoot -> ShotCounter(session!!, vm::stopSession, Modifier.align(Alignment.TopStart))
             // In the corner, clear of the guide figure; the score badge shows a warning glyph too.
-            ui.detectorError != null && ui.hasPose -> DetectorNotice(Modifier.align(Alignment.TopStart))
+            ui.detectorError != null && ui.hasPose -> AnimatedVisibility(
+                visible = !showPill,
+                enter = fadeIn(tween(180)),
+                exit = fadeOut(tween(150)),
+                modifier = Modifier.align(Alignment.TopStart),
+            ) { DetectorNotice() }
         }
         if (ui.hasPose) {
             ScoreBadge(vm, ui.detectorReady, ui.detectorError, Modifier.align(Alignment.TopEnd))
         }
         PosePill(
             pose = ui.pose,
-            visible = pillVisible,
+            visible = showPill,
             onClick = onOpenTips,
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -525,21 +534,6 @@ private suspend fun View.awaitLayout(targetAspect: Float) {
             withFrameNanos { }
         }
     }
-}
-
-/** Messages over the camera use the cue-card style: Ink on a Sheet card, legible against the black surround. */
-@Composable
-private fun CueSnackbar(data: SnackbarData) {
-    Snackbar(
-        snackbarData = data,
-        modifier = Modifier.padding(horizontal = Space.m),
-        shape = StudioShapes.Medium,
-        containerColor = Studio.Sheet,
-        contentColor = Studio.Ink,
-        actionColor = Studio.Ink,
-        actionContentColor = Studio.Ink,
-        dismissActionContentColor = Studio.Ink,
-    )
 }
 
 /** Favourites first, then the strip category; the current pose is always included. */

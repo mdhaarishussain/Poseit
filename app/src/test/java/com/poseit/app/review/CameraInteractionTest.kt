@@ -181,7 +181,7 @@ class CameraInteractionTest {
             settle(600)
             shot("quick-settings")
             compose.onAllNodes(hasClickAction()).fetchSemanticsNodes().size // force a pass
-            listOf("Live skeleton", "Level").forEach { title ->
+            listOf("Live skeleton", "Level indicator").forEach { title ->
                 runCatching { byText(title).performClick() }
                 compose.waitForIdle()
             }
@@ -189,7 +189,7 @@ class CameraInteractionTest {
             settle(600)
 
             byDesc("All poses").performClick()
-            compose.waitForText("Choose a pose")
+            compose.waitForText("All poses")
             settle(600)
             shot("all-poses")
             pressBackKey()
@@ -278,15 +278,15 @@ class CameraInteractionTest {
             val pose = BuiltInPoses.all.first()
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
             byText(pose.name).performClick()
-            compose.waitForDesc("More options")
-            byText("Mirror").performClick()
+            compose.waitForText("Camera setup")
+            byDesc("Mirror").performClick()
             compose.waitForIdle()
             byText("Try this pose").performClick()
             compose.waitForDesc("Take photo")
             settle()
             waitFor { toggleState(byDesc("Mirror pose")) == ToggleableState.On }
             systemBack(scenario)
-            compose.waitForDesc("More options")
+            compose.waitForText("Camera setup")
             crashes.assertNoCrashes()
         }
         crashes.assertNoCrashes()

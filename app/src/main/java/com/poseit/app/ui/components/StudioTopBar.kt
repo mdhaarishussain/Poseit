@@ -92,7 +92,7 @@ private fun TopBarLayout(
                 .windowInsetsPadding(windowInsets)
                 .height(heightDp.dp)
                 // The back arrow's glyph and the action glyphs land on the 20dp gutter (48dp target, 22dp icon).
-                .padding(start = if (onBack != null) 7.dp else Space.gutter, end = 7.dp),
+                .padding(start = if (onBack != null) Space.gutter - IconGlyphInset else Space.gutter, end = Space.gutter - IconGlyphInset),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (onBack != null) {

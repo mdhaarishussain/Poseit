@@ -13,7 +13,7 @@ import com.poseit.app.pose.dsl.pose
  */
 object FloorPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("floor_street_squat", "Street Squat", PoseCategory.FLOOR) {
+        pose("floor_street_squat", "Street squat", PoseCategory.FLOOR) {
             description = "The streetwear staple: a low squat with knees wide and forearms on the knees looks " +
                 "grounded, bold and effortlessly cool."
             tips(
@@ -35,7 +35,7 @@ object FloorPoses {
                 rightArm(upper = -20f, fore = 35f, hand = 20f, upperLen = 0.8f)
             }
         },
-        pose("floor_low_crouch", "Low Crouch", PoseCategory.FLOOR) {
+        pose("floor_low_crouch", "Low crouch", PoseCategory.FLOOR) {
             description = "Crouched low on the balls of the feet with the knees together and the forearms " +
                 "resting on them: compact, sporty and full of attitude."
             tips(
@@ -58,7 +58,7 @@ object FloorPoses {
                 leftArm(upper = 46f, fore = 25f, hand = 10f, upperLen = 0.8f)
             }
         },
-        pose("floor_one_knee", "One Knee Down", PoseCategory.FLOOR) {
+        pose("floor_one_knee", "One knee down", PoseCategory.FLOOR) {
             description = "Kneeling on one knee with a forearm on the other is strong and steady, and lowers " +
                 "the subject without looking small."
             tips(
@@ -81,7 +81,7 @@ object FloorPoses {
                 leftArm(upper = 12f, fore = 50f)
             }
         },
-        pose("floor_cross_legged", "Cross-Legged", PoseCategory.FLOOR) {
+        pose("floor_cross_legged", "Cross-legged", PoseCategory.FLOOR) {
             description = "Sitting cross-legged on the floor, grass or a blanket is grounded and approachable, " +
                 "ideal for picnics and cosy indoor shots."
             tips(
@@ -102,7 +102,7 @@ object FloorPoses {
                 rightArm(upper = -18f, fore = -25f, hand = -30f)
             }
         },
-        pose("floor_side_lie", "Side Lie on Elbow", PoseCategory.FLOOR) {
+        pose("floor_side_lie", "Side lie on elbow", PoseCategory.FLOOR) {
             description = "Lying on your side propped on one elbow, head in hand, top knee bent: relaxed, " +
                 "flattering curves for the beach, a picnic blanket or a bed."
             tips(
@@ -124,7 +124,7 @@ object FloorPoses {
                 rightLeg(thigh = -110f, shin = -20f, foot = -100f)
             }
         },
-        pose("floor_feet_up", "Feet in the Air", PoseCategory.FLOOR) {
+        pose("floor_feet_up", "Feet in the air", PoseCategory.FLOOR) {
             description = "Lying on your stomach, propped on your elbows with your feet kicked up behind you: " +
                 "a sweet, playful classic for the beach or the bed."
             tips(
@@ -147,7 +147,7 @@ object FloorPoses {
                 leftLeg(thigh = -88f, shin = 168f, foot = -170f)
             }
         },
-        pose("floor_lean_back", "Lean Back & Relax", PoseCategory.FLOOR) {
+        pose("floor_lean_back", "Lean back & relax", PoseCategory.FLOOR) {
             description = "Sitting with the legs out and leaning back on straight arms looks sunny and carefree, " +
                 "like the best moment of a lazy afternoon."
             tips(
@@ -171,7 +171,7 @@ object FloorPoses {
                 rightLeg(thigh = 128f, shin = 38f)
             }
         },
-        pose("floor_overhead_lie", "Overhead Dreamer", PoseCategory.FLOOR) {
+        pose("floor_overhead_lie", "Overhead dreamer", PoseCategory.FLOOR) {
             description = "Lying on your back on grass, sand or a bed, shot from straight above: hair spread out " +
                 "and arms framing the face make a dreamy, magazine-style image."
             tips(
@@ -192,7 +192,7 @@ object FloorPoses {
                 rightLeg(thigh = -4f, shin = -2f)
             }
         },
-        pose("floor_sit_on_heels", "Sit on Your Heels", PoseCategory.FLOOR) {
+        pose("floor_sit_on_heels", "Sit on your heels", PoseCategory.FLOOR) {
             description = "Kneeling and sitting back on the heels with a straight back is graceful and calm, " +
                 "and works beautifully in dresses and on a beach."
             tips(

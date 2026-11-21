@@ -17,8 +17,8 @@ import com.poseit.app.ui.theme.Studio
 import com.poseit.app.ui.theme.StudioType
 
 /**
- * The heading that starts a group or section: Title style (Expanded Medium 20/26), Ink, sentence case, marked as a
- * heading for accessibility. Leave [Space.section][com.poseit.app.ui.theme.Space.section] (32dp) above it between
+ * The heading that starts a group or section: the heading style (Archivo SemiBold 17/24, normal width, so the wide
+ * cut stays with the screen title), Ink, sentence case, marked as a heading for accessibility. Leave [Space.section][com.poseit.app.ui.theme.Space.section] (32dp) above it between
  * groups. No eyebrow labels above it, no caps.
  *
  * @param action optional trailing control on the same line, e.g. a TertiaryButton("Show all")
@@ -28,7 +28,7 @@ fun SectionHeading(text: String, modifier: Modifier = Modifier, action: (@Compos
     Row(modifier.fillMaxWidth().heightIn(min = 32.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(
             text,
-            style = StudioType.title,
+            style = StudioType.heading,
             color = Studio.Ink,
             modifier = Modifier
                 .weight(1f)

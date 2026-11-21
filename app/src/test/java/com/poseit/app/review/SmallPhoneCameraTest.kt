@@ -3,6 +3,7 @@ package com.poseit.app.review
 import android.Manifest
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -53,8 +54,10 @@ class SmallPhoneCameraTest {
         runBlocking { app.container.settingsRepository.update { AppSettings(onboardingDone = true) } }
         shadowOf(app).grantPermissions(Manifest.permission.CAMERA)
         ActivityScenario.launch(MainActivity::class.java).use {
-            compose.waitUntil(15_000) { compose.onAllNodesWithText("Pose camera", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }
-            compose.onAllNodesWithText("Pose camera", useUnmergedTree = true).onFirst().performClick()
+            // On a screen this short the camera button is folded to its glyph, which carries the name.
+            val cameraButton = (hasText("Pose camera") or hasContentDescription("Pose camera")) and hasClickAction()
+            compose.waitUntil(15_000) { compose.onAllNodes(cameraButton).fetchSemanticsNodes().isNotEmpty() }
+            compose.onAllNodes(cameraButton).onFirst().performClick()
             compose.waitUntil(15_000) { compose.onAllNodesWithContentDescription("Take photo", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }
             settle(5000) // let the pose pill and snackbars time out
             captureScreenRoboImage("build/screenshots/review-small-camera.png")

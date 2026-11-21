@@ -41,7 +41,8 @@ import kotlin.math.max
 
 /** One-off events for the editor screen. */
 sealed interface EditorEvent {
-    data class Saved(val id: String) : EditorEvent
+    /** @param message what to confirm on the next screen: "Pose saved", "Changes saved" or "Saved as a new pose" */
+    data class Saved(val id: String, val message: String = "Pose saved") : EditorEvent
     data class Message(val text: String) : EditorEvent
 }
 
@@ -387,7 +388,8 @@ class PoseEditorViewModel(
         saving = true
         viewModelScope.launch {
             try {
-                val template = if (!asNew && baseTemplate != null && baseTemplate.source != PoseSource.BUILT_IN) {
+                val overwrite = !asNew && baseTemplate != null && baseTemplate.source != PoseSource.BUILT_IN
+                val template = if (overwrite && baseTemplate != null) {
                     baseTemplate.copy(name = cleanName, category = category, tags = tags, figures = current, frameAspect = aspect)
                 } else {
                     PoseTemplate(
@@ -407,11 +409,16 @@ class PoseEditorViewModel(
                 }
                 poseRepository.saveCustom(template)
                 savedFigures = current
-                _events.send(EditorEvent.Saved(template.id))
+                val message = when {
+                    overwrite -> "Changes saved"
+                    baseTemplate != null && baseTemplate.source != PoseSource.BUILT_IN -> "Saved as a new pose"
+                    else -> "Pose saved"
+                }
+                _events.send(EditorEvent.Saved(template.id, message))
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 Log.e(TAG, "Could not save pose", e)
-                _events.send(EditorEvent.Message("Couldn't save the pose. Please try again."))
+                _events.send(EditorEvent.Message("Couldn't save the pose. Try again."))
             } finally {
                 saving = false
             }

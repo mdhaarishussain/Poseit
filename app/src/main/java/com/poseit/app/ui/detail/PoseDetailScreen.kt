@@ -24,20 +24,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.outlined.Flip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +41,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,19 +66,19 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import coil3.compose.AsyncImage
 import com.poseit.app.appContainer
-import com.poseit.app.pose.CameraAdvice
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTemplate
-import com.poseit.app.pose.ShotType
+import com.poseit.app.ui.components.CameraSetup
 import com.poseit.app.ui.components.DestructiveButton
+import com.poseit.app.ui.components.PoseSteps
+import com.poseit.app.ui.components.StudioAlertDialog
+import com.poseit.app.ui.components.StudioIconToggle
+import com.poseit.app.ui.components.StudioSnackbarHost
 import com.poseit.app.ui.components.EmptyState
-import com.poseit.app.ui.components.HairlineDivider
 import com.poseit.app.ui.components.PoseThumbnail
 import com.poseit.app.ui.components.PrimaryButton
 import com.poseit.app.ui.components.SecondaryButton
 import com.poseit.app.ui.components.SectionHeading
-import com.poseit.app.ui.components.SettingRow
-import com.poseit.app.ui.components.StudioChip
 import com.poseit.app.ui.components.StudioIconButton
 import com.poseit.app.ui.components.StudioTabs
 import com.poseit.app.ui.components.StudioTopBar
@@ -89,8 +86,6 @@ import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.frameMarks
 import com.poseit.app.ui.library.Difficulty
 import com.poseit.app.ui.library.DifficultyMeter
-import com.poseit.app.ui.library.StudioMenu
-import com.poseit.app.ui.library.StudioMenuItem
 import com.poseit.app.ui.library.categoryText
 import com.poseit.app.ui.library.isCustom
 import com.poseit.app.ui.library.peopleLabel
@@ -100,6 +95,7 @@ import com.poseit.app.ui.theme.Studio
 import com.poseit.app.ui.theme.StudioShapes
 import com.poseit.app.ui.theme.StudioType
 import java.io.File
+import kotlinx.coroutines.launch
 
 /**
  * Pose details: big preview, tips, camera advice, favourite, "Try this pose".
@@ -111,6 +107,9 @@ fun PoseDetailScreen(
     onBack: () -> Unit,
     onTryPose: (id: String, mirrored: Boolean) -> Unit,
     onEdit: (String) -> Unit,
+    onDeleted: () -> Unit = onBack,
+    message: String? = null,
+    onMessageShown: () -> Unit = {},
 ) {
     val appContext = LocalContext.current.applicationContext
     val vm: PoseDetailViewModel = viewModel(
@@ -119,7 +118,7 @@ fun PoseDetailScreen(
     )
     val state by vm.state.collectAsStateWithLifecycle()
     val deleted by vm.deleted.collectAsStateWithLifecycle()
-    LaunchedEffect(deleted) { if (deleted) onBack() }
+    LaunchedEffect(deleted) { if (deleted) onDeleted() }
 
     PoseDetailContent(
         state = state,
@@ -128,10 +127,13 @@ fun PoseDetailScreen(
         onEdit = onEdit,
         onToggleFavorite = vm::toggleFavorite,
         onDelete = vm::delete,
+        message = message,
+        onMessageShown = onMessageShown,
     )
 }
 
-private enum class PreviewMode(val label: String) { MANNEQUIN("Mannequin"), PHOTO("Photo"), OUTLINE("Outline") }
+/** The same names as the camera's guide menu and the create review. */
+private enum class PreviewMode(val label: String) { MANNEQUIN("Mannequin"), PHOTO("Photo"), OUTLINE("Photo outline") }
 
 @Composable
 private fun PoseDetailContent(
@@ -141,6 +143,8 @@ private fun PoseDetailContent(
     onEdit: (String) -> Unit,
     onToggleFavorite: () -> Unit,
     onDelete: () -> Unit,
+    message: String?,
+    onMessageShown: () -> Unit,
 ) {
     // Here, not in the preview, so "Try this pose" opens the camera with the orientation the user picked.
     var mirrored by rememberSaveable { mutableStateOf(false) }
@@ -154,33 +158,35 @@ private fun PoseDetailContent(
         derivedStateOf { scroll.value > with(density) { previewHeight.toPx() } }
     }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
-    var menuOpen by remember { mutableStateOf(false) }
+    val snackbar = remember { SnackbarHostState() }
+    val messageScope = rememberCoroutineScope()
+    LaunchedEffect(message) {
+        if (message != null) {
+            // Shown in its own scope: clearing the message restarts this effect, which must not cut the snackbar off.
+            onMessageShown()
+            messageScope.launch { snackbar.showSnackbar(message) }
+        }
+    }
 
     Scaffold(
         containerColor = Studio.Paper,
+        snackbarHost = { StudioSnackbarHost(snackbar) },
         topBar = {
             StudioTopBar(title = if (showTitle && pose != null) pose.name else "", onBack = onBack) {
                 if (ready != null && pose != null) {
+                    // Mirrors the preview, and "Try this pose" opens the camera the same way round.
+                    StudioIconToggle(
+                        icon = Icons.Outlined.Flip,
+                        contentDescription = "Mirror",
+                        checked = mirrored,
+                        onCheckedChange = { mirrored = it },
+                        modifier = Modifier.semantics { stateDescription = if (mirrored) "Mirrored" else "Original" },
+                    )
                     StudioIconButton(
                         icon = if (ready.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = if (ready.isFavorite) "Remove ${pose.name} from favourites" else "Add ${pose.name} to favourites",
                         onClick = onToggleFavorite,
                     )
-                    Box {
-                        StudioIconButton(Icons.Outlined.MoreVert, "More options", onClick = { menuOpen = true })
-                        StudioMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                            StudioMenuItem(if (pose.isCustom) "Edit" else "Customize a copy") {
-                                menuOpen = false
-                                onEdit(pose.id)
-                            }
-                            if (pose.isCustom) {
-                                StudioMenuItem("Delete", destructive = true) {
-                                    menuOpen = false
-                                    confirmDelete = true
-                                }
-                            }
-                        }
-                    }
                 }
             }
         },
@@ -226,13 +232,12 @@ private fun PoseDetailContent(
                     details = details,
                     height = previewHeight,
                     mirrored = mirrored,
-                    onToggleMirror = { mirrored = !mirrored },
                 )
                 Spacer(Modifier.height(Space.xl))
                 DetailHeader(details.pose)
                 if (details.pose.tips.isNotEmpty()) {
                     Spacer(Modifier.height(Space.section))
-                    Steps(details.pose.tips)
+                    PoseSteps(details.pose.tips)
                 }
                 Spacer(Modifier.height(Space.section))
                 CameraSetup(details.pose.camera)
@@ -244,7 +249,7 @@ private fun PoseDetailContent(
                     Spacer(Modifier.height(Space.xl))
                     // Pulled left by the text button's 12dp inner padding so the label starts on the gutter.
                     DestructiveButton(
-                        "Delete this pose",
+                        "Delete pose",
                         onClick = { confirmDelete = true },
                         modifier = Modifier.offset(x = (-12).dp),
                     )
@@ -255,21 +260,13 @@ private fun PoseDetailContent(
     }
 
     if (confirmDelete && pose != null) {
-        AlertDialog(
+        StudioAlertDialog(
             onDismissRequest = { confirmDelete = false },
-            shape = StudioShapes.Medium,
-            containerColor = Studio.Sheet,
-            title = { Text("Delete this pose?", style = StudioType.title, color = Studio.Ink) },
-            text = {
-                Text(
-                    "“${pose.name}” will be removed from My poses. This can't be undone.",
-                    style = StudioType.body,
-                    color = Studio.Graphite,
-                )
-            },
+            title = "Delete this pose?",
+            text = "“${pose.name}” will be removed from My poses. This can't be undone.",
             confirmButton = {
                 DestructiveButton(
-                    "Delete",
+                    "Delete pose",
                     onClick = {
                         confirmDelete = false
                         onDelete()
@@ -285,7 +282,7 @@ private fun PoseDetailContent(
 @Composable
 private fun previewHeight() = LocalConfiguration.current.screenHeightDp.let { h -> (h * 0.48f).coerceIn(260f, 540f).dp }
 
-/** "Customize" (or "Edit") and the screen's one primary action, on the backdrop below the content. */
+/** "Customise" (or "Edit") and the screen's one primary action, on the backdrop below the content. */
 @Composable
 private fun DetailBottomBar(isCustom: Boolean, onEdit: () -> Unit, onTry: () -> Unit) {
     Row(
@@ -297,33 +294,17 @@ private fun DetailBottomBar(isCustom: Boolean, onEdit: () -> Unit, onTry: () -> 
         horizontalArrangement = Arrangement.spacedBy(Space.m),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SecondaryButton(if (isCustom) "Edit" else "Customize", onClick = onEdit)
-        PrimaryButton(onClick = onTry, modifier = Modifier.weight(1f)) {
-            Icon(Icons.Outlined.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(Space.s))
-            // Shrinks instead of ellipsizing to "Try this …" with a large font on a narrow phone.
-            val labelStyle = MaterialTheme.typography.labelLarge
-            BasicText(
-                "Try this pose",
-                style = labelStyle.copy(color = LocalContentColor.current),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                autoSize = TextAutoSize.StepBased(
-                    minFontSize = 10.sp,
-                    maxFontSize = labelStyle.fontSize.takeIf { it.isSp } ?: 14.sp,
-                    stepSize = 0.5.sp,
-                ),
-            )
-        }
+        SecondaryButton(if (isCustom) "Edit" else "Customise", onClick = onEdit)
+        PrimaryButton("Try this pose", onClick = onTry, modifier = Modifier.weight(1f), icon = Icons.Outlined.CameraAlt)
     }
 }
 
 /**
  * The pose on its patch of studio paper, with viewfinder frame marks at the corners of its photo frame. Below it,
- * the Photo / Outline tabs (poses made from a photo) and the Mirror toggle.
+ * for a pose made from a photo, the Mannequin / Photo / Photo outline tabs.
  */
 @Composable
-private fun PosePreview(details: PoseDetails, height: Dp, mirrored: Boolean, onToggleMirror: () -> Unit) {
+private fun PosePreview(details: PoseDetails, height: Dp, mirrored: Boolean) {
     val pose = details.pose
     val modes = remember(details) {
         buildList {
@@ -393,23 +374,12 @@ private fun PosePreview(details: PoseDetails, height: Dp, mirrored: Boolean, onT
                 }
             }
         }
-        Spacer(Modifier.height(Space.s))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.weight(1f)) {
-                if (modes.size > 1) {
-                    StudioTabs(
-                        labels = modes.map { it.label },
-                        selectedIndex = modes.indexOf(mode),
-                        onSelect = { selected = modes[it] },
-                    )
-                }
-            }
-            Spacer(Modifier.width(Space.m))
-            StudioChip(
-                label = "Mirror",
-                selected = mirrored,
-                onClick = onToggleMirror,
-                modifier = Modifier.semantics { stateDescription = if (mirrored) "Mirrored" else "Original" },
+        if (modes.size > 1) {
+            Spacer(Modifier.height(Space.s))
+            StudioTabs(
+                labels = modes.map { it.label },
+                selectedIndex = modes.indexOf(mode),
+                onSelect = { selected = modes[it] },
             )
         }
     }
@@ -440,8 +410,13 @@ private fun DetailHeader(pose: PoseTemplate) {
         verticalArrangement = Arrangement.spacedBy(Space.s),
         itemVerticalAlignment = Alignment.CenterVertically,
     ) {
-        // A user-made pose without a category says where it came from instead.
-        if (!(pose.isCustom && pose.category == PoseCategory.CUSTOM)) Fact(pose.categoryText)
+        // A couple or group says how many people instead; a user-made pose without a category says where it came
+        // from instead.
+        val peopleCategory = pose.category == PoseCategory.COUPLE || pose.category == PoseCategory.GROUP
+        when {
+            peopleCategory -> Fact(peopleLabel(pose.personCount))
+            !(pose.isCustom && pose.category == PoseCategory.CUSTOM) -> Fact(pose.categoryText)
+        }
         val difficulty = Difficulty.label(pose.difficulty)
         Row(
             Modifier.semantics(mergeDescendants = true) { contentDescription = "Difficulty: $difficulty" },
@@ -451,8 +426,7 @@ private fun DetailHeader(pose: PoseTemplate) {
             Spacer(Modifier.width(Space.s))
             DifficultyMeter(pose.difficulty)
         }
-        // "Couple" is already said by the Couple category.
-        if (peopleLabel(pose.personCount) != pose.categoryText) Fact(peopleLabel(pose.personCount))
+        if (!peopleCategory) Fact(peopleLabel(pose.personCount))
         pose.sourceText?.let { Fact(it) }
     }
     if (pose.description.isNotBlank()) {
@@ -466,70 +440,12 @@ private fun Fact(text: String) {
     Text(text, style = StudioType.body, color = Studio.Graphite)
 }
 
-/** The tips are a sequence, so they keep their numbers: small Ink numerals on the text's baseline. */
-@Composable
-private fun Steps(tips: List<String>) {
-    SectionHeading("How to do it")
-    Spacer(Modifier.height(Space.s))
-    Column {
-        tips.forEachIndexed { index, tip ->
-            Row(Modifier.padding(vertical = Space.s)) {
-                Text(
-                    "${index + 1}",
-                    style = StudioType.numeral(15.sp),
-                    color = Studio.Ink,
-                    modifier = Modifier
-                        .width(28.dp)
-                        .alignByBaseline(),
-                )
-                Text(tip, style = StudioType.body, color = Studio.Ink, modifier = Modifier.alignByBaseline())
-            }
-        }
-    }
-}
-
-/** Camera height, framing, orientation and the photographer's note, as rows of one group. */
-@Composable
-private fun CameraSetup(camera: CameraAdvice) {
-    SectionHeading("Camera setup")
-    Spacer(Modifier.height(Space.xs))
-    Column {
-        SetupRow(camera.height.label, camera.height.advice)
-        HairlineDivider()
-        SetupRow(camera.shot.label, shotAdvice(camera.shot))
-        HairlineDivider()
-        // The camera is portrait-only: wide (landscape-frame) poses are letterboxed into the portrait scene.
-        if (camera.landscape) {
-            SetupRow("Wide shot", "Hold the phone upright and step back: the wide guide sits in the middle of the frame.")
-        } else {
-            SetupRow("Portrait", "Hold the phone upright.")
-        }
-        val note = camera.note
-        if (!note.isNullOrBlank()) {
-            HairlineDivider()
-            SetupRow("Photographer tip", note)
-        }
-    }
-}
-
-@Composable
-private fun SetupRow(title: String, body: String) {
-    SettingRow(title = title, subtitle = body, contentPadding = PaddingValues(vertical = Space.m))
-}
-
-private fun shotAdvice(shot: ShotType): String = when (shot) {
-    ShotType.FULL_BODY -> "Head to toe, with a little space above the head and below the feet."
-    ShotType.THREE_QUARTER -> "Frame from the head to just above the knees. Never crop right at a joint."
-    ShotType.HALF_BODY -> "Frame from the head down to the waist."
-    ShotType.CLOSE_UP -> "Head and shoulders fill the frame. Focus on the eyes."
-}
-
 /** Places first, then moods, as one plain phrase: "Beach, city street, casual". */
 @Composable
 private fun GoodFor(pose: PoseTemplate) {
     val labels = pose.tags.sortedWith(compareBy({ !it.isLocation }, { it.ordinal })).map { it.label }
     val phrase = labels.mapIndexed { i, label -> if (i == 0) label else label.lowercase() }.joinToString(", ")
     SectionHeading("Good for")
-    Spacer(Modifier.height(Space.s))
+    Spacer(Modifier.height(Space.xs))
     Text(phrase, style = StudioType.body, color = Studio.Ink)
 }

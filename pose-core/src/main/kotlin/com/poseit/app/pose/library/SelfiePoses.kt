@@ -17,7 +17,7 @@ import com.poseit.app.pose.dsl.pose
  */
 object SelfiePoses {
     val all: List<PoseTemplate> = listOf(
-        pose("selfie_classic", "Classic Arm Selfie", PoseCategory.SELFIE) {
+        pose("selfie_classic", "Classic arm selfie", PoseCategory.SELFIE) {
             description = "The everyday selfie done right: phone slightly above eye level, shoulders angled and chin " +
                 "a touch forward for a defined jawline."
             tips(
@@ -38,7 +38,7 @@ object SelfiePoses {
                 leftArm(upper = 8f, fore = 3f)
             }
         },
-        pose("selfie_peace", "Peace Sign", PoseCategory.SELFIE) {
+        pose("selfie_peace", "Peace sign", PoseCategory.SELFIE) {
             description = "A cheerful classic: the free hand makes a V right next to the face. The hand fills the " +
                 "empty side of the frame and makes the photo instantly playful."
             tips(
@@ -58,7 +58,7 @@ object SelfiePoses {
                 rightArm(upper = -45f, fore = -55f, hand = -60f, upperLen = 0.5f, foreLen = 0.45f)
             }
         },
-        pose("selfie_high_angle", "High-Angle Selfie", PoseCategory.SELFIE) {
+        pose("selfie_high_angle", "High-angle selfie", PoseCategory.SELFIE) {
             description = "Holding the phone up high and looking up into it slims the face and shows off the eyes. " +
                 "The most flattering angle for most people."
             tips(
@@ -68,7 +68,7 @@ object SelfiePoses {
                 "Relax your forehead and smile softly",
             )
             tags(PoseTag.CASUAL, PoseTag.SLIMMING, PoseTag.HOME, PoseTag.CITY, PoseTag.TRAVEL)
-            camera(CameraHeight.HIGH, ShotType.CLOSE_UP, note = "Don't go too high – about a forearm above eye level is enough.")
+            camera(CameraHeight.HIGH, ShotType.CLOSE_UP, note = "Don't go too high. About a forearm above eye level is enough.")
             difficulty = 1
             figure(cx = 0.482f, top = 0.1f, bodyHeight = 1.8f) {
                 facing = 15f
@@ -80,7 +80,7 @@ object SelfiePoses {
                 leftArm(upper = 15f, fore = -30f, hand = -40f)
             }
         },
-        pose("selfie_hand_on_cheek", "Cheek Rest Selfie", PoseCategory.SELFIE) {
+        pose("selfie_hand_on_cheek", "Cheek rest selfie", PoseCategory.SELFIE) {
             description = "Resting the free palm softly on the cheek frames the face and gives a sweet, relaxed " +
                 "expression. Ideal for close-ups and new make-up looks."
             tips(
@@ -100,7 +100,7 @@ object SelfiePoses {
                 rightArm(upper = -50f, fore = -60f, hand = -65f, upperLen = 0.5f, foreLen = 0.45f)
             }
         },
-        pose("selfie_mirror", "Mirror Selfie", PoseCategory.SELFIE) {
+        pose("selfie_mirror", "Mirror selfie", PoseCategory.SELFIE) {
             description = "The outfit-of-the-day mirror shot: phone held at chest height so the face stays visible, " +
                 "free hand on the hip and one knee relaxed."
             tips(
@@ -124,7 +124,7 @@ object SelfiePoses {
                 leftLeg(thigh = -6f, shin = 10f)
             }
         },
-        pose("selfie_mirror_two_hands", "Two-Hand Mirror", PoseCategory.SELFIE) {
+        pose("selfie_mirror_two_hands", "Two-hand mirror", PoseCategory.SELFIE) {
             description = "Holding the phone with both hands in front of the chest keeps the arms neat and close, " +
                 "while a popped knee adds a cute, casual touch."
             tips(
@@ -147,9 +147,9 @@ object SelfiePoses {
                 rightLeg(thigh = 8f, shin = -10f)
             }
         },
-        pose("selfie_look_up", "Sky Gaze Selfie", PoseCategory.SELFIE) {
+        pose("selfie_look_up", "Sky gaze selfie", PoseCategory.SELFIE) {
             description = "Looking up past the phone toward the open sky gives a carefree, dreamy, " +
-                "summery vibe – no forced smile needed."
+                "summery vibe. No forced smile needed."
             tips(
                 "Hold the phone out at eye level",
                 "Rest the fingertips of your free hand lightly on your collarbone",
@@ -168,7 +168,7 @@ object SelfiePoses {
                 rightArm(upper = -55f, fore = -62f, hand = -66f, upperLen = 0.5f, foreLen = 0.45f)
             }
         },
-        pose("selfie_lean_in", "Lean-In Selfie", PoseCategory.SELFIE) {
+        pose("selfie_lean_in", "Lean-in selfie", PoseCategory.SELFIE) {
             description = "Leaning the upper body toward the phone with a hand on the hip adds energy and shows a " +
                 "little more of the outfit than a close-up."
             tips(

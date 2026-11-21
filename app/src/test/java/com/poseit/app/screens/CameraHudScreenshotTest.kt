@@ -99,7 +99,7 @@ class CameraHudScreenshotTest {
                 RoundToggle(Icons.Outlined.LockOpen, Icons.Filled.Lock, "Lock", checked = true, onCheckedChange = {})
                 ShotCounter(SessionInfo(3, 10), onStop = {})
             }
-            HintBanner(CoachHint("Perfect, hold it", HintKind.PERFECT, 0f))
+            HintBanner(CoachHint("Perfect. Hold it", HintKind.PERFECT, 0f))
             HintBanner(CoachHint("Raise your left arm a little", HintKind.POSE, 0.5f))
             HintBanner(CoachHint("Step back so your feet are in the picture", HintKind.VISIBILITY, 0.8f))
             HintBanner(CoachHint("Step into the picture", HintKind.NO_PERSON, 1f))

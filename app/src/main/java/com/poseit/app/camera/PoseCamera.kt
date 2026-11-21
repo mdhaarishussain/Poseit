@@ -521,7 +521,7 @@ class PoseCamera(private val context: Context) {
         CameraState.ERROR_CAMERA_DISABLED -> "The camera is disabled on this device"
         CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED -> "Turn off Do Not Disturb to use the camera"
         CameraState.ERROR_STREAM_CONFIG -> "This camera configuration isn't supported"
-        else -> "The camera stopped unexpectedly"
+        else -> "The camera stopped. Close other camera apps and reopen Poseit."
     }
 
     // ------------------------------------------------------------------ provider
@@ -546,7 +546,7 @@ class PoseCamera(private val context: Context) {
             future.get()
         } catch (e: Exception) {
             providerFuture = null
-            throw PoseCameraException("The camera service couldn't be started", e.cause ?: e)
+            throw PoseCameraException("Couldn't start the camera. Close other camera apps and reopen Poseit.", e.cause ?: e)
         }
     }
 

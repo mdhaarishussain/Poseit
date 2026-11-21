@@ -26,11 +26,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -53,16 +50,18 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.poseit.app.data.AppSettings
-import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.OverlayStyle
-import com.poseit.app.data.countdownChoiceFor
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.PoseTemplate
-import com.poseit.app.ui.components.HairlineDivider
+import com.poseit.app.ui.components.CameraSetup
+import com.poseit.app.ui.components.PoseSteps
 import com.poseit.app.ui.components.PoseTile
 import com.poseit.app.ui.components.PrimaryButton
 import com.poseit.app.ui.components.SectionHeading
+import com.poseit.app.ui.components.RadioRow
+import com.poseit.app.ui.components.SliderRow
+import com.poseit.app.ui.components.StudioAlertDialog
 import com.poseit.app.ui.components.StudioChip
 import com.poseit.app.ui.components.StudioIconButton
 import com.poseit.app.ui.components.StudioIconSize
@@ -70,6 +69,10 @@ import com.poseit.app.ui.components.StudioSlider
 import com.poseit.app.ui.components.StudioTabs
 import com.poseit.app.ui.components.SwitchRow
 import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.library.factsPhrase
+import com.poseit.app.ui.settings.CountdownChips
+import com.poseit.app.ui.settings.RowDivider
+import com.poseit.app.ui.settings.SettingCopy
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
 import com.poseit.app.ui.theme.StudioShapes
@@ -124,50 +127,46 @@ internal fun QuickSettingsSheet(
         ) {
             SheetHeader("Quick settings") { DoneButton(sheetState, onDismiss) }
 
-            GroupHeading("Coaching", first = true)
+            GroupHeading(SettingCopy.COACHING, first = true)
             SwitchRow(
-                title = "Voice guidance",
-                subtitle = "Spoken corrections and countdown",
+                title = SettingCopy.VOICE,
+                subtitle = SettingCopy.VOICE_SUBTITLE,
                 checked = settings.voiceGuidance,
                 onCheckedChange = { v -> onUpdateSettings { it.copy(voiceGuidance = v) } },
             )
             RowDivider()
             SwitchRow(
-                title = "Auto-capture",
-                subtitle = "Takes the photo when you match the pose",
+                title = SettingCopy.AUTO_CAPTURE,
+                subtitle = SettingCopy.AUTO_CAPTURE_SUBTITLE,
                 checked = settings.autoCapture,
                 onCheckedChange = { v -> onUpdateSettings { it.copy(autoCapture = v) } },
             )
             RowDivider()
             var strictness by remember(settings.matchThreshold) {
-                mutableFloatStateOf(settings.matchThreshold.coerceIn(STRICT_MIN, STRICT_MAX))
+                mutableFloatStateOf(settings.matchThreshold.coerceIn(SettingCopy.STRICTNESS_MIN, SettingCopy.STRICTNESS_MAX))
             }
-            LabelledSliderRow(
-                title = "Match strictness",
-                subtitle = "Higher means the pose has to be copied more exactly",
-                valueLabel = "${(strictness * 100).roundToInt()}%",
-                sliderDescription = "Match strictness",
+            SliderRow(
+                title = SettingCopy.STRICTNESS,
+                subtitle = SettingCopy.strictnessHint(strictness),
+                valueLabel = SettingCopy.strictnessValue(strictness),
                 value = strictness,
                 onValueChange = { strictness = it },
                 onValueChangeFinished = {
-                    val v = (strictness * 20f).roundToInt() / 20f
+                    val v = SettingCopy.snapStrictness(strictness)
                     onUpdateSettings { it.copy(matchThreshold = v) }
                 },
-                valueRange = STRICT_MIN..STRICT_MAX,
+                valueRange = SettingCopy.STRICTNESS_MIN..SettingCopy.STRICTNESS_MAX,
                 steps = 6,
             )
             RowDivider()
             Column(Modifier.padding(horizontal = Space.gutter, vertical = Space.m)) {
-                Text("Countdown before auto-capture", style = StudioType.bodyStrong, color = Studio.Ink)
-                Spacer(Modifier.height(Space.s))
-                ChipRow {
-                    val selectedCountdown = countdownChoiceFor(settings.countdownSeconds)
-                    COUNTDOWN_CHOICES.forEach { s ->
-                        CameraChip(if (s == 0) "None" else "${s}s", selectedCountdown == s, onClick = {
-                            onUpdateSettings { it.copy(countdownSeconds = s) }
-                        })
-                    }
-                }
+                Text(SettingCopy.COUNTDOWN, style = StudioType.bodyStrong, color = Studio.Ink)
+                Text(SettingCopy.COUNTDOWN_SUBTITLE, style = StudioType.label, color = Studio.Graphite)
+                Spacer(Modifier.height(Space.m))
+                CountdownChips(
+                    seconds = settings.countdownSeconds,
+                    onSelect = { s -> onUpdateSettings { it.copy(countdownSeconds = s) } },
+                )
             }
             RowDivider()
             SwitchRow(
@@ -185,11 +184,11 @@ internal fun QuickSettingsSheet(
                 "Hints are for",
                 style = StudioType.bodyStrong,
                 color = Studio.Ink,
-                modifier = Modifier.padding(start = Space.gutter, end = Space.gutter, top = Space.m, bottom = Space.xs),
+                modifier = Modifier.padding(start = Space.gutter, end = Space.gutter, top = Space.m),
             )
             Column(Modifier.selectableGroup()) {
                 AudienceMode.entries.forEach { mode ->
-                    ChoiceRow(
+                    RadioRow(
                         title = mode.label,
                         subtitle = when (mode) {
                             AudienceMode.AUTO -> "Front camera: you're posing. Back camera: you're taking the photo."
@@ -202,34 +201,35 @@ internal fun QuickSettingsSheet(
                 }
             }
 
-            GroupHeading("Pose guide")
+            GroupHeading(SettingCopy.GUIDE)
             ChipRow(Modifier.padding(horizontal = Space.gutter, vertical = Space.s)) {
                 OverlayStyle.entries.forEach { style ->
                     CameraChip(style.label, settings.overlayStyle == style, onClick = { onUpdateSettings { it.copy(overlayStyle = style) } })
                 }
             }
             RowDivider()
-            var opacity by remember(settings.overlayOpacity) { mutableFloatStateOf(settings.overlayOpacity.coerceIn(0.15f, 1f)) }
-            LabelledSliderRow(
-                title = "Guide opacity",
+            var opacity by remember(settings.overlayOpacity) {
+                mutableFloatStateOf(settings.overlayOpacity.coerceIn(SettingCopy.OPACITY_MIN, 1f))
+            }
+            SliderRow(
+                title = SettingCopy.GUIDE_OPACITY,
                 valueLabel = "${(opacity * 100).roundToInt()}%",
-                sliderDescription = "Guide opacity",
                 value = opacity,
                 onValueChange = { opacity = it },
                 onValueChangeFinished = { onUpdateSettings { it.copy(overlayOpacity = opacity) } },
-                valueRange = 0.15f..1f,
+                valueRange = SettingCopy.OPACITY_MIN..1f,
             )
             RowDivider()
             SwitchRow(
-                title = "Live skeleton",
-                subtitle = "Shows the body the camera detects as thin lines",
+                title = SettingCopy.LIVE_SKELETON,
+                subtitle = SettingCopy.LIVE_SKELETON_SUBTITLE,
                 checked = settings.showLiveSkeleton,
                 onCheckedChange = { v -> onUpdateSettings { it.copy(showLiveSkeleton = v) } },
             )
             RowDivider()
             SwitchRow(
-                title = "Level",
-                subtitle = "Helps you keep the horizon straight",
+                title = SettingCopy.LEVEL,
+                subtitle = SettingCopy.LEVEL_SUBTITLE,
                 checked = settings.showLevel,
                 onCheckedChange = { v -> onUpdateSettings { it.copy(showLevel = v) } },
             )
@@ -240,10 +240,9 @@ internal fun QuickSettingsSheet(
             if (hasExposure) {
                 var exposure by remember(ui.exposureIndex) { mutableFloatStateOf(ui.exposureIndex.toFloat()) }
                 val ev = exposure.roundToInt() * exposureStepEv
-                LabelledSliderRow(
+                SliderRow(
                     title = "Brightness",
-                    valueLabel = String.format(Locale.US, "%+.1f EV", ev),
-                    sliderDescription = "Exposure",
+                    valueLabel = String.format(Locale.US, "%+.1f", ev),
                     value = exposure.coerceIn(exposureRange.first.toFloat(), exposureRange.last.toFloat()),
                     onValueChange = {
                         exposure = it
@@ -256,10 +255,9 @@ internal fun QuickSettingsSheet(
             if (hasExposure && hasZoom) RowDivider()
             if (hasZoom) {
                 var zoom by remember(ui.zoom) { mutableFloatStateOf(ui.zoom) }
-                LabelledSliderRow(
+                SliderRow(
                     title = "Zoom",
                     valueLabel = String.format(Locale.US, "%.1fx", zoom),
-                    sliderDescription = "Zoom",
                     value = zoom.coerceIn(1f, maxZoom),
                     onValueChange = {
                         zoom = it
@@ -283,14 +281,9 @@ internal fun QuickSettingsSheet(
     }
 }
 
-private const val STRICT_MIN = 0.60f
-private const val STRICT_MAX = 0.95f
 private val ZOOM_PRESETS = listOf(1f, 2f, 3f, 5f, 10f)
 
-/**
- * The header bar of a full-height sheet, which behaves like a screen: the title at the top-bar size (Title 18/24,
- * so the group headings below it read as its sections) and an optional action at the end.
- */
+/** The header of a sheet: its title in the Title style and an optional action at the end. */
 @Composable
 private fun SheetHeader(title: String, action: (@Composable () -> Unit)? = null) {
     Row(
@@ -303,7 +296,7 @@ private fun SheetHeader(title: String, action: (@Composable () -> Unit)? = null)
     ) {
         Text(
             title,
-            style = StudioType.barTitle,
+            style = StudioType.title,
             color = Studio.Ink,
             modifier = Modifier
                 .weight(1f)
@@ -332,10 +325,6 @@ private fun GroupHeading(text: String, first: Boolean = false) {
     )
 }
 
-/** Hairline between two rows of one group, inset to the gutters. */
-@Composable
-private fun RowDivider() = HairlineDivider(Modifier.padding(horizontal = Space.gutter))
-
 /** Chips 8dp apart, wrapping onto more lines when needed. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -354,83 +343,6 @@ private fun ChipRow(modifier: Modifier = Modifier, content: @Composable () -> Un
 @Composable
 private fun CameraChip(label: String, selected: Boolean, onClick: () -> Unit) {
     StudioChip(label, selected, onClick = onClick, modifier = Modifier.widthIn(min = 48.dp))
-}
-
-/**
- * A setting row with its value on the right and a [StudioSlider] below, like the shared SliderRow, but the slider
- * also carries its own name ([sliderDescription]) for screen readers, and [above] can hold presets (zoom chips).
- */
-@Composable
-private fun LabelledSliderRow(
-    title: String,
-    valueLabel: String,
-    sliderDescription: String,
-    value: Float,
-    onValueChange: (Float) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float>,
-    subtitle: String? = null,
-    steps: Int = 0,
-    onValueChangeFinished: (() -> Unit)? = null,
-    above: (@Composable () -> Unit)? = null,
-) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Space.gutter, vertical = Space.m),
-    ) {
-        Row {
-            // The value sits on the title's baseline, not centred against title and subtitle.
-            Column(
-                Modifier
-                    .weight(1f)
-                    .alignByBaseline(),
-            ) {
-                Text(title, style = StudioType.bodyStrong, color = Studio.Ink)
-                if (subtitle != null) Text(subtitle, style = StudioType.label, color = Studio.Graphite)
-            }
-            Spacer(Modifier.width(Space.l))
-            Text(valueLabel, style = StudioType.label, color = Studio.Ink, modifier = Modifier.alignByBaseline())
-        }
-        if (above != null) {
-            Spacer(Modifier.height(Space.s))
-            above()
-        }
-        StudioSlider(
-            value = value,
-            onValueChange = onValueChange,
-            onValueChangeFinished = onValueChangeFinished,
-            valueRange = valueRange,
-            steps = steps,
-            modifier = Modifier.semantics {
-                contentDescription = sliderDescription
-                stateDescription = valueLabel
-            },
-        )
-    }
-}
-
-/** One option of a single-choice group: the whole row selects it; the radio sits at the end like other controls. */
-@Composable
-private fun ChoiceRow(title: String, subtitle: String?, selected: Boolean, onClick: () -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .heightIn(min = 48.dp)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
-            .padding(horizontal = Space.gutter, vertical = Space.s),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = StudioType.body, color = Studio.Ink)
-            if (subtitle != null) Text(subtitle, style = StudioType.label, color = Studio.Graphite)
-        }
-        Spacer(Modifier.width(Space.l))
-        RadioButton(
-            selected = selected,
-            onClick = null,
-            colors = RadioButtonDefaults.colors(selectedColor = Studio.Ink, unselectedColor = Studio.Graphite),
-        )
-    }
 }
 
 // ===================================================================== all poses
@@ -485,10 +397,10 @@ internal fun AllPosesSheet(
         modifier = Modifier.statusBarsPadding(),
     ) {
         Column(Modifier.fillMaxWidth()) {
-            SheetHeader("Choose a pose")
+            SheetHeader("All poses")
             if (tabs.isEmpty()) {
                 Text(
-                    "No poses available.",
+                    "No poses available",
                     style = StudioType.body,
                     color = Studio.Graphite,
                     modifier = Modifier.padding(horizontal = Space.gutter, vertical = Space.xl),
@@ -526,6 +438,8 @@ internal fun AllPosesSheet(
                         isFavorite = pose.id in favorites,
                         onToggleFavorite = { onToggleFavorite(pose.id) },
                         selected = isSelected,
+                        // Narrow columns: most names take two lines, so every caption reserves two.
+                        nameMinLines = 2,
                         onClick = { onSelect(pose) },
                         onClickLabel = "Use this pose",
                         modifier = Modifier.semantics {
@@ -540,21 +454,6 @@ internal fun AllPosesSheet(
 }
 
 // ===================================================================== tips
-
-private fun difficultyLabel(level: Int): String = when {
-    level <= 1 -> "Easy"
-    level == 2 -> "Medium"
-    else -> "Advanced"
-}
-
-/** "Standing, easy" / "Couple, medium, 2 people": the pose's facts as one short phrase. */
-private fun PoseTemplate.factsLine(): String = buildList {
-    add(category.label)
-    add(difficultyLabel(difficulty).lowercase(Locale.getDefault()))
-    if (personCount > 1) add("$personCount people")
-}.joinToString(", ")
-
-private fun String.lowercaseFirst(): String = replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
 /** Description, posing tips and camera advice of the current pose. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -576,9 +475,9 @@ internal fun PoseTipsSheet(
         ) {
             Row(verticalAlignment = Alignment.Top) {
                 Column(Modifier.weight(1f)) {
-                    Text(pose.name, style = StudioType.display, color = Studio.Ink, modifier = Modifier.semantics { heading() })
+                    Text(pose.name, style = StudioType.title, color = Studio.Ink, modifier = Modifier.semantics { heading() })
                     Spacer(Modifier.height(Space.xs))
-                    Text(pose.factsLine(), style = StudioType.body, color = Studio.Graphite)
+                    Text(pose.factsPhrase(), style = StudioType.label, color = Studio.Graphite)
                 }
                 Spacer(Modifier.width(Space.s))
                 StudioIconButton(
@@ -593,33 +492,11 @@ internal fun PoseTipsSheet(
                 Spacer(Modifier.height(Space.l))
                 Text(pose.description, style = StudioType.body, color = Studio.Ink)
             }
-            if (pose.tips.isNotEmpty()) {
-                TipsHeading("How to pose")
-                pose.tips.forEach { tip ->
-                    Row(Modifier.padding(vertical = Space.xs)) {
-                        Text("•", style = StudioType.body, color = Studio.Ink, modifier = Modifier.width(Space.l))
-                        Text(tip, style = StudioType.body, color = Studio.Ink)
-                    }
-                }
-            }
-            TipsHeading("Camera")
-            Text(
-                "${pose.camera.height.label}, ${pose.camera.shot.label.lowercaseFirst()}",
-                style = StudioType.bodyStrong,
-                color = Studio.Ink,
-            )
-            Spacer(Modifier.height(Space.xs))
-            Text(pose.camera.height.advice, style = StudioType.body, color = Studio.Ink)
-            if (pose.camera.landscape) {
-                Spacer(Modifier.height(Space.s))
-                Text("Wide shot: keep the phone upright and step back so everyone fits.", style = StudioType.body, color = Studio.Ink)
-            }
-            pose.camera.note?.takeIf { it.isNotBlank() }?.let { note ->
-                Spacer(Modifier.height(Space.s))
-                Text(note, style = StudioType.body, color = Studio.Graphite)
-            }
+            // The same sections as the pose's detail screen.
+            if (pose.tips.isNotEmpty()) PoseSteps(pose.tips, Modifier.padding(top = Space.section))
+            CameraSetup(pose.camera, Modifier.padding(top = Space.section))
             // The guide gestures are otherwise only described to screen readers.
-            TipsHeading("Guide")
+            TipsHeading("Moving the guide")
             Text(
                 "Drag the guide to move it, pinch to resize it and twist to rotate it. Double-tap to reset it. " +
                     "Tap the padlock to keep it in place; pinching then zooms the camera. Zoom is also in Quick settings.",
@@ -632,7 +509,7 @@ internal fun PoseTipsSheet(
 
 @Composable
 private fun TipsHeading(text: String) {
-    SectionHeading(text, Modifier.padding(top = Space.section, bottom = Space.s))
+    SectionHeading(text, Modifier.padding(top = Space.section, bottom = Space.xs))
 }
 
 // ===================================================================== photoshoot
@@ -646,17 +523,12 @@ internal fun PhotoshootDialog(
 ) {
     var shots by remember { mutableIntStateOf(initial?.shots ?: 5) }
     var interval by remember { mutableIntStateOf(initial?.intervalSeconds ?: 3) }
-    AlertDialog(
+    StudioAlertDialog(
         onDismissRequest = onDismiss,
-        shape = StudioShapes.Medium,
-        containerColor = Studio.Sheet,
-        titleContentColor = Studio.Ink,
-        textContentColor = Studio.Ink,
-        tonalElevation = 0.dp,
-        title = { Text("Photoshoot", style = StudioType.title) },
-        text = {
+        title = "Photoshoot",
+        content = {
             Column {
-                Text("Number of photos", style = StudioType.bodyStrong)
+                Text("Number of photos", style = StudioType.bodyStrong, color = Studio.Ink)
                 Spacer(Modifier.height(Space.s))
                 ChipRow {
                     TimerOption.SHOT_CHOICES.forEach { n ->
@@ -664,7 +536,7 @@ internal fun PhotoshootDialog(
                     }
                 }
                 Spacer(Modifier.height(Space.l))
-                Text("Time between photos", style = StudioType.bodyStrong)
+                Text("Time between photos", style = StudioType.bodyStrong, color = Studio.Ink)
                 Spacer(Modifier.height(Space.s))
                 ChipRow {
                     TimerOption.INTERVAL_CHOICES.forEach { s ->

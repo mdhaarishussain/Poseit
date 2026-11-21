@@ -183,12 +183,12 @@ class CreateFromPhotoViewModel(
             } catch (e: Exception) {
                 Log.e(TAG, "Could not save pose from photo", e)
                 cleanup(refFile, outlineFile)
-                _events.send(CreateEvent.Message("Couldn't save the pose. Please try again."))
+                _events.send(CreateEvent.Message("Couldn't save the pose. Try again."))
             } catch (e: Error) {
                 // NotImplementedError / OutOfMemoryError from a dependency: report instead of crashing.
                 Log.e(TAG, "Could not save pose from photo", e)
                 cleanup(refFile, outlineFile)
-                _events.send(CreateEvent.Message("Couldn't save the pose. Please try again."))
+                _events.send(CreateEvent.Message("Couldn't save the pose. Try again."))
             } finally {
                 state = state.copy(saving = false)
             }

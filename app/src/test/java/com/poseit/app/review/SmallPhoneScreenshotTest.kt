@@ -127,14 +127,14 @@ abstract class SmallPhoneShots(private val prefix: String) {
 
     @Test
     fun gallery() {
-        set { GalleryScreen(onBack = {}) }
+        set { GalleryScreen(onBack = {}, onOpenCamera = {}) }
         waitText("No photos yet")
         capture("gallery")
     }
 
     @Test
     fun editorAndSaveSheet() {
-        set { PoseEditorScreen(basePoseId = BuiltInPoses.all.first().id, onBack = {}, onSaved = {}) }
+        set { PoseEditorScreen(basePoseId = BuiltInPoses.all.first().id, onBack = {}, onSaved = { _, _ -> }) }
         waitText("Based on ${BuiltInPoses.all.first().name}")
         capture("editor")
         compose.onAllNodes(hasText("Save") and hasClickAction()).onFirst().performClick()
@@ -146,7 +146,7 @@ abstract class SmallPhoneShots(private val prefix: String) {
     @Test
     fun editorCouple() {
         val couple = BuiltInPoses.all.first { it.personCount >= 2 }
-        set { PoseEditorScreen(basePoseId = couple.id, onBack = {}, onSaved = {}) }
+        set { PoseEditorScreen(basePoseId = couple.id, onBack = {}, onSaved = { _, _ -> }) }
         waitText("Person 1")
         capture("editor-couple")
     }

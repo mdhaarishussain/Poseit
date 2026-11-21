@@ -120,16 +120,16 @@ abstract class OldAndroidFlows {
             val pose = BuiltInPoses.all.first { it.personCount == 1 }
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
             byText(pose.name).performClick()
-            waitDesc("More options")
+            waitText("Camera setup")
             byDesc("Add ${pose.name} to favourites").performClick()
             waitDesc("Remove ${pose.name} from favourites")
-            byText("Customize").performClick()
+            byText("Customise").performClick()
             waitText("Pose editor")
             byText("Save").performClick()
             waitText("Save pose")
             compose.onAllNodes(hasText("Save pose") and hasClickAction()).onFirst().performClick()
             waitFor { app.container.poseRepository.customPoses.value.isNotEmpty() }
-            waitDesc("More options")
+            waitText("Camera setup")
 
             // Camera (CAMERA granted during onboarding; storage asked on Android 9 and below).
             byText("Try this pose").performClick()
@@ -152,7 +152,7 @@ abstract class OldAndroidFlows {
             systemBack(scenario)
             waitDesc("Take photo")
             systemBack(scenario)
-            waitDesc("More options")
+            waitText("Camera setup")
             systemBack(scenario)
             waitText("Pose camera")
 
@@ -164,8 +164,8 @@ abstract class OldAndroidFlows {
             systemBack(scenario)
             waitText("Pose camera")
             byDesc("Create a pose").performClick()
-            waitText("From a photo")
-            byText("From a photo").performClick()
+            waitText("Pose from a photo")
+            byText("Pose from a photo").performClick()
             waitText("Recreate any photo")
             systemBack(scenario)
             waitText("Pose camera")

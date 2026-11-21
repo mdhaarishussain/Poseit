@@ -77,6 +77,9 @@ import com.poseit.app.pose.coach.CaptureState
 import com.poseit.app.pose.match.CoachHint
 import com.poseit.app.pose.match.HintKind
 import com.poseit.app.ui.components.StudioIconButton
+import com.poseit.app.ui.components.StudioInlineIconSize
+import com.poseit.app.ui.components.StudioMenu
+import com.poseit.app.ui.components.StudioMenuItem
 import com.poseit.app.ui.components.StudioIconSize
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
@@ -302,7 +305,7 @@ internal fun LightingChip(hint: CoachHint?, modifier: Modifier = Modifier) {
         val text = hint?.text.orEmpty()
         CueCard(small = true) {
             Row(Modifier.padding(horizontal = Space.m, vertical = Space.s), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.WbSunny, contentDescription = null, modifier = Modifier.size(16.dp))
+                Icon(Icons.Outlined.WbSunny, contentDescription = null, modifier = Modifier.size(StudioInlineIconSize))
                 Spacer(Modifier.width(Space.s))
                 Text(text, style = StudioType.label, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
@@ -336,13 +339,13 @@ internal fun PosePill(pose: PoseTemplate?, visible: Boolean, onClick: () -> Unit
                     )
                 }
                 Spacer(Modifier.width(Space.s))
-                Icon(Icons.Outlined.Info, contentDescription = "Pose tips", modifier = Modifier.size(20.dp))
+                Icon(Icons.Outlined.Info, contentDescription = "Pose tips", modifier = Modifier.size(StudioIconSize))
             }
         }
     }
 }
 
-/** "3/10" photoshoot counter with a stop button. */
+/** "3 / 10" photoshoot counter with a stop button. */
 @Composable
 internal fun ShotCounter(session: SessionInfo, onStop: () -> Unit, modifier: Modifier = Modifier) {
     CueCard(modifier) {
@@ -363,7 +366,7 @@ internal fun ShotCounter(session: SessionInfo, onStop: () -> Unit, modifier: Mod
 @Composable
 internal fun DetectorNotice(modifier: Modifier = Modifier) {
     CueCard(modifier, small = true) {
-        Text("Matching off", style = StudioType.label, modifier = Modifier.padding(horizontal = Space.m, vertical = Space.s))
+        Text("Pose matching unavailable", style = StudioType.label, modifier = Modifier.padding(horizontal = Space.m, vertical = Space.s))
     }
 }
 
@@ -476,32 +479,13 @@ private fun OverlayModeButton(current: OverlayMode, modes: List<OverlayMode>, on
             onClick = { open = true },
             active = current != OverlayMode.MANNEQUIN,
         )
-        CameraMenu(expanded = open, onDismissRequest = { open = false }) {
+        StudioMenu(expanded = open, onDismissRequest = { open = false }) {
             modes.forEach { mode ->
-                DropdownMenuItem(
-                    text = { Text(mode.label) },
-                    leadingIcon = { Icon(mode.icon(), contentDescription = null) },
-                    trailingIcon = { if (mode == current) Icon(Icons.Outlined.Check, contentDescription = "Selected") },
-                    onClick = {
-                        open = false
-                        onSelect(mode)
-                    },
-                )
+                StudioMenuItem(mode.label, leadingIcon = mode.icon(), selected = mode == current) {
+                    open = false
+                    onSelect(mode)
+                }
             }
         }
     }
-}
-
-/** A Studio menu opened from the camera: Sheet, Small radius, no shadow (it stands off the black by tone). */
-@Composable
-internal fun CameraMenu(expanded: Boolean, onDismissRequest: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        shape = StudioShapes.Small,
-        containerColor = Studio.Sheet,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp,
-        content = content,
-    )
 }

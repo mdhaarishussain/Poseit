@@ -38,9 +38,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +52,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -70,6 +73,8 @@ import com.poseit.app.ui.components.SecondaryButton
 import com.poseit.app.ui.components.SettingRow
 import com.poseit.app.ui.components.StudioButtonHeight
 import com.poseit.app.ui.components.StudioIconButton
+import com.poseit.app.ui.components.StudioInlineIconSize
+import com.poseit.app.ui.components.StudioSnackbarHost
 import com.poseit.app.ui.components.StudioLargeTopBar
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.theme.Space
@@ -86,6 +91,8 @@ fun LibraryScreen(
     onCreateFromPhoto: () -> Unit,
     onOpenEditor: (String?) -> Unit,
     onOpenSettings: () -> Unit,
+    message: String? = null,
+    onMessageShown: () -> Unit = {},
 ) {
     val appContext = LocalContext.current.applicationContext
     val vm: LibraryViewModel = viewModel(
@@ -109,6 +116,8 @@ fun LibraryScreen(
         onCreateFromPhoto = onCreateFromPhoto,
         onOpenEditor = onOpenEditor,
         onOpenSettings = onOpenSettings,
+        message = message,
+        onMessageShown = onMessageShown,
     )
 }
 
@@ -130,13 +139,27 @@ private fun LibraryContent(
     onCreateFromPhoto: () -> Unit,
     onOpenEditor: (String?) -> Unit,
     onOpenSettings: () -> Unit,
+    message: String?,
+    onMessageShown: () -> Unit,
 ) {
     val gridState = rememberLazyGridState()
-    val fabExpanded by remember { derivedStateOf { gridState.firstVisibleItemIndex < 2 } }
+    // On a short screen the camera button stays a glyph, so it never covers the filters.
+    val shortScreen = LocalConfiguration.current.screenHeightDp < 640
+    val fabExpanded by remember(shortScreen) { derivedStateOf { !shortScreen && gridState.firstVisibleItemIndex < 2 } }
     var showCreateSheet by rememberSaveable { mutableStateOf(false) }
+    val snackbar = remember { SnackbarHostState() }
+    val messageScope = rememberCoroutineScope()
+    LaunchedEffect(message) {
+        if (message != null) {
+            // Shown in its own scope: clearing the message restarts this effect, which must not cut the snackbar off.
+            onMessageShown()
+            messageScope.launch { snackbar.showSnackbar(message) }
+        }
+    }
 
     Scaffold(
         containerColor = Studio.Paper,
+        snackbarHost = { StudioSnackbarHost(snackbar) },
         topBar = {
             StudioLargeTopBar("Poseit") {
                 StudioIconButton(Icons.Outlined.Add, "Create a pose", onClick = { showCreateSheet = true })
@@ -200,7 +223,7 @@ private fun LibraryContent(
             fullWidth("tabs") {
                 LibraryTabs(selected = state.filter.tab, onSelect = onSelectTab)
             }
-            fullWidth("filters") {
+            if (state.tabTotal > 0) fullWidth("filters") {
                 LibraryFilters(
                     filter = state.filter,
                     categories = state.categories,
@@ -210,7 +233,7 @@ private fun LibraryContent(
                     onCategory = onToggleCategory,
                     onLocation = onToggleLocation,
                     onMood = onToggleMood,
-                    modifier = Modifier.padding(top = Space.s),
+                    modifier = Modifier.padding(top = Space.m),
                 )
             }
             if (state.poses.isNotEmpty()) {
@@ -242,7 +265,7 @@ private fun LibraryContent(
                     onOpen = { onOpenPose(pose.id) },
                     onToggleFavorite = { onToggleFavorite(pose.id) },
                     onTry = { onOpenCamera(pose.id) },
-                    onCustomize = { onOpenEditor(pose.id) },
+                    onCustomise = { onOpenEditor(pose.id) },
                     modifier = Modifier
                         .animateItem()
                         .padding(bottom = Space.xl),
@@ -287,7 +310,7 @@ private fun PoseCameraButton(expanded: Boolean, onClick: () -> Unit, modifier: M
         Icon(
             Icons.Outlined.CameraAlt,
             contentDescription = if (expanded) null else "Pose camera",
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(StudioInlineIconSize),
         )
         AnimatedVisibility(
             visible = expanded,
@@ -440,13 +463,13 @@ private fun CreatePoseSheet(onDismiss: () -> Unit, onFromPhoto: () -> Unit, onDr
             )
             Spacer(Modifier.height(Space.m))
             SettingRow(
-                title = "From a photo",
+                title = "Pose from a photo",
                 subtitle = "Pick a photo you like. Poseit traces the pose and turns it into a guide.",
                 onClick = { closeThen(onFromPhoto) },
             )
             HairlineDivider(Modifier.padding(horizontal = Space.gutter))
             SettingRow(
-                title = "Draw your own",
+                title = "Draw a pose",
                 subtitle = "Drag the mannequin's joints into exactly the pose you have in mind.",
                 onClick = { closeThen(onDraw) },
             )

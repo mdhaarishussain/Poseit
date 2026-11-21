@@ -13,7 +13,7 @@ import com.poseit.app.pose.dsl.pose
  */
 object WalkingPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("walk_toward_camera", "Walk Toward Me", PoseCategory.WALKING) {
+        pose("walk_toward_camera", "Walk toward the camera", PoseCategory.WALKING) {
             description = "Walking straight at the camera with a confident stride is the easiest way to look " +
                 "natural: the movement takes care of the pose."
             tips(
@@ -35,7 +35,7 @@ object WalkingPoses {
                 leftArm(upper = 16f, fore = 10f)
             }
         },
-        pose("walk_across", "Walk Across", PoseCategory.WALKING) {
+        pose("walk_across", "Walk across", PoseCategory.WALKING) {
             description = "A side-on stride across the frame shows the full length of the step and the outfit's " +
                 "silhouette. Turning the face to the camera adds connection."
             tips(
@@ -55,7 +55,7 @@ object WalkingPoses {
                 leftArm(upper = 22f, fore = 50f)
             }
         },
-        pose("walk_look_back", "Walk Away, Look Back", PoseCategory.WALKING) {
+        pose("walk_look_back", "Walk away, look back", PoseCategory.WALKING) {
             description = "Walking away and glancing back over the shoulder feels spontaneous and a little " +
                 "mysterious, and shows the back of the outfit."
             tips(
@@ -77,7 +77,7 @@ object WalkingPoses {
                 leftArm(upper = -14f, fore = -10f)
             }
         },
-        pose("walk_kerb_step", "Off the Kerb", PoseCategory.WALKING) {
+        pose("walk_kerb_step", "Off the kerb", PoseCategory.WALKING) {
             description = "Stepping down from a kerb or step freezes a dynamic, street-style moment with " +
                 "long lines from the hip to the pointed toe."
             tips(
@@ -100,7 +100,7 @@ object WalkingPoses {
                 rightArm(upper = -20f, fore = -12f)
             }
         },
-        pose("walk_skip", "Happy Skip", PoseCategory.WALKING) {
+        pose("walk_skip", "Happy skip", PoseCategory.WALKING) {
             description = "A playful skip with one knee up and an arm swinging high is pure joy, and almost " +
                 "impossible to do without a real smile."
             tips(
@@ -121,7 +121,7 @@ object WalkingPoses {
                 leftArm(upper = 35f, fore = 50f)
             }
         },
-        pose("walk_hat_hold", "Hat in the Wind", PoseCategory.WALKING) {
+        pose("walk_hat_hold", "Hat in the wind", PoseCategory.WALKING) {
             description = "Holding your hat on while you walk gives the hands a reason to be up and adds a " +
                 "breezy, cinematic feel."
             tips(
@@ -143,7 +143,7 @@ object WalkingPoses {
                 leftLeg(thigh = 14f, shin = 32f, foot = -40f)
             }
         },
-        pose("walk_pockets", "Pocket Stroll", PoseCategory.WALKING) {
+        pose("walk_pockets", "Pocket stroll", PoseCategory.WALKING) {
             description = "Strolling with hands in pockets and eyes on the ground is the most natural candid " +
                 "there is: relaxed, thoughtful and unposed."
             tips(
@@ -163,7 +163,7 @@ object WalkingPoses {
                 rightLeg(thigh = -6f, shin = -20f, foot = 20f)
             }
         },
-        pose("walk_twirl", "Twirl", PoseCategory.WALKING) {
+        pose("walk_twirl", "Arms-out spin", PoseCategory.WALKING) {
             description = "Spinning with the arms out makes skirts and coats flare and brings out genuine " +
                 "laughter. Catch the moment mid-turn."
             tips(
@@ -184,7 +184,7 @@ object WalkingPoses {
                 rightLeg(thigh = 3f, shin = 0f, foot = 20f)
             }
         },
-        pose("walk_coffee_run", "Coffee Run", PoseCategory.WALKING) {
+        pose("walk_coffee_run", "Coffee run", PoseCategory.WALKING) {
             description = "Walking with a coffee in hand gives the arms something to do and tells a little " +
                 "everyday story. A street-style essential."
             tips(
@@ -205,7 +205,7 @@ object WalkingPoses {
                 leftLeg(thigh = 10f, shin = 30f, foot = -40f)
             }
         },
-        pose("walk_jacket_shoulder", "Jacket Over Shoulder", PoseCategory.WALKING) {
+        pose("walk_jacket_shoulder", "Jacket over shoulder", PoseCategory.WALKING) {
             description = "A jacket hooked over the shoulder on one finger is effortlessly cool and frames " +
                 "the upper body."
             tips(

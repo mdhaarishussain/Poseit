@@ -86,26 +86,3 @@ object Studio {
         }
     }
 }
-
-/**
- * TEMPORARY shim that maps the pre-Studio colour names onto [Studio] tokens so unconverted screens still compile.
- * Every usage is being replaced; this object will be deleted.
- */
-@Deprecated("Use the Studio tokens (ui/theme/Color.kt). Temporary shim, to be deleted.")
-object PoseitColors {
-    val Violet = Studio.Ink
-    val VioletDark = Studio.Ink
-    val Coral = Studio.Ink
-    val Mint = Studio.Match
-    val Amber = Studio.Near
-    val Red = Studio.Miss
-    val Background = Studio.Paper
-    val Surface = Studio.Sheet
-    val SurfaceHigh = Studio.Set
-    val OnSurfaceMuted = Studio.Graphite
-    val FigureFill = Studio.Mannequin
-    val FigureOutline = Studio.Ink
-    val FigureTints = Studio.FigureTones
-
-    fun forScore(score: Float): Color = Studio.forScore(score)
-}

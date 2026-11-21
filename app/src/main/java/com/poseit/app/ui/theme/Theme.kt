@@ -48,7 +48,7 @@ internal val StudioColorScheme: ColorScheme = lightColorScheme(
     error = Studio.Miss,
     onError = Studio.Sheet,
     errorContainer = Studio.Miss.copy(alpha = 0.12f).compositeOver(Studio.Sheet),
-    onErrorContainer = Color(0xFF8A231B),
+    onErrorContainer = Studio.Miss.copy(alpha = 0.85f).compositeOver(Studio.Ink),
     outline = Studio.Hairline.compositeOver(Studio.Paper),
     outlineVariant = Studio.Ink.copy(alpha = 0.07f).compositeOver(Studio.Paper),
     scrim = Studio.Ink.copy(alpha = 0.32f),

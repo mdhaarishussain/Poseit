@@ -14,14 +14,14 @@ import com.poseit.app.pose.dsl.pose
  */
 object ProfessionalPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("pro_headshot", "LinkedIn Headshot", PoseCategory.PROFESSIONAL) {
+        pose("pro_headshot", "LinkedIn headshot", PoseCategory.PROFESSIONAL) {
             description = "The profile-picture standard: shoulders angled away, face turned back to the camera and " +
                 "chin pushed slightly forward. Looks approachable and sharp."
             tips(
                 "Turn your shoulders about 30° away from the camera",
                 "Turn your face back toward the lens",
                 "Push your chin slightly forward and down to define the jawline",
-                "Smile with your eyes – think of something that made you laugh",
+                "Smile with your eyes: think of something that made you laugh",
             )
             tags(PoseTag.CONFIDENT, PoseTag.OFFICE, PoseTag.CITY)
             camera(CameraHeight.EYE, ShotType.CLOSE_UP, note = "Use a plain, uncluttered background and soft window light.")
@@ -35,7 +35,7 @@ object ProfessionalPoses {
                 rightArm(upper = -8f, fore = -3f)
             }
         },
-        pose("pro_arms_crossed", "Confident Crossed Arms", PoseCategory.PROFESSIONAL) {
+        pose("pro_arms_crossed", "Confident crossed arms", PoseCategory.PROFESSIONAL) {
             description = "A solid, grounded stance with folded arms says expertise and authority. The angled body " +
                 "and relaxed face keep it from looking defensive."
             tips(
@@ -57,7 +57,7 @@ object ProfessionalPoses {
                 rightLeg(thigh = -8f, shin = -2f)
             }
         },
-        pose("pro_blazer_pocket", "Blazer Pocket", PoseCategory.PROFESSIONAL) {
+        pose("pro_blazer_pocket", "Blazer pocket", PoseCategory.PROFESSIONAL) {
             description = "One hand in the trouser pocket, the other at the jacket button: relaxed but polished. " +
                 "A go-to for speaker bios and team pages."
             tips(
@@ -81,8 +81,8 @@ object ProfessionalPoses {
                 rightLeg(thigh = 10f, shin = -6f)
             }
         },
-        pose("pro_desk_edge", "Desk-Edge Perch", PoseCategory.PROFESSIONAL) {
-            description = "Perching on the edge of a desk feels relaxed yet in charge – perfect for office, studio " +
+        pose("pro_desk_edge", "Desk-edge perch", PoseCategory.PROFESSIONAL) {
+            description = "Perching on the edge of a desk feels relaxed yet in charge. Perfect for office, studio " +
                 "and founder portraits. The desk itself is not drawn."
             tips(
                 "Sit on the front edge of a desk, one foot planted on the floor",
@@ -104,8 +104,8 @@ object ProfessionalPoses {
                 leftArm(upper = 12f, fore = -26f, hand = -40f, upperLen = 0.95f)
             }
         },
-        pose("pro_open_palm", "Open-Palm Speaker", PoseCategory.PROFESSIONAL) {
-            description = "An open palm mid-sentence looks engaged and trustworthy – the classic keynote or panel " +
+        pose("pro_open_palm", "Open-palm speaker", PoseCategory.PROFESSIONAL) {
+            description = "An open palm mid-sentence looks engaged and trustworthy: the classic keynote or panel " +
                 "shot. Keep talking while the photo is taken for a natural expression."
             tips(
                 "Hold your near hand out at waist height, palm up and open",
@@ -127,7 +127,7 @@ object ProfessionalPoses {
                 rightLeg(thigh = 8f, shin = -4f)
             }
         },
-        pose("pro_table_lean", "Boardroom Lean", PoseCategory.PROFESSIONAL) {
+        pose("pro_table_lean", "Boardroom lean", PoseCategory.PROFESSIONAL) {
             description = "Both hands planted on a table and the body leaning in projects energy and leadership. " +
                 "Great for meeting-room and startup portraits."
             tips(
@@ -147,7 +147,7 @@ object ProfessionalPoses {
                 rightArm(upper = -15f, fore = -6f, hand = -45f)
             }
         },
-        pose("pro_cuff_adjust", "Cuff Adjust", PoseCategory.PROFESSIONAL) {
+        pose("pro_cuff_adjust", "Cuff adjust", PoseCategory.PROFESSIONAL) {
             description = "Adjusting a cuff or watch gives the hands a purpose and adds a polished, sophisticated " +
                 "detail. Ideal with suits, shirts and wristwatches."
             tips(
@@ -170,7 +170,7 @@ object ProfessionalPoses {
                 rightLeg(thigh = 9f, shin = -5f)
             }
         },
-        pose("pro_folder_hold", "Folder in Hand", PoseCategory.PROFESSIONAL) {
+        pose("pro_folder_hold", "Folder in hand", PoseCategory.PROFESSIONAL) {
             description = "Holding a folder, notebook or tablet against the chest gives the hands a job and tells a " +
                 "work story at a glance."
             tips(

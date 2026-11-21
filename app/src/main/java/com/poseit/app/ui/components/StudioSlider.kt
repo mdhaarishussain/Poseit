@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
@@ -50,7 +49,8 @@ fun StudioSlider(
         onValueChangeFinished = onValueChangeFinished,
         colors = studioSliderColors(),
         thumb = {
-            Box(Modifier.size(width = 4.dp, height = 24.dp).background(active, RoundedCornerShape(2.dp)))
+            // A square-ended index mark, like the frame marks.
+            Box(Modifier.size(width = 4.dp, height = 24.dp).background(active))
         },
         track = { state ->
             val span = state.valueRange.endInclusive - state.valueRange.start
@@ -63,7 +63,7 @@ fun StudioSlider(
                 val h = size.height
                 val radius = CornerRadius(h / 2f)
                 val x = size.width * fraction
-                val gap = 6.dp.toPx()
+                val gap = 4.dp.toPx()
                 fun segment(from: Float, to: Float, color: Color) {
                     if (to - from > 0.5f) drawRoundRect(color, Offset(from, 0f), Size(to - from, h), radius)
                 }

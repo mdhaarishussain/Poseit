@@ -14,7 +14,7 @@ import com.poseit.app.pose.match.MatchResult
 /** What is drawn as the pose guide. The photo modes only exist for poses made from a photo. */
 enum class OverlayMode(val label: String) {
     MANNEQUIN("Mannequin"),
-    PHOTO_GHOST("Photo ghost"),
+    PHOTO_GHOST("Photo"),
     PHOTO_OUTLINE("Photo outline"),
 }
 
@@ -141,7 +141,7 @@ data class CoachingState(
 /** A running manual timer / photoshoot. [shot] is the photo being counted down to, [total] 0 = unlimited. */
 data class SessionInfo(val shot: Int, val total: Int) {
     val isPhotoshoot: Boolean get() = total != 1
-    val label: String get() = if (total == 0) "$shot" else "$shot/$total"
+    val label: String get() = if (total == 0) "$shot" else "$shot / $total"
 }
 
 /** One-shot events for the screen. */

@@ -64,6 +64,7 @@ import com.poseit.app.ui.components.FigureStyle
 import com.poseit.app.ui.components.drawFrameMarks
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.fitFrameRect
+import com.poseit.app.ui.components.StudioInlineIconSize
 import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
 import com.poseit.app.ui.theme.StudioShapes
@@ -224,7 +225,7 @@ internal fun EditorCanvas(viewModel: PoseEditorViewModel, modifier: Modifier = M
                         .padding(horizontal = Space.m),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Outlined.ZoomOutMap, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Outlined.ZoomOutMap, contentDescription = null, modifier = Modifier.size(StudioInlineIconSize))
                     Spacer(Modifier.width(Space.s))
                     Text("Fit", style = StudioType.label)
                 }

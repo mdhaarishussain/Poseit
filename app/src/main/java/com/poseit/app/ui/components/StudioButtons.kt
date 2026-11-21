@@ -1,6 +1,9 @@
 package com.poseit.app.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +19,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,7 +33,7 @@ import com.poseit.app.ui.theme.StudioShapes
 
 /*
  * Studio buttons (docs/DESIGN.md, Components). All are at least 48dp tall with the Medium (12dp) radius and the
- * labelLarge text style (Archivo Medium 14/20). Use one PrimaryButton per screen. Labels say what happens, in
+ * Label large text style (Archivo Medium 14/20). Use one PrimaryButton per screen. Labels say what happens, in
  * sentence case, without arrows: "Try this pose", "Save pose", "Delete".
  *
  * Each button has two forms: `XButton(text, onClick, icon = ...)` for the usual label with an optional leading
@@ -205,14 +212,54 @@ fun StudioIconButton(
     }
 }
 
-/** Size of every Studio icon. */
+/**
+ * An icon-only toggle for a view option (the detail screen's Mirror): a 22dp outlined glyph in a 48dp target that
+ * inverts to a 40dp Ink patch with a Sheet glyph while on, like the editor's tool toggles.
+ * @param contentDescription what it toggles, e.g. "Mirror"; the on/off state is announced separately
+ */
+@Composable
+fun StudioIconToggle(
+    icon: ImageVector,
+    contentDescription: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier
+            .size(48.dp)
+            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+            .semantics { this.contentDescription = contentDescription },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            Modifier
+                .size(40.dp)
+                .background(if (checked) Studio.Ink else Color.Transparent, StudioShapes.Medium),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(icon, contentDescription = null, tint = if (checked) Studio.Sheet else Studio.Ink, modifier = Modifier.size(StudioIconSize))
+        }
+    }
+}
+
+/** Size of every standalone Studio icon. */
 val StudioIconSize = 22.dp
+
+/** Size of an icon set inline with button, chip or Label text. */
+val StudioInlineIconSize = 18.dp
+
+/**
+ * The air between a [StudioIconButton]'s 48dp touch target and its 22dp glyph. Pad a bar by
+ * `Space.gutter - IconGlyphInset` so the glyphs (not the targets) land on the 20dp gutter.
+ */
+val IconGlyphInset = (48.dp - StudioIconSize) / 2
 
 /** Optional 18dp leading icon, then the label on one line. */
 @Composable
 private fun RowScope.ButtonLabel(text: String, icon: ImageVector?) {
     if (icon != null) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        Icon(icon, contentDescription = null, modifier = Modifier.size(StudioInlineIconSize))
         Spacer(Modifier.width(8.dp))
     }
     Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis)

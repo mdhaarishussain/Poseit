@@ -45,17 +45,19 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.pullToRefreshIndicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,6 +69,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.heading
@@ -83,6 +86,8 @@ import com.poseit.app.appContainer
 import com.poseit.app.data.SavedPhoto
 import com.poseit.app.ui.components.EmptyState
 import com.poseit.app.ui.components.PrimaryButton
+import com.poseit.app.ui.components.StudioInlineIconSize
+import com.poseit.app.ui.components.StudioSnackbarHost
 import com.poseit.app.ui.components.StudioTopBar
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.theme.Space
@@ -94,7 +99,7 @@ import kotlinx.coroutines.launch
 /** Photos taken with Poseit, with a full-screen viewer, share and delete. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GalleryScreen(onBack: () -> Unit) {
+fun GalleryScreen(onBack: () -> Unit, onOpenCamera: () -> Unit) {
     val context = LocalContext.current
     val repository = remember(context) { context.appContainer.photoRepository }
     val viewModel: GalleryViewModel = viewModel { GalleryViewModel(repository) }
@@ -165,7 +170,7 @@ fun GalleryScreen(onBack: () -> Unit) {
             // "Don't ask again": the system dialog won't show any more, so open the app settings instead.
             startSafely(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
-                "Couldn't open settings",
+                "Couldn't open settings. Allow photo access in Android Settings, Apps, Poseit.",
             )
         } else {
             askedPermission = true
@@ -208,20 +213,52 @@ fun GalleryScreen(onBack: () -> Unit) {
                     }
                 }
             },
-            snackbarHost = { if (!viewerOpen) SnackbarHost(snackbar, Modifier.navigationBarsPadding()) },
+            snackbarHost = { if (!viewerOpen) StudioSnackbarHost(snackbar, Modifier.navigationBarsPadding()) },
             containerColor = Studio.Paper,
             contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
         ) { padding ->
+            val refreshState = rememberPullToRefreshState()
             PullToRefreshBox(
                 isRefreshing = state.refreshing,
                 onRefresh = { viewModel.refresh(userInitiated = true) },
                 modifier = Modifier.fillMaxSize().padding(padding),
+                state = refreshState,
+                // A bare Ink spinner, like every other one in the app: no disc, so no shadow.
+                indicator = {
+                    Box(
+                        Modifier
+                            .align(Alignment.TopCenter)
+                            .pullToRefreshIndicator(
+                                state = refreshState,
+                                isRefreshing = state.refreshing,
+                                containerColor = Color.Transparent,
+                                elevation = 0.dp,
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (state.refreshing) {
+                            CircularProgressIndicator(Modifier.size(28.dp), color = Studio.Ink, strokeWidth = 2.dp)
+                        } else {
+                            CircularProgressIndicator(
+                                progress = { refreshState.distanceFraction.coerceIn(0f, 1f) },
+                                modifier = Modifier.size(28.dp),
+                                color = Studio.Ink,
+                                strokeWidth = 2.dp,
+                                trackColor = Color.Transparent,
+                            )
+                        }
+                    }
+                },
             ) {
                 when {
                     state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(Modifier.size(28.dp), color = Studio.Ink, strokeWidth = 2.dp)
                     }
-                    state.photos.isEmpty() -> EmptyGallery(permissionMissing = permissionMissing, onGrantPermission = ::requestPermission)
+                    state.photos.isEmpty() -> EmptyGallery(
+                        permissionMissing = permissionMissing,
+                        onGrantPermission = ::requestPermission,
+                        onOpenCamera = onOpenCamera,
+                    )
                     else -> PhotoGrid(
                         photos = state.photos,
                         permissionMissing = permissionMissing,
@@ -259,10 +296,10 @@ fun GalleryScreen(onBack: () -> Unit) {
     }
 }
 
-/** Gap between photos in the grid. */
+/** Gap between photos in the grid: a contact sheet, so the squares nearly touch. */
 private val GridGap = 2.dp
 
-/** The photos, newest first, under a heading per day: Small-radius square thumbnails 2dp apart. */
+/** The photos, newest first, under a heading per day: square thumbnails 2dp apart, like a contact sheet. */
 @Composable
 internal fun PhotoGrid(
     photos: List<SavedPhoto>,
@@ -291,7 +328,7 @@ internal fun PhotoGrid(
                     style = StudioType.bodyStrong,
                     color = Studio.Ink,
                     modifier = Modifier
-                        .padding(top = if (index == 0) Space.s else Space.xl, bottom = Space.s)
+                        .padding(top = if (index == 0 && !permissionMissing) Space.s else Space.xl, bottom = Space.s)
                         .semantics { heading() },
                 )
             }
@@ -305,7 +342,6 @@ internal fun PhotoGrid(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .aspectRatio(1f)
-                        .clip(StudioShapes.Small)
                         .background(Studio.Set)
                         .clickable { onOpen(photo) },
                 )
@@ -318,7 +354,7 @@ internal fun PhotoGrid(
 }
 
 @Composable
-private fun EmptyGallery(permissionMissing: Boolean, onGrantPermission: () -> Unit) {
+private fun EmptyGallery(permissionMissing: Boolean, onGrantPermission: () -> Unit, onOpenCamera: () -> Unit) {
     // Scrollable so pull-to-refresh works and the message fits on small screens.
     BoxWithConstraints(Modifier.fillMaxSize()) {
         Column(
@@ -337,7 +373,8 @@ private fun EmptyGallery(permissionMissing: Boolean, onGrantPermission: () -> Un
             } else {
                 EmptyState(
                     title = "No photos yet",
-                    message = "Photos you take with the pose camera show up here. They're saved to Pictures/Poseit on this phone.",
+                    message = "Photos you take with the pose camera show up here, and in Pictures/Poseit on this phone.",
+                    action = { PrimaryButton("Open the pose camera", onClick = onOpenCamera, icon = Icons.Outlined.CameraAlt) },
                 )
             }
         }
@@ -356,7 +393,7 @@ private fun PermissionNotice(onGrantPermission: () -> Unit, modifier: Modifier =
             .padding(start = Space.l, end = Space.xs, top = Space.xs, bottom = Space.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Outlined.Lock, contentDescription = null, tint = Studio.Graphite, modifier = Modifier.size(18.dp))
+        Icon(Icons.Outlined.Lock, contentDescription = null, tint = Studio.Graphite, modifier = Modifier.size(StudioInlineIconSize))
         Spacer(Modifier.width(Space.m))
         Text(
             "Some older photos are hidden. Allow photo access to see them all.",

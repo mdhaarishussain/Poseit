@@ -87,15 +87,15 @@ class ProcessDeathTest {
         try {
             waitText("Pose camera")
             byDesc("Create a pose").performClick()
-            waitText("Draw your own")
-            byText("Draw your own").performClick()
+            waitText("Draw a pose")
+            byText("Draw a pose").performClick()
             waitText("Pose editor")
             byText("Save").performClick()
             waitText("Save pose")
             compose.onAllNodes(hasText("Save pose") and hasClickAction()).onFirst().performClick()
             waitFor { app.container.poseRepository.customPoses.value.isNotEmpty() }
             val pose = app.container.poseRepository.customPoses.value.first()
-            waitDesc("More options")
+            waitText("Camera setup")
             waitText(pose.name)
 
             controller = processDeath(controller)

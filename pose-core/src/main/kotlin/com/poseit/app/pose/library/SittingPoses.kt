@@ -13,7 +13,7 @@ import com.poseit.app.pose.dsl.pose
  */
 object SittingPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("sit_crossed_legs", "Crossed Legs", PoseCategory.SITTING) {
+        pose("sit_crossed_legs", "Crossed legs", PoseCategory.SITTING) {
             description = "A timeless chair pose: crossing the legs at the knee and angling them away from the " +
                 "camera lengthens the legs and looks polished."
             tips(
@@ -36,7 +36,7 @@ object SittingPoses {
                 leftArm(upper = 30f, fore = -9f, upperLen = 0.6f, foreLen = 0.8f)
             }
         },
-        pose("sit_elbows_on_knees", "Elbows on Knees", PoseCategory.SITTING) {
+        pose("sit_elbows_on_knees", "Elbows on knees", PoseCategory.SITTING) {
             description = "Leaning forward with the elbows on the knees feels open and engaged, and brings the " +
                 "face closer to the camera. Great on a bench or low wall."
             tips(
@@ -59,7 +59,7 @@ object SittingPoses {
                 leftArm(upper = 9f, fore = 64f, hand = 30f, foreLen = 0.85f)
             }
         },
-        pose("sit_one_knee_up", "One Knee Up", PoseCategory.SITTING) {
+        pose("sit_one_knee_up", "One knee up", PoseCategory.SITTING) {
             description = "Sitting on steps with one foot up a step and an arm draped over the knee makes a " +
                 "relaxed, effortless triangle shape."
             tips(
@@ -82,7 +82,7 @@ object SittingPoses {
                 leftArm(upper = -22f, fore = -18f)
             }
         },
-        pose("sit_side_saddle", "Side-Saddle", PoseCategory.SITTING) {
+        pose("sit_side_saddle", "Side-saddle", PoseCategory.SITTING) {
             description = "Knees together and angled to one side with the torso facing the camera: the most " +
                 "elegant way to sit on a bench in a skirt or dress."
             tips(
@@ -105,7 +105,7 @@ object SittingPoses {
                 leftArm(upper = 15f, fore = -32f, hand = -60f, foreLen = 0.85f)
             }
         },
-        pose("sit_steps_sideways", "Sideways on Steps", PoseCategory.SITTING) {
+        pose("sit_steps_sideways", "Sideways on steps", PoseCategory.SITTING) {
             description = "Sitting across a step with your back to the wall turns a staircase into a lounge. " +
                 "One leg long and one knee up keeps the shape interesting."
             tips(
@@ -128,7 +128,7 @@ object SittingPoses {
                 leftArm(upper = -25f, fore = -20f)
             }
         },
-        pose("sit_hug_knees", "Hugging Knees", PoseCategory.SITTING) {
+        pose("sit_hug_knees", "Hugging knees", PoseCategory.SITTING) {
             description = "Knees pulled in and arms wrapped around them: a cosy, dreamy pose for the beach, a " +
                 "park lawn or a windowsill."
             tips(
@@ -150,7 +150,7 @@ object SittingPoses {
                 leftArm(upper = 20f, fore = 85f, hand = 120f, foreLen = 0.75f)
             }
         },
-        pose("sit_armchair_lounge", "Armchair Lounge", PoseCategory.SITTING) {
+        pose("sit_armchair_lounge", "Armchair lounge", PoseCategory.SITTING) {
             description = "Sideways in an armchair with the legs draped over the armrest and a hand behind the " +
                 "head: the ultimate cosy, at-home lounging shot."
             tips(
@@ -173,7 +173,7 @@ object SittingPoses {
                 leftArm(upper = 30f, fore = 80f, hand = 90f)
             }
         },
-        pose("sit_chair_backwards", "Backwards Chair", PoseCategory.SITTING) {
+        pose("sit_chair_backwards", "Backwards chair", PoseCategory.SITTING) {
             description = "Straddling a chair turned backwards, arms folded on the backrest: confident, " +
                 "casual and great for creative portraits."
             tips(
@@ -195,7 +195,7 @@ object SittingPoses {
                 rightArm(upper = -25f, fore = 95f, hand = 95f, upperLen = 0.75f)
             }
         },
-        pose("sit_ankle_on_knee", "Ankle on Knee", PoseCategory.SITTING) {
+        pose("sit_ankle_on_knee", "Ankle on knee", PoseCategory.SITTING) {
             description = "Resting one ankle on the opposite knee with an arm along the bench back takes up " +
                 "space and reads relaxed and self-assured."
             tips(
@@ -216,7 +216,7 @@ object SittingPoses {
                 leftArm(upper = 20f, fore = 12f, hand = 30f)
             }
         },
-        pose("sit_high_perch", "High Perch", PoseCategory.SITTING) {
+        pose("sit_high_perch", "High perch", PoseCategory.SITTING) {
             description = "Perched on a bar stool or high wall with one foot on the rung and one leg reaching " +
                 "the ground: tall, balanced and leggy."
             tips(

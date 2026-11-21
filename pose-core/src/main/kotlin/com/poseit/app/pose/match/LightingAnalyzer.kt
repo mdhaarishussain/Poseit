@@ -129,16 +129,16 @@ object LightingAnalyzer {
         val (text, severity) = when (issue) {
             LightingIssue.OK -> return null
             LightingIssue.SCENE_TOO_DARK -> (
-                if (subject) "It's too dark – find more light" else "It's too dark – find more light or turn on the flash"
+                if (subject) "Too dark. Find more light" else "Too dark. Find more light or turn on the flash"
                 ) to 0.55f + 0.3f * (1f - scene / SCENE_DARK)
             LightingIssue.BACKLIT -> (
-                if (subject) "Strong light behind you – turn around" else "They're backlit – shoot with the light behind you"
+                if (subject) "Strong light behind you. Turn around" else "They're backlit. Shoot with the light behind you"
                 ) to 0.5f + 0.3f * (((background ?: 0f) - (face ?: 0f) - BACKLIGHT_DIFF) / 120f).coerceIn(0f, 1f)
             LightingIssue.FACE_TOO_DARK -> (
-                if (subject) "Your face is in shadow – turn toward the light" else "Their face is in shadow – turn them toward the light"
+                if (subject) "Your face is in shadow. Turn toward the light" else "Their face is in shadow. Turn them toward the light"
                 ) to 0.45f + 0.3f * (1f - (face ?: 0f) / FACE_DARK)
             LightingIssue.TOO_BRIGHT -> (
-                if (subject) "Too much light on your face – find some shade" else "The face is overexposed – find shade or lower the exposure"
+                if (subject) "Too much light on your face. Find some shade" else "The face is overexposed. Find shade or lower the brightness"
                 ) to 0.45f
         }
         return CoachHint(
@@ -146,7 +146,7 @@ object LightingAnalyzer {
             kind = HintKind.FRAMING,
             severity = severity.coerceIn(0f, 1f),
             part = if (issue == LightingIssue.SCENE_TOO_DARK) null else BodyPart.HEAD,
-            speech = text.replace(" – ", ", "),
+            speech = text,
         )
     }
 }

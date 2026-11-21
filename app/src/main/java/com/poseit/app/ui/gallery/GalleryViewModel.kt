@@ -84,7 +84,7 @@ class GalleryViewModel(private val repository: PhotoRepository) : ViewModel() {
 
     /** Deletes right away (the user already confirmed). */
     fun deleteNow(photo: SavedPhoto) {
-        viewModelScope.launch { performDelete(photo) }
+        viewModelScope.launch { if (performDelete(photo)) _events.send(GalleryEvent.Message("Photo deleted")) }
     }
 
     /** Hides [photo] immediately; it is deleted for real by [commitPendingDelete] unless [undoDelete] is called first. */
@@ -107,18 +107,23 @@ class GalleryViewModel(private val repository: PhotoRepository) : ViewModel() {
         }
     }
 
-    private suspend fun performDelete(photo: SavedPhoto) {
+    /** @return true when the photo was deleted right away (not waiting for consent, not failed) */
+    private suspend fun performDelete(photo: SavedPhoto): Boolean {
         when (val result = repository.deleteOrRequestConsent(photo)) {
-            PhotoDeleteResult.Deleted -> all.update { list -> list.filterNot { it.uri == photo.uri } }
+            PhotoDeleteResult.Deleted -> {
+                all.update { list -> list.filterNot { it.uri == photo.uri } }
+                return true
+            }
             is PhotoDeleteResult.NeedsConsent -> {
                 awaitingConsent.update { it + (photo.uri to result) }
                 _events.send(GalleryEvent.RequestDeleteConsent(photo, result))
             }
             PhotoDeleteResult.Failed -> {
-                _events.send(GalleryEvent.Message("Couldn't delete this photo"))
+                _events.send(GalleryEvent.Message(DELETE_FAILED))
                 refresh()
             }
         }
+        return false
     }
 
     /** Result of the system consent dialog launched for [GalleryEvent.RequestDeleteConsent]. */
@@ -129,7 +134,7 @@ class GalleryViewModel(private val repository: PhotoRepository) : ViewModel() {
                 if (!granted) {
                     _events.send(GalleryEvent.Message("Photo kept"))
                 } else if (request.retryAfterConsent && !repository.delete(photo)) {
-                    _events.send(GalleryEvent.Message("Couldn't delete this photo"))
+                    _events.send(GalleryEvent.Message(DELETE_FAILED))
                 }
             } finally {
                 awaitingConsent.update { it - photo.uri }
@@ -151,3 +156,5 @@ class GalleryViewModel(private val repository: PhotoRepository) : ViewModel() {
         val cleanupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 }
+
+private const val DELETE_FAILED = "Couldn't delete this photo. Delete it in your gallery app."

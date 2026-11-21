@@ -143,7 +143,7 @@ class AppFlowTest {
             val pose = BuiltInPoses.all.first { it.personCount == 1 }
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
             clickable(pose.name).performClick()
-            compose.waitForDesc("More options")
+            compose.waitForText("Camera setup")
             shot("detail")
 
             val favBefore = runBlocking { app.container.poseRepository.favorites.first() }.contains(pose.id)
@@ -154,7 +154,7 @@ class AppFlowTest {
             compose.waitForDesc(if (favBefore) addDesc else removeDesc)
             assertEquals(!favBefore, runBlocking { app.container.poseRepository.favorites.first() }.contains(pose.id))
 
-            clickable("Customize").performClick()
+            clickable("Customise").performClick()
             compose.waitForText("Pose editor")
             compose.waitForText("Based on ${pose.name}")
             compose.waitUntil(10_000) {
@@ -188,7 +188,7 @@ class AppFlowTest {
             val pose = BuiltInPoses.all.first()
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
             clickable(pose.name).performClick()
-            compose.waitForDesc("More options")
+            compose.waitForText("Camera setup")
             val back = compose.onNodeWithContentDescription("Back")
             back.performClick()
             runCatching { back.performClick() }
@@ -204,7 +204,7 @@ class AppFlowTest {
             val pose = BuiltInPoses.all.first()
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
             clickable(pose.name).performClick()
-            compose.waitForDesc("More options")
+            compose.waitForText("Camera setup")
             // Two back events one frame apart (a fast double tap on the system Back button / gesture).
             compose.mainClock.autoAdvance = false
             systemBack(scenario)
@@ -283,8 +283,8 @@ class AppFlowTest {
     fun createFromPhoto_introOpensFromSheet() {
         launchToLibrary().use { scenario ->
             compose.onNodeWithContentDescription("Create a pose").performClick()
-            compose.waitForText("From a photo")
-            clickable("From a photo").performClick()
+            compose.waitForText("Pose from a photo")
+            clickable("Pose from a photo").performClick()
             compose.waitForText("Recreate any photo")
             compose.waitForText("Choose a photo")
             shot("create-intro")
@@ -297,8 +297,8 @@ class AppFlowTest {
     fun drawYourOwn_editorFromScratch_saves() {
         launchToLibrary().use { _ ->
             compose.onNodeWithContentDescription("Create a pose").performClick()
-            compose.waitForText("Draw your own")
-            clickable("Draw your own").performClick()
+            compose.waitForText("Draw a pose")
+            clickable("Draw a pose").performClick()
             compose.waitForText("Pose editor")
             compose.waitForText("New pose")
             clickable("Save").performClick()
@@ -350,7 +350,7 @@ class AppFlowTest {
             val pose = BuiltInPoses.all.first()
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
             clickable(pose.name).performClick()
-            compose.waitForDesc("More options")
+            compose.waitForText("Camera setup")
             clickable("Try this pose").performClick()
             repeat(20) {
                 compose.mainClock.advanceTimeBy(200)
@@ -359,7 +359,7 @@ class AppFlowTest {
             compose.waitForIdle()
             shot("camera-try-pose")
             systemBack(scenario)
-            compose.waitForDesc("More options")
+            compose.waitForText("Camera setup")
         }
     }
 }

@@ -43,20 +43,21 @@ data class PoseTemplate(
 @Serializable
 enum class PoseSource { BUILT_IN, FROM_PHOTO, DRAWN }
 
+/** Pose categories. Labels are plain sentence-case words, shown on chips, tabs and under tiles. */
 @Serializable
 enum class PoseCategory(val label: String) {
     STANDING("Standing"),
     SITTING("Sitting"),
     LEANING("Leaning"),
-    WALKING("Walking & Action"),
+    WALKING("Walking"),
     PORTRAIT("Portrait"),
     SELFIE("Selfie"),
     PROFESSIONAL("Professional"),
-    FUN("Fun & Jumping"),
-    FLOOR("Floor & Squat"),
+    FUN("Fun & jumping"),
+    FLOOR("On the ground"),
     COUPLE("Couple"),
-    GROUP("Friends & Group"),
-    CUSTOM("My Poses"),
+    GROUP("Group"),
+    CUSTOM("My poses"),
 }
 
 /** Mood / location tags used for filtering and "where are you?" suggestions. */
@@ -92,7 +93,7 @@ data class CameraAdvice(
 
 @Serializable
 enum class CameraHeight(val label: String, val advice: String) {
-    GROUND("Ground level", "Hold the phone close to the ground, tilted slightly up – it makes legs look longer."),
+    GROUND("Ground level", "Hold the phone close to the ground, tilted slightly up. It makes legs look longer."),
     KNEE("Knee height", "Hold the phone around knee height, tilted slightly up."),
     WAIST("Waist height", "Hold the phone at waist height and keep it vertical."),
     CHEST("Chest height", "Hold the phone at chest height, straight on."),

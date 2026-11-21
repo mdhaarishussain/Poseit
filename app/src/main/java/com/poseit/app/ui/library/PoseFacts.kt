@@ -18,6 +18,7 @@ import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.theme.Studio
+import java.util.Locale
 
 /** Human wording for a 1..3 difficulty. Shared by the library and the detail screen. */
 internal object Difficulty {
@@ -53,18 +54,25 @@ internal fun DifficultyMeter(level: Int, modifier: Modifier = Modifier) {
         repeat(3) { i ->
             Box(
                 Modifier
-                    .size(width = 10.dp, height = 3.dp)
+                    .size(width = 12.dp, height = 3.dp)
                     .background(if (i < clamped) Studio.Ink else Studio.Hairline),
             )
         }
     }
 }
 
-/** A category's name in sentence case ("My poses" rather than the enum's "My Poses"). */
-internal val PoseCategory.displayLabel: String get() = if (this == PoseCategory.CUSTOM) "My poses" else label
-
 /** The category's label, e.g. "Standing". */
-internal val PoseTemplate.categoryText: String get() = category.displayLabel
+internal val PoseTemplate.categoryText: String get() = category.label
+
+/**
+ * The pose's facts as one short phrase in sentence case: "Standing, easy", "Couple, medium", "Group, easy, 4 people"
+ * (the number of people is left out when the category already says it).
+ */
+internal fun PoseTemplate.factsPhrase(): String = buildList {
+    add(if (category == PoseCategory.CUSTOM) sourceText ?: categoryText else categoryText)
+    add(Difficulty.label(difficulty).lowercase(Locale.getDefault()))
+    if (personCount > 1 && category != PoseCategory.COUPLE) add("$personCount people")
+}.joinToString(", ")
 
 /** Where a user-made pose came from, or null for a built-in pose. */
 internal val PoseTemplate.sourceText: String?

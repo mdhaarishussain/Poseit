@@ -1004,7 +1004,7 @@ class CameraViewModel(
         private const val DETECTOR_ERROR_GAP_MS = 15_000L
         private const val MAX_GUIDE_IMAGE_PX = 1280
         private const val LIVE_MIN_VISIBILITY = 0.5f
-        const val PERFECT_SPEECH = "Perfect, hold it"
+        const val PERFECT_SPEECH = "Perfect. Hold it"
 
         fun factory(context: Context, initialPoseId: String?, initialMirrored: Boolean = false): ViewModelProvider.Factory = viewModelFactory {
             initializer {

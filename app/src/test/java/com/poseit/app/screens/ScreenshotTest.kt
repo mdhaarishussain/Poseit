@@ -70,16 +70,16 @@ class ScreenshotTest {
     fun onboarding() = shot("onboarding") { OnboardingScreen(onDone = {}) }
 
     @Test
-    fun gallery() = shot("gallery") { GalleryScreen(onBack = {}) }
+    fun gallery() = shot("gallery") { GalleryScreen(onBack = {}, onOpenCamera = {}) }
 
     @Test
     fun createFromPhoto() = shot("create") { CreateFromPhotoScreen(onBack = {}, onSaved = {}) }
 
     @Test
-    fun editor() = shot("editor") { PoseEditorScreen(basePoseId = null, onBack = {}, onSaved = {}) }
+    fun editor() = shot("editor") { PoseEditorScreen(basePoseId = null, onBack = {}, onSaved = { _, _ -> }) }
 
     @Test
     fun editorFromPose() = shot("editor_from_pose") {
-        PoseEditorScreen(basePoseId = BuiltInPoses.all.getOrNull(3)?.id, onBack = {}, onSaved = {})
+        PoseEditorScreen(basePoseId = BuiltInPoses.all.getOrNull(3)?.id, onBack = {}, onSaved = { _, _ -> })
     }
 }

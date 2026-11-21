@@ -58,6 +58,7 @@ enum class PoseTileSize {
  *   [isFavorite]); [PoseTileSize.Regular] only, a compact tile is too small for its 48dp target
  * @param selected draws a 2dp outline around the tile (Ink, or Mannequin when [onDark])
  * @param onDark caption and outline colours for the camera's black surround; the tile stays Set
+ * @param nameMinLines reserve this many lines for the name (up to two), so the captions of a dense grid line up
  * @param overlay extra content drawn over the tile, e.g. a small tag in a corner
  */
 @Composable
@@ -75,6 +76,7 @@ fun PoseTile(
     onClick: (() -> Unit)? = null,
     onClickLabel: String? = null,
     interactionSource: MutableInteractionSource? = null,
+    nameMinLines: Int = 1,
     overlay: @Composable BoxScope.() -> Unit = {},
 ) {
     val source = interactionSource ?: remember { MutableInteractionSource() }
@@ -119,7 +121,15 @@ fun PoseTile(
         if (regular) {
             if (name != null || detail != null) Spacer(Modifier.height(Space.s))
             if (name != null) {
-                Text(name, style = StudioType.bodyStrong, color = nameColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                // Two lines, so a long name wraps instead of being cut off in a narrow column.
+                Text(
+                    name,
+                    style = StudioType.bodyStrong,
+                    color = nameColor,
+                    minLines = nameMinLines.coerceIn(1, 2),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
             if (detail != null) {
                 Text(

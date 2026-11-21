@@ -39,7 +39,7 @@ fun StudioChip(
         label = { Text(label, style = StudioType.label, maxLines = 1) },
         modifier = modifier.heightIn(min = 32.dp),
         enabled = enabled,
-        leadingIcon = leadingIcon?.let { icon -> { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) } },
+        leadingIcon = leadingIcon?.let { icon -> { Icon(icon, contentDescription = null, modifier = Modifier.size(StudioInlineIconSize)) } },
         shape = StudioShapes.Small,
         colors = FilterChipDefaults.filterChipColors(
             containerColor = Color.Transparent,

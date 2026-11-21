@@ -13,7 +13,7 @@ import com.poseit.app.pose.dsl.pose
  */
 object LeaningPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("lean_shoulder_wall", "Shoulder Lean", PoseCategory.LEANING) {
+        pose("lean_shoulder_wall", "Shoulder lean", PoseCategory.LEANING) {
             description = "Resting one shoulder on a wall with the feet stepped out makes a long diagonal line " +
                 "and instantly looks relaxed and cool."
             tips(
@@ -36,7 +36,7 @@ object LeaningPoses {
                 leftLeg(thigh = 0f, shin = 14f, foot = 30f)
             }
         },
-        pose("lean_foot_on_wall", "Foot Up on the Wall", PoseCategory.LEANING) {
+        pose("lean_foot_on_wall", "Foot up on the wall", PoseCategory.LEANING) {
             description = "Back against the wall with one foot flat on it behind you: the bent knee breaks up " +
                 "the straight lines and gives an easy, confident vibe."
             tips(
@@ -59,7 +59,7 @@ object LeaningPoses {
                 rightLeg(thigh = -10f, shin = 8f, foot = 5f, thighLen = 0.6f, shinLen = 0.9f)
             }
         },
-        pose("lean_hand_on_wall", "Hand on the Wall", PoseCategory.LEANING) {
+        pose("lean_hand_on_wall", "Hand on the wall", PoseCategory.LEANING) {
             description = "One palm flat on the wall at head height pulls the body into a long, open line and " +
                 "shows off the waist."
             tips(
@@ -81,7 +81,7 @@ object LeaningPoses {
                 leftLeg(thigh = -12f, shin = -4f)
             }
         },
-        pose("lean_railing_forward", "Railing Lean", PoseCategory.LEANING) {
+        pose("lean_railing_forward", "Railing lean", PoseCategory.LEANING) {
             description = "Forearms resting on a railing, body angled toward the view, face turned back: the " +
                 "classic travel shot at a viewpoint or on a bridge."
             tips(
@@ -104,7 +104,7 @@ object LeaningPoses {
                 rightLeg(thigh = 0f, shin = -28f, foot = 45f)
             }
         },
-        pose("lean_crossed_legs", "Cross-Legged Lean", PoseCategory.LEANING) {
+        pose("lean_crossed_legs", "Cross-legged lean", PoseCategory.LEANING) {
             description = "Leaning back against a wall with the ankles crossed and hands in pockets: the " +
                 "ultimate laid-back pose that slims and lengthens the legs."
             tips(
@@ -127,7 +127,7 @@ object LeaningPoses {
                 rightLeg(thigh = 20f, shin = 28f, foot = 20f)
             }
         },
-        pose("lean_door_frame", "Doorway Lean", PoseCategory.LEANING) {
+        pose("lean_door_frame", "Doorway lean", PoseCategory.LEANING) {
             description = "One hand high on the door frame and the other on the hip turns any doorway into a " +
                 "frame for a bold, fashion-style shot."
             tips(
@@ -150,7 +150,7 @@ object LeaningPoses {
                 rightLeg(thigh = 2f, shin = -12f)
             }
         },
-        pose("lean_pole_swing", "Pole Swing", PoseCategory.LEANING) {
+        pose("lean_pole_swing", "Pole swing", PoseCategory.LEANING) {
             description = "Hold a lamp post or pole and swing your body out with the free arm open: joyful, " +
                 "full of movement and great on a street corner."
             tips(
@@ -173,7 +173,7 @@ object LeaningPoses {
                 leftLeg(thigh = 38f, shin = 45f, foot = 70f)
             }
         },
-        pose("lean_table_edge", "Table Edge Perch", PoseCategory.LEANING) {
+        pose("lean_table_edge", "Table-edge perch", PoseCategory.LEANING) {
             description = "Half-sitting against a desk, table or car with the legs stretched out reads " +
                 "relaxed yet put-together."
             tips(
@@ -196,7 +196,7 @@ object LeaningPoses {
                 rightLeg(thigh = 20f, shin = 34f)
             }
         },
-        pose("lean_railing_back", "Elbows on the Rail", PoseCategory.LEANING) {
+        pose("lean_railing_back", "Elbows on the rail", PoseCategory.LEANING) {
             description = "Back to a railing or bar with both elbows propped behind you: open, confident and " +
                 "relaxed, perfect for rooftops and piers."
             tips(

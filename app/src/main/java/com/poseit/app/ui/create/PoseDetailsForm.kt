@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
@@ -67,7 +68,12 @@ private fun NameField(name: String, onNameChange: (String) -> Unit, onDone: () -
         singleLine = true,
         isError = name.isBlank(),
         supportingText = {
-            Text(if (name.isBlank()) "Give your pose a name" else "${name.length} / $POSE_NAME_MAX_LENGTH")
+            // The count sits at the end, under the field's right edge; the prompt reads from the start.
+            if (name.isBlank()) {
+                Text("Give your pose a name")
+            } else {
+                Text("${name.length} / $POSE_NAME_MAX_LENGTH", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+            }
         },
         textStyle = StudioType.body,
         shape = StudioShapes.Small,

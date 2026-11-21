@@ -24,8 +24,8 @@ internal object Phrasing {
     fun thirdPerson(imperative: String): String =
         imperative.replaceFirstChar { it.lowercaseChar() }.replace(YOUR, "their").replace(YOU, "them")
 
-    /** Text for the voice coach: dashes and colons become pauses. */
-    fun speech(text: String): String = text.replace(" – ", ", ").replace(": ", ", ")
+    /** Text for the voice coach: colons become pauses (full stops already are). */
+    fun speech(text: String): String = text.replace(": ", ", ")
 
     fun side(left: Boolean): String = if (left) "left" else "right"
 
@@ -77,12 +77,12 @@ internal class HintBuilder(
 
     fun noPose(): CoachHint = hint("Pick a pose to get started", HintKind.POSE, 0f)
 
-    fun perfect(): CoachHint = hint("Perfect – hold it!", HintKind.PERFECT, 0f)
+    fun perfect(): CoachHint = hint("Perfect. Hold it", HintKind.PERFECT, 0f)
 
     private fun almostThere(): CoachHint = hint(
         when (audience) {
-            FramingAudience.SUBJECT -> "Almost there – match the outline closely"
-            FramingAudience.PHOTOGRAPHER -> "Almost there – help them match the outline"
+            FramingAudience.SUBJECT -> "Almost there. Match the outline closely"
+            FramingAudience.PHOTOGRAPHER -> "Almost there. Help them match the outline"
         },
         HintKind.POSE,
         0.1f,
@@ -112,9 +112,9 @@ internal class HintBuilder(
 
     private fun missingPeople(expected: Int, present: Int): CoachHint {
         val text = when (audience) {
-            FramingAudience.SUBJECT -> "Waiting for $expected people – $present in frame"
+            FramingAudience.SUBJECT -> "$present of $expected people in the frame"
             FramingAudience.PHOTOGRAPHER ->
-                (if (expected == 2) "Get both people in the frame" else "Get all $expected people in the frame") + " – $present visible"
+                "$present of $expected people in the frame. " + (if (expected == 2) "Get both in" else "Get everyone in")
         }
         return hint(text, HintKind.MISSING_PERSON, 0.97f)
     }
@@ -123,7 +123,7 @@ internal class HintBuilder(
     // Visibility
     // ---------------------------------------------------------------------------------------------------------------
 
-    /** Hints about required joints the camera doesn't see; the flag marks "cut off – step back" style hints. */
+    /** Hints about required joints the camera doesn't see; the flag marks "cut off, step back" style hints. */
     private fun visibility(e: PairEval): List<Pair<CoachHint, Boolean>> {
         val missing = e.missingJoints
         if (missing.isEmpty()) return emptyList()
@@ -142,12 +142,12 @@ internal class HintBuilder(
             val text = when {
                 !cut -> Phrasing.instruct("Turn your face toward the camera", audience)
                 subject -> "Your head is out of frame"
-                nose == null -> "Their head is cut off – step back or tilt up"
-                nose.y < 0f -> "Their head is cut off – tilt the phone up"
+                nose == null -> "Their head is cut off. Step back or tilt up"
+                nose.y < 0f -> "Their head is cut off. Tilt the phone up"
                 // Off the image left: bring it toward the image right by moving the phone LEFT (and vice versa).
-                nose.x < 0f -> "Their head is cut off – move the phone left"
-                nose.x > 1f -> "Their head is cut off – move the phone right"
-                else -> "Their head is cut off – tilt the phone down"
+                nose.x < 0f -> "Their head is cut off. Move the phone left"
+                nose.x > 1f -> "Their head is cut off. Move the phone right"
+                else -> "Their head is cut off. Tilt the phone down"
             }
             out += hint(p + text, HintKind.VISIBILITY, if (cut) 0.8f else 0.5f, BodyPart.HEAD, f) to cut
         }
@@ -158,10 +158,10 @@ internal class HintBuilder(
             val cut = cutOff(legMissing)
             val text = when {
                 !cut -> Phrasing.instruct(if (feet) "Keep your feet visible" else "Keep your legs visible", audience)
-                feet && subject -> "Your feet are cut off – step back"
-                feet -> "Feet are cut off – step back or tilt down"
-                subject -> "Your legs are out of frame – step back"
-                else -> "Legs are cut off – step back or tilt down"
+                feet && subject -> "Your feet are cut off. Step back"
+                feet -> "Their feet are cut off. Step back or tilt down"
+                subject -> "Your legs are out of frame. Step back"
+                else -> "Their legs are cut off. Step back or tilt down"
             }
             val part = when {
                 legMissing.all { it.isLeft == true } -> BodyPart.LEFT_LEG
@@ -406,7 +406,7 @@ internal class HintBuilder(
             }
         }
         if (steppedBack.isEmpty() && evals.any(::cropsAtJoint)) {
-            out += hint("Don't crop at the joints – show the feet or frame above the knees", HintKind.FRAMING, 0.3f)
+            out += hint("Don't crop at the joints. Show the feet or frame above the knees", HintKind.FRAMING, 0.3f)
         }
         return out
     }

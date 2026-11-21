@@ -13,8 +13,8 @@ import com.poseit.app.pose.dsl.pose
  */
 object FunPoses {
     val all: List<PoseTemplate> = listOf(
-        pose("fun_star_jump", "Star Jump", PoseCategory.FUN) {
-            description = "Arms and legs flung wide in mid-air – pure joy in one frame. Perfect on beaches, fields " +
+        pose("fun_star_jump", "Star jump", PoseCategory.FUN) {
+            description = "Arms and legs flung wide in mid-air: pure joy in one frame. Perfect on beaches, fields " +
                 "and in front of big landmarks."
             tips(
                 "Jump straight up and spread your arms and legs into a big X",
@@ -22,7 +22,7 @@ object FunPoses {
                 "Lift your chin and smile at the top of the jump",
             )
             tags(PoseTag.PLAYFUL, PoseTag.BEACH, PoseTag.NATURE, PoseTag.TRAVEL)
-            camera(CameraHeight.KNEE, ShotType.FULL_BODY, note = "Shoot low in burst mode – a low angle makes the jump look higher.")
+            camera(CameraHeight.KNEE, ShotType.FULL_BODY, note = "Shoot low in burst mode. A low angle makes the jump look higher.")
             difficulty = 2
             figure(cx = 0.5f, bottom = 0.92f, bodyHeight = 0.74f) {
                 headPitch = 8f
@@ -32,14 +32,14 @@ object FunPoses {
                 rightLeg(thigh = -22f, shin = -24f, foot = -30f)
             }
         },
-        pose("fun_tuck_jump", "Knee-Tuck Jump", PoseCategory.FUN) {
+        pose("fun_tuck_jump", "Knee-tuck jump", PoseCategory.FUN) {
             description = "Pulling both knees up high mid-jump looks like flying. Turning a little sideways makes " +
                 "the tuck easy to read."
             tips(
                 "Turn slightly sideways to the camera",
                 "Jump and pull both knees up toward your chest",
                 "Throw your arms up high",
-                "Jump several times – the camera only needs one perfect moment",
+                "Jump several times: the camera only needs one perfect moment",
             )
             tags(PoseTag.PLAYFUL, PoseTag.BEACH, PoseTag.NATURE, PoseTag.CITY)
             camera(CameraHeight.KNEE, ShotType.FULL_BODY, note = "Use burst mode and a fast shutter so the jump stays sharp.")
@@ -54,8 +54,8 @@ object FunPoses {
                 rightLeg(thigh = 105f, shin = -25f, foot = -50f)
             }
         },
-        pose("fun_twirl", "Twirl", PoseCategory.FUN) {
-            description = "A spin with one arm curved overhead and a heel flicked up behind – made for skirts, " +
+        pose("fun_twirl", "Heel-flick twirl", PoseCategory.FUN) {
+            description = "A spin with one arm curved overhead and a heel flicked up behind, made for skirts, " +
                 "dresses and coats that swing."
             tips(
                 "Spin on the spot and let your dress or coat swing out",
@@ -77,7 +77,7 @@ object FunPoses {
                 rightLeg(thigh = 3f, shin = 0f)
             }
         },
-        pose("fun_superhero", "Superhero Stance", PoseCategory.FUN) {
+        pose("fun_superhero", "Superhero stance", PoseCategory.FUN) {
             description = "Fists on hips, feet wide and chin up: the ultimate power pose. Instantly confident and " +
                 "a little bit funny."
             tips(
@@ -98,7 +98,7 @@ object FunPoses {
                 rightLeg(thigh = -14f, shin = -10f)
             }
         },
-        pose("fun_disco_point", "Disco Point", PoseCategory.FUN) {
+        pose("fun_disco_point", "Disco point", PoseCategory.FUN) {
             description = "One arm pointing high to the sky, the other hand on the hip and the hips popped: a " +
                 "retro dance-floor move that is impossible to take too seriously."
             tips(
@@ -121,17 +121,17 @@ object FunPoses {
                 rightLeg(thigh = 18f, shin = -10f)
             }
         },
-        pose("fun_laugh_bend", "Laughing Bend", PoseCategory.FUN) {
-            description = "Doubled over with laughter, one hand on the knee and the other at the mouth – the most " +
-                "genuine-looking candid there is. Tell a joke before the shot!"
+        pose("fun_laugh_bend", "Laughing bend", PoseCategory.FUN) {
+            description = "Doubled over with laughter, one hand on the knee and the other at the mouth: the most " +
+                "genuine-looking candid there is. Tell a joke just before the shot."
             tips(
                 "Bend forward from the hips with soft knees",
                 "Rest one hand on your knee",
                 "Bring the other hand up to your mouth as you laugh",
-                "Laugh for real – think of something funny",
+                "Laugh for real: think of something funny",
             )
             tags(PoseTag.CANDID, PoseTag.PLAYFUL, PoseTag.CITY, PoseTag.PARTY, PoseTag.NATURE)
-            camera(CameraHeight.WAIST, ShotType.FULL_BODY, note = "Keep shooting while they laugh – the second laugh is the best.")
+            camera(CameraHeight.WAIST, ShotType.FULL_BODY, note = "Keep shooting while they laugh. The second laugh is the best.")
             difficulty = 1
             figure(cx = 0.5f, bottom = 0.95f, bodyHeight = 0.86f) {
                 facing = 70f
@@ -143,9 +143,9 @@ object FunPoses {
                 leftArm(upper = 0f, fore = 154f, hand = 170f, upperLen = 0.78f)
             }
         },
-        pose("fun_high_kick", "High Kick", PoseCategory.FUN) {
-            description = "A big front kick with arms flung open is full of energy – great for sporty outfits, " +
-                "sneaker shots and travel photos."
+        pose("fun_high_kick", "High kick", PoseCategory.FUN) {
+            description = "A big front kick with arms flung open is full of energy. Great for sporty outfits, " +
+                "trainer shots and travel photos."
             tips(
                 "Stand side-on to the camera",
                 "Kick your front leg up as high as is comfortable, toes pointed",
@@ -165,8 +165,8 @@ object FunPoses {
                 rightArm(upper = -50f, fore = -20f)
             }
         },
-        pose("fun_peace_lean", "Double Peace Lean", PoseCategory.FUN) {
-            description = "Leaning to one side with two peace signs – cheeky, upbeat and great in colourful " +
+        pose("fun_peace_lean", "Double peace lean", PoseCategory.FUN) {
+            description = "Leaning to one side with two peace signs: cheeky, upbeat and great in colourful " +
                 "streets or at parties."
             tips(
                 "Lean your upper body to one side and push your hips the other way",
@@ -189,7 +189,7 @@ object FunPoses {
                 rightLeg(thigh = -6f, shin = 3f)
             }
         },
-        pose("fun_victory", "Victory Arms", PoseCategory.FUN) {
+        pose("fun_victory", "Victory arms", PoseCategory.FUN) {
             description = "Fists up in a goal-post shape with one knee kicked up: the 'I did it!' moment after a " +
                 "hike, a race or a graduation."
             tips(

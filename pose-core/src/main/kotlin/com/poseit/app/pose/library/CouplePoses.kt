@@ -17,9 +17,9 @@ import com.poseit.app.pose.dsl.pose
  */
 object CouplePoses {
     val all: List<PoseTemplate> = listOf(
-        pose("couple_side_hug", "Side Hug", PoseCategory.COUPLE) {
+        pose("couple_side_hug", "Side hug", PoseCategory.COUPLE) {
             description = "Standing side by side with an arm around each other is relaxed, warm and works for " +
-                "every kind of couple – the go-to for travel and event photos."
+                "every kind of couple. The go-to for travel and event photos."
             tips(
                 "Stand hip to hip, both turned slightly toward each other",
                 "Taller partner: wrap your arm around your partner's shoulders",
@@ -50,7 +50,7 @@ object CouplePoses {
                 leftLeg(thigh = -8f, shin = 6f)
             }
         },
-        pose("couple_forehead_touch", "Forehead Touch", PoseCategory.COUPLE) {
+        pose("couple_forehead_touch", "Forehead touch", PoseCategory.COUPLE) {
             description = "Foreheads together, eyes closed or looking down: one of the most intimate and timeless " +
                 "couple shots, perfect at golden hour."
             tips(
@@ -83,8 +83,8 @@ object CouplePoses {
                 rightLeg(thigh = 5f, shin = 0f)
             }
         },
-        pose("couple_back_hug", "Back Hug", PoseCategory.COUPLE) {
-            description = "One partner hugs the other from behind with their cheek beside the partner's head – cosy, " +
+        pose("couple_back_hug", "Back hug", PoseCategory.COUPLE) {
+            description = "One partner hugs the other from behind with their cheek beside the partner's head. Cosy, " +
                 "protective and full of smiles."
             tips(
                 "Front partner: face the camera and relax into the hug",
@@ -117,7 +117,7 @@ object CouplePoses {
                 rightLeg(thigh = 3f, shin = 0f)
             }
         },
-        pose("couple_walk_hands", "Hand-in-Hand Walk", PoseCategory.COUPLE) {
+        pose("couple_walk_hands", "Hand-in-hand walk", PoseCategory.COUPLE) {
             description = "Walking side-on while holding hands, one partner glancing back: natural movement that " +
                 "hides camera nerves. Great on beaches, bridges and streets."
             tips(
@@ -158,7 +158,7 @@ object CouplePoses {
                 "Both look at the camera and laugh",
             )
             tags(PoseTag.PLAYFUL, PoseTag.CANDID, PoseTag.BEACH, PoseTag.NATURE, PoseTag.CITY)
-            camera(CameraHeight.CHEST, ShotType.FULL_BODY, note = "Take the photo quickly – piggybacks are tiring!")
+            camera(CameraHeight.CHEST, ShotType.FULL_BODY, note = "Take the photo quickly. Piggybacks are tiring.")
             difficulty = 2
             // Rider first (behind), carrier second (in front). The rider leans so the head peeks over a shoulder.
             figure(cx = 0.47f, top = 0.05f, bodyHeight = 0.78f) {
@@ -182,7 +182,7 @@ object CouplePoses {
                 rightLeg(thigh = -8f, shin = 4f)
             }
         },
-        pose("couple_dip", "Romantic Dip", PoseCategory.COUPLE) {
+        pose("couple_dip", "Romantic dip", PoseCategory.COUPLE) {
             description = "The classic dance-floor dip: one partner lunges and supports, the other leans back with " +
                 "one knee lifted. Dramatic, romantic and great at weddings."
             tips(
@@ -214,9 +214,9 @@ object CouplePoses {
                 leftArm(upper = 40f, fore = 30f)
             }
         },
-        pose("couple_hold_hands_facing", "Face to Face", PoseCategory.COUPLE) {
+        pose("couple_hold_hands_facing", "Face to face", PoseCategory.COUPLE) {
             description = "Facing each other while holding both hands is simple and sweet. The gap between you " +
-                "frames the background – lovely for proposals and anniversaries."
+                "frames the background, lovely for proposals and anniversaries."
             tips(
                 "Stand facing each other about an arm's length apart",
                 "Hold both of your partner's hands at waist height",
@@ -245,7 +245,7 @@ object CouplePoses {
                 leftLeg(thigh = -10f, shin = 4f)
             }
         },
-        pose("couple_sit_lean", "Sitting Close", PoseCategory.COUPLE) {
+        pose("couple_sit_lean", "Sitting close", PoseCategory.COUPLE) {
             description = "Sitting side by side with one head resting on the other's shoulder feels calm and " +
                 "content. Use a bench, low wall or steps."
             tips(
@@ -277,7 +277,7 @@ object CouplePoses {
                 rightArm(upper = -5f, fore = 30f)
             }
         },
-        pose("couple_walk_toward", "Walking Toward You", PoseCategory.COUPLE) {
+        pose("couple_walk_toward", "Walk and chat", PoseCategory.COUPLE) {
             description = "Walking toward the camera hand in hand while chatting looks effortless and alive. The " +
                 "photographer simply walks backwards and keeps shooting."
             tips(
@@ -307,8 +307,8 @@ object CouplePoses {
                 rightLeg(thigh = -3f, shin = -8f, thighLen = 0.97f, shinLen = 0.86f)
             }
         },
-        pose("couple_cheek_kiss", "Cheek Kiss", PoseCategory.COUPLE) {
-            description = "One partner plants a kiss on the other's cheek while they smile at the camera – sweet, " +
+        pose("couple_cheek_kiss", "Cheek kiss", PoseCategory.COUPLE) {
+            description = "One partner plants a kiss on the other's cheek while they smile at the camera. Sweet, " +
                 "fun and easy for camera-shy couples."
             tips(
                 "Kissing partner: turn toward your partner and lean in to their cheek",

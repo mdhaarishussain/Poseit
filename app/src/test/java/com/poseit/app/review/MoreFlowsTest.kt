@@ -2,11 +2,13 @@ package com.poseit.app.review
 
 import android.Manifest
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -94,7 +96,7 @@ class MoreFlowsTest {
     private fun openPose(name: String) {
         compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(name))
         byText(name).performClick()
-        waitDesc("More options")
+        waitText("Camera setup")
     }
 
     private fun recreate(scenario: ActivityScenario<MainActivity>) {
@@ -106,15 +108,15 @@ class MoreFlowsTest {
     fun customPose_delete_returnsToLibrary() {
         launch().use { scenario ->
             byDesc("Create a pose").performClick()
-            waitText("Draw your own")
-            byText("Draw your own").performClick()
+            waitText("Draw a pose")
+            byText("Draw a pose").performClick()
             waitText("Pose editor")
             byText("Save").performClick()
             waitText("Save pose")
             compose.onAllNodes(hasText("Save pose") and hasClickAction()).onFirst().performClick()
             waitFor { app.container.poseRepository.customPoses.value.isNotEmpty() }
             val name = app.container.poseRepository.customPoses.value.first().name
-            waitDesc("More options")
+            waitText("Camera setup")
             waitText(name)
             // Edit the custom pose: "Save changes" must update it in place.
             byText("Edit").performClick()
@@ -123,12 +125,16 @@ class MoreFlowsTest {
             waitText("Save changes")
             byText("Save changes").performClick()
             waitGone("Pose editor")
-            waitDesc("More options")
+            waitText("Camera setup")
             assertTrue(app.container.poseRepository.customPoses.value.size == 1)
+            // The save is confirmed in the button's own words; let the message go before tapping under it.
+            waitText("Changes saved")
+            waitGone("Changes saved")
 
-            byText("Delete this pose").performScrollTo().performClick()
+            byText("Delete pose").performScrollTo().performClick()
             waitText("Delete this pose?")
-            byText("Delete").performClick()
+            // The dialog's confirm button has the same name as the button that opened it.
+            compose.onNode(hasText("Delete pose") and hasClickAction() and hasAnyAncestor(isDialog())).performClick()
             waitFor { app.container.poseRepository.customPoses.value.isEmpty() }
             waitText("Pose camera")
             shot("after-delete")
@@ -143,8 +149,8 @@ class MoreFlowsTest {
     fun editor_dirty_discardDialog() {
         launch().use { scenario ->
             byDesc("Create a pose").performClick()
-            waitText("Draw your own")
-            byText("Draw your own").performClick()
+            waitText("Draw a pose")
+            byText("Draw a pose").performClick()
             waitText("Pose editor")
             byText("Mirror").performClick()
             byText("Add person").performClick()
@@ -188,8 +194,8 @@ class MoreFlowsTest {
             val pose = BuiltInPoses.all.first()
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
             compose.onAllNodes(hasText(pose.name) and hasClickAction()).onFirst().performTouchInput { longClick() }
-            waitText("Customize")
-            byText("Customize").performClick()
+            waitText("Customise")
+            byText("Customise").performClick()
             waitText("Based on ${pose.name}")
             systemBack(scenario)
             waitText("Pose camera")
@@ -216,9 +222,9 @@ class MoreFlowsTest {
             val pose = BuiltInPoses.all.first()
             openPose(pose.name)
             recreate(scenario)
-            waitDesc("More options")
+            waitText("Camera setup")
 
-            byText("Customize").performClick()
+            byText("Customise").performClick()
             waitText("Pose editor")
             byText("Save").performClick()
             waitText("Save pose")
@@ -230,7 +236,7 @@ class MoreFlowsTest {
             if (has("Save pose")) androidx.test.espresso.Espresso.pressBack()
             compose.waitForIdle()
             systemBack(scenario)
-            waitDesc("More options")
+            waitText("Camera setup")
 
             byText("Try this pose").performClick()
             waitDesc("Take photo")
@@ -238,7 +244,7 @@ class MoreFlowsTest {
             waitDesc("Take photo")
             shot("camera-after-recreate")
             systemBack(scenario)
-            waitDesc("More options")
+            waitText("Camera setup")
             systemBack(scenario)
             waitText("Pose camera")
 
@@ -257,8 +263,8 @@ class MoreFlowsTest {
             waitText("Pose camera")
 
             byDesc("Create a pose").performClick()
-            waitText("From a photo")
-            byText("From a photo").performClick()
+            waitText("Pose from a photo")
+            byText("Pose from a photo").performClick()
             waitText("Recreate any photo")
             recreate(scenario)
             waitText("Recreate any photo")
@@ -272,10 +278,11 @@ class MoreFlowsTest {
     fun createFromPhoto_pickPhoto_detectionUnavailable_backResets() {
         launch().use { scenario ->
             byDesc("Create a pose").performClick()
-            waitText("From a photo")
-            byText("From a photo").performClick()
+            waitText("Pose from a photo")
+            byText("Pose from a photo").performClick()
             waitText("Choose a photo")
-            byText("Choose a photo").performScrollTo().performClick()
+            // Pinned below the explanation, so it never needs a scroll.
+            byText("Choose a photo").performClick()
             compose.waitForIdle()
             val file = java.io.File(app.cacheDir, "pick.png")
             val bmp = android.graphics.Bitmap.createBitmap(300, 400, android.graphics.Bitmap.Config.ARGB_8888)
@@ -329,12 +336,12 @@ class MoreFlowsTest {
             byText("My poses").performClick()
             waitText("My photo pose")
             byText("My photo pose").performClick()
-            waitDesc("More options")
+            waitText("Camera setup")
             waitText("Photo")
             byText("Photo").performClick()
             repeat(30) { compose.mainClock.advanceTimeBy(100); Thread.sleep(100); compose.waitForIdle() }
             shot("photo-pose-detail-photo")
-            byText("Outline").performClick()
+            byText("Photo outline").performClick()
             compose.waitForIdle()
             shot("photo-pose-detail-outline")
 
@@ -342,8 +349,8 @@ class MoreFlowsTest {
             waitDesc("Take photo")
             waitFor { compose.onAllNodes(hasContentDescription("Change guide style", substring = true)).fetchSemanticsNodes().isNotEmpty() }
             compose.onAllNodes(hasContentDescription("Change guide style", substring = true) and hasClickAction()).onFirst().performClick()
-            waitText("Photo ghost")
-            byText("Photo ghost").performClick()
+            waitText("Photo")
+            byText("Photo").performClick()
             compose.waitForIdle()
             shot("photo-pose-camera-ghost")
             compose.onAllNodes(hasContentDescription("Change guide style", substring = true) and hasClickAction()).onFirst().performClick()
@@ -352,7 +359,7 @@ class MoreFlowsTest {
             compose.waitForIdle()
             shot("photo-pose-camera-outline")
             systemBack(scenario)
-            waitDesc("More options")
+            waitText("Camera setup")
 
             byText("Edit").performClick()
             waitText("Pose editor")

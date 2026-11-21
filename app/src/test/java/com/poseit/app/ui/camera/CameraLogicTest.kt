@@ -126,7 +126,7 @@ class CameraLogicTest {
         assertEquals("5s", TimerOption.Delay(5).shortLabel)
         assertEquals("×10", TimerOption.Photoshoot(10, 3).shortLabel)
         assertEquals("∞", TimerOption.Photoshoot(0, 3).shortLabel)
-        assertEquals("3/10", SessionInfo(3, 10).label)
+        assertEquals("3 / 10", SessionInfo(3, 10).label)
         assertEquals("4", SessionInfo(4, 0).label)
         assertTrue(SessionInfo(1, 0).isPhotoshoot)
     }

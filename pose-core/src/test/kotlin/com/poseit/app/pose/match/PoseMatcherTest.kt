@@ -63,7 +63,7 @@ class PoseMatcherTest {
         val r = match(t, detected(t))
         assertTrue("score ${r.score}", r.score >= 0.95f)
         assertEquals(HintKind.PERFECT, r.hints.first().kind)
-        assertEquals("Perfect – hold it!", r.hints.first().text)
+        assertEquals("Perfect. Hold it", r.hints.first().text)
         assertEquals(1, r.hints.size)
         assertEquals(1, r.peopleDetected)
         val fig = r.figures.single()
@@ -216,10 +216,10 @@ class PoseMatcherTest {
         assertTrue(r.figures.single().coverage < 0.7f)
         assertTrue(r.score < 0.8f)
         val vis = r.hints.first { it.kind == HintKind.VISIBILITY }
-        assertEquals("Your feet are cut off – step back", vis.text)
+        assertEquals("Your feet are cut off. Step back", vis.text)
 
         val p = match(t, d, photographer)
-        assertTrue(p.texts().toString(), "Feet are cut off – step back or tilt down" in p.texts())
+        assertTrue(p.texts().toString(), "Their feet are cut off. Step back or tilt down" in p.texts())
     }
 
     @Test
@@ -234,7 +234,7 @@ class PoseMatcherTest {
             )
         }
         val r = match(t, d)
-        assertTrue(r.texts().toString(), "Your feet are cut off – step back" in r.texts())
+        assertTrue(r.texts().toString(), "Your feet are cut off. Step back" in r.texts())
     }
 
     @Test
@@ -246,9 +246,9 @@ class PoseMatcherTest {
         assertEquals("Your head is out of frame", r.hints.first().text)
         assertEquals(HintKind.VISIBILITY, r.hints.first().kind)
         assertTrue("a cut-off head is never a match: ${r.score}", r.score < 0.8f)
-        assertEquals("Their head is cut off – tilt the phone up", match(t, d, photographer).hints.first().text)
+        assertEquals("Their head is cut off. Tilt the phone up", match(t, d, photographer).hints.first().text)
         val offLeft = detected(t).shifted(-0.62f, 0f)
-        assertTrue(match(t, offLeft, photographer).texts().contains("Their head is cut off – move the phone left"))
+        assertTrue(match(t, offLeft, photographer).texts().contains("Their head is cut off. Move the phone left"))
     }
 
     @Test
@@ -362,13 +362,13 @@ class PoseMatcherTest {
             s.shifted(0f, 1f - knee)
         }
         val r = match(t, d, photographer)
-        assertTrue(r.texts().toString(), r.texts().any { it.startsWith("Feet are cut off") })
+        assertTrue(r.texts().toString(), r.texts().any { it.startsWith("Their feet are cut off") })
         // A knees-up template whose knees sit below the frame: the person is framed so the edge cuts the knees.
         val threeQuarter = figure(top = 0.03f, bodyHeight = 1.5f) { }
         assertTrue(threeQuarter.points.getValue(Joint.LEFT_KNEE).y in 1.07f..1.2f)
         val dq = detected(threeQuarter).let { s -> s.shifted(0f, 1f - s.points.getValue(Joint.LEFT_KNEE).y) }
         val rq = match(threeQuarter, dq, photographer, MatchConfig(perfectScore = 1f))
-        assertTrue(rq.texts().toString(), "Don't crop at the joints – show the feet or frame above the knees" in rq.texts())
+        assertTrue(rq.texts().toString(), "Don't crop at the joints. Show the feet or frame above the knees" in rq.texts())
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -408,12 +408,12 @@ class PoseMatcherTest {
         val one = PoseMatcher.match(listOf(a, b), listOf(detected(a)), ASPECT)
         assertHintInvariants(one)
         assertEquals(HintKind.MISSING_PERSON, one.hints.first().kind)
-        assertEquals("Waiting for 2 people – 1 in frame", one.hints.first().text)
+        assertEquals("1 of 2 people in the frame", one.hints.first().text)
         assertEquals(0.5f, one.score, 0.05f)
         assertNull(one.figures[1].detectedIndex)
         assertEquals(0f, one.figures[1].score)
         val oneP = PoseMatcher.match(listOf(a, b), listOf(detected(a)), ASPECT, photographer)
-        assertEquals("Get both people in the frame – 1 visible", oneP.hints.first().text)
+        assertEquals("1 of 2 people in the frame. Get both in", oneP.hints.first().text)
         // Even a very lenient strictness never calls it perfect while someone is missing.
         val lenient = PoseMatcher.match(listOf(a, b), listOf(detected(a)), ASPECT, config = MatchConfig(perfectScore = 0.3f))
         assertEquals(HintKind.MISSING_PERSON, lenient.hints.first().kind)

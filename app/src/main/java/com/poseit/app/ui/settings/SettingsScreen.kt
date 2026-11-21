@@ -17,12 +17,9 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,9 +45,10 @@ import com.poseit.app.appContainer
 import com.poseit.app.data.AppSettings
 import com.poseit.app.data.GridType
 import com.poseit.app.data.OverlayStyle
-import com.poseit.app.data.countdownChoiceFor
 import com.poseit.app.ui.components.SettingRow
 import com.poseit.app.ui.components.SliderRow
+import com.poseit.app.ui.components.StudioAlertDialog
+import com.poseit.app.ui.components.StudioSnackbarHost
 import com.poseit.app.ui.components.StudioTopBar
 import com.poseit.app.ui.components.SwitchRow
 import com.poseit.app.ui.components.TertiaryButton
@@ -62,11 +60,7 @@ import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-private const val STRICTNESS_MIN = 0.60f
-private const val STRICTNESS_MAX = 0.95f
-private const val OPACITY_MIN = 0.15f
-
-/** A row title with its picture tiles or segmented control underneath (no bottom padding of its own). */
+/** A row title with its picture tiles or countdown chips underneath (no bottom padding of its own). */
 private val TitleAbovePadding = PaddingValues(start = Space.gutter, end = Space.gutter, top = Space.m, bottom = Space.m)
 
 @Composable
@@ -105,7 +99,7 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
 
     Scaffold(
         containerColor = Studio.Paper,
-        snackbarHost = { SnackbarHost(snackbar) },
+        snackbarHost = { StudioSnackbarHost(snackbar) },
         topBar = {
             Column {
                 StudioTopBar("Settings", onBack = onBack)
@@ -177,69 +171,56 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
 
 @Composable
 private fun CoachingGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
-    SettingsGroup("Coaching") {
+    SettingsGroup(SettingCopy.COACHING) {
         SwitchRow(
-            title = "Voice guidance",
-            subtitle = "Spoken hints and countdown",
+            title = SettingCopy.VOICE,
+            subtitle = SettingCopy.VOICE_SUBTITLE,
             checked = s.voiceGuidance,
             onCheckedChange = { v -> update { it.copy(voiceGuidance = v) } },
         )
         RowDivider()
         SwitchRow(
-            title = "Auto-capture",
-            subtitle = "Take the photo as soon as you hold the pose",
+            title = SettingCopy.AUTO_CAPTURE,
+            subtitle = SettingCopy.AUTO_CAPTURE_SUBTITLE,
             checked = s.autoCapture,
             onCheckedChange = { v -> update { it.copy(autoCapture = v) } },
         )
         RowDivider()
         var strictness by remember(s.matchThreshold) {
-            mutableFloatStateOf(s.matchThreshold.coerceIn(STRICTNESS_MIN, STRICTNESS_MAX))
+            mutableFloatStateOf(s.matchThreshold.coerceIn(SettingCopy.STRICTNESS_MIN, SettingCopy.STRICTNESS_MAX))
         }
-        val percent = (strictness * 100).roundToInt()
         SliderRow(
-            title = "Match strictness",
-            valueLabel = "$percent%, ${strictnessLabel(strictness).lowercase()}",
-            subtitle = strictnessHint(strictness),
+            title = SettingCopy.STRICTNESS,
+            valueLabel = SettingCopy.strictnessValue(strictness),
+            subtitle = SettingCopy.strictnessHint(strictness),
             value = strictness,
             onValueChange = { strictness = it },
             onValueChangeFinished = {
-                val v = (strictness * 20).roundToInt() / 20f // snap to 5 %
+                val v = SettingCopy.snapStrictness(strictness)
                 update { it.copy(matchThreshold = v) }
             },
-            valueRange = STRICTNESS_MIN..STRICTNESS_MAX,
+            valueRange = SettingCopy.STRICTNESS_MIN..SettingCopy.STRICTNESS_MAX,
             steps = 6,
         )
         RowDivider()
         SettingRow(
-            title = "Countdown",
-            subtitle = "Seconds between a match and the photo",
+            title = SettingCopy.COUNTDOWN,
+            subtitle = SettingCopy.COUNTDOWN_SUBTITLE,
             contentPadding = TitleAbovePadding,
         )
-        CountdownControl(
-            selected = countdownChoiceFor(s.countdownSeconds),
+        CountdownChips(
+            seconds = s.countdownSeconds,
             onSelect = { seconds -> update { it.copy(countdownSeconds = seconds) } },
             modifier = Modifier.padding(start = Space.gutter, end = Space.gutter, bottom = Space.m),
         )
     }
 }
 
-internal fun strictnessLabel(threshold: Float): String = when {
-    threshold < 0.725f -> "Relaxed"
-    threshold < 0.875f -> "Balanced"
-    else -> "Strict"
-}
-
-private fun strictnessHint(threshold: Float): String = when (strictnessLabel(threshold)) {
-    "Relaxed" -> "A rough match is enough. Suits kids and groups."
-    "Balanced" -> "Needs a close match before the photo"
-    else -> "Needs an almost exact match"
-}
-
 @Composable
 private fun GuideGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
     val demo = remember { DemoPoses.handOnHip }
-    var opacity by remember(s.overlayOpacity) { mutableFloatStateOf(s.overlayOpacity.coerceIn(OPACITY_MIN, 1f)) }
-    SettingsGroup("Guide") {
+    var opacity by remember(s.overlayOpacity) { mutableFloatStateOf(s.overlayOpacity.coerceIn(SettingCopy.OPACITY_MIN, 1f)) }
+    SettingsGroup(SettingCopy.GUIDE) {
         SettingRow(
             title = "Guide style",
             subtitle = "How the pose is drawn over the camera",
@@ -258,17 +239,17 @@ private fun GuideGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) ->
         }
         RowDivider()
         SliderRow(
-            title = "Guide opacity",
+            title = SettingCopy.GUIDE_OPACITY,
             valueLabel = "${(opacity * 100).roundToInt()}%",
             value = opacity,
             onValueChange = { opacity = it },
             onValueChangeFinished = { update { it.copy(overlayOpacity = opacity) } },
-            valueRange = OPACITY_MIN..1f,
+            valueRange = SettingCopy.OPACITY_MIN..1f,
         )
         RowDivider()
         SwitchRow(
-            title = "Live skeleton",
-            subtitle = "Show the body Poseit detects as dots and lines",
+            title = SettingCopy.LIVE_SKELETON,
+            subtitle = SettingCopy.LIVE_SKELETON_SUBTITLE,
             checked = s.showLiveSkeleton,
             onCheckedChange = { v -> update { it.copy(showLiveSkeleton = v) } },
         )
@@ -291,8 +272,8 @@ private fun GuideGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) ->
         }
         RowDivider()
         SwitchRow(
-            title = "Level indicator",
-            subtitle = "Helps you keep the horizon straight",
+            title = SettingCopy.LEVEL,
+            subtitle = SettingCopy.LEVEL_SUBTITLE,
             checked = s.showLevel,
             onCheckedChange = { v -> update { it.copy(showLevel = v) } },
         )
@@ -311,7 +292,7 @@ private fun CameraGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -
         RowDivider()
         SwitchRow(
             title = "Mirror front-camera photos",
-            subtitle = "Save selfies the way they look in the preview",
+            subtitle = "Saves selfies the way they look in the preview",
             checked = s.mirrorFrontPhotos,
             onCheckedChange = { v -> update { it.copy(mirrorFrontPhotos = v) } },
         )
@@ -324,7 +305,7 @@ private fun CameraGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -
         RowDivider()
         SwitchRow(
             title = "Haptics",
-            subtitle = "Vibrate when a photo is taken or a raised hand starts the timer",
+            subtitle = "Vibrates when a photo is taken or a raised hand starts the timer",
             checked = s.haptics,
             onCheckedChange = { v -> update { it.copy(haptics = v) } },
         )
@@ -400,11 +381,10 @@ private val notices = listOf(
 
 @Composable
 private fun LicensesDialog(onDismiss: () -> Unit) {
-    AlertDialog(
+    StudioAlertDialog(
         onDismissRequest = onDismiss,
-        shape = StudioShapes.Medium,
-        title = { Text("Open-source notices") },
-        text = {
+        title = "Open-source notices",
+        content = {
             Column(
                 Modifier
                     .heightIn(max = 420.dp)
@@ -414,19 +394,19 @@ private fun LicensesDialog(onDismiss: () -> Unit) {
                 notices.forEach { n ->
                     Column {
                         Text(n.name, style = StudioType.bodyStrong, color = Studio.Ink)
-                        Text("${n.owner}, ${n.license}", style = MaterialTheme.typography.bodySmall, color = Studio.Graphite)
+                        Text("${n.owner}, ${n.license}", style = StudioType.label, color = Studio.Graphite)
                     }
                 }
                 Text(
                     "The Apache License 2.0 is at apache.org/licenses/LICENSE-2.0 and the SIL Open Font License 1.1 " +
                         "at openfontlicense.org. Software and fonts under these licences are distributed \"as is\", " +
                         "without warranties or conditions of any kind.",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = StudioType.label,
                     color = Studio.Graphite,
                 )
                 Text(
                     "All pose illustrations in Poseit are original and generated by the app itself.",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = StudioType.label,
                     color = Studio.Graphite,
                 )
             }

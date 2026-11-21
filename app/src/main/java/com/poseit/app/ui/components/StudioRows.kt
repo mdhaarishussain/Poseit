@@ -6,10 +6,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
@@ -21,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
@@ -92,8 +97,10 @@ fun SwitchRow(
 }
 
 /**
- * A title with its current value on the right ([valueLabel], also the slider's state description) and a
- * [StudioSlider] underneath.
+ * A title with its current value on the right ([valueLabel], on the title's baseline, also the slider's state
+ * description) and a [StudioSlider] underneath.
+ * @param sliderContentDescription the slider's name for screen readers; the [title] when null
+ * @param above optional content between the title and the slider, e.g. preset chips
  */
 @Composable
 fun SliderRow(
@@ -107,12 +114,23 @@ fun SliderRow(
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     enabled: Boolean = true,
+    sliderContentDescription: String? = null,
+    above: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RowText(title, subtitle, enabled, Modifier.weight(1f))
+        Row {
+            RowText(title, subtitle, enabled, Modifier.weight(1f).alignByBaseline())
             Spacer(Modifier.width(Space.l))
-            Text(valueLabel, style = StudioType.label, color = if (enabled) Studio.Ink else Studio.Ink.copy(alpha = 0.38f))
+            Text(
+                valueLabel,
+                style = StudioType.label,
+                color = if (enabled) Studio.Ink else Studio.Ink.copy(alpha = 0.38f),
+                modifier = Modifier.alignByBaseline(),
+            )
+        }
+        if (above != null) {
+            Spacer(Modifier.height(Space.s))
+            above()
         }
         StudioSlider(
             value = value,
@@ -121,7 +139,41 @@ fun SliderRow(
             valueRange = valueRange,
             steps = steps,
             enabled = enabled,
-            modifier = Modifier.semantics { stateDescription = valueLabel },
+            modifier = Modifier.semantics {
+                contentDescription = sliderContentDescription ?: title
+                stateDescription = valueLabel
+            },
+        )
+    }
+}
+
+/**
+ * One option of a single-choice group (put the options in a `Modifier.selectableGroup()` column): the whole row
+ * selects it and the radio sits at the end like other row controls.
+ */
+@Composable
+fun RadioRow(
+    title: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    contentPadding: PaddingValues = RowPadding,
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .padding(contentPadding),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RowText(title, subtitle, enabled = true, modifier = Modifier.weight(1f))
+        Spacer(Modifier.width(Space.l))
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(selectedColor = Studio.Ink, unselectedColor = Studio.Graphite),
         )
     }
 }

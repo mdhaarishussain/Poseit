@@ -57,7 +57,7 @@ class SettingsViewModel(
                 throw e
             } catch (e: Exception) {
                 Log.w(TAG, "Could not save settings", e)
-                _messages.send("Couldn't save that setting")
+                _messages.send("Couldn't save that setting. Try again.")
             }
         }
     }
@@ -82,7 +82,7 @@ class SettingsViewModel(
                 throw e
             } catch (e: Throwable) {
                 Log.w(TAG, "Export failed", e)
-                "Couldn't save the file"
+                "Couldn't save the file. Try another folder."
             } finally {
                 _busy.value = false
             }
@@ -115,7 +115,7 @@ class SettingsViewModel(
                 "That file is too big to be a Poseit backup"
             } catch (e: Throwable) {
                 Log.w(TAG, "Import failed", e)
-                "Couldn't read that file"
+                "Couldn't read that file. Choose a Poseit backup (.json)."
             } finally {
                 _busy.value = false
             }

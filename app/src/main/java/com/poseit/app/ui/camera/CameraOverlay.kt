@@ -103,9 +103,9 @@ internal fun PoseOverlay(
     LaunchedEffect(focusToken) {
         if (focusToken == 0) return@LaunchedEffect
         focusAnim.snapTo(0f)
-        focusAnim.animateTo(1f, tween(durationMillis = 350, easing = FastOutSlowInEasing))
+        focusAnim.animateTo(1f, tween(durationMillis = 220, easing = FastOutSlowInEasing))
         delay(600)
-        focusAnim.animateTo(2f, tween(durationMillis = 300))
+        focusAnim.animateTo(2f, tween(durationMillis = 180))
         focusPoint = null
     }
 
