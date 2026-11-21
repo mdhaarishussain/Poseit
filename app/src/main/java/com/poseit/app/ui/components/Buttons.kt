@@ -55,10 +55,6 @@ enum class ButtonForm(internal val shape: Shape) {
 /** Minimum height of every button. */
 val ButtonHeight: Dp = 48.dp
 
-/** v1 name of [ButtonHeight]. */
-@Deprecated("Use ButtonHeight", ReplaceWith("ButtonHeight"))
-val StudioButtonHeight: Dp = ButtonHeight
-
 private val ButtonPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
 private val TextButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp)
 private const val DisabledAlpha = 0.38f

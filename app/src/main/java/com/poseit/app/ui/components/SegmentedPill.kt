@@ -36,6 +36,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.poseit.app.ui.theme.LocalSurfaceTone
@@ -51,9 +53,14 @@ import kotlinx.coroutines.launch
  * cream. It is the one place the accent marks a selection. The selection slides between options in 200ms.
  */
 
-/** Heights of a [SegmentedPill]: [Medium] (40dp) in content, [Large] (52dp) in the [FloatingPillBar]. */
+/**
+ * Heights of a [SegmentedPill]: [Medium] (40dp) in content, [Touch] (48dp) for a value choice with many short
+ * options where each option must be a full touch target (the five-option countdown), [Large] (52dp) in the
+ * [FloatingPillBar].
+ */
 enum class SegmentedPillSize(internal val height: Dp) {
     Medium(40.dp),
+    Touch(48.dp),
     Large(52.dp),
 }
 
@@ -70,7 +77,11 @@ private val TrackInset = 4.dp
  * @param options sentence-case labels ("Poses", "Photos"); shown in capitals
  * @param role [Role.Tab] when the options switch views (the floating bar), [Role.RadioButton] when they choose a
  *   value (a countdown of "Off", "3 s", "10 s")
- * @param size the track's height: [SegmentedPillSize.Medium] (40dp) or Large (52dp)
+ * @param size the track's height: [SegmentedPillSize.Medium] (40dp), Touch (48dp) or Large (52dp)
+ * @param descriptions optional spoken form per option, for labels that don't read well aloud ("3 seconds" for
+ *   "3 s"; Astryx SegmentedControlItem's label); null entries keep the visible label
+ * @param optionPadding side padding inside each option; lower it (to 6dp) so five short options fit a 360dp phone
+ *   at 130% text
  */
 @Composable
 fun SegmentedPill(
@@ -81,6 +92,8 @@ fun SegmentedPill(
     size: SegmentedPillSize = SegmentedPillSize.Medium,
     role: Role = Role.RadioButton,
     enabled: Boolean = true,
+    descriptions: List<String?>? = null,
+    optionPadding: Dp = 16.dp,
 ) {
     if (options.isEmpty()) return
     val track = if (LocalSurfaceTone.current == SurfaceTone.Dark) PoseitColors.backgroundCardRaised else PoseitColors.backgroundCard
@@ -114,7 +127,8 @@ fun SegmentedPill(
                     .fillMaxHeight()
                     .clip(PoseitShapes.Pill)
                     .selectable(selected = selected, enabled = enabled, role = role, onClick = { onSelect(index) })
-                    .padding(horizontal = 16.dp),
+                    .then(descriptions?.getOrNull(index)?.let { d -> Modifier.semantics { contentDescription = d } } ?: Modifier)
+                    .padding(horizontal = optionPadding),
                 contentAlignment = Alignment.Center,
             ) {
                 CapsLabel(label, color = if (enabled) color else color.copy(alpha = 0.38f))

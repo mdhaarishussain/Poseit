@@ -81,9 +81,8 @@ import com.poseit.app.ui.library.LibraryScreen
 import com.poseit.app.ui.settings.SettingsScreen
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitTheme
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -305,9 +304,9 @@ private fun SetScene(
     textWidth: Dp,
     text: @Composable ColumnScope.(ink: Color, quiet: Color) -> Unit,
 ) {
-    val wall = if (dark) Studio.LiveView else Studio.Paper
-    val ink = if (dark) Studio.Mannequin else Studio.Ink
-    val quiet = if (dark) Studio.Mannequin.copy(alpha = 0.7f) else Studio.Graphite
+    val wall = if (dark) PoseitColors.backgroundCamera else PoseitColors.backgroundBody
+    val ink = if (dark) PoseitColors.figureFill else PoseitColors.textPrimary
+    val quiet = if (dark) PoseitColors.figureFill.copy(alpha = 0.7f) else PoseitColors.textSecondary
     BoxWithConstraints(Modifier.fillMaxSize().background(wall).clipToBounds()) {
         Floor(dark, floorTop)
         val placed = placeCast(cast, frame, floorY = floorY, start = 0.dp, gap = gap)
@@ -321,16 +320,16 @@ private fun SetScene(
 @Composable
 private fun Floor(dark: Boolean, top: Dp) {
     if (dark) {
-        Box(Modifier.offset(y = top).fillMaxWidth().height(1.dp).background(Studio.Mannequin.copy(alpha = 0.16f)))
+        Box(Modifier.offset(y = top).fillMaxWidth().height(1.dp).background(PoseitColors.figureFill.copy(alpha = 0.16f)))
     } else {
-        Box(Modifier.offset(y = top).fillMaxSize().background(Studio.Set))
+        Box(Modifier.offset(y = top).fillMaxSize().background(PoseitColors.backgroundMuted))
     }
 }
 
-private val Wordmark get() = StudioType.wordmark.copy(letterSpacing = (-0.5).sp)
+private val Wordmark get() = PoseitType.wordmark.copy(letterSpacing = (-0.5).sp)
 
 /** Body text with balanced lines, so a two-line tagline doesn't leave one word alone. */
-private val Tagline get() = StudioType.body.copy(lineBreak = LineBreak.Heading)
+private val Tagline get() = PoseitType.body.copy(lineBreak = LineBreak.Heading)
 private const val TAGLINE = "A pose guide for people who freeze in front of a camera."
 private const val SOCIAL_FACTS = "Free for Android. Works offline."
 
@@ -388,8 +387,8 @@ private fun performer(sk: Skeleton, aspect: Float): Skeleton {
 
 /** Viewfinder white for the grid, with a faint black line under it (as CameraOverlay draws it). */
 private fun DrawScope.thirdsGrid() {
-    val line = Studio.Mannequin.copy(alpha = 0.42f)
-    val shade = Studio.LiveView.copy(alpha = 0.18f)
+    val line = PoseitColors.figureFill.copy(alpha = 0.42f)
+    val shade = PoseitColors.backgroundCamera.copy(alpha = 0.18f)
     val w = 1.dp.toPx()
     listOf(size.width / 3f, size.width * 2f / 3f).forEach { x ->
         drawLine(shade, Offset(x + w, 0f), Offset(x + w, size.height), w)
@@ -414,7 +413,7 @@ private fun CameraStill(pose: PoseTemplate) {
     val settings = AppSettings()
     val ui = CameraUiState(pose = pose, poseLoaded = true, aspect = aspect, detectorReady = true)
     val strip = remember(pose) { buildStripPoses(BuiltInPoses.all, emptySet(), pose.category, pose) }
-    Column(Modifier.fillMaxSize().background(Studio.LiveView)) {
+    Column(Modifier.fillMaxSize().background(PoseitColors.backgroundCamera)) {
         CameraTopBar(
             flash = FlashMode.OFF, hasFlash = true, grid = GridType.THIRDS, aspect = aspect, timer = TimerOption.Off,
             onBack = {}, onFlash = {}, onGrid = {}, onAspect = {}, onTimer = {}, onPhotoshoot = {}, onQuickSettings = {},
@@ -442,18 +441,18 @@ private fun CameraStill(pose: PoseTemplate) {
                     // bright match colour of its score, then the detected body as thin white sticks at 70%.
                     scene.guide.forEachIndexed { i, figure ->
                         val fm = match.figures.getOrNull(i)
-                        val colors = if (fm?.detectedIndex != null) fm.partScores.mapValues { (_, s) -> Studio.forScore(s, onDark = true) } else emptyMap()
+                        val colors = if (fm?.detectedIndex != null) fm.partScores.mapValues { (_, s) -> PoseitColors.forScore(s, onDark = true) } else emptyMap()
                         drawPoseFigure(
                             figure, aspect.ratio, rect,
                             FigurePaint(
                                 style = settings.overlayStyle.toFigureStyle(),
-                                fill = Studio.FigureTones[i % Studio.FigureTones.size],
+                                fill = PoseitColors.figureTones[i % PoseitColors.figureTones.size],
                                 partColors = colors,
                                 alpha = settings.overlayOpacity,
                             ),
                         )
                     }
-                    val stick = FigurePaint(style = FigureStyle.STICK, fill = Studio.Mannequin, alpha = 0.7f, strokeWidthPx = 2.5.dp.toPx(), showFaceMarker = false)
+                    val stick = FigurePaint(style = FigureStyle.STICK, fill = PoseitColors.figureFill, alpha = 0.7f, strokeWidthPx = 2.5.dp.toPx(), showFaceMarker = false)
                     scene.people.forEach { drawPoseFigure(it, aspect.ratio, rect, stick) }
                 }
                 Box(Modifier.fillMaxSize().padding(Space.m)) {

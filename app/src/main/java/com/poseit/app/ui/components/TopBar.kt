@@ -136,31 +136,3 @@ fun TopBarContent(
         }
     }
 }
-
-/** v1 top bar, now drawn as a [TopBarCard]. */
-@Deprecated("Use TopBarCard", ReplaceWith("TopBarCard(title, modifier, onBack, backContentDescription, windowInsets = windowInsets, actions = actions)"))
-@Composable
-fun StudioTopBar(
-    title: String,
-    modifier: Modifier = Modifier,
-    onBack: (() -> Unit)? = null,
-    backContentDescription: String = "Back",
-    containerColor: Color = PoseitColors.backgroundBody,
-    windowInsets: WindowInsets = TopBarInsets,
-    actions: @Composable RowScope.() -> Unit = {},
-) = TopBarCard(title, modifier, onBack, backContentDescription, windowInsets = windowInsets, containerColor = containerColor, actions = actions)
-
-/** v1 large top bar (the library's), now drawn as a [TopBarCard] with the wordmark. */
-@Deprecated("Use TopBarCard(wordmark = true)", ReplaceWith("TopBarCard(title, modifier, onBack, backContentDescription, wordmark = true, windowInsets = windowInsets, actions = actions)"))
-@Suppress("UNUSED_PARAMETER")
-@Composable
-fun StudioLargeTopBar(
-    title: String,
-    modifier: Modifier = Modifier,
-    titleStyle: androidx.compose.ui.text.TextStyle = PoseitType.wordmark,
-    onBack: (() -> Unit)? = null,
-    backContentDescription: String = "Back",
-    containerColor: Color = PoseitColors.backgroundBody,
-    windowInsets: WindowInsets = TopBarInsets,
-    actions: @Composable RowScope.() -> Unit = {},
-) = TopBarCard(title, modifier, onBack, backContentDescription, wordmark = true, windowInsets = windowInsets, containerColor = containerColor, actions = actions)

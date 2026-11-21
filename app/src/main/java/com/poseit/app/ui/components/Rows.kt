@@ -313,11 +313,6 @@ fun poseitSwitchColors(): SwitchColors = SwitchDefaults.colors(
     disabledUncheckedBorderColor = PoseitColors.textSecondary.copy(alpha = 0.38f),
 )
 
-/** v1 name of [poseitSwitchColors]. */
-@Deprecated("Use poseitSwitchColors", ReplaceWith("poseitSwitchColors()"))
-@Composable
-fun studioSwitchColors(): SwitchColors = poseitSwitchColors()
-
 /**
  * Colours for a stock M3 Slider (whose default inactive track is lavender in this theme). Prefer [ValueSlider],
  * which also draws the v2 track and thumb.
@@ -333,11 +328,6 @@ fun poseitSliderColors(): SliderColors = SliderDefaults.colors(
     disabledActiveTrackColor = PoseitColors.textPrimary.copy(alpha = 0.38f),
     disabledInactiveTrackColor = PoseitColors.track,
 )
-
-/** v1 name of [poseitSliderColors]. */
-@Deprecated("Use poseitSliderColors", ReplaceWith("poseitSliderColors()"))
-@Composable
-fun studioSliderColors(): SliderColors = poseitSliderColors()
 
 @Composable
 private fun RowText(title: String, subtitle: String?, enabled: Boolean, modifier: Modifier) {

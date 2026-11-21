@@ -310,30 +310,3 @@ data class ToneColors(
 @Composable
 @ReadOnlyComposable
 fun toneColors(): ToneColors = if (LocalSurfaceTone.current == SurfaceTone.Dark) PoseitColors.onDark else PoseitColors.onLight
-
-/**
- * The Studio (v1) colour tokens, mapped onto the v2 roles so screens keep compiling while they are restyled.
- * Studio's light "Set" stays light here ([PoseitColors.backgroundMuted]) so nothing drawn on it in Ink disappears;
- * a pose stage in v2 is [PoseitColors.backgroundStage] (dark).
- */
-@Deprecated("Studio (v1) tokens. Use PoseitColors roles; see docs/DESIGN.md.")
-object Studio {
-    val Paper = PoseitColors.backgroundBody
-    val Set = PoseitColors.backgroundMuted
-    val Sheet = PoseitColors.backgroundSurface
-    val Ink = PoseitColors.textPrimary
-    val Graphite = PoseitColors.textSecondary
-    val Hairline = PoseitColors.border
-    val Mannequin = PoseitColors.figureFill
-    val MannequinContour = PoseitColors.figureContour
-    val LiveView = PoseitColors.backgroundCamera
-    val ControlScrim = PoseitColors.cameraControlScrim
-    val Miss = PoseitColors.signalMiss
-    val Near = PoseitColors.signalNear
-    val Match = PoseitColors.signalMatch
-    val MissBright = PoseitColors.signalMissBright
-    val NearBright = PoseitColors.signalNearBright
-    val MatchBright = PoseitColors.signalMatchBright
-    val FigureTones: List<Color> = PoseitColors.figureTones
-    fun forScore(score: Float, onDark: Boolean = true): Color = PoseitColors.forScore(score, onDark)
-}

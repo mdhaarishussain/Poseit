@@ -84,31 +84,3 @@ fun PoseitMenuItem(
 /** A hairline between two groups of items in a [PoseitMenu]. */
 @Composable
 fun PoseitMenuDivider() = HairlineDivider(Modifier.padding(vertical = Space.xs))
-
-/** v1 name of [PoseitMenu]. */
-@Deprecated("Use PoseitMenu", ReplaceWith("PoseitMenu(expanded, onDismissRequest, modifier, offset, content)"))
-@Composable
-fun StudioMenu(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    content: @Composable ColumnScope.() -> Unit,
-) = PoseitMenu(expanded, onDismissRequest, modifier, offset, content)
-
-/** v1 name of [PoseitMenuItem]. */
-@Deprecated("Use PoseitMenuItem", ReplaceWith("PoseitMenuItem(text, modifier, leadingIcon, selected, destructive, onClick)"))
-@Composable
-fun StudioMenuItem(
-    text: String,
-    modifier: Modifier = Modifier,
-    leadingIcon: ImageVector? = null,
-    selected: Boolean? = null,
-    destructive: Boolean = false,
-    onClick: () -> Unit,
-) = PoseitMenuItem(text, modifier, leadingIcon, selected, destructive, onClick)
-
-/** v1 name of [PoseitMenuDivider]. */
-@Deprecated("Use PoseitMenuDivider", ReplaceWith("PoseitMenuDivider()"))
-@Composable
-fun StudioMenuDivider() = PoseitMenuDivider()

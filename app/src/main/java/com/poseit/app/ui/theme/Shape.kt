@@ -84,18 +84,4 @@ object Space {
 
     /** Between groups of content on the canvas (a card stack and the next heading, setting groups). */
     val section: Dp = 24.dp
-
-    /** The v1 screen gutter (20dp). New layouts use [edge] for cards and [textInset] for text on the canvas. */
-    @Deprecated("v1 gutter. Use Space.edge (cards) or Space.textInset (text on the canvas).")
-    val gutter: Dp = 20.dp
-}
-
-/** The Studio (v1) radii, mapped onto v2 roles so screens keep compiling while they are restyled. */
-@Deprecated("Studio (v1) shapes. Use PoseitShapes / PoseitRadius; see docs/DESIGN.md.")
-object StudioShapes {
-    val SmallRadius: Dp = PoseitRadius.inner
-    val Small = PoseitShapes.Inner
-    val Medium = PoseitShapes.Control
-    val Large = PoseitShapes.Card
-    val SheetTop = PoseitShapes.SheetTop
 }

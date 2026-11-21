@@ -249,21 +249,3 @@ fun Banner(
         }
     }
 }
-
-/** v1 name of [PoseitSnackbarHost]. */
-@Deprecated("Use PoseitSnackbarHost", ReplaceWith("PoseitSnackbarHost(state, modifier)"))
-@Composable
-fun StudioSnackbarHost(state: SnackbarHostState, modifier: Modifier = Modifier) = PoseitSnackbarHost(state, modifier)
-
-/** v1 name of [PoseitAlertDialog]. */
-@Deprecated("Use PoseitAlertDialog", ReplaceWith("PoseitAlertDialog(onDismissRequest, title, confirmButton, modifier, text, dismissButton, content)"))
-@Composable
-fun StudioAlertDialog(
-    onDismissRequest: () -> Unit,
-    title: String,
-    confirmButton: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    text: String? = null,
-    dismissButton: (@Composable () -> Unit)? = null,
-    content: (@Composable () -> Unit)? = null,
-) = PoseitAlertDialog(onDismissRequest, title, confirmButton, modifier, text, dismissButton, content)

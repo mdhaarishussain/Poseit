@@ -72,15 +72,3 @@ fun FilterPill(
         ),
     )
 }
-
-/** v1 name of [FilterPill]. */
-@Deprecated("Use FilterPill", ReplaceWith("FilterPill(label, selected, onClick, modifier, enabled, leadingIcon)"))
-@Composable
-fun StudioChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: ImageVector? = null,
-) = FilterPill(label, selected, onClick, modifier, enabled, leadingIcon)

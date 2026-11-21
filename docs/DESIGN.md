@@ -290,13 +290,6 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   whose top and bottom edges are dark (photo viewer, a full-bleed dark onboarding). The camera keeps its own
   effect, and `LightSystemBarIcons { }` for sheets opened over it.
 
-**v1 names.** `Studio`, `StudioType`, `StudioShapes`, `StudioIconButton`, `StudioIconToggle`, `StudioChip`,
-`StudioTabs`, `StudioTopBar`, `StudioLargeTopBar`, `StudioSlider`, `StudioSnackbarHost`, `StudioAlertDialog`,
-`StudioMenu*`, `studioSwitchColors`, `studioSliderColors`, `StudioIconSize`, `StudioInlineIconSize`,
-`StudioButtonHeight` and `Space.gutter` are deprecated aliases onto v2 so the app builds during the restyle.
-`Studio.Set` maps to the light `backgroundMuted` (not the dark stage) so nothing drawn on it in ink vanishes.
-Replace them all; none should remain when the restyle is done.
-
 ## Screen map
 
 How the mockups translate to Poseit's screens. Behaviour, navigation, callbacks and accessibility labels stay as

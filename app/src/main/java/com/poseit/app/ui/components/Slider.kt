@@ -87,17 +87,3 @@ fun ValueSlider(
         },
     )
 }
-
-/** v1 name of [ValueSlider]. */
-@Deprecated("Use ValueSlider", ReplaceWith("ValueSlider(value, onValueChange, modifier, enabled, valueRange, steps, onValueChangeFinished, onDark)"))
-@Composable
-fun StudioSlider(
-    value: Float,
-    onValueChange: (Float) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    steps: Int = 0,
-    onValueChangeFinished: (() -> Unit)? = null,
-    onDark: Boolean = false,
-) = ValueSlider(value, onValueChange, modifier, enabled, valueRange, steps, onValueChangeFinished, onDark)

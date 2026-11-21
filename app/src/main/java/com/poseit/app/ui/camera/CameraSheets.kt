@@ -1,7 +1,5 @@
 package com.poseit.app.ui.camera
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -45,10 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -58,9 +52,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.poseit.app.data.AppSettings
-import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.OverlayStyle
-import com.poseit.app.data.countdownChoiceFor
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.PoseTemplate
@@ -88,6 +80,7 @@ import com.poseit.app.ui.components.SliderRow
 import com.poseit.app.ui.components.SwitchRow
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.library.factsPhrase
+import com.poseit.app.ui.settings.CountdownChips
 import com.poseit.app.ui.settings.SettingCopy
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitMotion
@@ -361,7 +354,6 @@ private fun CameraPill(label: String, selected: Boolean, onClick: () -> Unit) {
 /** The countdown: title, subtitle and the choices as one segmented pill. */
 @Composable
 private fun CountdownRow(seconds: Int, onSelect: (Int) -> Unit) {
-    val selected = countdownChoiceFor(seconds)
     Column(
         Modifier
             .fillMaxWidth()
@@ -370,69 +362,7 @@ private fun CountdownRow(seconds: Int, onSelect: (Int) -> Unit) {
         Text(SettingCopy.COUNTDOWN, style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
         Text(SettingCopy.COUNTDOWN_SUBTITLE, style = PoseitType.supporting, color = PoseitColors.textSecondary)
         Spacer(Modifier.height(Space.m))
-        ChoicePill(
-            choices = COUNTDOWN_CHOICES.map { Choice(SettingCopy.countdownLabel(it), SettingCopy.countdownDescription(it)) },
-            selectedIndex = COUNTDOWN_CHOICES.indexOf(selected),
-            onSelect = { onSelect(COUNTDOWN_CHOICES[it]) },
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-/** One option of a [ChoicePill]: its short label and, when the label doesn't read well aloud, a spoken form. */
-private class Choice(val label: String, val description: String? = null)
-
-/**
- * The segmented pill for a value choice inside a sheet (docs/DESIGN.md, "Segmented pill"): a dark track, the
- * lavender selection sliding to the chosen option with ink capitals, cream capitals for the rest, equal widths.
- *
- * A private variant of the shared SegmentedPill for two needs it doesn't cover: each option can carry a spoken
- * form ("2 seconds" for "2s", like Astryx's SegmentedControlItem label), and the track is 48dp with tighter option
- * padding, so five choices fit a small phone at 130% text and every option is a full 48dp target.
- */
-@Composable
-private fun ChoicePill(choices: List<Choice>, selectedIndex: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
-    if (choices.isEmpty()) return
-    val position by animateFloatAsState(
-        selectedIndex.coerceIn(0, choices.lastIndex).toFloat(),
-        PoseitMotion.standard(PoseitMotion.MEDIUM),
-        label = "choicePosition",
-    )
-    Row(
-        modifier
-            .height(48.dp)
-            .clip(PoseitShapes.Pill)
-            .background(PoseitColors.backgroundCard)
-            .padding(Space.xs)
-            .drawBehind {
-                if (selectedIndex in choices.indices) {
-                    val w = size.width / choices.size
-                    drawRoundRect(PoseitColors.accent, Offset(w * position, 0f), Size(w, size.height), CornerRadius(size.height / 2f))
-                }
-            }
-            .selectableGroup(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        choices.forEachIndexed { index, choice ->
-            val selected = index == selectedIndex
-            val color by animateColorAsState(
-                if (selected) PoseitColors.onAccent else PoseitColors.textPrimaryInverted,
-                PoseitMotion.standard(PoseitMotion.FAST),
-                label = "choiceLabel",
-            )
-            Box(
-                Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .clip(PoseitShapes.Pill)
-                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(index) })
-                    .then(if (choice.description != null) Modifier.semantics { contentDescription = choice.description } else Modifier)
-                    .padding(horizontal = Space.xs),
-                contentAlignment = Alignment.Center,
-            ) {
-                CapsLabel(choice.label, color = color)
-            }
-        }
+        CountdownChips(seconds = seconds, onSelect = onSelect)
     }
 }
 

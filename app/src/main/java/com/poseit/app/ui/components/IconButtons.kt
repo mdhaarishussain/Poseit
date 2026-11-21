@@ -199,26 +199,3 @@ fun IconToggle(
         }
     }
 }
-
-/** v1 name of [PlainIconButton]. */
-@Deprecated("Use PlainIconButton (or CircleIconButton)", ReplaceWith("PlainIconButton(icon, contentDescription, onClick, modifier, enabled, tint)"))
-@Composable
-fun StudioIconButton(
-    icon: ImageVector,
-    contentDescription: String?,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    tint: Color = if (LocalSurfaceTone.current == SurfaceTone.Dark) PoseitColors.textPrimaryInverted else PoseitColors.textPrimary,
-) = PlainIconButton(icon, contentDescription, onClick, modifier, enabled, tint)
-
-/** v1 name of [IconToggle]. */
-@Deprecated("Use IconToggle", ReplaceWith("IconToggle(icon, contentDescription, checked, onCheckedChange, modifier)"))
-@Composable
-fun StudioIconToggle(
-    icon: ImageVector,
-    contentDescription: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) = IconToggle(icon, contentDescription, checked, onCheckedChange, modifier)

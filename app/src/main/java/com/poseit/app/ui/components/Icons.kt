@@ -112,11 +112,3 @@ object IconSize {
 
 /** The air between a 48dp touch target and its 24dp glyph: pad a bar by `x - IconGlyphInset` to put glyphs on x. */
 val IconGlyphInset: Dp = (48.dp - IconSize.standalone) / 2
-
-/** v1 name of [IconSize.standalone]. */
-@Deprecated("Use IconSize.standalone", ReplaceWith("IconSize.standalone"))
-val StudioIconSize: Dp = IconSize.standalone
-
-/** v1 name of [IconSize.inline]. */
-@Deprecated("Use IconSize.inline", ReplaceWith("IconSize.inline"))
-val StudioInlineIconSize: Dp = IconSize.inline

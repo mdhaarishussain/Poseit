@@ -144,18 +144,3 @@ internal val PoseitTypography = Typography(
     labelMedium = PoseitType.supporting.copy(fontWeight = FontWeight.Medium),
     labelSmall = PoseitType.supporting.copy(fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.Medium),
 )
-
-/** The Studio (v1) type roles, mapped onto the closest v2 roles so screens keep compiling while they are restyled. */
-@Deprecated("Studio (v1) type roles. Use PoseitType; see docs/DESIGN.md.")
-object StudioType {
-    val display = PoseitType.headline
-    val wordmark = PoseitType.wordmark
-    val title = PoseitType.title
-    val barTitle = PoseitType.title
-    val heading = PoseitType.heading
-    val body = PoseitType.body
-    val bodyStrong = PoseitType.bodyStrong
-    val labelLarge = PoseitType.label
-    val label = PoseitType.supporting
-    fun numeral(size: TextUnit): TextStyle = PoseitType.numeral(size)
-}

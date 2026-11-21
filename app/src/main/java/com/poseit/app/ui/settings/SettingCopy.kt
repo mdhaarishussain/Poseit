@@ -1,37 +1,13 @@
 package com.poseit.app.ui.settings
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.countdownChoiceFor
-import com.poseit.app.ui.components.CapsLabel
-import com.poseit.app.ui.theme.LocalSurfaceTone
-import com.poseit.app.ui.theme.PoseitColors
-import com.poseit.app.ui.theme.PoseitMotion
-import com.poseit.app.ui.theme.PoseitShapes
-import com.poseit.app.ui.theme.SurfaceTone
+import com.poseit.app.ui.components.SegmentedPill
+import com.poseit.app.ui.components.SegmentedPillSize
 import kotlin.math.roundToInt
 
 /**
@@ -98,75 +74,19 @@ internal fun strictnessLabel(threshold: Float): String = when {
 /**
  * The countdown choices ([COUNTDOWN_CHOICES]) as one segmented pill across the width it is given, used by Settings
  * (inside a dark card) and by the camera's Quick settings (on the cream sheet). The selected option is lavender;
- * screen readers hear "No countdown", "3 seconds" for each option.
+ * screen readers hear "No countdown", "3 seconds" for each option. 48dp tall with 6dp option padding, so all five
+ * are full touch targets and still fit a 360dp phone at 130% text.
  */
 @Composable
 internal fun CountdownChips(seconds: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
     val selected = countdownChoiceFor(seconds)
-    ChoicePill(
-        labels = COUNTDOWN_CHOICES.map(SettingCopy::countdownLabel),
+    SegmentedPill(
+        options = COUNTDOWN_CHOICES.map(SettingCopy::countdownLabel),
         descriptions = COUNTDOWN_CHOICES.map(SettingCopy::countdownDescription),
         selectedIndex = COUNTDOWN_CHOICES.indexOf(selected),
         onSelect = { onSelect(COUNTDOWN_CHOICES[it]) },
         modifier = modifier.fillMaxWidth(),
+        size = SegmentedPillSize.Touch,
+        optionPadding = 6.dp,
     )
-}
-
-/** Inset between the track and the selected option's pill (as in the shared SegmentedPill). */
-private val TrackInset = 4.dp
-
-/**
- * The shared SegmentedPill's look (dark track, sliding lavender selection, capitals) for five short values: each
- * option gets a spoken [descriptions] entry ("3 seconds" rather than "3 s") and only 6dp of side padding, so five
- * labels still fit side by side on a 360dp phone at 130% font size. SegmentedPill offers neither.
- */
-@Composable
-private fun ChoicePill(
-    labels: List<String>,
-    descriptions: List<String>,
-    selectedIndex: Int,
-    onSelect: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    if (labels.isEmpty()) return
-    val track = if (LocalSurfaceTone.current == SurfaceTone.Dark) PoseitColors.backgroundCardRaised else PoseitColors.backgroundCard
-    val position by animateFloatAsState(
-        selectedIndex.coerceIn(0, labels.lastIndex).toFloat(),
-        PoseitMotion.standard(PoseitMotion.MEDIUM),
-        label = "choicePosition",
-    )
-    Row(
-        modifier
-            .height(40.dp)
-            .clip(PoseitShapes.Pill)
-            .background(track)
-            .padding(TrackInset)
-            .drawBehind {
-                if (selectedIndex in labels.indices) {
-                    val w = size.width / labels.size
-                    drawRoundRect(PoseitColors.accent, Offset(w * position, 0f), Size(w, size.height), CornerRadius(size.height / 2f))
-                }
-            }
-            .selectableGroup(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        labels.forEachIndexed { index, label ->
-            val selected = index == selectedIndex
-            val color by animateColorAsState(
-                if (selected) PoseitColors.onAccent else PoseitColors.textPrimaryInverted,
-                PoseitMotion.standard(PoseitMotion.FAST),
-                label = "choiceLabel",
-            )
-            Box(
-                Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .clip(PoseitShapes.Pill)
-                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(index) })
-                    .semantics { descriptions.getOrNull(index)?.let { contentDescription = it } }
-                    .padding(horizontal = 6.dp),
-                contentAlignment = Alignment.Center,
-            ) { CapsLabel(label, color = color) }
-        }
-    }
 }
