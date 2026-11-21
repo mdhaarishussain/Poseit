@@ -1,0 +1,188 @@
+package com.poseit.app.ui.onboarding
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
+import androidx.compose.ui.unit.sp
+import com.poseit.app.pose.BodyPart
+import com.poseit.app.pose.Joint
+import com.poseit.app.ui.components.FigurePaint
+import com.poseit.app.ui.components.PoseThumbnail
+import com.poseit.app.ui.components.drawPoseFigure
+import com.poseit.app.ui.components.fitFrameRect
+import com.poseit.app.ui.components.frameMarks
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
+
+/*
+ * The intro's pictures. Each sits on the page's Set tile: the lay figure alone (the library), then the same figure
+ * inside viewfinder frame marks with one added idea per page: limb colours and a hint (the camera), the countdown,
+ * joint handles (the editor). They are still diagrams; Studio has no looping decoration.
+ */
+
+/** Page 1: the lay figure on the set, as in a pose tile. */
+@Composable
+internal fun FigurePicture(modifier: Modifier = Modifier) {
+    PoseThumbnail(
+        template = DemoPoses.handOnHip,
+        modifier = modifier
+            .fillMaxSize()
+            .padding(vertical = Space.xl)
+            .clearAndSetSemantics { contentDescription = "A mannequin standing with one hand on its hip" },
+        background = null,
+    )
+}
+
+/**
+ * Page 2: the camera's guide with the raised arm still red (off) and the rest green (matched), and the hint that
+ * fixes it, in the camera's place for hints (top centre). The figure is fitted below the hint, so the hint never
+ * covers the red arm.
+ */
+@Composable
+internal fun MatchPicture(modifier: Modifier = Modifier) {
+    val target = remember { DemoPoses.raisedArm }
+    val partColors = remember { BodyPart.entries.associateWith { if (it == BodyPart.RIGHT_ARM) Studio.Miss else Studio.Match } }
+    Viewfinder(
+        aspect = target.frameAspect,
+        modifier = modifier.clearAndSetSemantics {
+            contentDescription = "The camera view. The guide's raised arm is red and the rest of it is green. " +
+                "A hint says: Raise your right arm."
+        },
+    ) {
+        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            CueCard("Raise your right arm", Modifier.padding(start = Space.s, end = Space.s, top = Space.s))
+            Canvas(
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(start = Space.m, end = Space.m, top = Space.xs, bottom = Space.m),
+            ) {
+                val rect = fitFrameRect(size, target.frameAspect)
+                drawPoseFigure(target.figures.first(), target.frameAspect, rect, FigurePaint(partColors = partColors, alpha = 0.7f))
+            }
+        }
+    }
+}
+
+/** Page 3: the same pose, now held, with a hand raised above the head while the countdown runs. */
+@Composable
+internal fun CountdownPicture(modifier: Modifier = Modifier) {
+    val pose = remember { DemoPoses.raisedArm }
+    Viewfinder(
+        aspect = pose.frameAspect,
+        modifier = modifier.clearAndSetSemantics {
+            contentDescription = "The camera view. A mannequin raises a hand and a countdown shows 3."
+        },
+    ) {
+        PoseThumbnail(
+            template = pose,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Space.m),
+            background = null,
+        )
+        Text(
+            "3",
+            style = StudioType.numeral(48.sp),
+            color = Studio.Ink,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = Space.m, end = Space.l),
+        )
+    }
+}
+
+private val HandleJoints = listOf(
+    Joint.LEFT_SHOULDER, Joint.RIGHT_SHOULDER, Joint.LEFT_ELBOW, Joint.RIGHT_ELBOW, Joint.LEFT_WRIST, Joint.RIGHT_WRIST,
+    Joint.LEFT_HIP, Joint.RIGHT_HIP, Joint.LEFT_KNEE, Joint.RIGHT_KNEE, Joint.LEFT_ANKLE, Joint.RIGHT_ANKLE,
+)
+
+/** Page 4: the figure as the pose editor shows it, with a handle on each joint you can drag. */
+@Composable
+internal fun PosingPicture(modifier: Modifier = Modifier) {
+    val pose = remember { DemoPoses.star }
+    Viewfinder(
+        aspect = pose.frameAspect,
+        modifier = modifier.clearAndSetSemantics {
+            contentDescription = "A mannequin in a star jump with a round handle on each joint"
+        },
+    ) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(Space.m),
+        ) {
+            PoseThumbnail(template = pose, modifier = Modifier.fillMaxSize(), background = null)
+            Canvas(Modifier.fillMaxSize()) {
+                val rect = fitFrameRect(size, pose.frameAspect)
+                val skeleton = pose.figures.first()
+                val radius = 5.dp.toPx()
+                val ring = Stroke(1.5.dp.toPx())
+                for (joint in HandleJoints) {
+                    val p = skeleton[joint] ?: continue
+                    val center = Offset(rect.left + p.x * rect.width, rect.top + p.y * rect.height)
+                    drawCircle(Studio.Sheet, radius, center)
+                    drawCircle(Studio.Ink, radius, center, style = ring)
+                }
+            }
+        }
+    }
+}
+
+/** A frame of [aspect], as large as fits with a 24dp margin, centred, with viewfinder frame marks at its corners. */
+@Composable
+private fun Viewfinder(aspect: Float, modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+    BoxWithConstraints(
+        modifier
+            .fillMaxSize()
+            .padding(Space.xl),
+        contentAlignment = Alignment.Center,
+    ) {
+        val width = min(maxWidth, maxHeight * aspect)
+        Box(
+            Modifier
+                .size(width, width / aspect)
+                .frameMarks(),
+            content = content,
+        )
+    }
+}
+
+/**
+ * The camera's hint banner in miniature: Ink text on a Sheet card, always one line. It is part of a picture, so
+ * when the frame is narrow (large font on a small phone) the text shrinks rather than wrapping over the figure.
+ */
+@Composable
+private fun CueCard(text: String, modifier: Modifier = Modifier) {
+    BasicText(
+        text,
+        style = StudioType.label.copy(color = Studio.Ink),
+        maxLines = 1,
+        autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = StudioType.label.fontSize, stepSize = 0.5.sp),
+        modifier = modifier
+            .background(Studio.Sheet, StudioShapes.Medium)
+            .padding(horizontal = Space.m, vertical = Space.s),
+    )
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark navigation-bar icons exist from API 27. -->
+    <style name="Theme.Poseit" parent="Base.Theme.Poseit">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
