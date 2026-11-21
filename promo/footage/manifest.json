@@ -491,6 +491,7 @@
         "h": 2087
       },
       "recrop": "review 1: x 1183 -> 946. The window held the man and half of the woman's face at the right edge for the whole drop hold (f240-271); no 9:16 window holds both, and the app's model finds only him, so the frame now ends just before her face (her shoulder and their linked hands stay in at the right edge).",
+      "guideAnchor": {"x": "head", "why": "review 2: he leans his head toward his partner, so the mid-hip drag put the guide's head circle a third of a head left of his face and its white edge ran between his eyes for the whole drop hold (f245-271). The drag now puts the guide's head and shoulders (mean of mid-shoulder and nose) over his horizontally; height and size still come from the mid-hip and torso (pose-core PromoChorusMatch.kt)."},
       "grade": {
         "look": "duotone",
         "trim": 0

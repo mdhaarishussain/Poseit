@@ -12,7 +12,7 @@
     "check": "tsc --noEmit && node --experimental-strip-types scripts/check-shapes.ts && npm run -s check-live",
     "still": "remotion still src/index.ts",
     "prerender": "npm run -s audio",
-    "render": "remotion render src/index.ts Promo out/promo.mp4 --codec h264 --crf 16",
+    "render": "remotion render src/index.ts Promo out/poseit-promo.mp4 --codec h264 --crf 16 --overwrite",
     "predraft": "npm run -s audio",
     "draft": "remotion render src/index.ts Promo out/draft.mp4 --codec h264 --crf 22 --scale 0.5",
     "assets": "bash scripts/assets.sh",

@@ -47,6 +47,11 @@ import kotlin.math.hypot
  * key frame, the pose, its score, fit and hold, the part scores, the transform, the guide's figures in scene space and
  * the top of the ranking at the key frame.
  *
+ * A manifest shot may set `guideAnchor.x` to "head": the drag then puts the guide's head and shoulders (the mean of
+ * mid-shoulder and nose) over the person's horizontally instead of the mid-hip (height and size still from the
+ * mid-hip and torso). For a waist-up shot whose person leans their head, that is the drag a user would make, since the
+ * frame shows little below the chest (c9, review 2).
+ *
  * Run: ./gradlew :pose-core:test --tests 'com.poseit.app.tools.PromoChorusMatch' --rerun (the JSON it reads is not a
  * declared task input, so without --rerun Gradle can call the test up to date and write nothing)
  */
@@ -83,11 +88,12 @@ class PromoChorusMatch {
             val shot = shots[slot] ?: return@mapNotNull null
             val film = shot["film"]!!.jsonArray.map { it.jsonPrimitive.int }
             val land = if (film[1] - film[0] >= 16) LAND_BEAT else LAND_EIGHTH
+            val headAnchor = (shot["guideAnchor"] as? JsonObject)?.get("x")?.jsonPrimitive?.content == "head"
             val all = mutableListOf<Choice>()
             for (pid in plateIds) {
                 val pj = platesJson[pid]?.jsonObject ?: continue
                 if (!File(dir, "$pid.landmarks.json").exists()) continue
-                all += candidates(loadPlate(pid, pj), film, land)
+                all += candidates(loadPlate(pid, pj), film, land, headAnchor)
             }
             // the slot's own plate first; the manifest's alternates only when it has nothing usable (c9-alt2 repeats
             // c4's person; the couple plate keeps a new face and both people in frame, with one figure on the one the
@@ -227,7 +233,7 @@ class PromoChorusMatch {
      * Every key frame the shot can show on its landing frame (in-point offset within the handles), the top usable
      * templates there, each scored as a fixed guide on every frame shown after the landing.
      */
-    private fun candidates(plate: PlateLm, film: List<Int>, land: Int): List<Choice> {
+    private fun candidates(plate: PlateLm, film: List<Int>, land: Int, headAnchor: Boolean): List<Choice> {
         val (a, b) = film[0] to film[1]
         val out = mutableListOf<Choice>()
         for (key in plate.frames) {
@@ -235,7 +241,7 @@ class PromoChorusMatch {
             val offset = key.f - (a + land)
             if (offset < -HANDLE || offset > HANDLE) continue
             val standing = !key.people.first().showsKnees()
-            val top = rank(key.people)
+            val top = rank(key.people, headAnchor)
                 .filter { it.fit >= SNAP_MIN_FIT && it.score >= SNAP_MIN && it.sit <= SIT_MAX && it.template.id !in EXCLUDED }
                 .filter { !standing || it.template.category !in NEEDS_LEGS }
                 .take(TOP_PER_FRAME)
@@ -249,12 +255,12 @@ class PromoChorusMatch {
         return out
     }
 
-    private fun rank(people: List<Skeleton>): List<Candidate> {
+    private fun rank(people: List<Skeleton>, headAnchor: Boolean = false): List<Candidate> {
         val out = mutableListOf<Candidate>()
         for (template in BuiltInPoses.all) {
             if (template.personCount != 1) continue
             for (mirrored in listOf(false, true)) {
-                val transform = solveTransform(template, mirrored, people)
+                val transform = solveTransform(template, mirrored, people, headAnchor)
                 val scene = SceneMapping.templateToScene(template, ASPECT, transform, mirrored)
                 val result = match(scene, people)
                 out += Candidate(template, mirrored, transform, scene, result, fitOf(result, people), sitOf(scene, people))
@@ -274,7 +280,7 @@ class PromoChorusMatch {
 
     // --------------------------------------------------------------------- the guide fit (as PromoFootageMatch)
 
-    private fun solveTransform(template: PoseTemplate, mirrored: Boolean, people: List<Skeleton>): OverlayTransform {
+    private fun solveTransform(template: PoseTemplate, mirrored: Boolean, people: List<Skeleton>, headAnchor: Boolean = false): OverlayTransform {
         val figures = SceneMapping.templateToScene(template, ASPECT, OverlayTransform.IDENTITY, mirrored)
         if (figures.isEmpty() || people.isEmpty()) return OverlayTransform.IDENTITY
         val centre = SceneMapping.fitFrame(template.frameAspect, ASPECT).center
@@ -285,9 +291,19 @@ class PromoChorusMatch {
         val pa = (if (hips) person.midHip() else person.midShoulder()) ?: person.points.values.firstOrNull() ?: return OverlayTransform.IDENTITY
         val scale = (torso(person, hips) / torso(fig, hips)).takeIf { it.isFinite() && it > 0f }
             ?.coerceIn(OverlayTransform.MIN_SCALE, OverlayTransform.MAX_SCALE) ?: 1f
-        val offsetX = (pa.x - centre.x - (ta.x - centre.x) * scale).coerceIn(-MAX_OFFSET, MAX_OFFSET)
+        // headAnchor: x from the head and shoulders (mean of mid-shoulder and nose) when both show them
+        val ha = if (headAnchor) fig.headAndShoulders() else null
+        val hp = if (headAnchor) person.headAndShoulders() else null
+        val (ax, px) = if (ha != null && hp != null) ha.x to hp.x else ta.x to pa.x
+        val offsetX = (px - centre.x - (ax - centre.x) * scale).coerceIn(-MAX_OFFSET, MAX_OFFSET)
         val offsetY = (pa.y - centre.y - (ta.y - centre.y) * scale).coerceIn(-MAX_OFFSET, MAX_OFFSET)
         return OverlayTransform(offsetX = offsetX, offsetY = offsetY, scale = scale, rotation = 0f)
+    }
+
+    private fun Skeleton.headAndShoulders(): Vec2? {
+        val ms = midShoulder() ?: return null
+        val nose = this[Joint.NOSE] ?: return null
+        return Vec2((ms.x + nose.x) / 2f, (ms.y + nose.y) / 2f)
     }
 
     private fun torso(s: Skeleton, hips: Boolean): Float {

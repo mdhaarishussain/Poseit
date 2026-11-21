@@ -15,7 +15,7 @@ cd promo
 npm install
 npm run footage     # download the Mixkit clips and build the film-time plates (public/footage/, never committed)
 npm run draft       # half-size draft with sound -> out/draft.mp4   (about a minute)
-npm run render      # the full-size master        -> out/promo.mp4   (h264, crf 16, AAC 48 kHz)
+npm run render      # the full-size master        -> out/poseit-promo.mp4   (h264, crf 16, AAC 48 kHz; about 2 minutes)
 npm run studio      # Remotion Studio, to scrub frames
 ```
 
@@ -74,7 +74,12 @@ python3 $MM/scripts/voice.py split --vo public/audio/vo.mp3 --lines public/audio
 
 npm run audio      # places line N so its first word lands on VO_LINES[N-1].at, ducks the music, re-normalises
 npm run draft && python3 $MM/scripts/look.py out/draft.mp4 --out out/look --expect 22.13 --expect-audio --events out/cuts.events.json
+npm run render     # then the master again, with the voice in it -> out/poseit-promo.mp4
+python3 $MM/scripts/look.py out/poseit-promo.mp4 --out out/look-final --expect 22.13 --expect-audio --events out/cuts.events.json
 ```
+
+Before committing, listen to every line against the picture: line 3 must end by the lock (f401) and line 4 by f504.
+Update `NOTE.md` (status, the AUDIO numbers from look.py) and commit `public/audio/vo/` with `vo.lines.json`.
 
 `npm run audio` prints one line per placed clip, and a warning when a line is still speaking past the end of its
 window. In particular, line 4 must be silent by f504, where the half beat of stillness before the app's capture (f512)

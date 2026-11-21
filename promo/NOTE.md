@@ -4,25 +4,39 @@ The plan is in `STORYBOARD.md`, the sound in `sound-plan.md` and the voice-over 
 what is built, what is real and what is illustrative, and records what was checked. It grows with the film; the newest
 state is at the top and v1's record is at the end.
 
-## Status v2: integrated and reviewed once (real people, the app's graphics on top; picture and sound built, the voice waits for a key)
+## Status v2: integrated, reviewed twice, final master rendered (real people, the app's graphics on top; the voice waits for a key)
 
 The whole v2 film is built and assembled in `Promo` (664 f, 22.13 s, 1080 x 1920, 30 fps): real people from Mixkit
 stock footage are the subject, and the app's graphics are overlays on them, as on a phone. The two builders' parts
 (sections "Act IV as built" and "Acts I-III and V as built" below) are integrated: every seam is solved in
 `src/scenes/shots.ts` and checked on the render, `src/events.ts` follows the v2 cuts and the app's real act IV frames,
 and `npm run audio` places the sound on them. The voice-over (`vo.txt`, five lines) has its slot
-(`src/audio/voiceover.ts`) and waits for an ElevenLabs key; no placeholder voice is in the film.
+(`src/audio/voiceover.ts`) and waits for an ElevenLabs key; no placeholder voice is in the film. The full-size master is `out/poseit-promo.mp4`
+(`npm run render`, not committed); its numbers are under "Review 2" and in "Checked on the final master" below.
 
 | Beat | Frames | On screen | Source |
 |---|---|---|---|
 | B1 hook | 0-79 | The stiff stick skeleton in the black viewfinder, "What do I do / with my hands?"; the words leave f61-69; the rush f70-79 lands the skeleton on B2's body | drawn (illustrative stance) |
 | B2 | 80-143 | A woman on a desert, printed grey; the hook's skeleton becomes hers (f80-86), then the app's live skeleton follows her hands behind her head | Mixkit footage; the app's model and smoothing |
-| B3 chorus | 144-271 | Nine cuts on the grid (f144 ... f240), each with the library lay figure the app's matcher fits to that person; f248-271 the drop holds on c9 (the man of the couple clip in "Cuff adjust", re-cropped in review 1 so his partner's face is out of frame) | Mixkit footage; the app's PoseMatcher scores (`chorus.json`) |
+| B3 chorus | 144-271 | Nine cuts on the grid (f144 ... f240), each with the library lay figure the app's matcher fits to that person; f248-271 the drop holds on c9 (the man of the couple clip in "Crossed-arm smile", re-cropped in review 1 so his partner's face is out of frame; since review 2 the guide's head sits on his face) | Mixkit footage; the app's PoseMatcher scores (`chorus.json`) |
 | B4 the pick | 272-335 | All 99 lay figures in "Hands in pockets" on studio paper, frame marks, the name, the push onto act IV's guide | drawn from the 99 real poses |
 | B5 coaching | 336-400 | A woman in a photo studio, printed grey; the app's see-through guide coloured per limb, her live skeleton, the ring, "Ask them to bend their right elbow more" (f348) | Mixkit footage; every number and card is the app's verdict |
 | B6 lock and countdown | 401-511 | The lock (f401, hit 2), every limb green from f404, "Perfect. Hold it" f413-421, 3 / 2 / 1 at f422 / 452 / 482 in the headroom (glyph 0.15-0.28 H), stillness f504-511 | the app's HintStabilizer and CaptureCoach |
 | B7 the photo | 512-554 | The app's capture flash (f512, hit 3), then the same frame in full colour, the film's first colour, pushing 1.00 -> 1.06 | the plate's frame at the app's capture frame |
 | B8 the name | 555-663 | A solid "Hands in pockets" figure where she stood, the photo's push carried across the cut and settling (2%, f555-600), relaxing into the icon pose (f576-588), the pull back, "Poseit", "Free for Android. / Works offline." | drawn from the real poses |
+
+**Checked on the final master** (review 2: `npm run audio` then `npx remotion render src/index.ts Promo
+out/poseit-promo.mp4 --codec h264 --crf 16 --overwrite`, now also `npm run render`; 1 min 58 s on 4 cores):
+- ffprobe: h264 1080 x 1920, 30/1 fps, 664 frames, yuvj420p; AAC 48 kHz stereo; 22.144 s; 80.9 MB (29.2 Mb/s).
+- `look.py out/poseit-promo.mp4 --expect 22.13 --expect-audio --events out/cuts.events.json`: G0 PASS (22.14 s, audio
+  present), G2 PASS (no run of more than 3 flat frames), G3 PASS (end hold 1.30 s; final shot 3.64 s = 16%); 14 cuts,
+  all explained by the events; no frozen stretch of 0.6 s or more at full size (the half-size draft's 20.93-21.63 s
+  still run is grain-level); longest static-ish 20.80-22.13 s, the resolved end. Audio -14.0 LUFS, LRA 6.9 LU, true
+  peak -1.1 dBFS, audible 0.07-22.13 s, 11 of 14 cuts on an onset, no flags; `mix.wav` sha256 9021657e9026 (unchanged
+  since integration). Motion mean 3.3/255.
+- Frames pulled from the final file and looked at: `out/rv2/finalsheet0-2.png` (25 frames: f20, 45, 79, 80, 120, 150,
+  170, 186, 200, 212, 228, 236, 244, 262, 290, 336, 360, 401, 420, 440, 500, 520, 560, 600, 663) and full size f45,
+  f250, f420, f530, f663 (`out/rv2/final/`).
 
 **Checked on the review-1 draft** (`npm run draft`, half size, `out/draft.mp4`; `look.py --expect 22.13
 --expect-audio --events out/cuts.events.json`; the integration draft's numbers are in "Review 1" below):
@@ -50,6 +64,14 @@ and `npm run audio` places the sound on them. The voice-over (`vo.txt`, five lin
   step and the acceptance list).
 
 **Known issues left** (none blocks the cut; each is the app's real output or a documented choice):
+- **The hook is still a stick figure on black for its 2.67 s (f0-79); the first real person arrives on f80.** This is
+  the user's "Right now its just stickmen" for the first 12% of the film, and the first 1.5 s a feed shows. It is the
+  board's choice, kept by both reviews: the hook question is first person ("What do I do with my hands?") and the
+  manifest rule keeps it off every real person, so no words are put in anyone's mouth, and the stick figure carries
+  the freeze so no stock model is shown awkward. Putting a person in the first 1.5 s needs one of: (a) a second-person
+  question in the app's voice over a person (allowed by the stock rules, but it changes the rule and the copy), (b)
+  the B2 cut moved to about f45, which re-times every plate, landmark file and verdict after it, or (c) dropping the
+  question. Not done in review; it is the user's call.
 - The lock (f401, hit 2) lands while she is still sliding into the guide: at f401 her right arm scores 0.73 (amber
   green) and she is about 0.09 W left of the figure; every limb is green from f404 and she is inside the figure by
   about f450. The strongest still is f420 ("Perfect. Hold it", hold arc 0.91, score 82), 19 frames after the hit.
@@ -60,12 +82,68 @@ and `npm run audio` places the sound on them. The voice-over (`vo.txt`, five lin
 - Before the lock the guide is mostly green while she stands beside it (f336-400): the app's matcher compares limb
   directions, not position; the guide stands where the solved placement put it (where she settles).
 - c2's hold is 0.57 (her arms leave the cross-legged figure's arms after the landing). In the chorus look (veil and
-  edge) arms that cross the torso read only by their elbows in the outline (c9's "Cuff adjust", c1, c4).
-- c9's figure head sits about a third of a head left of his face (sit 0.11 torso lengths overall, head part 0.96).
+  edge) arms that cross the torso read only by their elbows in the outline (c1, c4, c9).
+- Three chorus figures are arm-crossing poses since review 2 (c1 "Relaxed arms crossed", c4 "Confident crossed arms",
+  c9 "Crossed-arm smile"); before it there were two. That is the selection rule's result (no pose twice, best summed
+  rank), not a choice.
 - Mean motion is below the human band (above).
 - The dev compositions `Dev-StudioDemo`, `Dev-BlendSheet` and `Dev-Viewfinder` still show v1 content (Disco point,
   the v1 chorus, the front-camera viewfinder). They compile and are not part of the film.
-- Only half-size drafts were rendered; the full-size `npm run render` has not been run.
+
+## Review 2 (fresh eyes, then the final master)
+
+Rendered the review-1 commit (891e7bc) as a fresh half-size draft (1 min 02 s) and ran look.py: the same numbers as
+review 1's draft 2 (G0 PASS 22.14 s with audio, G2 PASS, G3 PASS with end hold 1.30 s and final shot 16%; -14.0 LUFS,
+LRA 6.9, true peak -1.1 dBFS; 11 of 14 cuts on an onset; motion 3.3/255; one still run, 20.93-21.63 s). Looked at
+every 10th frame plus every cut, the frame before each cut and every hit (100 frames, `out/rv2/sheet0-5.png`) and
+full-size f0 and f250, against the three things a 25-second social promo needs: a hook in the first 1.5 s, the
+app's value without sound, an end card that lands.
+
+**Findings, worst first, and what was done:**
+
+1. **c9's guide edge ran between a real man's eyes for the whole drop hold (f245-271, G4 and the stock rules).** The
+   drop hold is the longest-held chorus frame, and the white outline of the guide's head crossed his face. He leans
+   his head toward his partner, so the mid-hip drag put the head circle about 0.10 W left of his nose (head part
+   0.96). Fixed with a drag a user would make on a waist-up shot. The manifest's c9 shot now declares
+   `guideAnchor: {x: "head"}`: `PromoChorusMatch.kt` then sets the guide's x from the mean of mid-shoulder and nose,
+   while height and size still come from the mid-hip and torso. The match was rerun with `--rerun`.
+   - Under the anchor more of the library sits on him: 113 candidates on c9, up from 31. "Cuff adjust" itself drops
+     from sit 0.112 to 0.088.
+   - The selection rule, unchanged, now gives c9 "Crossed-arm smile" (unflipped): score 1.00, fit 1.00, sit 0.087,
+     hold 1.00 / sit 0.088, head part 1.00, offset -3, key 3.84 s.
+   - Because no pose is used twice, c4 moves from "Crossed-arm smile" (flipped) to "Confident crossed arms"
+     (unflipped): 0.96, sit 0.10, hold 0.96 / 0.10, offset -8 (was -9). The new figure sits on her as before (f196,
+     f205).
+   - The other seven shots are byte-identical in `chorus.json`. c9 now shows plate frames up to 43; her hair enters
+     at 72.
+   - Checked at full size on f250 of the final: the head circle holds his whole face, and no edge crosses it.
+   - Sheets: `out/rv2/c4c9-after.png` and `out/rv2/finalsheet1.png` (f244, f262).
+2. **The hook is still stickmen (first 1.5 s, the user's brief).** Not changed. The reason and the three ways to
+   change it are the first item under "Known issues". By content, the first 1.5 s do hook: the whole question is up
+   by f40 and the wrists flick f29-46. By picture, it is the one stretch of the film without a real person.
+3. **Value without sound: kept.** With the sound off, the film reads as one chain:
+   - a figure lands on each real person;
+   - all 99 figures become "Hands in pockets";
+   - the camera screen shows the guide in per-limb colour, the app's card "Ask them to bend their right elbow more",
+     the ring turning green, "Perfect. Hold it", 3 / 2 / 1 and the flash;
+   - the colour photo, then "Poseit" and "Free for Android. / Works offline."
+   Nothing in that chain needs the voice. The voice-over slot stays empty.
+4. **End card: kept.** The figure relaxes into the icon pose, then the pull back, the wordmark (0.50 W) and the end
+   line, with a 1.30 s resolved hold. It reads at full size (f663).
+
+**Compliance, checked on the tree:**
+- The plates the film uses (b2-alive, c1-c9, b5-live) come from nine clips: desert 34404, magenta 1236, floor
+  101459, balcony 3191, redsuit 50649, panel 41665, backstage 41664, couple 100743 and studio 39676. Each is in
+  `footage/manifest.json` with "Mixkit Stock Video Free License" and is listed in `CREDITS.md`. "hug" 100766, the
+  unused c9 alternate, is credited too.
+- `git ls-files promo | grep -iE '\.(mp4|mov|webm|mkv)$'` lists nothing, and no audio file is tracked.
+- No names, quotes, captions or endorsement framing appear over the people. The only type that shares a frame with a
+  person is the app's HUD: cards in the PHOTOGRAPHER phrasing ("Ask them to ..."), "Perfect. Hold it", the digits
+  and the score. The hook question leaves by f69, before B2 at f80.
+
+**Final master:** `out/poseit-promo.mp4`, numbers under "Checked on the final master" at the top. The `npm run
+render` script now writes that path, with `--overwrite`. `npm run check` passes, and `PromoChorusMatch` compiles and
+runs.
 
 ## Review 1 (look and fix)
 
@@ -151,6 +229,7 @@ npm run audio        # events + scripts/gen-audio.mjs: the SFX kit, the score an
 npm run studio       # Remotion Studio
 npx remotion still src/index.ts Promo out/f.png --frame 40
 npm run draft        # half-size draft to out/draft.mp4
+npm run render       # the full-size master to out/poseit-promo.mp4 (about 2 min)
 python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13 --expect-audio
 # a fresh clone needs the plates first: npm run footage (the landmark and verdict JSON are committed)
 
@@ -205,7 +284,8 @@ on that footage. The people never used the app: the overlays show what the app w
     f80-86 blend from it into her detected skeleton.
   - The studio of 99 figures (B4, B8): its lattice, paper and light.
   - The grade: the footage printed in the Studio ramp (Ink to Sheet) until the shutter.
-  - The guide placements: an `OverlayTransform` solved to each person (a drag and pinch any user could make).
+  - The guide placements: an `OverlayTransform` solved to each person (a drag and pinch any user could make; c9's x
+    from his head and shoulders since review 2).
   - The chorus guides' look: a veil and a white edge (the app draws its guide as a 55% silhouette, which act IV uses).
   - Act IV's 0.5x stretch of her hold (frame repetition of real frames; the verdicts are computed on the stretched
     frames), and the film camera's zoom on the live view.
@@ -421,6 +501,8 @@ lists every slot's candidates.
 | c8 | f232-240 | c8 | Two-hand mirror | 0.98 | 1.00 | 0.15 | 0.98 / 0.15 | -2 | 0.50 s |
 | c9 | f240-272 | c9 | Thoughtful chin rest | 0.89 | 1.00 | 0.15 | 0.91 / 0.15 | +14 | 4.42 s |
 | c9 (review 1, re-cropped) | f240-272 | c9 | Cuff adjust (flipped) | 0.99 | 1.00 | 0.11 | 0.99 / 0.12 | +15 | 4.46 s |
+| c4 (review 2) | f192-208 | c4 | Confident crossed arms | 0.96 | 1.00 | 0.10 | 0.96 / 0.10 | -8 | 0.17 s |
+| c9 (review 2, head anchor) | f240-272 | c9 | Crossed-arm smile | 1.00 | 1.00 | 0.09 | 1.00 / 0.09 | -3 | 3.84 s |
 
 c2's hold is 0.57: her arms leave the figure's arms after the landing while the cross-legged legs stay on it. c3 and c6
 use the whole handle (offset -15).
@@ -437,7 +519,8 @@ use the whole handle (offset -15).
    offered c9-alt2 (c4's person again, a 2.3x figure she walks out of). The couple clip keeps both people and a new
    face; the figure sits on the man (sit 0.15 through the hold). The chorus therefore ends on one figure. (Review 1:
    that window cut her face in half at the right edge for the whole drop; the clip is now framed on him, her face out
-   of frame, and the matcher picks "Cuff adjust", see "Review 1".)
+   of frame, and the matcher picks "Cuff adjust", see "Review 1". Review 2 anchors his guide's x at the head and
+   shoulders, and the pick becomes "Crossed-arm smile", see "Review 2".)
 4. **B3 -> B4 is a plain cut on the hit.** The c9 figure is half-body and fills the frame; matching the studio hero to
    it would wreck the lattice framing (the board allows this).
 5. **The studio camera's v1 B2 zoom is gone** (the studio is on screen from f272 only); `studio/chorus.ts` is now the
@@ -492,7 +575,7 @@ corners, no labels, counters or captions on people.
 | `CREDITS.md` | Every clip with its page and licence; the people are stock models who endorse nothing. |
 | `src/scenes/People.tsx` | Act II: B2 (the plate, the skeleton morph, her live skeleton) and the chorus (plates, offsets, the landing guides, the push). |
 | `src/scenes/people/data.ts` | B2's camera and her body on the cut (B2_BODY_AT_CUT, from `b2-alive.landmarks.json`), CHORUS_SHOTS from `chorus.json`, the chorus push, the landing, CHORUS_VEIL. |
-| `../pose-core/src/test/kotlin/com/poseit/app/tools/PromoChorusMatch.kt` | The chorus poses: `./gradlew :pose-core:test --tests 'com.poseit.app.tools.PromoChorusMatch'` -> `public/footage/chorus.json` (committed) and `out/chorus-report.txt`. |
+| `../pose-core/src/test/kotlin/com/poseit/app/tools/PromoChorusMatch.kt` | The chorus poses: `./gradlew :pose-core:test --tests 'com.poseit.app.tools.PromoChorusMatch' --rerun` -> `public/footage/chorus.json` (committed) and `out/chorus-report.txt`. A manifest shot's `guideAnchor.x: "head"` sets the guide's x from the head and shoulders (c9). |
 
 ## v1 record (superseded)
 
