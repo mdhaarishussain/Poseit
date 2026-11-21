@@ -38,7 +38,7 @@ Requirements: JDK 17+ and the Android SDK (platform 36). Android Studio works to
 
 ```bash
 ./gradlew :app:assembleDebug          # → app/build/outputs/apk/debug/app-debug.apk
-./gradlew :app:assembleRelease        # minified, signed with the debug key for easy sideloading
+./gradlew :app:assembleRelease        # minified, signed with the public sideload key
 ./gradlew :pose-core:test             # engine unit tests (+ renders pose preview sheets)
 ./gradlew :app:testDebugUnitTest      # app tests: Robolectric UI flows + screenshots in app/build/screenshots/
 ```
@@ -48,9 +48,9 @@ The MediaPipe models (pose landmarker lite/full + DeepLab v3, all Apache-2.0) ar
 
 ## Status
 
-Version 1.0.0. It has been tested on the JVM but **not yet run on a real phone**:
+Version 1.1.0. It has been tested on the JVM but **not yet run on a real phone**:
 
-* 261 automated tests pass:
+* 273 automated tests pass:
   * engine tests, including a check that every built-in pose can actually be matched;
   * Robolectric UI-flow tests on Android 7.0, 9 and 15 (onboarding, library, detail, editor, settings, gallery,
     create-from-photo, camera permission and controls);
@@ -88,11 +88,13 @@ CameraX frame ─▶ MediaPipe Pose Landmarker (33 landmarks, on-device)
 * `app/`: Jetpack Compose UI, CameraX, MediaPipe, TextToSpeech.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the details: coordinate spaces, mirroring and the contracts
-between modules.
+between modules. The visual design ("Studio": white lay figures on studio-grey paper, Archivo type, colour only for
+match feedback) is specified in [docs/DESIGN.md](docs/DESIGN.md).
 
 ## Credits & licenses
 
 * Pose detection & segmentation: [MediaPipe](https://github.com/google-ai-edge/mediapipe) (Apache-2.0)
 * AndroidX / Jetpack Compose / CameraX, Kotlin coroutines & serialization, Coil (Apache-2.0)
+* Typeface: [Archivo](https://github.com/Omnibus-Type/Archivo) by Omnibus-Type (SIL Open Font License 1.1, bundled)
 * All pose figures are original. They are generated from joint angles by Poseit's own DSL, and no images were
   copied from other apps.
