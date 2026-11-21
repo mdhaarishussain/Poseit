@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import java.io.Closeable
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -47,7 +48,8 @@ data class DetectionResult(
  * - Still mode: [detectStill] for photos picked from the gallery (blocking; call off the main thread).
  *
  * Creating the landmarker is slow (~100-500 ms); construct off the main thread. Falls back from GPU to CPU
- * delegate if GPU init fails. Never throws from detect calls – errors are logged and reported via [errors].
+ * delegate if GPU init fails, and rebuilds the live landmarker (on the CPU) if it stops producing results.
+ * Never throws from detect calls – errors are logged and reported via [errors].
  * The constructor throws if no landmarker can be created at all (e.g. the model asset is missing).
  *
  * Landmarker setup adapted from the MediaPipe Pose Landmarker Android sample (PoseLandmarkerHelper.kt,
@@ -98,6 +100,16 @@ class PoseDetector(
     @Volatile private var gpuRuntimeFailure = false
     @Volatile private var hadLiveResult = false
 
+    /**
+     * Set when the live graph has stopped producing output (see [STALLED_SENDS]); handled on the next frame.
+     * MediaPipe doesn't report a graph that died while running (e.g. a GPU delegate failure or reset): its error
+     * listener only sees result-conversion errors, and detectAsync just logs and drops every later frame.
+     */
+    @Volatile private var liveStalled = false
+
+    /** Consecutive frames sent because the previous result never arrived; reset by any result or error. */
+    private val staleSends = AtomicInteger(0)
+
     // Still landmarker (IMAGE mode, CPU), created on first use; guarded by stillLock.
     private val stillLock = Any()
     private var still: PoseLandmarker? = null
@@ -132,6 +144,7 @@ class PoseDetector(
             // Busy with the previous frame. If its result never arrived, stop waiting for it after a while.
             if (now - inFlightSince < STALE_FRAME_MS) return
             pendingFrames.clear()
+            if (staleSends.incrementAndGet() >= STALLED_SENDS) liveStalled = true
         }
         val aspect = if (sceneAspect.isFinite() && sceneAspect > 0f) sceneAspect else width.toFloat() / height
         var input: Bitmap? = null
@@ -141,7 +154,7 @@ class PoseDetector(
                     inFlight.set(false)
                     return
                 }
-                if (gpuRuntimeFailure) switchToCpuLocked()
+                if (gpuRuntimeFailure || liveStalled) rebuildLiveLocked()
                 val landmarker = live
                 if (landmarker == null) {
                     inFlight.set(false)
@@ -209,8 +222,13 @@ class PoseDetector(
 
     // ------------------------------------------------------------------ live results
 
-    private fun onLiveResult(result: PoseLandmarkerResult, @Suppress("UNUSED_PARAMETER") input: MPImage) {
+    /**
+     * @param input a fresh bitmap MediaPipe creates for every result (never the frame we passed in); closed here so
+     *   its ~1 MB of pixels is freed at once instead of waiting for the garbage collector
+     */
+    private fun onLiveResult(result: PoseLandmarkerResult, input: MPImage) {
         try {
+            staleSends.set(0)
             val timestamp = result.timestampMs()
             val frame = pendingFrames.remove(timestamp)
             if (pendingFrames.isNotEmpty()) pendingFrames.keys.removeAll { it < timestamp }
@@ -224,10 +242,18 @@ class PoseDetector(
             // Never let an exception escape into MediaPipe's native callback thread.
             inFlight.set(false)
             if (!closed.get()) report("Couldn't read the pose detection result", e)
+        } finally {
+            try {
+                input.close()
+            } catch (e: Throwable) {
+                Log.w(TAG, "Couldn't release the result image", e)
+            }
         }
     }
 
     private fun onLiveError(error: RuntimeException) {
+        // The graph is still producing output (this listener only sees result-conversion errors), so it isn't stalled.
+        staleSends.set(0)
         pendingFrames.clear()
         inFlight.set(false)
         if (closed.get()) return
@@ -257,18 +283,35 @@ class PoseDetector(
         }
     }
 
-    /** The GPU graph was created but fails at run time (some drivers): rebuild the live landmarker on the CPU. */
-    private fun switchToCpuLocked() {
+    /**
+     * Rebuilds the live landmarker (under [liveLock], from [detectLive], which then sends its frame to the new one):
+     * - the GPU graph failed before producing anything (some drivers): switch to the CPU;
+     * - the graph stopped producing output: a GPU graph is rebuilt on the CPU (GPU delegate failure or reset is
+     *   the likely cause), a CPU graph on the CPU again.
+     * Leaves [inFlight] alone: the calling detectLive owns it.
+     */
+    private fun rebuildLiveLocked() {
+        val stalled = liveStalled
         gpuRuntimeFailure = false
-        if (liveDelegate != Delegate.GPU) return
-        Log.w(TAG, "GPU pose detection failed at run time; switching to CPU")
+        liveStalled = false
+        staleSends.set(0)
+        if (!stalled && liveDelegate != Delegate.GPU) return
+        Log.w(TAG, if (stalled) "Live pose detection stopped producing results; restarting it" else "GPU pose detection failed at run time; switching to CPU")
         live?.closeQuietly()
+        live = null
+        pendingFrames.clear()
+        // A new graph accepts any timestamp.
+        lastSentTimestamp = Long.MIN_VALUE
         live = try {
             buildLandmarker(RunningMode.LIVE_STREAM, Delegate.CPU).also { liveDelegate = Delegate.CPU }
         } catch (e: Exception) {
             report("Couldn't restart pose detection", e)
-            null
+            return
+        } catch (e: LinkageError) {
+            report("Couldn't restart pose detection", e)
+            return
         }
+        if (stalled) report("Pose detection restarted", IllegalStateException("no results for a few seconds"))
     }
 
     private fun createStillLandmarker(): PoseLandmarker? = try {
@@ -363,6 +406,9 @@ class PoseDetector(
 
         /** A frame whose result hasn't arrived after this long is considered lost. */
         const val STALE_FRAME_MS = 1_000L
+
+        /** This many lost frames in a row (about 3 s without any result) means the graph has died: rebuild it. */
+        const val STALLED_SENDS = 3
         const val ERROR_REPORT_INTERVAL_MS = 1_000L
 
         /** Longest side fed to the still landmarker (MediaPipe downsamples to 256 px anyway). */

@@ -54,13 +54,13 @@ class ScreenshotTest {
 
     @Test
     fun detail() = shot("detail") {
-        PoseDetailScreen(poseId = BuiltInPoses.all.firstOrNull()?.id ?: "none", onBack = {}, onTryPose = {}, onEdit = {})
+        PoseDetailScreen(poseId = BuiltInPoses.all.firstOrNull()?.id ?: "none", onBack = {}, onTryPose = { _, _ -> }, onEdit = {})
     }
 
     @Test
     fun detailCouple() = shot("detail_couple") {
         val id = BuiltInPoses.all.firstOrNull { it.personCount == 2 }?.id ?: "none"
-        PoseDetailScreen(poseId = id, onBack = {}, onTryPose = {}, onEdit = {})
+        PoseDetailScreen(poseId = id, onBack = {}, onTryPose = { _, _ -> }, onEdit = {})
     }
 
     @Test

@@ -27,6 +27,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Poseit">
+        <!-- Lets MediaPipe's GPU delegate use the faster OpenCL backend on Android 12+ (apps targeting API 31+
+             can't load these vendor libraries undeclared). Optional: devices without them fall back to OpenGL. -->
+        <uses-native-library android:name="libOpenCL.so" android:required="false" />
+        <uses-native-library android:name="libOpenCL-car.so" android:required="false" />
+        <uses-native-library android:name="libOpenCL-pixel.so" android:required="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

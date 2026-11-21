@@ -279,7 +279,8 @@ private fun GuidePreviewCard(state: CreateUiState, name: String) {
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("How the guide looks", style = MaterialTheme.typography.titleMedium)
+            // A preview only, not a saved choice: the camera picks the style (see the note below).
+            Text("Preview the guide styles", style = MaterialTheme.typography.titleMedium)
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 GuidePreview.entries.forEachIndexed { i, option ->
                     SegmentedButton(
@@ -328,6 +329,12 @@ private fun GuidePreviewCard(state: CreateUiState, name: String) {
                 }
             }
             Text(mode.caption, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                "The camera starts with the outline (or the photo); switch styles any time with the guide button on " +
+                    "the camera's right edge.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

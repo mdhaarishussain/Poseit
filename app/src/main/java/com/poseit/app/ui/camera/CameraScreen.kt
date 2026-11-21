@@ -66,9 +66,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.abs
 
-/** The live pose-guide camera. [initialPoseId] null = last used / first pose. */
+/**
+ * The live pose-guide camera. [initialPoseId] null = last used / first pose; [initialMirrored] starts that pose
+ * mirrored (the pose detail screen's Mirror toggle).
+ */
 @Composable
-fun CameraScreen(initialPoseId: String?, onBack: () -> Unit, onOpenGallery: () -> Unit) {
+fun CameraScreen(initialPoseId: String?, onBack: () -> Unit, onOpenGallery: () -> Unit, initialMirrored: Boolean = false) {
     CameraWindowEffects()
     Box(
         Modifier
@@ -77,7 +80,9 @@ fun CameraScreen(initialPoseId: String?, onBack: () -> Unit, onOpenGallery: () -
     ) {
         CameraPermissionGate(onBack = onBack) {
             val context = LocalContext.current
-            val vm: CameraViewModel = viewModel(factory = remember(initialPoseId) { CameraViewModel.factory(context, initialPoseId) })
+            val vm: CameraViewModel = viewModel(
+                factory = remember(initialPoseId, initialMirrored) { CameraViewModel.factory(context, initialPoseId, initialMirrored) },
+            )
             CameraContent(vm, onBack, onOpenGallery)
         }
     }
@@ -428,10 +433,13 @@ private fun PreviewHud(
                 modifier = Modifier.padding(top = 6.dp),
             )
             if (storageBlocked) {
+                // Persistent, so kept clear of the ToolRail on the right edge (the hint banner above may overlap
+                // it briefly; this notice stays up for as long as storage is denied).
                 CameraErrorNotice(
                     STORAGE_BLOCKED_NOTICE,
                     Modifier
                         .padding(top = 6.dp)
+                        .padding(horizontal = 50.dp)
                         .clickable(onClickLabel = "Allow storage access", onClick = onAllowStorage),
                 )
             }

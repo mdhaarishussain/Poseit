@@ -22,14 +22,18 @@ object Routes {
     const val ONBOARDING = "onboarding"
     const val LIBRARY = "library"
     const val DETAIL = "pose/{poseId}"
-    const val CAMERA = "camera?poseId={poseId}"
+    const val CAMERA = "camera?poseId={poseId}&mirrored={mirrored}"
     const val GALLERY = "gallery"
     const val CREATE = "create"
     const val EDITOR = "editor?poseId={poseId}"
     const val SETTINGS = "settings"
 
     fun detail(id: String) = "pose/${Uri.encode(id)}"
-    fun camera(id: String?) = if (id == null) "camera" else "camera?poseId=${Uri.encode(id)}"
+    fun camera(id: String?, mirrored: Boolean = false) = when {
+        id == null -> "camera"
+        mirrored -> "camera?poseId=${Uri.encode(id)}&mirrored=true"
+        else -> "camera?poseId=${Uri.encode(id)}"
+    }
     fun editor(id: String?) = if (id == null) "editor" else "editor?poseId=${Uri.encode(id)}"
 }
 
@@ -75,16 +79,20 @@ fun PoseitNavHost(startOnboarding: Boolean) {
             PoseDetailScreen(
                 poseId = id,
                 onBack = { nav.ifCurrent(entry) { popBackStack() } },
-                onTryPose = { poseId -> nav.ifCurrent(entry) { navigate(Routes.camera(poseId)) } },
+                onTryPose = { poseId, mirrored -> nav.ifCurrent(entry) { navigate(Routes.camera(poseId, mirrored)) } },
                 onEdit = { poseId -> nav.ifCurrent(entry) { navigate(Routes.editor(poseId)) } },
             )
         }
         composable(
             Routes.CAMERA,
-            arguments = listOf(navArgument("poseId") { type = NavType.StringType; nullable = true; defaultValue = null }),
+            arguments = listOf(
+                navArgument("poseId") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("mirrored") { type = NavType.BoolType; defaultValue = false },
+            ),
         ) { entry ->
             CameraScreen(
                 initialPoseId = entry.arguments?.getString("poseId"),
+                initialMirrored = entry.arguments?.getBoolean("mirrored") ?: false,
                 onBack = { nav.ifCurrent(entry) { popBackStack() } },
                 onOpenGallery = { nav.ifCurrent(entry) { navigate(Routes.GALLERY) } },
             )

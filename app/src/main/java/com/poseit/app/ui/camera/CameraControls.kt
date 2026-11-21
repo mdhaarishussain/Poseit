@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.BurstMode
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.CenterFocusStrong
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FlashAuto
 import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material.icons.filled.FlashOn
@@ -43,7 +44,6 @@ import androidx.compose.material.icons.filled.GridGoldenratio
 import androidx.compose.material.icons.filled.GridOff
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.TimerOff
 import androidx.compose.material.icons.filled.Tune
@@ -266,9 +266,9 @@ internal fun PoseStrip(
                     PoseThumbnail(pose, Modifier.fillMaxSize(), showGround = false)
                     if (pose.id in favorites) {
                         Icon(
-                            Icons.Filled.Star,
+                            Icons.Filled.Favorite,
                             contentDescription = null,
-                            tint = PoseitColors.Amber,
+                            tint = PoseitColors.Coral,
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(3.dp)

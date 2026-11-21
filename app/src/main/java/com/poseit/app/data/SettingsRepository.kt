@@ -34,6 +34,10 @@ data class AppSettings(
     val haptics: Boolean = true,
     val shutterSound: Boolean = true,
     val onboardingDone: Boolean = false,
+    /** Camera quick setting: a raised hand starts the self-timer. */
+    val handRaise: Boolean = true,
+    /** Camera quick setting "Hints are for": the name of a com.poseit.app.ui.camera.AudienceMode. */
+    val audience: String = "AUTO",
 )
 
 /** Countdown lengths offered by both Settings and the camera's quick settings, so each shows the other's choice. */
@@ -61,6 +65,8 @@ class SettingsRepository(private val context: Context) {
         val haptics = booleanPreferencesKey("haptics")
         val sound = booleanPreferencesKey("shutter_sound")
         val onboarding = booleanPreferencesKey("onboarding_done")
+        val handRaise = booleanPreferencesKey("hand_raise")
+        val audience = stringPreferencesKey("audience")
     }
 
     val settings: Flow<AppSettings> = context.settingsStore.data.map { it.toSettings() }
@@ -82,6 +88,8 @@ class SettingsRepository(private val context: Context) {
             prefs[Keys.haptics] = s.haptics
             prefs[Keys.sound] = s.shutterSound
             prefs[Keys.onboarding] = s.onboardingDone
+            prefs[Keys.handRaise] = s.handRaise
+            prefs[Keys.audience] = s.audience
         }
     }
 
@@ -102,6 +110,8 @@ class SettingsRepository(private val context: Context) {
             haptics = this[Keys.haptics] ?: d.haptics,
             shutterSound = this[Keys.sound] ?: d.shutterSound,
             onboardingDone = this[Keys.onboarding] ?: d.onboardingDone,
+            handRaise = this[Keys.handRaise] ?: d.handRaise,
+            audience = this[Keys.audience] ?: d.audience,
         )
     }
 }

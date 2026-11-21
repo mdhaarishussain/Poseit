@@ -79,7 +79,7 @@ abstract class SmallPhoneShots(private val prefix: String) {
 
     @Test
     fun detail() {
-        set { PoseDetailScreen(poseId = BuiltInPoses.all.first().id, onBack = {}, onTryPose = {}, onEdit = {}) }
+        set { PoseDetailScreen(poseId = BuiltInPoses.all.first().id, onBack = {}, onTryPose = { _, _ -> }, onEdit = {}) }
         waitText("Try this pose")
         capture("detail")
     }
@@ -87,7 +87,7 @@ abstract class SmallPhoneShots(private val prefix: String) {
     @Test
     fun detailLongestName() {
         val pose = BuiltInPoses.all.maxBy { it.name.length }
-        set { PoseDetailScreen(poseId = pose.id, onBack = {}, onTryPose = {}, onEdit = {}) }
+        set { PoseDetailScreen(poseId = pose.id, onBack = {}, onTryPose = { _, _ -> }, onEdit = {}) }
         waitText("Try this pose")
         capture("detail-longest-name")
     }

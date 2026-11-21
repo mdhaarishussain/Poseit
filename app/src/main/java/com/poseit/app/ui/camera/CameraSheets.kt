@@ -33,8 +33,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarOutline
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.StayCurrentPortrait
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -335,7 +335,8 @@ private sealed interface PoseTab {
     val label: String
 
     data object Favorites : PoseTab {
-        override val label = "★ Favourites"
+        // A heart, as in the library (the star is the "My Poses" category's emoji).
+        override val label = "♥ Favourites"
     }
 
     data class Category(val category: PoseCategory) : PoseTab {
@@ -447,9 +448,9 @@ private fun PoseCard(
             PoseThumbnail(pose, Modifier.fillMaxSize())
             IconButton(onClick = onToggleFavorite, modifier = Modifier.align(Alignment.TopEnd).size(36.dp)) {
                 Icon(
-                    if (favorite) Icons.Filled.Star else Icons.Filled.StarOutline,
+                    if (favorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = if (favorite) "Remove from favourites" else "Add to favourites",
-                    tint = if (favorite) PoseitColors.Amber else Color.White.copy(alpha = 0.8f),
+                    tint = if (favorite) PoseitColors.Coral else Color.White.copy(alpha = 0.8f),
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -524,9 +525,9 @@ internal fun PoseTipsSheet(
                 }
                 IconButton(onClick = onToggleFavorite) {
                     Icon(
-                        if (favorite) Icons.Filled.Star else Icons.Filled.StarOutline,
+                        if (favorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = if (favorite) "Remove from favourites" else "Add to favourites",
-                        tint = if (favorite) PoseitColors.Amber else Color.White,
+                        tint = if (favorite) PoseitColors.Coral else Color.White,
                     )
                 }
             }
@@ -571,6 +572,13 @@ internal fun PoseTipsSheet(
                         .padding(12.dp),
                 )
             }
+            // The guide gestures are otherwise only described to screen readers.
+            TipsHeader("Guide")
+            Text(
+                "Drag to move · pinch to resize · twist to rotate · double-tap to reset. Tap the padlock to keep it " +
+                    "in place (pinching then zooms the camera). Zoom is also in Quick settings.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

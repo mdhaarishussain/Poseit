@@ -1,9 +1,13 @@
 package com.poseit.app.review
 
 import android.Manifest
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -12,13 +16,18 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.poseit.app.MainActivity
 import com.poseit.app.PoseitApp
 import com.poseit.app.data.AppSettings
+import com.poseit.app.pose.library.BuiltInPoses
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -80,6 +89,29 @@ class CameraInteractionTest {
     private fun pressBackKey() {
         androidx.test.espresso.Espresso.pressBack()
         compose.waitForIdle()
+    }
+
+    private fun toggleState(node: SemanticsNodeInteraction): ToggleableState? =
+        node.fetchSemanticsNode().config.getOrNull(SemanticsProperties.ToggleableState)
+
+    private fun isSelected(node: SemanticsNodeInteraction): Boolean? =
+        node.fetchSemanticsNode().config.getOrNull(SemanticsProperties.Selected)
+
+    private fun waitFor(timeoutMs: Long = 10_000, cond: () -> Boolean) {
+        val end = System.currentTimeMillis() + timeoutMs
+        while (true) {
+            compose.waitForIdle()
+            if (cond()) return
+            if (System.currentTimeMillis() > end) throw AssertionError("Condition not met after $timeoutMs ms")
+            compose.mainClock.advanceTimeBy(100)
+            Thread.sleep(50)
+        }
+    }
+
+    private fun openQuickSettings() {
+        byDesc("Quick settings").performClick()
+        compose.waitForText("Quick settings")
+        settle(600)
     }
 
     private fun openCamera(): ActivityScenario<MainActivity> {
@@ -206,6 +238,55 @@ class CameraInteractionTest {
             settle(1500)
             systemBack(scenario)
             compose.waitForText("Pose camera")
+            crashes.assertNoCrashes()
+        }
+        crashes.assertNoCrashes()
+    }
+
+    @Test
+    fun quickSettings_handRaiseAndAudience_surviveReopeningTheCamera() {
+        openCamera().use { scenario ->
+            openQuickSettings()
+            byText("Hand-raise trigger").performScrollTo().performClick()
+            byText("I'm taking the photo").performScrollTo().performClick()
+            waitFor { runBlocking { app.container.settingsRepository.settings.first() }.let { !it.handRaise && it.audience == "PHOTOGRAPHER" } }
+            pressBackKey()
+            settle(600)
+            systemBack(scenario)
+            compose.waitForText("Pose camera")
+
+            // A new camera view model must start from the saved choices, not the defaults.
+            compose.onAllNodesWithText("Pose camera", useUnmergedTree = true).onFirst().performClick()
+            compose.waitForDesc("Take photo")
+            settle()
+            openQuickSettings()
+            assertEquals(ToggleableState.Off, toggleState(byText("Hand-raise trigger").performScrollTo()))
+            assertEquals(true, isSelected(byText("I'm taking the photo").performScrollTo()))
+            pressBackKey()
+            settle(600)
+            crashes.assertNoCrashes()
+        }
+        crashes.assertNoCrashes()
+    }
+
+    @Test
+    fun detail_mirrorToggle_opensTheCameraMirrored() {
+        runBlocking { app.container.settingsRepository.update { AppSettings(onboardingDone = true) } }
+        shadowOf(app).grantPermissions(Manifest.permission.CAMERA)
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            compose.waitForText("Pose camera")
+            val pose = BuiltInPoses.all.first()
+            compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
+            byText(pose.name).performClick()
+            compose.waitForDesc("More options")
+            byText("Mirror").performClick()
+            compose.waitForIdle()
+            byText("Try this pose").performClick()
+            compose.waitForDesc("Take photo")
+            settle()
+            waitFor { toggleState(byDesc("Mirror pose")) == ToggleableState.On }
+            systemBack(scenario)
+            compose.waitForDesc("More options")
             crashes.assertNoCrashes()
         }
         crashes.assertNoCrashes()

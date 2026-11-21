@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,6 +46,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -70,6 +74,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -247,10 +252,12 @@ private fun CoachingSection(s: AppSettings, update: ((AppSettings) -> AppSetting
             subtitle = "Seconds between “matched” and the photo",
         )
         val selected = countdownChoiceFor(s.countdownSeconds)
+        // Full card width (not indented under the title): five segments on a 360dp phone leave ~25dp per label
+        // otherwise, which breaks "10s" into "10" at larger font sizes.
         SingleChoiceSegmentedButtonRow(
             Modifier
                 .fillMaxWidth()
-                .padding(start = 68.dp, end = 16.dp, bottom = 14.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 14.dp),
         ) {
             COUNTDOWN_CHOICES.forEachIndexed { index, seconds ->
                 SegmentedButton(
@@ -259,7 +266,15 @@ private fun CoachingSection(s: AppSettings, update: ((AppSettings) -> AppSetting
                     shape = SegmentedButtonDefaults.itemShape(index, COUNTDOWN_CHOICES.size),
                     icon = {},
                     colors = SegmentedButtonDefaults.colors(activeContainerColor = PoseitColors.Violet.copy(alpha = 0.35f)),
-                ) { Text(if (seconds == 0) "Off" else "${seconds}s", maxLines = 1) }
+                ) {
+                    // Shrinks instead of breaking the word at the largest font scales.
+                    BasicText(
+                        text = if (seconds == 0) "Off" else "${seconds}s",
+                        style = LocalTextStyle.current.copy(color = LocalContentColor.current),
+                        maxLines = 1,
+                        autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 14.sp, stepSize = 0.5.sp),
+                    )
+                }
             }
         }
     }
@@ -386,7 +401,7 @@ private fun CameraSection(s: AppSettings, update: ((AppSettings) -> AppSettings)
             icon = Icons.Filled.Vibration,
             accent = PoseitColors.Mint,
             title = "Haptics",
-            subtitle = "Vibrate when you match and when a photo is taken",
+            subtitle = "Vibrate when a photo is taken or a raised hand starts the timer",
             checked = s.haptics,
             onCheckedChange = { v -> update { it.copy(haptics = v) } },
         )
@@ -401,7 +416,11 @@ private fun MyPosesSection(customCount: Int, busy: Boolean, onExport: () -> Unit
             icon = Icons.Filled.FileUpload,
             accent = PoseitColors.Violet,
             title = "Export my poses",
-            subtitle = if (customCount == 0) "Nothing to export yet" else "Save ${PoseBackup.poses(customCount)} to a file",
+            subtitle = if (customCount == 0) {
+                "Nothing to export yet"
+            } else {
+                "Save ${PoseBackup.poses(customCount)} to a file (photo guides stay on this phone)"
+            },
             onClick = onExport,
             enabled = !busy,
         )

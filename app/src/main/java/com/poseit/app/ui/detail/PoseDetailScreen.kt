@@ -119,9 +119,17 @@ import com.poseit.app.ui.library.peopleLabel
 import com.poseit.app.ui.theme.PoseitColors
 import java.io.File
 
-/** Pose details: big preview, tips, camera advice, favourite, "Try this pose". */
+/**
+ * Pose details: big preview, tips, camera advice, favourite, "Try this pose".
+ * @param onTryPose opens the camera with the pose id, mirrored when the preview's Mirror toggle is on
+ */
 @Composable
-fun PoseDetailScreen(poseId: String, onBack: () -> Unit, onTryPose: (String) -> Unit, onEdit: (String) -> Unit) {
+fun PoseDetailScreen(
+    poseId: String,
+    onBack: () -> Unit,
+    onTryPose: (id: String, mirrored: Boolean) -> Unit,
+    onEdit: (String) -> Unit,
+) {
     val appContext = LocalContext.current.applicationContext
     val vm: PoseDetailViewModel = viewModel(
         key = "pose_detail_$poseId",
@@ -148,11 +156,13 @@ private enum class PreviewMode(val label: String) { MANNEQUIN("Mannequin"), PHOT
 private fun PoseDetailContent(
     state: PoseDetailUiState,
     onBack: () -> Unit,
-    onTryPose: (String) -> Unit,
+    onTryPose: (id: String, mirrored: Boolean) -> Unit,
     onEdit: (String) -> Unit,
     onToggleFavorite: () -> Unit,
     onDelete: () -> Unit,
 ) {
+    // Here, not in the preview, so "Try this pose" opens the camera with the orientation the user picked.
+    var mirrored by rememberSaveable { mutableStateOf(false) }
     val ready = state as? PoseDetailUiState.Ready
     val pose = ready?.details?.pose
     val scroll = rememberScrollState()
@@ -219,7 +229,7 @@ private fun PoseDetailContent(
                 DetailBottomBar(
                     isCustom = pose.isCustom,
                     onEdit = { onEdit(pose.id) },
-                    onTry = { onTryPose(pose.id) },
+                    onTry = { onTryPose(pose.id, mirrored) },
                 )
             }
         },
@@ -252,7 +262,12 @@ private fun PoseDetailContent(
                     .verticalScroll(scroll)
                     .padding(horizontal = 16.dp),
             ) {
-                PosePreview(details = state.details, height = previewHeight)
+                PosePreview(
+                    details = state.details,
+                    height = previewHeight,
+                    mirrored = mirrored,
+                    onToggleMirror = { mirrored = !mirrored },
+                )
                 Spacer(Modifier.height(20.dp))
                 DetailHeader(state.details.pose)
                 if (state.details.pose.tips.isNotEmpty()) {
@@ -350,7 +365,7 @@ private fun DetailBottomBar(isCustom: Boolean, onEdit: () -> Unit, onTry: () -> 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PosePreview(details: PoseDetails, height: Dp) {
+private fun PosePreview(details: PoseDetails, height: Dp, mirrored: Boolean, onToggleMirror: () -> Unit) {
     val pose = details.pose
     val modes = remember(details) {
         buildList {
@@ -361,7 +376,6 @@ private fun PosePreview(details: PoseDetails, height: Dp) {
     }
     var selected by rememberSaveable { mutableStateOf(PreviewMode.MANNEQUIN) }
     val mode = if (selected in modes) selected else PreviewMode.MANNEQUIN
-    var mirrored by rememberSaveable { mutableStateOf(false) }
     val flip by animateFloatAsState(
         targetValue = if (mirrored) -1f else 1f,
         animationSpec = tween(durationMillis = 450, easing = FastOutSlowInEasing),
@@ -427,7 +441,7 @@ private fun PosePreview(details: PoseDetails, height: Dp) {
                     .padding(14.dp),
             )
             Surface(
-                onClick = { mirrored = !mirrored },
+                onClick = onToggleMirror,
                 shape = RoundedCornerShape(50),
                 color = if (mirrored) PoseitColors.Violet else Color.Black.copy(alpha = 0.5f),
                 contentColor = Color.White,

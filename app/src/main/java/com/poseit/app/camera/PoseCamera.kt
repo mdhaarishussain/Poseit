@@ -236,10 +236,12 @@ class PoseCamera(private val context: Context) {
      * Takes a FULL-RESOLUTION photo with ImageCapture (CAPTURE_MODE_MAXIMIZE_QUALITY, never a preview frame) and
      * saves it to MediaStore under Pictures/Poseit (JPEG). The overlay is never part of the photo.
      * @param mirror save horizontally mirrored (used for front camera when the user prefers mirrored selfies)
+     * @param onStarted called once on the main thread when the exposure actually starts (after CameraX's focus /
+     *   exposure convergence), the moment for shutter feedback; not called if the capture fails before that
      * @return the content Uri of the saved image
      * @throws Exception if capture fails
      */
-    suspend fun takePhoto(mirror: Boolean): Uri = withContext(Dispatchers.Main.immediate) {
+    suspend fun takePhoto(mirror: Boolean, onStarted: () -> Unit = {}): Uri = withContext(Dispatchers.Main.immediate) {
         val capture = imageCapture ?: throw PoseCameraException("The camera isn't ready yet")
         capture.targetRotation = targetRotation
         val options = ImageCapture.OutputFileOptions
@@ -251,7 +253,23 @@ class PoseCamera(private val context: Context) {
                 options,
                 mainExecutor,
                 object : ImageCapture.OnImageSavedCallback {
+                    private var started = false
+
+                    private fun notifyStarted() {
+                        if (started) return
+                        started = true
+                        try {
+                            onStarted()
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Shutter feedback failed", e)
+                        }
+                    }
+
+                    override fun onCaptureStarted() = notifyStarted()
+
                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                        // Fallback in case onCaptureStarted wasn't delivered.
+                        notifyStarted()
                         val uri = outputFileResults.savedUri
                         if (uri != null) {
                             cont.resume(uri)

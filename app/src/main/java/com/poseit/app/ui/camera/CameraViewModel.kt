@@ -96,6 +96,8 @@ class CameraViewModel(
     private val poseRepository: PoseRepository,
     private val photoRepository: PhotoRepository,
     private val initialPoseId: String?,
+    /** Show [initialPoseId] mirrored (the detail screen's Mirror toggle was on). */
+    private val initialMirrored: Boolean = false,
 ) : ViewModel() {
 
     /** CameraX wrapper. Bound and unbound by the screen, which owns the PreviewView and the lifecycle. */
@@ -201,6 +203,8 @@ class CameraViewModel(
     @Volatile private var latestScore = 0f
     @Volatile private var lastDetectionAt = Long.MIN_VALUE
     @Volatile private var sceneCache: SceneCache? = null
+    /** Photos saved by this screen; main thread. */
+    private var photosSaved = 0
 
     /**
      * Android 9 and below without storage permission: photos can't be saved, so the automatic paths (auto-capture,
@@ -230,6 +234,7 @@ class CameraViewModel(
         observeActive()
         observeLevel()
         observeVoiceSetting()
+        observeQuickSettings()
         observeCameraError()
     }
 
@@ -240,7 +245,10 @@ class CameraViewModel(
         if (value) storageMissing = safely { appContext.needsLegacyStoragePermission() } ?: false
         if (active.value == value) return
         active.value = value
-        if (!value) {
+        if (value) {
+            // The last photo may have been deleted in the gallery / viewer meanwhile.
+            scope.launch { loadLastPhoto() }
+        } else {
             sceneLockRequested = false
             safely { voice.stop() }
         }
@@ -323,14 +331,20 @@ class CameraViewModel(
 
     // ------------------------------------------------------------------ camera controls
 
+    /** Also drops the background-match snapshot: it was taken through the other lens and wouldn't line up. */
     fun flipLens() {
-        _ui.update { it.copy(lens = if (it.lens == Lens.BACK) Lens.FRONT else Lens.BACK, zoom = 1f, exposureIndex = 0) }
+        sceneLockRequested = false
+        _ui.update {
+            it.copy(lens = if (it.lens == Lens.BACK) Lens.FRONT else Lens.BACK, zoom = 1f, exposureIndex = 0, sceneLock = null)
+        }
         clearLive()
     }
 
+    /** Also drops the background-match snapshot: stretched over another aspect it would be zoomed / cropped. */
     fun setAspect(aspect: SceneAspect) {
         if (_ui.value.aspect == aspect) return
-        _ui.update { it.copy(aspect = aspect) }
+        sceneLockRequested = false
+        _ui.update { it.copy(aspect = aspect, sceneLock = null) }
         clearLive()
     }
 
@@ -378,9 +392,16 @@ class CameraViewModel(
         scope.launch { safely { settingsRepository.update(transform) } }
     }
 
-    fun setAudienceMode(mode: AudienceMode) = _ui.update { it.copy(audienceMode = mode) }
+    /** Shown at once and saved, so the choice survives leaving the camera (mirrored back by [observeQuickSettings]). */
+    fun setAudienceMode(mode: AudienceMode) {
+        _ui.update { it.copy(audienceMode = mode) }
+        updateSettings { it.copy(audience = mode.name) }
+    }
 
-    fun setHandRaiseEnabled(enabled: Boolean) = _ui.update { it.copy(handRaiseEnabled = enabled) }
+    fun setHandRaiseEnabled(enabled: Boolean) {
+        _ui.update { it.copy(handRaiseEnabled = enabled) }
+        updateSettings { it.copy(handRaise = enabled) }
+    }
 
     // ------------------------------------------------------------------ overlay controls
 
@@ -409,6 +430,7 @@ class CameraViewModel(
             _ui.update { it.copy(sceneLock = null) }
         } else {
             sceneLockRequested = true
+            _events.trySend(CameraEvent.Message("Background locked – line the live picture up with the faded one"))
         }
     }
 
@@ -477,7 +499,8 @@ class CameraViewModel(
             _events.trySend(CameraEvent.Message("That pose isn't available, showing another one"))
         }
         applyPose(pose, markUsed = pose != null)
-        _ui.update { it.copy(poseLoaded = true) }
+        val mirrored = initialMirrored && requested != null
+        _ui.update { it.copy(poseLoaded = true, poseMirrored = it.poseMirrored || mirrored) }
     }
 
     /** Built-ins resolve at once; custom poses are loaded from disk asynchronously, so wait a little for them. */
@@ -491,9 +514,12 @@ class CameraViewModel(
         return findPose(first, waitMillis = 800L) ?: ids.drop(1).firstNotNullOfOrNull { safely { poseRepository.pose(it) } }
     }
 
+    /** Newest saved photo for the gallery thumbnail, or null (shows the gallery icon) when there is none. */
     private suspend fun loadLastPhoto() {
-        val latest = safely { photoRepository.list().firstOrNull()?.uri } ?: return
-        _ui.update { if (it.lastPhoto == null) it.copy(lastPhoto = latest) else it }
+        val savedBefore = photosSaved
+        val latest = (safely { photoRepository.list() } ?: return).firstOrNull()?.uri
+        // A photo taken while the query ran is newer than anything it found.
+        _ui.update { if (photosSaved != savedBefore || it.lastPhoto == latest) it else it.copy(lastPhoto = latest) }
     }
 
     private fun applyPose(pose: PoseTemplate?, markUsed: Boolean) {
@@ -868,11 +894,15 @@ class CameraViewModel(
         val s = settings.value
         _ui.update { it.copy(capturing = true) }
         try {
-            _events.trySend(CameraEvent.Flash)
-            if (s.shutterSound) safely { voice.shutter() }
-            if (s.haptics) safely { voice.haptic() }
             // The lens actually bound (PoseCamera may have fallen back to the other one), not the requested one.
-            val uri = camera.takePhoto(mirror = camera.lens.value == Lens.FRONT && s.mirrorFrontPhotos)
+            // Click, buzz and flash when the exposure starts, not before focus/exposure converge: in hands-free
+            // modes the click tells the subject the photo is done.
+            val uri = camera.takePhoto(mirror = camera.lens.value == Lens.FRONT && s.mirrorFrontPhotos) {
+                _events.trySend(CameraEvent.Flash)
+                if (s.shutterSound) safely { voice.shutter() }
+                if (s.haptics) safely { voice.haptic() }
+            }
+            photosSaved++
             _ui.update { it.copy(lastPhoto = uri) }
             _events.trySend(CameraEvent.PhotoSaved(uri))
         } catch (e: CancellationException) {
@@ -928,6 +958,16 @@ class CameraViewModel(
         scope.launch { errors.collect { msg -> _ui.update { if (it.cameraError == msg) it else it.copy(cameraError = msg) } } }
     }
 
+    /** The saved hand-raise and audience choices of the quick settings sheet. */
+    private fun observeQuickSettings() {
+        scope.launch {
+            settings.map { it.handRaise to it.audience }.distinctUntilChanged().collect { (handRaise, audience) ->
+                val mode = AudienceMode.entries.firstOrNull { it.name == audience } ?: AudienceMode.AUTO
+                _ui.update { if (it.handRaiseEnabled == handRaise && it.audienceMode == mode) it else it.copy(handRaiseEnabled = handRaise, audienceMode = mode) }
+            }
+        }
+    }
+
     private fun observeVoiceSetting() {
         scope.launch {
             settings.map { it.voiceGuidance }.distinctUntilChanged().collect { enabled ->
@@ -966,7 +1006,7 @@ class CameraViewModel(
         private const val LIVE_MIN_VISIBILITY = 0.5f
         const val PERFECT_SPEECH = "Perfect, hold it"
 
-        fun factory(context: Context, initialPoseId: String?): ViewModelProvider.Factory = viewModelFactory {
+        fun factory(context: Context, initialPoseId: String?, initialMirrored: Boolean = false): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val container = context.appContainer
                 CameraViewModel(
@@ -975,6 +1015,7 @@ class CameraViewModel(
                     poseRepository = container.poseRepository,
                     photoRepository = container.photoRepository,
                     initialPoseId = initialPoseId,
+                    initialMirrored = initialMirrored,
                 )
             }
         }
