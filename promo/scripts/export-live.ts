@@ -11,7 +11,6 @@ import path from "node:path";
 import { poseById, illustrative } from "../src/figure/poses";
 import { SCENE_ASPECT, guideScene } from "../src/scenes/viewfinder/rig";
 import { performerAt } from "../src/scenes/viewfinder/performer";
-import { ACTS } from "../src/beats";
 import type { Skeleton } from "../src/figure/types";
 
 const poses = { disco: poseById("fun_disco_point"), stiff: illustrative("promo_stiff") };
@@ -22,8 +21,12 @@ const sk = (s: Skeleton) => ({
   unit: r(s.unit),
 });
 
-const from = ACTS.III.from;
-const to = ACTS.III.to + 8; // a few frames past the planned flash, in case the coach fires late
+// v1's window for the keyframed performer (f336-553, plus a few frames in case the coach fires late). v2 replaces the
+// performer with the live plate's detection (STORYBOARD.md v2 section 12, step 6; BUILDER LIVE) and then reads its
+// window from the manifest shot `b5-live` and beats.ts ACTS.IV instead.
+const V1_WINDOW = { from: 336, to: 554 };
+const from = V1_WINDOW.from;
+const to = V1_WINDOW.to + 8;
 const frames = [];
 for (let f = from; f < to; f++) {
   const p = performerAt(f, poses);

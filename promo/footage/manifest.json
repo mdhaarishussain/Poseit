@@ -1,0 +1,718 @@
+{
+  "version": 2,
+  "about": "The stock footage the v2 film uses, shot by shot (STORYBOARD.md v2). Clips are never committed: fetch each file URL into public/footage/src/<clip>.mp4 and prepare the film-ready plates into public/footage/<shot>.mp4 (both gitignored). Times are source seconds; film frames are global frames at 30 fps, end exclusive. Crops are 9:16 rectangles in source pixels, scaled to 1080x1920. Poses and scores marked 'approx' come from the director's re-implementation of PoseMatcher's shape score on the scout's lite-model landmarks; the build replaces them with the app's own matcher on the full-size plate and may move an in-point inside its window.",
+  "film": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "frames": 664
+  },
+  "rules": [
+    "Mixkit only, every clip under the Mixkit Stock Video Free License as stated on its own page (checked by the scout 2026-11-21). No Coverr clip is used: its licence bars evaluating AI models and every shot here is detected.",
+    "Never commit raw or transcoded video. Commit only this manifest, scripts, credits and derived JSON.",
+    "The people are stock models: no names, no captions or quotes in their mouths, no testimonial or review framing, nothing that mocks them. The wordmark and end line never sit over a person.",
+    "Never crop to a face; the hook question and any claim never share a frame with a person.",
+    "Every clip is muted (the film's sound is our own synthesis).",
+    "Detection runs on the prepared plate (crop applied, 30 fps), with the app's live settings: pose_landmarker_lite.task, confidence 0.5, frames fed un-mirrored, VIDEO mode (scripts/detect.py defaults)."
+  ],
+  "grade": {
+    "duotone": "Footage is printed in the Studio palette until the shutter: Rec.709 luma mapped onto a ramp from Ink #17181A (black point) to Sheet #F3F3F0 (white point), saturation 0, a gentle S-curve. Per-shot 'trim' lifts or lowers the luma before the ramp so the subject's midtones sit about 0.45-0.60. No vignette, no glow, no tint other than the ramp. Tokens: theme.footage.",
+    "colour": "The captured photo only: the plate's own colour, normalised (levels), no look or LUT. It is the first colour frame of the film.",
+    "grain": "The film's one grain level (src/world/Grain.tsx) over everything."
+  },
+  "clips": {
+    "desert": {
+      "catalogue": "mk-34404",
+      "title": "Woman posing for the camera in the middle of a desert",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/woman-posing-for-the-camera-in-the-middle-of-a-34404/",
+      "file": "https://assets.mixkit.co/videos/34404/34404-1080.mp4",
+      "fileRes": "1080x1920",
+      "fps": 24,
+      "duration": 10.708,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "studio": {
+      "catalogue": "mk-39676",
+      "title": "Girl in a photographic set modeling on a pink background",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/girl-in-a-photographic-set-modeling-on-a-pink-background-39676/",
+      "file": "https://assets.mixkit.co/videos/39676/39676-1080.mp4",
+      "fileRes": "1080x1920",
+      "fps": 24,
+      "duration": 16.042,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "magenta": {
+      "catalogue": "mk-1236",
+      "title": "Urban trendy man posing with pink filter",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/urban-trendy-man-posing-with-pink-filter-1236/",
+      "file": "https://assets.mixkit.co/videos/1236/1236-1080.mp4",
+      "fileRes": "1080x1920",
+      "fps": 23.976,
+      "duration": 19.019,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "floor": {
+      "catalogue": "mk-101459",
+      "title": "Confident Indian Model in Full Frame",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/confident-indian-model-in-full-frame-101459/",
+      "file": "https://assets.mixkit.co/ledfc4mlft78kynvuao8lpyo801q",
+      "fileRes": "1080x1920",
+      "fps": 23.976,
+      "duration": 6.673,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "balcony": {
+      "catalogue": "mk-3191",
+      "title": "Women taking photos on a balcony",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/women-taking-photos-on-a-balcony-3191/",
+      "file": "https://assets.mixkit.co/videos/3191/3191-1080.mp4",
+      "fileRes": "1080x1920",
+      "fps": 24,
+      "duration": 11.5,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "redsuit": {
+      "catalogue": "mk-50649",
+      "title": "Many poses from a model who is in a photo studio",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/many-poses-from-a-model-who-is-in-a-photo-50649/",
+      "file": "https://assets.mixkit.co/videos/50649/50649-1080.mp4",
+      "fileRes": "1920x1080",
+      "fps": 23.976,
+      "duration": 10.01,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "panel": {
+      "catalogue": "mk-41665",
+      "title": "Young female model posing in a photo studio",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/young-female-model-posing-in-a-photo-studio-41665/",
+      "file": "https://assets.mixkit.co/videos/41665/41665-1080.mp4",
+      "fileRes": "1080x1920",
+      "fps": 23.976,
+      "duration": 15.057,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "backstage": {
+      "catalogue": "mk-41664",
+      "title": "Female model posing captivatingly in a photoshoot",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/female-model-posing-captivatingly-in-a-photoshoot-41664/",
+      "file": "https://assets.mixkit.co/videos/41664/41664-1080.mp4",
+      "fileRes": "1080x1920",
+      "fps": 23.976,
+      "duration": 11.261,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "couple": {
+      "catalogue": "mk-100743",
+      "title": "Happy Mature Couple Posing",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/happy-mature-couple-posing-100743/",
+      "file": "https://assets.mixkit.co/8djmxnezf86m2zgeksnxmi6ffef3",
+      "fileRes": "4096x2160",
+      "fps": 23.976,
+      "duration": 12.054,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      }
+    },
+    "hug": {
+      "catalogue": "mk-100766",
+      "title": "Happy couple posing in green screen",
+      "source": "Mixkit",
+      "page": "https://mixkit.co/free-stock-video/happy-couple-posing-in-green-screen-100766/",
+      "file": "https://assets.mixkit.co/nbqk56trqy2ssjpocd7rb29nfl58",
+      "fileRes": "1080x1920",
+      "fps": 23.976,
+      "duration": 6.673,
+      "licence": {
+        "name": "Mixkit Stock Video Free License",
+        "url": "https://mixkit.co/license/#videoFree"
+      },
+      "alternateOnly": true
+    }
+  },
+  "shots": [
+    {
+      "id": "b2-alive",
+      "beat": "B2",
+      "role": "The hook's stiff stick figure gets a body: the app's live skeleton lands on a real person, who lifts both hands behind her head on the bar.",
+      "clip": "desert",
+      "film": [
+        80,
+        144
+      ],
+      "source": {
+        "in": 3.3,
+        "out": 5.43
+      },
+      "rate": 1,
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 1080,
+        "h": 1920
+      },
+      "zoom": "the plate opens at 1.06 and lands at 1.00 by f88 (softLand), carrying the hook's push across the cut",
+      "grade": {
+        "look": "duotone",
+        "trim": 0
+      },
+      "overlay": "live stick skeleton from detection (the app's paint: Mannequin lines 70%, 2.5 dp, visible joints only); no guide, no HUD",
+      "seam": "at f80 her detected body (head top about 0.12 H, feet about 0.96 H, mid-hip x about 0.35 W at source 3.30 s) is where the hook's pushed stiff skeleton was on f79; the hook push is solved from this",
+      "notes": "Her arm move runs 3.58-5.42 s, so it starts 8 f after the cut and lands on the f144 downbeat. She is never captioned; the question has left the frame by f70."
+    },
+    {
+      "id": "c1",
+      "beat": "B3",
+      "film": [
+        144,
+        160
+      ],
+      "clip": "magenta",
+      "source": {
+        "in": 10.45,
+        "window": [
+          10.4,
+          10.9
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 127,
+        "y": 424,
+        "w": 799,
+        "h": 1421
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0.25
+      },
+      "keyTime": 10.6,
+      "pose": {
+        "planned": "fun_superhero",
+        "name": "Superhero stance",
+        "approxScore": 0.86
+      },
+      "alternates": [
+        {
+          "clip": "magenta",
+          "keyTime": 0.6,
+          "pose": "port_face_frame"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "beat": "B3",
+      "film": [
+        160,
+        176
+      ],
+      "clip": "floor",
+      "source": {
+        "in": 0.3,
+        "window": [
+          0.2,
+          1.0
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 1080,
+        "h": 1920
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0.05
+      },
+      "keyTime": 0.5,
+      "pose": {
+        "planned": "floor_cross_legged",
+        "name": "Cross-legged",
+        "approxScore": 0.87
+      }
+    },
+    {
+      "id": "c3",
+      "beat": "B3",
+      "film": [
+        176,
+        192
+      ],
+      "clip": "balcony",
+      "source": {
+        "in": 3.5,
+        "window": [
+          3.4,
+          4.1
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 1080,
+        "h": 1920
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": -0.05
+      },
+      "keyTime": 3.7,
+      "pose": {
+        "planned": "selfie_classic",
+        "name": "Classic arm selfie",
+        "approxScore": 0.98,
+        "who": "the woman holding the phone (the larger, nearer person)"
+      }
+    },
+    {
+      "id": "c4",
+      "beat": "B3",
+      "film": [
+        192,
+        208
+      ],
+      "clip": "redsuit",
+      "source": {
+        "in": 0.3,
+        "window": [
+          0.0,
+          0.9
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 492,
+        "y": 0,
+        "w": 608,
+        "h": 1080
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0.2
+      },
+      "keyTime": 0.5,
+      "pose": {
+        "planned": "port_arms_crossed_smile",
+        "name": "Crossed-arm smile",
+        "approxScore": 1.0
+      },
+      "notes": "Landscape source: the 9:16 window is 608x1080, a 1.78x upscale. Acceptable for 16 frames under grain."
+    },
+    {
+      "id": "c5",
+      "beat": "B3",
+      "film": [
+        208,
+        216
+      ],
+      "clip": "panel",
+      "source": {
+        "in": 6.4,
+        "window": [
+          6.3,
+          6.7
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 0,
+        "y": 290,
+        "w": 784,
+        "h": 1394
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0
+      },
+      "keyTime": 6.5,
+      "pose": {
+        "planned": "fun_peace_lean",
+        "name": "Double peace lean",
+        "approxScore": 0.93
+      },
+      "notes": "A photographer's camera enters frame right at about 6.3 s; the crop keeps most of it out. If it intrudes, use keyTime 5.0-5.5 and re-match."
+    },
+    {
+      "id": "c6",
+      "beat": "B3",
+      "film": [
+        216,
+        224
+      ],
+      "clip": "magenta",
+      "source": {
+        "in": 6.0,
+        "window": [
+          5.8,
+          6.5
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 232,
+        "y": 478,
+        "w": 694,
+        "h": 1233
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0.25
+      },
+      "keyTime": 6.1,
+      "pose": {
+        "planned": "pro_arms_crossed",
+        "name": "Confident crossed arms",
+        "approxScore": 0.95
+      }
+    },
+    {
+      "id": "c7",
+      "beat": "B3",
+      "film": [
+        224,
+        232
+      ],
+      "clip": "backstage",
+      "source": {
+        "in": 2.7,
+        "window": [
+          2.5,
+          3.0
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 86,
+        "y": 173,
+        "w": 778,
+        "h": 1383
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0.05
+      },
+      "keyTime": 2.8,
+      "pose": {
+        "planned": "stand_hand_on_hip",
+        "name": "Hand on hip",
+        "approxScore": 0.93
+      },
+      "notes": "Behind-the-scenes framing: tripod and softbox in the foreground read as a real shoot. Hand on hip is also the launcher pose, seen here for 8 frames only."
+    },
+    {
+      "id": "c8",
+      "beat": "B3",
+      "film": [
+        232,
+        240
+      ],
+      "clip": "magenta",
+      "source": {
+        "in": 0.45,
+        "window": [
+          0.2,
+          1.0
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 161,
+        "y": 418,
+        "w": 822,
+        "h": 1462
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0.25
+      },
+      "keyTime": 0.6,
+      "pose": {
+        "planned": "port_face_frame",
+        "name": "Face frame",
+        "approxScore": 1.0
+      }
+    },
+    {
+      "id": "c9",
+      "beat": "B3",
+      "film": [
+        240,
+        272
+      ],
+      "clip": "couple",
+      "source": {
+        "in": 3.8,
+        "window": [
+          3.0,
+          6.0
+        ]
+      },
+      "rate": 1,
+      "crop": {
+        "x": 1183,
+        "y": 0,
+        "w": 1174,
+        "h": 2087
+      },
+      "grade": {
+        "look": "duotone",
+        "trim": 0
+      },
+      "keyTime": 4.0,
+      "pose": {
+        "planned": "best couple template by the app's matcher (likely couple_side_hug)",
+        "name": "from the template",
+        "approxScore": null
+      },
+      "drop": "f248-272: the shot holds while the music drops out (the designed breath before the unison)",
+      "condition": "Use only if detect.py --num-poses 2 on the full-size plate finds both people at the key time and the best couple template scores >= 0.75. The scout's 360p run found one person in every frame.",
+      "alternates": [
+        {
+          "clip": "hug",
+          "keyTime": 3.0,
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1080,
+            "h": 1920
+          },
+          "pose": "best couple template (likely couple_back_hug)",
+          "condition": "same"
+        },
+        {
+          "clip": "redsuit",
+          "keyTime": 4.2,
+          "crop": {
+            "x": 632,
+            "y": 0,
+            "w": 608,
+            "h": 1080
+          },
+          "pose": "stand_hand_in_hair",
+          "approxScore": 0.86,
+          "note": "single-person fallback: the chorus then ends on a single figure"
+        }
+      ]
+    },
+    {
+      "id": "b5-live",
+      "beat": "B5-B7",
+      "role": "Act III: the app's live coaching on a real person in a real photo studio, then the captured photo.",
+      "clip": "studio",
+      "film": [
+        336,
+        555
+      ],
+      "source": {
+        "in": 0.0
+      },
+      "timeRemap": {
+        "planned": [
+          [
+            336,
+            0.0
+          ],
+          [
+            423,
+            2.9
+          ],
+          [
+            433,
+            3.15
+          ],
+          [
+            513,
+            4.48
+          ]
+        ],
+        "rule": "Real time (1x) from f336 until the countdown starts (the app's hold frame + 21 f), then eased to 0.5x over 10 f for the held pose, so the app's 700 ms hold and 3 s countdown complete inside her hold (2.71-5.38 s). Run the matcher at 1x first, set the ramp from the measured hold frame, render the retimed plate, then run detect.py and the matcher again on exactly the retimed frames. Frames before the ramp are identical in both runs.",
+        "interpolation": "The 0.5x stretch may use frame blending or motion interpolation: she is nearly still (pose speed under 15 deg/s). The real-time stretch uses plain frame repetition (24 -> 30 fps), never interpolation (the hair flick would tear)."
+      },
+      "crop": {
+        "x": 140,
+        "y": 230,
+        "w": 864,
+        "h": 1536
+      },
+      "cropNote": "1.25x, centred on her hold position: head top about 0.21 H, feet about 0.79 H in the crop, which is where the app's fitted 3:4 template sits in a 9:16 scene, so the guide needs almost no adjustment. A sliver of the softbox and both light stands stay in: a real photo studio.",
+      "grade": {
+        "look": "duotone until the capture, then colour",
+        "trim": -0.1
+      },
+      "camera": {
+        "lens": "back",
+        "mirroredView": false,
+        "audience": "PHOTOGRAPHER (the app's AUTO choice on the back camera, CameraModels.kt)"
+      },
+      "guide": {
+        "poseId": "stand_hands_in_pockets",
+        "name": "Hands in pockets",
+        "definingFrame": {
+          "sourceTime": 4.0,
+          "why": "middle of her hands-in-pockets hold (2.71-5.38 s): the guide's OverlayTransform is solved to her detected body here"
+        },
+        "placement": "SceneMapping.fitFrame(0.75, 9/16) (full width, 0.75 of the height, centred), then the app's OverlayTransform {scale, offsetX, offsetY, rotation 0} solved so the template's mid-hip and torso length meet her detection at the defining frame. Expected scale 0.9-1.0 (the app allows 0.4-2.5). This is the drag and pinch a user does in the camera.",
+        "why": "The hook asks 'What do I do with my hands?'; the pose the film picks is called 'Hands in pockets'. Approx score 0.76-0.88 through her hold; the real matcher decides."
+      },
+      "coach": {
+        "threshold": 0.8,
+        "holdMillis": 700,
+        "countdownSeconds": 3,
+        "abortMargin": 0.12,
+        "model": "pose_landmarker_lite.task",
+        "settings": "the app's defaults"
+      },
+      "acceptance": [
+        "The app's own PoseMatcher + HintStabilizer + CaptureCoach (PromoMatchExport, back camera, PHOTOGRAPHER audience) run frame by frame on the retimed plate reach Holding, then Countdown 3-2-1, then Capture.",
+        "Capture lands between f505 and f531, so the colour photo holds 24-50 f before the f555 cut. Shift the source in-point (0.0-0.6 s) or the ramp to get there; never edit a verdict.",
+        "At least one hint card is shown before the lock.",
+        "If the default strictness (0.80) never locks, try in order: the guide 'walk_pockets' (Pocket stroll) at the same placement; then strictness 0.75 (a real setting, 'Balanced'), declared in NOTE.md. Never below 0.75."
+      ],
+      "photo": {
+        "film": [
+          "capture",
+          555
+        ],
+        "image": "the plate frame at the capture frame, frozen: the photo the app saves, without guide, skeleton or HUD",
+        "grade": "colour (the first colour frame of the film); the app's capture flash (85% white, 280 ms decay) hides the switch",
+        "move": "slow push 1.00 -> 1.03 about her mid-hip (Ken Burns on a still)"
+      }
+    }
+  ],
+  "snaps": [
+    {
+      "shot": "c1",
+      "clip": "magenta",
+      "sourceTime": 10.6,
+      "pose": "fun_superhero",
+      "film": 144
+    },
+    {
+      "shot": "c2",
+      "clip": "floor",
+      "sourceTime": 0.5,
+      "pose": "floor_cross_legged",
+      "film": 160
+    },
+    {
+      "shot": "c3",
+      "clip": "balcony",
+      "sourceTime": 3.7,
+      "pose": "selfie_classic",
+      "film": 176
+    },
+    {
+      "shot": "c4",
+      "clip": "redsuit",
+      "sourceTime": 0.5,
+      "pose": "port_arms_crossed_smile",
+      "film": 192
+    },
+    {
+      "shot": "c5",
+      "clip": "panel",
+      "sourceTime": 6.5,
+      "pose": "fun_peace_lean",
+      "film": 208
+    },
+    {
+      "shot": "c6",
+      "clip": "magenta",
+      "sourceTime": 6.1,
+      "pose": "pro_arms_crossed",
+      "film": 216
+    },
+    {
+      "shot": "c7",
+      "clip": "backstage",
+      "sourceTime": 2.8,
+      "pose": "stand_hand_on_hip",
+      "film": 224
+    },
+    {
+      "shot": "c8",
+      "clip": "magenta",
+      "sourceTime": 0.6,
+      "pose": "port_face_frame",
+      "film": 232
+    },
+    {
+      "shot": "c9",
+      "clip": "couple",
+      "sourceTime": 4.0,
+      "pose": "best couple template",
+      "film": 240
+    }
+  ],
+  "snapRule": "A snap is the library pose the app's matcher scores highest for that person at keyTime (every single-person template for c1-c8, every couple template for c9), drawn as the see-through guide fitted to them with the app's OverlayTransform. Use a snap only if that best score is >= 0.80 (0.75 for the couple) and the drawn figure visibly sits on the body; otherwise take the shot's alternate or move keyTime inside its window. Never show 'Hands in pockets' in the chorus: it is the punchline at f288.",
+  "notUsed": [
+    {
+      "clip": "mk-52257 / mk-52258 / mk-52278",
+      "why": "subtle poses, landscape upscale, and a sequinned veil the same shoot's pages describe as resembling blood splatter"
+    },
+    {
+      "clip": "mk-34412",
+      "why": "a man circling a standing woman can read as her being judged"
+    },
+    {
+      "clip": "mk-28324",
+      "why": "the film never shows a real person as awkward; the stick figure carries the freeze"
+    },
+    {
+      "clip": "mk-359",
+      "why": "graffiti lettering with legible names in most shots"
+    },
+    {
+      "clip": "mk-42575",
+      "why": "three seated people span a landscape frame; no 9:16 window holds the group"
+    },
+    {
+      "clip": "mk-3186, mk-43712, mk-50467",
+      "why": "another camera app's interface and a branded phone on screen"
+    },
+    {
+      "clip": "all Coverr clips",
+      "why": "the Coverr licence bars evaluating AI models; every shot here is detected, so the cautious reading keeps Coverr out"
+    },
+    {
+      "clip": "mk-52257 3840x2160 file",
+      "why": "answers on the CDN but is not offered on the clip page"
+    }
+  ]
+}

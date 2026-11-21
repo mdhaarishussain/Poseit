@@ -1,470 +1,455 @@
-# Poseit promo: storyboard
+# Poseit promo: storyboard v2 (real people, the app's graphics on top)
 
-Vertical 1080x1920, 30 fps, 664 frames (22.13 s), with sound. Music-led now; the voice-over in `vo.txt` drops in
-later without re-cutting (the picture is locked to the music grid, see `sound-plan.md`). Built in Remotion.
+Vertical 1080x1920, 30 fps, 664 frames (22.13 s), with sound. Built in Remotion on the v1 project. Frame numbers are
+global frames at 30 fps, end exclusive. Positions are fractions of the frame (x right, y down); W = 1080 px,
+H = 1920 px. Type sizes are em as a fraction of H. The footage, crops, in-points and poses are in
+`footage/manifest.json`; credits in `CREDITS.md`.
 
-**As built:** the film follows this plan with eleven changes, each listed with its reason in `NOTE.md` ("Changed from
-the storyboard"). The biggest: act III follows what the app's own matcher, stabiliser and capture coach return for the
-keyframed body, so the arm is coached before the step back, and B7 ends on the app's capture frame (f554, not f560).
-`src/events.ts` has every built frame.
-
-Frame numbers are at 30 fps. Positions are fractions of the frame (x right, y down); W = 1080 px, H = 1920 px.
-Type sizes are em as a fraction of H.
+**What changed from v1, in one paragraph.** v1 was all drawn figures. The user asked for real people: "Right now its
+just stickmen. How about we add overlays of real humans. Stock videos etc". In v2 real people are the subject and the
+app's graphics are what they always are in the app, overlays on a camera picture: the live skeleton, the white
+see-through lay figure, the per-limb colours, the score ring, the cue card, the countdown and the flash. Kept from v1:
+the hook (the stick figure in the black viewfinder), the studio of 99 lay figures for the pick (now one beat, not
+three), the Studio palette and Archivo, the HUD and its motion, the sound engine and its 112.5 BPM grid, the end card
+and its timing. New: a montage of real people, each fitted with the library pose the app's matcher finds for them;
+act III on a real person, every verdict computed by the app's code on the footage; the footage printed in Studio grey
+until the shutter, so the captured photo is the film's first colour frame; and the pose the film picks is "Hands in
+pockets", which answers the hook's question.
 
 ## 0. PAGE
 
-- **Problem:** someone points a phone at you and says "do something natural", and you stand there like a plank.
-  You don't know what to do with your hands, so the photo comes out stiff.
-- **Audience:** friends and family, on a phone, in a WhatsApp chat or an Instagram feed. Often muted on Instagram
-  and with sound on WhatsApp. They give it about 20 s and they are not technical.
-- **Goal:** they install it (Android, free). They should be able to repeat one sentence: "it shows you a pose, tells
-  you what to fix and takes the photo itself". The link travels in the message that carries the video, so the film
-  doesn't show a URL (assumption, see section 12).
-- **Emotion:** from "ugh, that's me" (awkward, a little embarrassed) to amused confidence ("oh, it just coaches you
-  and snaps when you get it").
+- **Problem:** someone points a phone at you and says "do something natural", and you stand there like a plank. You
+  don't know what to do with your hands, so the photo comes out stiff.
+- **Audience:** friends and family, on a phone, in a WhatsApp chat or an Instagram feed, often muted. About 20 s, not
+  technical. They have seen a hundred "AI pose" stick-figure demos; real people with the app's figure on them is what
+  makes this one look like a product.
+- **Goal:** they install it (Android, free). The sentence they can repeat: "it shows you a pose, tells you what to fix
+  and takes the photo itself". The link travels in the message with the video, so the film shows no URL.
+- **Emotion:** from "ugh, that's me" to amused confidence: "oh, put your hands in your pockets, and it just takes it".
 
-**The one true thing:** the success moment on the camera screen. A body lines up with the see-through mannequin,
-each limb of the guide turns from red to green, the score ring closes, "Perfect. Hold it", the countdown runs out
-and the photo is taken with nobody touching the phone. Everything else in the film sets that moment up or signs it.
+**The one true thing (unchanged):** the success moment on the camera screen. A body lines up with the see-through lay
+figure, its limbs turn from red to green, the ring closes, "Perfect. Hold it", the countdown runs out and the photo is
+taken with nobody touching the phone. In v2 that body is a real person and every number is the app's.
 
-## 1. Brand inventory
+## 1. Brand inventory (v2 additions to v1's table)
 
-| Look at | What Poseit has | What the film does with it |
-|---|---|---|
-| Logo shape | The launcher icon is a white lay figure in the "Hand on hip" pose on a studio-grey disc, generated from the app's own pose DSL and mannequin geometry (`ic_launcher_foreground.xml`). The logo is one of the poses. | The logo arrives by cause: the matched figure drops its arm after the photo and is, at that moment, the launcher figure. |
-| Core control | The see-through mannequin guide drawn over the live camera; you move until you match it. Second: the score ring. Third: the shutter you don't have to press. | The film's one cause and effect: a body moves, the guide's limbs change colour, the ring closes, the camera fires itself. |
-| Signature material | White lay figures (Mannequin #FBFBF9, Ink contour) standing on studio-grey seamless paper (Paper #E4E5E1, Set #D2D3CF), each with a soft oval contact shadow. The camera is a true-black live view. | Two grounds only: the lit paper studio and the black viewfinder. Every figure on screen is generated from the real pose data. |
-| Key verb | Pose, match, hold. The onboarding titles are "Pick a pose to copy", "Match the guide", "Hold the pose". | The film follows those three verbs in order, performed rather than written. |
-| Success moment | Every limb green, a score in the 90s, the cue card "Perfect. Hold it", the countdown, the capture flash. | The strongest frame (f440) and the loudest sound (f560). |
-| Voice | Plain, kind, exact. Hints are the reason, a full stop, then what to do: "Your feet are cut off. Step back". Sentence case, British spelling, no exclamation marks. | All on-screen UI words are the app's real strings; the VO uses the README's and onboarding's own phrasing. |
-| Colour logic | Greys and ink. Colour only for match feedback: Miss #C8372D, Near #D9930D, Match #24935A; brighter on the camera (#FF6B5E, #FFC24A, #4FD18B). No brand accent. | The film is grey until a body starts matching. Red, amber and green appear only in the viewfinder act and only mean off, near and matched. |
-| Type | Archivo only. Expanded SemiBold for the wordmark and pose names, Expanded Bold with tabular figures for the score and countdown, normal widths for everything else. | Same roles: the wide cut is spent on "Disco point", the numerals and "Poseit". |
-| What they'd never do | Purple or any accent colour, gradients, glows, radial washes, tinted near-black, drop shadows (only the contact shadow), ALL CAPS, eyebrow labels, exclamation marks, emoji, decorative staggered entrances, looping decoration. | None of these appear. No vignette, no colour grade, no glow on the lock. |
+v1's inventory still holds (logo = a lay figure in "Hand on hip"; core control = the see-through guide; material =
+white lay figures on grey seamless paper and a black live view; verbs = pose, match, hold; colour only for match
+feedback; Archivo only; never purple, gradients, glows, caps, exclamation marks, emoji). Two rows change:
 
-## 2. Ideas
+| Look at | v2 |
+|---|---|
+| Material | The camera picture is now real footage. The app's own rule (greys and ink; colour only for match feedback) decides how it looks: the footage is printed in the Studio ramp, Ink #17181A to Sheet #F3F3F0, so a magenta wall, a pink studio and a desert become one grey world and the guide's red, amber and green are the only colour until the photo. |
+| Voice | The app's real hint strings, in the phrasing the app uses on the back camera, where a friend holds the phone: "Ask them to ..." (MatchHints.kt, PHOTOGRAPHER audience). And one pose name, "Hands in pockets", which is the app's answer to "What do I do with my hands?" |
 
-**First idea, set aside (the category costume):** a phone mock-up floats over a soft gradient, a dotted outline
-appears on a stock photo of a person, tiles fly in ("99 poses", "Offline", "Free") and an end card shows a download
-button. Cover the logo and any pose or AR-outline app could run it; it also breaks Studio (gradient, glow) and lands
-on a stat slide and a web-footer ending.
+## 2. Ideas considered, and the pick
 
-Three ideas of different kinds:
+**First idea, set aside (the category costume):** stock clips of happy people in a phone mock-up, a dotted AR outline
+on each, tiles flying in ("99 poses", "Offline", "Free"), a download button. Any pose or AR app could run it, the
+stock would sit in four looks, and it ends on a web footer.
 
 | | Kind | The idea in one sentence |
 |---|---|---|
-| **A. The studio answers** | Montage of real output that becomes one real task | Someone freezes in the viewfinder; on the next downbeat a studio of all 99 lay figures answers by snapping through every kind of pose on the beat, they all land the same pose in unison, that one figure steps into the camera as the see-through guide, and the frozen body is coached onto it limb by limb, red to green, until the camera takes the photo by itself and the figure relaxes into the app icon. |
-| **B. One held shot** | UI documentary in a single take | One unbroken, screen-true shot of the live view: a stiff skeleton, the pose strip slides, one tile is tapped, the guide lands, the hints coach it to green, countdown, flash. |
-| **C. The coach speaks** | Typographic essay in the brand's voice | Poseit's real coaching sentences are the picture: each lands centred on studio paper and one lay figure acts it out ("Step back", "Raise your left arm", "Lower your chin") until "Perfect. Hold it" and the shutter. |
-| **D. The gallery** | Stillness that breaks | A silent dolly through a gallery of 99 frozen lay figures on plinths; one shutter click and they all change pose at once; still again; the name. |
+| **A. The figure finds a body** | Joke, then a montage of real output, then one real case | The hook's frozen stick figure gets pushed into and becomes a real person; then, on the beat, the app's white lay figure lands on person after person in exactly their pose; all 99 library figures answer the hook with one pose, "Hands in pockets"; that figure drops over a real woman in a real photo studio, the app coaches her into it, counts down and takes the photo, the first colour frame; the figure steps off the photo and relaxes into the icon. |
+| **B. One photo shoot, one take** | UI documentary of one task | One continuous live view of a real model, the whole app flow from the found skeleton to the flash, no montage. |
+| **C. Grey until the shot** | Stillness that breaks | A calm, slow montage of grey people holding poses with their guides, nothing happening, until one shutter turns the world to colour. |
+| **D. Library meets street** | Split comparison | Each beat a library tile beside a real person in the same pose, side by side. |
 
 **Tests.**
-- Cover the logo: A, B and D still say Poseit (the lay figures from the app's own geometry, the per-limb red to
-  green, the cue-card voice, the Archivo numerals). C half-passes: the sentences are Poseit's, but the picture is
-  type on paper.
-- Swap in a competitor: a pose app with photo references or a neon AR outline cannot run A, because A depends on a
-  library of drawn, posable figures and on the logo being one of those poses. C works for any coaching app with its
-  own lines. B works only for Poseit but is a small UI on a black void for 20 s. D shows no case: nothing happens to
-  anyone, so it never proves that the app coaches or takes the photo.
-- Honesty: C puts the lay figure in the person's role, which misdescribes the product (the person moves, the figure
-  is the guide). A keeps the roles right: the skeleton is you as the camera sees you, the lay figures are the poses.
+- Cover the logo: A and C still say Poseit (white lay figures from the app's geometry on real bodies, the per-limb red
+  to green, the Studio grey, the cue-card voice). B is any pose-camera demo once the figure is hidden. D is two
+  panels per frame (G4) and a deck layout.
+- Competitor swap: a pose app with photo references or a neon outline cannot run A, which depends on a library of
+  drawn, posable figures, on the matcher scoring real bodies against them, and on an icon that is one of the poses.
+- Energy: the brief is a crazy, confident motion piece, not a slideshow of stock. A is cut on the grid and accelerates
+  (16 f, then 8 f shots, then a drop and a unison hit); C is the calm film; B has one speed.
+- Honesty: A keeps the roles right. The skeleton is the camera seeing a person; the lay figure is the pose; the people
+  are never made to look awkward (the stick figure carries the freeze) and are never captioned.
 
-**Pick: A.** It is the only idea that puts the breadth (all 99 poses, couples, groups) and the one success moment
-in a single chain of causes, every link of which is literally how the app works (pick, match, hold), built from the
-app's own data, and it ends on the logo by cause instead of by default. It spends the "crazy" in one place, the
-chorus of figures, and keeps the proof legible.
+**Pick: A, with C's colour logic.** It is the only idea in which the montage, the pick and the proof are one chain of
+true causes (the library's poses are poses real people strike; you pick one; the app coaches a real body into it and
+shoots), it reuses v1's strongest pieces (the hook, the unison, the HUD, the end), and the grey-until-the-shutter rule
+turns six unrelated stock looks into one world while making colour mean what it means in the app.
 
 ## 3. Film shape and system
 
 | Decision | Choice and reason |
 |---|---|
-| Shape | Joke, then one real case: question (hook), the answer as a chorus, the pick, the match, the hold, the name. Not claim, cut, proof, cta: the only typed claim is the viewer's own question. |
-| Length | 664 f, 22.13 s. Eight beats. |
-| Clock | Split, by meaning: **posed things step, live things are smooth.** The lay figures are hand-posed, so they change pose in one frame on the music grid (and the final relax runs on twos). The live skeleton, the HUD and the film camera are smooth 30 fps. |
-| Motion grammar | Crisp: no smear, no shutter blur, no motion-blur filter. Grain only as a surface texture, one level for the whole film. |
-| Music grid | 112.5 BPM: beat 16 f, eighth 8 f, bar 64 f, bar lines at f16 + 64n (downbeats f80, 144, 208, 272, 336, 400, 464, 528, 592, 656). Every cut and snap lands on a multiple of 8 f. Chosen because 32 f is about 1 s, so the app's 3 s countdown runs at almost real speed on the half notes. |
-| Type | Archivo, the app's static cuts from `app/src/main/res/font/` (OFL). Hook question: Archivo SemiBold 0.05 H (96 px, 8.9% W), white. Pose name: Archivo Expanded SemiBold 0.045 H, Ink. Cue cards: Archivo Regular 0.04 H, Ink. Score: Archivo Expanded Bold, tabular, 0.042 H, white. Countdown: Archivo Expanded Bold, outlined, about 0.26 H. Wordmark: Archivo Expanded SemiBold, ink width 0.50 W. End line: Archivo Regular 0.034 H, Graphite. Sentence case everywhere. |
-| Colour | Studio greys, Ink, Mannequin white, LiveView black. Signal colours only in act III with one meaning each: red off, amber near, green matched. No accent. |
-| Carrier | The figure. It changes role and size at every seam and is never pinned: stiff skeleton (B1) -> stiff lay figure (B2) -> the same lay figure through every pose (B3) -> Disco point, framed (B4) -> the see-through guide (B5-B7) -> a solid lay figure in the photo (B8) -> the launcher figure over the name. |
-| Cursor | None. It's a phone and the point is that nobody touches it. The pick is shown with the app's own frame marks. |
-| Overshoot | Spent once: the live arm's reach in B6 overshoots about 6 degrees and settles in 8 f, because a real arm does. Nothing else bounces. |
-| Orientation | Front camera, so the viewfinder shows the guide and skeleton flipped for display (ARCHITECTURE.md: "front-camera preview is mirrored"); the raised arm of Disco point is on screen left, matching "Raise your left arm". The studio acts use the same display orientation so the carried figure never flips. The flipped Disco point's hip hand sits where the launcher figure's hip hand sits (screen right), so the B8 relax only drops the raised arm and lands on the real, unflipped icon pose. |
-| Remotion rules | One theme object (Studio tokens, signal colours, grid, eases), timing derived from fps and BPM, every interpolation eased and clamped (drifts use a sine in-out over their whole span instead of linear), render-extract-look loop. The skill's "background mesh, grade, vignette" stack is replaced by the world in section 4: Studio forbids radial washes, so there is no vignette and no grade; the paper's light and grain do that job. |
+| Shape | Joke, montage, answer, case: the question (hook), the figure gets a body, the chorus of real people, the unison and the name that answers the question, the live coaching, the photo, the name. |
+| Length | 664 f, 22.13 s (unchanged: the sound engine, the grid and the end card keep their frames). Eight beats. Act III's inner frames come from the app's verdicts; the capture must land in f505-531. |
+| Clock | Split by meaning, as v1: **posed things step, live things are smooth.** Library figures and chorus guides change pose in one frame on the grid. Footage plays at its own 24 fps cadence, repeated to 30 (never interpolated in real time); the live skeleton follows the detection per film frame; the HUD and the film camera are smooth. |
+| Motion grammar | Crisp. No smear, no shutter blur. One grain level for the whole film. |
+| Music grid | 112.5 BPM, beat 16 f, bar 64 f, bar lines at f16 + 64n (f80, 144, 208, 272, 336 ...). Every cut in acts I-III lands on it. Act IV runs on the app's clock (30 f per digit). |
+| Type | Archivo, v1 roles unchanged: hook 0.05 H SemiBold; pose name Archivo Expanded SemiBold 0.045 H; cue card Medium 0.04 H; score Expanded Bold 0.042 H; countdown 0.26 H; wordmark ink 0.50 W; end line 0.034 H. |
+| Colour | Three states, one per stretch: **grey** (black live view, Studio paper, footage printed Ink to Sheet) until f336; **signal** (the guide's per-limb Miss, Near, Match bright variants and the ring) only in act IV; **full colour** only in the captured photo (B7). Then grey paper again for the name. |
+| Carrier | The figure, changing role at every seam: stiff stick skeleton (B1) -> the live skeleton on a real body (B2) -> the white guide on each person (B3) -> the library figure among 99 (B4) -> the see-through guide over her, coloured by the matcher (B5-B6) -> gone from the photo, which is clean (B7) -> a solid lay figure where she stood, relaxing into the launcher pose (B8). Never at the same coordinates across three shots: each chorus guide sits where that person is. |
+| Camera (phone) | Back camera, not mirrored, everywhere in v2 (v1 used the front camera). Act IV runs the matcher with mirroredView = false and the app's AUTO audience for the back camera, PHOTOGRAPHER, so cue cards read "Ask them to ...". The studio figures are drawn unflipped to match. |
+| Cursor | None. |
+| Overshoot | None spent. The real bodies supply the organic motion; every graphic decelerates without bounce. |
+| Remotion rules | One theme (new `theme.footage` tokens for the grade), every curve eased and clamped, OffthreadVideo for every plate, a slow push on every still or locked-off shot, render and look at frames. No vignette and no colour grade beyond the Studio ramp (Studio forbids radial washes). |
 
-## 4. World per act
+## 4. Worlds per act
 
 | Act | Frames | Ground | Light | Depth | Texture | Sound |
 |---|---|---|---|---|---|---|
-| I. Viewfinder, cold | 0-80 | True-black live view (LiveView #000000) with the camera's thirds grid, white at about 20%. | None in the scene: the white skeleton lines are the only bright thing. | Grid behind, skeleton, question in front; slow push 1.00 -> 1.04. | Fine luma sensor noise, as a dark live view has. | Room tone only, then a 6 f whoosh into the cut at f80. The silence is the joke. |
-| II. The studio | 80-336 | Seamless studio paper: wall Paper #E4E5E1 curving through a soft cove into floor Set #D2D3CF. | One large softbox key from upper left, out of frame: the paper is about 4% lighter top left and 4% darker bottom right (tone, not colour). Every figure has the Studio contact shadow, a soft Ink oval at 16-20%, nudged right, away from the key. | 11 rows receding in true perspective. Row 0 cropped by the bottom edge and defocused about 6 px; row 1 (the hero row) sharp; rows 9-10 defocused 2-3 px and hazed 10% toward Paper. Real parallax on the dolly. | Paper tooth (static, about 2% luma) plus the film's temporal grain. | The groove: four-on-the-floor, hats made of shutter clicks; every pose change is a click. A drop of 0.8 s before the unison hit. |
-| III. Viewfinder, live | 336-560 | True-black live view, thirds grid. | The see-through guide (Mannequin at 55%) is the light in the frame; signal colours light its limbs. | Guide behind, skeleton on top, HUD frontmost; film camera creeps 1.00 -> 1.03, then steps 2% on each countdown digit. | Sensor noise. | The groove thins to bass and soft hats, 8 dB down, while the hints are read. A chime on the lock, ticks on the count, a riser, half a beat of silence, the shutter. |
-| IV. The photo, then the name | 560-664 | The same studio paper, lit by the capture flash; empty except the one figure. | Same key as act II. | The figure and its contact shadow; the cove appears as the camera pulls back. | Paper tooth, grain. | Shutter tail, one final chord on the downbeat, room tone to the last frame. |
+| I. The freeze | 0-80 | True-black live view, thirds grid at 20% white (v1). | Only the white skeleton lines. | Grid behind, skeleton, question in front; push 1.00 -> 1.03, then a rush into the skeleton (f70-80). | Sensor noise. | Room tone; the push's whoosh peaks on the cut. |
+| II. People | 80-272 | Real footage, full bleed, printed in the Studio ramp: a desert under a pale sky (B2), then a magenta wall, a warm set, a balcony, two pink studios, a green screen (B3), all reading as grey paper and ink. | The footage's own light (dusk sky, softboxes, low-key wall), unified by the ramp. | Real lenses: the footage's own depth of field. The white guide sits in front of each body; the film camera pushes 1.00 -> 1.08 across the whole chorus. | Footage grain plus the film's one grain. | The groove enters on the f80 cut; a shutter-click per guide landing; the drop at f248. |
+| III. The library | 272-336 | v1 studio: lit seamless paper, 99 lay figures in true perspective. | One softbox key from upper left, contact shadows. | Three depth planes, defocus and haze, rack focus to the hero. | Paper tooth, grain. | The unison hit after the drop; the music dips under the name; a whoosh into the cut. |
+| IV. The live view | 336-capture | A real photo studio (paper backdrop, softbox, stands), full bleed, printed grey: the app's camera picture. | The studio's softbox (in frame at the right edge); the guide is the brightest graphic. | Guide behind, live skeleton on top, HUD frontmost; film camera creeps 1.00 -> 1.04, steps 2% per digit. | Grain. | The coaching bed 6 dB down, a card tick, the lock chime, the countdown beeps, the build, 8 f of stillness, the shutter. |
+| V. The photo | capture-555 | The same frame in full colour, frozen: pink paper, her clothes, the softbox. | The flash decays into it. | A still photo; a slow push 1.00 -> 1.03. | Grain. | The shutter's tail and the final chord blooming with the colour. |
+| VI. The name | 555-664 | v1 studio paper, empty except one figure; the cove appears on the pull back. | Same key as act III. | The figure and its contact shadow. | Paper tooth, grain. | The chord rings out; a soft low re-strike under the pull back; room tone to the end. |
 
-**Picture sources.** Acts II and IV: built in code from the Studio tokens and the real mannequin geometry
-(`FigureShapes.build`) of the real poses (`BuiltInPoses.all`). Acts I and III: the camera HUD rebuilt from the app's
-tokens and strings (DESIGN.md camera section), using `docs/images/screens/3-camera.png`,
-`app/build/screenshots/camera-hud.png` and `app/build/repo-assets/screen-3-camera.png` (the RepoAssetsTest still,
-score 93 from the real PoseMatcher) as the references for the ring, card, skeleton and guide colouring. The
-screenshots are references, not footage: at 15 sp their text is 0.017 H and cannot pass G1, and the viewfinder act
-needs a body that moves.
+**Picture sources.** Acts II, IV, V: Mixkit stock (manifest), detected with the app's own lite model. Acts I, III, VI:
+built in code from the Studio tokens and the 99 real poses (v1).
 
 ## 5. The hero moment
 
-- **The screenshot frame, f272-287 (B4):** all 99 white lay figures on grey seamless paper land Disco point in
-  perfect unison, arms pointing at the sky, the camera punching in one frame; a moment later thin ink frame marks
-  close around one figure in the second row. It gets the hardest work: all 99 real poses exported from pose-core and
-  drawn with the app's own geometry, an 11 x 9 lattice in true perspective, a contact shadow per figure, three depth
-  planes with defocus and haze, one key light, paper grain, and the snap on a hit that comes out of 0.8 s of silence.
-- **The strongest frame of the energy curve, f440 (B6, 66% of the film):** the same figure, now the see-through
-  guide on black, every limb green, the skeleton locked into it, the ring closed at the matcher's score, "Perfect.
-  Hold it". This is the product's success moment.
+- **The screenshot frame: the lock, about f402 (B6, 61% of the film).** A real woman in a real photo studio, printed
+  in Studio grey, hands in her pockets, inside the white see-through lay figure whose every limb has just turned green;
+  the ring closed in green at the app's score; "Perfect. Hold it". It gets the hardest work: the app's lite model on the
+  full-size plate, the app's PoseMatcher, HintStabilizer and CaptureCoach frame by frame, the guide placed with the
+  app's own fit and overlay transform, the Studio ramp grade, the HUD at the app's proportions.
+- **The second screenshot, f272-296 (B4):** all 99 lay figures in "Hands in pockets", the frame marks closing on one,
+  the name under it: the answer to the question asked 8 seconds earlier.
+- **The emotional peak, about f521 (B7):** the first colour in the film, the photo itself.
 
-Energy curve: it rises through the chorus (snaps every 16 f, then every 8 f, then the crowd doubles and triples),
-drops for 0.8 s, hits at the unison (41%), goes quieter for reading in the coaching act, rises to the lock (66%),
-builds through the countdown, stops for half a beat, fires the shutter (84%, the loudest sound), then gets smaller:
-the pull-back, the name and a 1.13 s hold. Two peaks on purpose: the joke's answer has to come on the very next
-downbeat after the question, and the match has to be the strongest frame because it is the thing being sold.
+**Energy curve.** Quiet hook; a rush into the first real person on the f80 downbeat; the chorus accelerates (16 f
+shots, then 8 f, then two figures at once); 0.8 s of drop; the unison hit (41%); the name and a breath; the push and
+match cut; quieter for the coaching; the lock (61%, the strongest frame); the countdown builds while time slows; half
+a beat of silence; the shutter (77%, the loudest sound) and the colour; then smaller: the figure, the icon pose, the
+name, a 1.3 s hold.
 
 ## 6. Importance budget
 
 | Beat | Importance | Why |
 |---|---|---|
-| B1 Hook | 2 | Supporting: sets the problem, small and quiet. |
-| B2 Everyone freezes | 1 | Connective: a one-second joke. |
-| B3 Chorus | 2 | Supporting: fast and dense, but it builds toward B4. |
-| B4 Unison and pick | **3** | The screenshot frame, its own hit, the biggest camera move. |
-| B5 Step back | 2 | Supporting proof. |
-| B6 Raise your left arm, lock | **3** | The strongest frame, the slowest read, its own sound. |
-| B7 Hold, shutter | 2 | The release; loud, but its picture is a countdown. |
-| B8 The name | 1 | Small, quiet, short. |
+| B1 Hook | 2 | Sets the problem; small and quiet. |
+| B2 The figure gets a body | 2 | The first real person; supporting. |
+| B3 Chorus | 2 | Fast and dense, building to B4. |
+| B4 Unison and pick | **3** | The answer to the hook, its own hit, the biggest camera move. |
+| B5 Coaching | 2 | Supporting proof. |
+| B6 Match, hold, count | **3** | The strongest frame and the product's success moment. |
+| B7 The photo | 2 | The colour payoff, short. |
+| B8 The name | 1 | Small, quiet. |
 
 Two of eight beats (25%) are importance 3.
 
 ## 7. Beat table
 
-Overview (frames are start-end, end exclusive):
+| # | Frames | Length | Role | Buys | Copy on screen | VO (`vo.txt`) |
+|---|---|---|---|---|---|---|
+| B1 | 0-80 | 80 f, 2.67 s | hook | Buys recognition: the viewer sees their own freeze. | "What do I do / with my hands?" | none |
+| B2 | 80-144 | 64 f, 2.13 s | turn | Buys the reveal: the viewer sees the app's skeleton land on a real person who knows what to do with her hands. | none | none |
+| B3 | 144-272 | 128 f, 4.27 s | proof | Buys abundance on real bodies: the viewer sees a pose from the library sit exactly on person after person. | none | 1, f150-222 |
+| B4 | 272-336 | 64 f, 2.13 s | turn | Buys the answer: the viewer sees all 99 poses become one, and its name answers the question. | "Hands in pockets" | 2, f292-310 |
+| B5 | 336-~402 | ~66 f, 2.2 s | proof | Buys trust: the viewer watches the app find a real person and say what to change. | the stabiliser's hint card(s); score | 3, f344-400 |
+| B6 | ~402-~513 | ~111 f, 3.7 s | proof | Buys the match and hands-free: the viewer sees every limb turn green and the countdown run with nobody touching the phone. | "Perfect. Hold it"; 3, 2, 1; score | 4, f426-505 |
+| B7 | ~513-555 | ~42 f, 1.4 s | proof | Buys the payoff: the viewer sees the photo it took, the first colour in the film. | none | none |
+| B8 | 555-664 | 109 f, 3.63 s | cta | Buys the name: the viewer connects the figure that guided the photo with Poseit, free on Android. | "Poseit"; "Free for Android." / "Works offline." | 5, f590-650 |
 
-| # | Frames | Length | Role | Buys |
-|---|---|---|---|---|
-| B1 | 0-80 | 80 f, 2.67 s | hook | Buys recognition: the viewer sees their own freeze. |
-| B2 | 80-112 | 32 f, 1.07 s | turn | Buys the joke: the viewer sees that everyone freezes exactly as they do. |
-| B3 | 112-272 | 160 f, 5.33 s | proof | Buys abundance: the viewer counts a pose for every kind of photo without being told a number. |
-| B4 | 272-336 | 64 f, 2.13 s | turn | Buys choice: the viewer sees one pose picked out of all of them. |
-| B5 | 336-400 | 64 f, 2.13 s | proof | Buys trust: the viewer watches the camera catch that the feet are out of frame. |
-| B6 | 400-464 | 64 f, 2.13 s | proof | Buys the match: the viewer watches one instruction turn an arm from red to green. |
-| B7 | 464-560 | 96 f, 3.20 s | proof | Buys hands-free: the viewer sees the photo taken with nobody touching the phone. |
-| B8 | 560-664 | 104 f, 3.47 s | cta | Buys the name: the viewer connects the figure they just watched with Poseit, free on Android. |
+`~` frames are planned; the real ones are the app's verdicts on the footage (the hold frame ends B5, the capture frame
+ends B6). Acceptance window: capture in f505-531.
 
 ### B1. Hook: the freeze (f0-80)
 
-- **Role / importance:** hook, 2.
-- **Buys recognition:** the viewer sees their own freeze.
-- **On-screen copy:** "What do I do with my hands?" in two lines ("What do I do" / "with my hands?"), centred,
-  baselines at y 0.205 and 0.262, Archivo SemiBold 0.05 H, white, tracking -1.5%.
-- **VO:** none. Room-tone silence.
-- **What moves:** a live white stick skeleton (head top y 0.33, feet y 0.93, centred) stands stiff, arms dead
-  straight, and fidgets: weight shifts, head turns left then right. Words rise into place, whole, 0.03 H, softLand
-  10 f with a 4 f opacity helper: What f2, do f6, I f10, do f14, with f20, my f24, hands? f33 (the longer gap before
-  the key word). On "hands?" the wrists flick up to the waist (f33-42) and flop back (f42-50): the body acts out the
-  question. f50-80 is the awkward pause, a designed breath before the answer, with the head turning. Camera push
-  1.00 -> 1.04.
-- **Entry:** frame 0 already moving (mid weight-shift, first word half-risen).
-- **Exit:** hard cut at f80 on the downbeat, mid head-turn.
-- **Handoff:** the skeleton's stiff silhouette becomes a lay figure in the identical stance at the same place and
-  size; the ground flips black to paper on the cut (the punchline); the camera reverses into a fast pull-back.
-- **Carried object:** the stiff figure.
-- **Assets:** rebuilt viewfinder (LiveView black, thirds grid); skeleton drawn the way the app draws MediaPipe's
-  skeleton (white lines, joint dots, head ring; ref `docs/images/screens/3-camera.png`). The stiff stance is built
-  with the pose DSL and is illustrative (declared in NOTE.md), not a library pose.
-- **Picture with the text covered:** a white stick skeleton standing stiff in a black viewfinder with faint thirds
-  lines, glancing around.
-- **Precedent:** PL0214 (pair a hook question with the object that implies the answer, not a big type treatment):
-  the body is the object.
+- **Role / importance:** hook, 2. **Buys recognition.**
+- **As v1** (words rise f-3 to f29, wrists flick f29-38 and flop f38-46, head turns, room tone), with two changes:
+  - **The question leaves before any person appears:** f62-70 the words exit upward, accelerating (accelExit 8 f,
+    2 f apart, a 3 f opacity helper at the end). From f70 no text is on screen. Rule: the hook question never shares a
+    frame with a real person, so no words are put in anyone's mouth.
+  - **The rush:** f70-80 the film camera pushes into the stiff skeleton (gentleIn, peak speed on f79), solved so that on
+    f79 the skeleton's frame is exactly B2's body at f80: head top about 0.12 H, feet about 0.96 H, mid-hip x about
+    0.35 W (scale about 1.4 about a point near the feet, with a leftward drift). The push from f0 to f70 is the v1
+    drift, 1.00 -> 1.03.
+- **Exit:** hard cut at f80 on the downbeat, at peak push speed.
+- **Picture with the text covered:** a white stick skeleton standing stiff in a black viewfinder, glancing around; the
+  camera rushes at it.
 
-### B2. Everyone freezes (f80-112)
+### B2. The figure gets a body (f80-144)
 
-- **Role / importance:** turn, 1.
-- **Buys the joke:** the viewer sees that everyone freezes exactly as they do.
-- **On-screen copy:** none. **VO:** none.
-- **What moves:** the camera, pushed in at 2.50 so the hero figure (row 1, column 4) is exactly where and as big as
-  the skeleton was, pulls back: a one-frame snap at f80-81 (2.50 -> 1.75, ratio 0.7) then a softLand tail to 1.00 by
-  f100. It reveals the whole
-  studio: 99 lay figures in 11 rows, all in the same stiff stance. From f100 a slow dolly forward begins. The figures
-  don't move: they are frozen like you.
-- **Entry:** cut in on the downbeat, already pulling back.
-- **Exit:** no cut; at f112 the army breaks into poses.
-- **Handoff:** continuous shot into B3.
-- **Carried object:** the hero lay figure.
-- **Assets:** the studio (section 4), 99 figures from `FigureShapes` in the illustrative stiff stance.
-- **Picture with the text covered:** a high-angle studio of 99 white lay figures in rows on grey seamless paper, all
-  standing stiff, the camera pulling back.
+- **Role / importance:** turn, 2. **Buys the reveal.**
+- **Shot `b2-alive`:** clip `desert` (Mixkit 34404), source 3.30-5.43 s at 1x, full frame, Studio ramp.
+- **What moves:** f80 the plate opens at 1.06 and lands at 1.00 by f88 (softLand), continuing the hook's push. The
+  app's live skeleton (stick style, Mannequin lines at 70%, 2.5 dp, visible joints only) is drawn from detect.py on the
+  plate, frame by frame: on f80 it sits where the hook's skeleton was. f88-144 she lifts both hands behind her head
+  (her move runs 3.58-5.42 s) and the skeleton follows. Film camera drift 1.00 -> 1.02.
+- **Exit:** hard cut at f144 on the downbeat as her hands land (on motion).
+- **Handoff:** the overlay changes from the skeleton (the camera sees you) to the guide (a pose), at a similar size and
+  place in C1.
+- **Picture with the text covered:** a woman in a black dress on a flat desert under a pale sky, printed in grey, a
+  white stick skeleton on her body; she lifts both hands behind her head.
 
-### B3. The chorus (f112-272)
+### B3. The chorus (f144-272)
 
-- **Role / importance:** proof, 2.
-- **Buys abundance:** the viewer counts a pose for every kind of photo without being told a number.
-- **On-screen copy:** none. No category names, no counter: the 99 is the lattice itself.
-- **VO:** "Poseit has ninety-nine poses to copy." (window f116-188).
-- **What moves:** all 99 slots change pose in one frame on the grid, one category at a time, each slot showing a
-  different pose of that category (slot pose = (column + 2 x row) mod n, so neighbours differ and every pose of the
-  category appears):
-  - on beats: Standing f112, Sitting f128, Leaning f144, Walking f160;
-  - on eighths, as a ripple from the front row back (3 rows per frame): On the ground f176, Portrait f184,
-    Selfie f192, Professional f200, Fun f208 (the bar-4 downbeat);
-  - on beats again, the crowd doubling: Couple f224 (two figures per slot), Group f240 (three or four per slot), in
-    the person tones Mannequin, #C9CBC6, #A6A8A3, #83857F.
-  Each figure lands 1% H above its mark and settles in 6 f, like being set down. f248-272: the group crowd holds
-  while the music drops out (a designed breath before the unison; the camera keeps drifting). Camera: a dolly
-  forward in two pushes, 1.00 -> 1.08, with row parallax.
-- **Entry / exit:** continuous; ends on the unison snap.
-- **Handoff:** in-shot, at f272.
-- **Carried object:** the hero figure, always near the centre of row 1.
-- **Assets:** all 99 `BuiltInPoses.all` ids, by category (section 12); `FigureShapes`; DESIGN.md person tones.
-  Figures are scaled by their body unit and stood on the floor; lying poses stay long and low.
-- **Picture with the text covered:** the studio, the whole army snapping into a new kind of pose on every beat
-  (all sitting, all leaning, all walking, all on the floor), then pairing up and crowding into groups.
-- **Precedent:** PR-C03 (a wave across a grid, origin first, items on a pose clock while the camera stays smooth);
-  PR-F23 (the viewer reads "many" without reading each).
+- **Role / importance:** proof, 2. **Buys abundance on real bodies.**
+- **Shots** (manifest `c1`-`c9`; each guide is the library pose the app's matcher scores highest for that person; see
+  the snap rule in the manifest):
+
+| Shot | Film | Clip | Who and what | Planned pose (approx score) |
+|---|---|---|---|---|
+| c1 | 144-160 | magenta (1236) | a man in a denim jacket, fists on hips, feet apart | Superhero stance (0.86) |
+| c2 | 160-176 | floor (101459) | a woman in a gold shirt sitting cross-legged on the floor | Cross-legged (0.87) |
+| c3 | 176-192 | balcony (3191) | two women on a balcony, one holding the phone up for a selfie | Classic arm selfie (0.98) |
+| c4 | 192-208 | redsuit (50649) | a woman in a red trouser suit, arms crossed | Crossed-arm smile (1.00) |
+| c5 | 208-216 | panel (41665) | a woman in a white dress, both hands up by her shoulders | Double peace lean (0.93) |
+| c6 | 216-224 | magenta (1236) | the man again, arms crossed | Confident crossed arms (0.95) |
+| c7 | 224-232 | backstage (41664) | behind the scenes of a shoot, tripod in front: a hand on the hip | Hand on hip (0.93) |
+| c8 | 232-240 | magenta (1236) | the man again, hands framing his face | Face frame (1.00) |
+| c9 | 240-272 | couple (100743) | a couple side by side, two guides; holds through the drop | best couple template (to compute) |
+
+- **What moves on every cut:** the plate hard-cuts; in the same frame the guide (Mannequin fill at 62%, Ink contour at
+  55%, the app's figure geometry) lands on the person from 1.25x about their mid-hip (softLand 5 f on beat shots, 4 f on
+  eighth shots), opacity from 0.9 to 0.62 over the same frames. The guide then stays put while the person moves under
+  it, as the app's guide does. One shutter-click per landing. No pose names, no numbers, no colour in the chorus: the
+  figures are white.
+- **The film camera:** one continuous push 1.00 -> 1.08 from f144 to f248 applied over every shot, so the velocity
+  carries across the cuts; in the drop (f248-272) only a 0.3% drift.
+- **The drop:** f248-272 the couple shot holds while the music stops (the designed breath before the unison: a held
+  frame with living people in it).
+- **Fallback:** if c9's couple does not detect as two people or scores under 0.75, use the manifest's alternates; with
+  the single fallback the chorus ends on one figure.
+- **Picture with the text covered:** grey-printed real people (a man with fists on his hips, a woman cross-legged on
+  the floor, two women taking a selfie, a woman in a suit with crossed arms ...), each with a white see-through lay
+  figure laid exactly over their body, cutting faster and faster, ending on a couple, each with their own figure.
 
 ### B4. Unison and pick (f272-336)
 
-- **Role / importance:** turn, **3** (the screenshot frame).
-- **Buys choice:** the viewer sees one pose picked out of all of them.
-- **On-screen copy:** "Disco point", the pose name, set the way the pose detail screen sets a name under its framed
-  figure: Archivo Expanded SemiBold 0.045 H, Ink, centred under the frame marks, baseline about y 0.79.
-- **VO:** "Pick one." (window f292-310).
-- **What moves:** f272, after 0.8 s of silence, every slot snaps to `fun_disco_point` in unison; the camera makes a
-  one-frame scale cut 1.08 -> 1.18 and a softLand tail to 1.20 by f284. The framing has tilted so the hero figure's
-  feet are at y 0.72, with row 0 cropped and soft below it. f288 thin Ink frame marks snap on around the hero figure
-  (one frame, the detail screen's viewfinder brackets) and "Disco point" resolves under them (blur 8 -> 0 px, 5 f).
-  f304-336 the camera pushes into the hero figure, accelerating (gentleIn, 1.20 -> about 2.35, the scale at which the
-  hero is 0.56 H tall); the rest of the army sweeps out past the frame edges, foreground row first; the name leaves
-  under the bottom edge; the frame marks reach the frame edges as the cut lands and go with the paper.
-- **Entry:** the unison hit.
-- **Exit:** hard cut at f336, at peak push velocity.
-- **Handoff:** carried-object match cut. At f335 the hero figure is exactly the size and place of the guide in B5
-  (head top y 0.38, feet y 0.94, centred); at f336 the paper turns to the black viewfinder, the figure turns
-  see-through, and the push carries on for 4 f and settles.
-- **Carried object:** the Disco point figure.
-- **Assets:** `fun_disco_point` (all slots, flipped for display), DESIGN.md frame marks and Display role.
-- **Picture with the text covered:** 99 lay figures pointing at the sky together on grey paper; one in the second row
-  is framed by thin ink corner marks; the camera rushes at it.
+- **Role / importance:** turn, **3**. **Buys the answer.**
+- **On-screen copy:** "Hands in pockets" (the pose's real name in BuiltInPoses), Archivo Expanded SemiBold 0.045 H,
+  Ink, centred under the frame marks, baseline about y 0.79 (about 0.79 W wide).
+- **What moves:** v1's B4 with a new pose and a new seam in. f272, after the drop, hard cut to the studio: every one of
+  the 99 slots is `stand_hands_in_pockets` (unflipped), and the camera makes v1's one-frame scale cut 1.08 -> 1.18 with
+  the softLand tail. The hero figure's frame on f272 is the frame of the couple's nearer guide on f271 (preferred; a
+  plain cut on the hit is acceptable if the lattice framing fights it). f288 frame marks snap on, the name resolves
+  (blur 8 -> 0, 5 f), the focus racks onto the hero's row. f304-335 the accelerating push, solved every frame onto
+  act IV's guide frame (`shots.ts` GUIDE_FRAME); the marks open out past the frame edges; the name leaves under the
+  bottom edge.
+- **Exit:** hard cut at f336 at peak push speed.
+- **Picture with the text covered:** 99 white lay figures with their hands in their pockets on grey paper; one is
+  framed by thin ink marks; the camera rushes at it.
 
-### B5. Step back (f336-400)
+### B5. Coaching (f336 to the app's hold frame, planned f402)
 
-- **Role / importance:** proof, 2.
-- **Buys trust:** the viewer watches the camera catch that the feet are out of frame.
-- **On-screen copy:** cue card "Your feet are cut off. Step back" (a real PoseMatcher hint, two lines, red dot),
-  and the score numerals in the ring.
-- **VO:** "Line up with it." (window f340-392).
-- **What moves:** f336 the viewfinder: the see-through Disco point guide; the stiff skeleton from B1 is back (the
-  callback), standing too close (1.3x, feet below the bottom edge, arms down). The guide's limbs take the matcher's
-  per-limb colours (legs red, arms red or amber); the ring shows a red arc and the score. f352 the cue card drops
-  in 0.02 H over 6 f (the app's own 150-220 ms standard easing). f360-392 the skeleton takes two steps back (scale
-  1.30 -> 1.00 with a step bob); the feet enter at about f368; the guide's legs turn red, amber, green, frame by
-  frame; the score steps up (about 21 -> 52, whatever the matcher returns). Film camera creeps 1.00 -> 1.03.
-- **Entry:** cut in while B4's push decelerates.
-- **Exit:** no cut; at f400 the cue card is replaced.
-- **Handoff:** in-shot.
-- **Carried object:** the guide (fixed) and the skeleton.
-- **Assets:** `fun_disco_point` shapes flipped for display; the hint string from
-  `pose-core/.../match/MatchHints.kt`; ring and card per DESIGN.md "Camera screen" and `camera-hud.png`; scores,
-  limb states and hints from running the real PoseMatcher on the keyframed skeleton (section 12).
-- **Picture with the text covered:** a big see-through white mannequin pointing up in a black viewfinder; a white
-  stick skeleton, too close, steps back into it while the legs turn from red to green.
+- **Role / importance:** proof, 2. **Buys trust.**
+- **Shot `b5-live`:** clip `studio` (Mixkit 39676), source from 0.00 s, crop 864x1536 at (140, 230), Studio ramp.
+- **On-screen copy:** whatever the app's HintStabilizer shows for these frames (expect one card before the lock), in
+  the back camera's PHOTOGRAPHER phrasing; the score in the ring.
+- **What moves:** f336 match cut: the picked figure is now the app's see-through guide (Mannequin at the default 55%)
+  over the live view, same size and place; the push lands by f342. The app finds her: the live skeleton appears, the
+  guide's limbs take `forScore` colours (the film's first colour), the ring shows the score in its signal colour. A
+  card arrives on the stabiliser's frame. f366-396 she flicks her hair (real time, source 1.0-2.0 s) and puts her
+  hands in her pockets; the guide's arms go from red or amber to green as the score climbs.
+- **Picture with the text covered:** a woman in a light shirt and dark trousers on a paper backdrop in a real photo
+  studio, a softbox at the edge, a white see-through lay figure standing where she will stand; she flicks her hair and
+  the figure's arms turn from red to green as her hands go into her pockets.
 
-### B6. Raise your left arm, lock (f400-464)
+### B6. Match, hold and countdown (hold frame to capture, planned f402-513)
 
-- **Role / importance:** proof, **3** (the strongest frame, f440).
-- **Buys the match:** the viewer watches one instruction turn an arm from red to green.
-- **On-screen copy:** cue card "Raise your left arm" (amber dot), then at f440 "Perfect. Hold it" (green dot), both
-  real PoseMatcher strings; the score numerals.
-- **VO:** "It tells you what to change." (window f402-460).
-- **What moves:** f400 the card text is replaced in one frame. f404-428 the skeleton's left arm (screen left)
-  sweeps up in an arc (softLand 24 f, about 6 degrees past, settled by f434: the film's one visible spring);
-  f412-430 the right hand comes to the hip. As the arm passes, the guide's left upper arm and then forearm turn red,
-  amber, green. The score steps once per frame in shrinking steps and lands at f436 on the matcher's value for the
-  final skeleton (target about 93, like the RepoAssetsTest still; the number shown is whatever PoseMatcher returns).
-  f440 "Perfect. Hold it"; every limb green; the ring's arc closes to the score. f440-463 the lock frame holds, alive
-  with the skeleton's breathing sway (about 2 px) and the camera creep.
-- **Entry / exit:** continuous; into the countdown at f464.
-- **Handoff:** in-shot.
-- **Carried object:** the guide and the skeleton.
-- **Assets:** as B5; the lock frame is matched against `app/build/repo-assets/screen-3-camera.png`.
-- **Picture with the text covered:** the skeleton's arm sweeps up into the guide's raised arm, the arm turns red,
-  amber, green, and the ring closes in green.
-- **Precedent:** PL0319 (bring the problem-act instrument back in the solution colour): the stiff body from the hook
-  returns and is matched in green. PR-B17 (a counter decelerates into its final value).
+- **Role / importance:** proof, **3** (the strongest frame at the lock).
+- **On-screen copy:** "Perfect. Hold it", then the countdown 3, 2, 1, the score (all the app's).
+- **What moves (the app's behaviour, v1's HUD code):** the lock: every limb green, the ring green, its hold arc runs
+  700 ms; the "Perfect. Hold it" card crossfades in. At the countdown the banner is removed, each digit lands from 115%
+  (200 ms) and the last fades (100 ms). From the countdown the plate eases from 1x to 0.5x over 10 f (`timeRemap`): her
+  hold stretches while the app counts, so the real 3 s countdown completes inside her real hold. Film camera creeps
+  1.00 -> 1.04 and steps 2% on each digit. The 8 frames before the capture: nothing moves but the footage.
+- **Exit:** the app's capture flash (85% white, 280 ms decay).
+- **Picture with the text covered:** the woman, hands in her pockets, inside the all-green figure; big outlined
+  numerals count down; a white flash.
 
-### B7. Hold, shutter (f464-560)
+### B7. The photo (capture to f555, planned f513-555)
 
-- **Role / importance:** proof, 2.
-- **Buys hands-free:** the viewer sees the photo taken with nobody touching the phone.
-- **On-screen copy:** countdown "3", "2", "1" (Archivo Expanded Bold, white with an Ink outline, about 0.26 H,
-  centred at y 0.60, as the camera's countdown is drawn in `camera-hud.png`).
-- **VO:** "Hold the pose, and it takes the photo." (window f466-550).
-- **What moves:** f464 the cue card leaves upward, accelerating over 6 f, as "3" arrives from 1.5x (snapSettle
-  10 f) and creeps 1.00 -> 0.96. f496 "2" and f528 "1" replace it in one frame with the same arrival; the film
-  camera steps in 2% on each digit (a one-frame step and an 8 f tail). The skeleton holds with its breathing sway;
-  the ring holds green, its score moving by a point as a live match does. f552-559 nothing moves but the sway (half
-  a beat of silence). f560 the capture flash: full white for 2 frames.
-- **Entry / exit:** continuous; leaves through the flash.
-- **Handoff:** the flash becomes the next ground. Its white decays over 10 f into the lit studio paper instead of
-  back to black; under it the figure is the same Disco point at the same size and place, now a solid lay figure with
-  its contour and contact shadow: the photo has been taken.
-- **Carried object:** the figure.
-- **Assets:** the countdown is the app's real behaviour with the 3 s setting (chips Off, 2s, 3s, 5s, 10s); the white
-  flash is the app's capture flash.
-- **Picture with the text covered:** big outlined countdown numerals over the all-green guide and the still
-  skeleton, then a white flash.
+- **Role / importance:** proof, 2. **Buys the payoff.**
+- **What moves:** under the flash the plate's frame at the capture appears in **full colour**, frozen and clean (no
+  guide, no skeleton, no HUD: the app saves the photo without them). A slow push 1.00 -> 1.03 about her mid-hip.
+- **Exit:** hard cut at f555.
+- **Picture with the text covered:** a colour photo of a woman with her hands in her pockets on a pink paper backdrop
+  in a photo studio.
 
-### B8. The photo, then the name (f560-664)
+### B8. The name (f555-664)
 
-- **Role / importance:** cta, 1.
-- **Buys the name:** the viewer connects the figure they just watched with Poseit, free on Android.
-- **On-screen copy:** the wordmark "Poseit" (Archivo Expanded SemiBold, Ink, ink width 0.50 W, baseline y 0.62);
-  one line in two rows, "Free for Android." / "Works offline." (Archivo Regular 0.034 H, Graphite, baselines y 0.685
-  and 0.725), the repo's own line from `docs/images/social-preview.png`.
-- **VO:** "No account and no ads." (window f596-656).
-- **What moves:** f560-562 white; f562-572 the flash decays into the paper. f576-588 the figure relaxes on twos:
-  the pointing arm drops to its side, the hip hand stays, the feet settle, and it lands in `stand_hand_on_hip`, the
-  launcher icon's pose. f592-616 the camera pulls back (1.00 -> 0.42, softLand 24 f) to reveal the cove; the figure
-  stands about 0.24 H tall with its feet at y 0.50. f608 the wordmark lands below it from 1.3x and 6 px blur
-  (snapSettle 10 f). f616-630 the line resolves a word at a time (3 f apart, blur 8 -> 0). f630-664 resolved hold of
-  34 f (1.13 s), kept alive by a 0.5% camera creep.
-- **Entry:** out of the flash.
-- **Exit:** the film ends on the living hold. No fade to black.
-- **Handoff:** none; the end.
-- **Carried object:** the figure, now the icon's figure.
-- **Assets:** `stand_hand_on_hip` (the source of `app/src/main/res/drawable/ic_launcher_foreground.xml`); wordmark per
-  DESIGN.md. No disc around the figure: a disc closing in would read as an iris wipe, and the figure on the paper
-  is already the icon's content.
-- **Picture with the text covered:** a lone lay figure on grey seamless paper drops its pointing arm into a hand on
-  the hip; the camera pulls back and the figure stands small above the name.
-- **Precedent:** PL0455 (when the character is also the logo, turn it into its icon pose and shrink it before the
-  wordmark appears).
+- **Role / importance:** cta, 1. **Buys the name.**
+- **On-screen copy:** "Poseit"; "Free for Android." / "Works offline." (v1).
+- **What moves:** f555 hard cut to grey Studio paper: a solid lay figure in "Hands in pockets", unflipped, exactly
+  where she stood in the photo on f554 (same size and place), with its contact shadow. f555-576 a designed breath
+  (0.7 s, kept alive by a 0.4% creep): the colour has gone and the pose stands alone as a figure. f576-588 it relaxes
+  on twos into "Hand on hip", the launcher pose: one hand leaves its pocket for the hip. Then v1 unchanged: f600-624
+  pull back to the cove, f620 the wordmark lands, f628-645 the end line resolves a word at a time, resolved hold to
+  f664 (v1 measured 1.30 s).
+- **Exit:** the film ends on the living hold. No fade.
+- **Picture with the text covered:** a lone lay figure on grey seamless paper, hands in its pockets, takes one hand
+  out to its hip; the camera pulls back; the figure stands small above the name.
 
 ## 8. Seams
 
 | Seam | Frame | Last frame of A | First frame of B | Carried | Device |
 |---|---|---|---|---|---|
-| B1 -> B2 | 80 | Stiff skeleton, head mid-turn, head top y 0.33, feet y 0.93; black; camera 1.04, pushing in | Lay figure in the same stance, same place and size, on paper; camera 2.50, snapping back | The stiff silhouette | Hard cut on the downbeat (the punchline), carried object, ground flip, reversed camera (a scale cut: a different distance) |
-| B2 -> B3 | 112 | Frozen army, dolly just started | Same shot, everyone in Standing poses | The army | In-shot snap |
-| B3 -> B4 | 272 | Group crowd holding in the drop, camera drifting | Everyone in Disco point, camera cut 1.08 -> 1.18 | The army, the hero figure | In-shot unison snap plus a one-frame scale cut |
-| B4 -> B5 | 336 | Hero figure at guide size, mid-push at peak speed, on paper; frame marks at the frame edges | Same figure, pose, size and place, see-through on black; skeleton too close; push decelerating | The Disco point figure | Carried-object match cut, ground flip |
-| B5 -> B6 | 400 | Card "Your feet are cut off. Step back" | Card "Raise your left arm" | The card, the guide | Hard text replacement in the same card |
-| B6 -> B7 | 464 | Card "Perfect. Hold it" | Card leaving, "3" arriving | Guide and skeleton | In-shot |
-| B7 -> B8 | 560 | All-green guide, "1" creeping, skeleton still | White, decaying into paper with the same figure, solid | The figure | The capture flash becomes the next ground |
+| B1 -> B2 | 80 | Stiff skeleton at her body's frame, black, the camera at peak push speed | Her detected skeleton, same frame, on grey footage; the plate still zooming in (1.06 -> 1.00) | The figure | Carried object + same velocity; ground flip black -> footage; the groove's first kick |
+| B2 -> B3 | 144 | Her hands landing behind her head, skeleton on | c1: a man, fists on hips, the guide landing from 1.25x | The overlay (skeleton becomes guide) | Hard cut on the downbeat, on motion; similar body size and centre |
+| inside B3 | 160 ... 240 | Person N with their guide | Person N+1, the guide in a new pose at their body | The guide | One-frame pose change on the grid; the film camera's push carries across |
+| B3 -> B4 | 272 | The couple holding in the drop | 99 figures in Hands in pockets, scale cut | The nearer guide -> the hero figure | Hard cut on the unison hit after 0.8 s of silence; same frame for the hero (preferred) |
+| B4 -> B5 | 336 | Hero figure at the guide's frame, peak push speed, on paper | The same figure, see-through, over her in the live view; push decelerating | The figure | Carried-object match cut; paper -> a real paper backdrop |
+| B5 -> B6 | ~402 | Arms turning green | The lock: all green, ring green, hold arc | The guide | In-shot (the app's verdict) |
+| B6 -> B7 | ~513 | All-green guide, "1" fading, stillness | Flash decaying into the same frame in colour, overlays gone | Her | The app's capture flash becomes colour |
+| B7 -> B8 | 555 | The colour photo, push at 1.03 | A solid lay figure in her pose, same frame, on grey paper | The pose | Carried object (her pose becomes the figure); colour -> grey |
 
-## 9. Layout of the two worlds
+## 9. Layout
 
-**Studio camera (acts II and IV).** An 11 x 9 lattice of slots on the floor, seen from a high angle (about 20 degrees
-down). At the wide framing (f100-248): row 1 (the hero row) figures about 0.24 H tall with feet at y 0.76; row 10 about
-0.07 H at y 0.35; the cove at about y 0.29 with the wall above. Row 0 is cropped by the bottom edge. Row 1 shows about
-five figures across, cropped at both sides; rows 6 and up show all nine. Roughly 70-80 of the 99 are on screen at once,
-so the lattice reads as bigger than the frame.
+**Chorus framing (B2-B3).** Each 9:16 crop puts the body 0.55-0.85 H tall, feet no lower than 0.97 H, centred where
+the person stands (the crops are in the manifest). The guide is fitted to the body with the app's overlay transform
+(mid-hip and torso length from the detection at the key time), so the guide moves to each person and is never pinned.
+Upscale at most 1.78x (c4); everything else 1.0-1.56x.
 
-**Viewfinder HUD (acts I and III).** Rebuilt for a vertical feed at about 2.3x its phone size so it reads (G1), with
-the app's layout logic (ring at the right above shoulder height, cue card above the figure, countdown centred):
+**Live view HUD (B5-B6).** v1's layout and magnification (`theme.hud.k` = 1.95: cue text 0.04 H):
 
 | Element | Position and size |
 |---|---|
-| Guide | head top y 0.38, feet y 0.94, centred; the raised hand reaches about (0.20 W, 0.26 H) |
-| Score ring | centre (0.83 W, 0.33 H), diameter 0.19 W, stroke 12 px; white at 60% until a body is found, then the signal colour, the arc proportional to the score; numerals Archivo Expanded Bold tabular, 0.042 H, white |
-| Cue card | Sheet #F3F3F0, Medium radius (26 px), centred; one line y 0.165-0.232, two lines y 0.135-0.250; Archivo Regular 0.04 H, Ink; status dot 22 px in the signal colour |
-| Countdown | centred at (0.50, 0.60), about 0.26 H, outlined |
-| Thirds grid | white about 20%, 2 px |
+| Guide | the app's fitted 3:4 frame in the 9:16 scene (full width, 0.75 H, centred), adjusted by the solved overlay transform; head top about 0.21 H, feet about 0.79 H |
+| Score ring | v1 (0.83 W, 0.40 H). The softbox sits at the right edge, near white in the ramp: draw the ring on the app's 45% control scrim disc so the white numerals read. LIVE may move it up if it still fights the softbox. |
+| Cue card | top at 0.13 H, max width 0.84 W; PHOTOGRAPHER strings run longer ("Ask them to ..."), so plan for two lines (and check three) |
+| Countdown | centred at (0.50, 0.50), about 0.26 H, outlined |
+| Thirds grid | optional over footage (the app's setting); if drawn, 20% white, 2 px |
 | Safe zone | all text between y 0.13 and 0.80 |
 
 ## 10. Gates planned here
 
-- **G1 proof readable:** every UI text that must be read is at least 0.04 H: cue cards 0.04 H (77 px) on cards of
-  0.68-0.80 W ("Perfect. Hold it" about 0.68 W, "Raise your left arm" about 0.78 W, the two-line feet card about
-  0.78 W); score numerals 0.042 H; countdown 0.26 H; the pose name 0.045 H at about 0.55 W. The viewfinder fragment
-  is the whole frame and sits in its world (black live view, grid, grain). Judged by eye on `look/sheet.jpg` and
-  stills after rendering.
-- **G3 end card short:** the lockup is resolved at f630 and the film ends at f664: a 34 f (1.13 s) hold, inside
-  0.6-1.4 s. The last cut is hidden in the flash at f562, so the final shot is 102 f (15% of the film); the cta beat
-  is 104 f (16%). Both under 25%.
-- **G4 one hero per frame:** B1 skeleton plus question; B2-B3 the army as one mass with the hero figure as its focal
-  point; B4 the framed figure plus its name; B5-B7 guide and skeleton as one unit with at most two supporting
-  elements (card and ring; during the countdown the card leaves, so it is numeral, guide and ring); B8 the figure,
-  then figure, wordmark and line. No side-by-side panels anywhere.
-- G0, G2 and G5 are checked on the render (`look.py`); the flash is 2 white frames, inside G2's 3-frame allowance.
+- **G1 proof readable:** cue text 0.04 H on cards 0.5-0.84 W; score numerals 0.042 H; countdown 0.26 H; pose name
+  0.045 H at about 0.79 W. The live view is the whole frame, in a world (a real studio). By eye on the sheet.
+- **G2 no empty frame:** no flat run over 3 frames. The capture flash peaks at 85% white for 1-2 frames; the eighth
+  shots are 8 frames of moving footage.
+- **G3 end card short:** B8's last 89 frames are v1's frame for frame, so the end hold stays at v1's measured 1.30 s.
+  Final shot (f555 to the end) 109 f = 16% of the film; the cta beat 16%.
+- **G4 one hero per frame:** B2 the person and her skeleton as one unit; B3 one person and their guide (c3: the
+  selfie-taker's guide; c9: two guides as one couple); B4 the army as one mass with the framed hero; B5-B6 person,
+  guide and skeleton as one unit with the card and ring; B7 the photo; B8 the figure, then the lockup. No panels.
+- **G0, G2, G5** on the render with `look.py` (`--expect 22.13 --expect-audio`); `lint.mjs` reads HTML films, so G5
+  is checked by eye: no corner labels, counters, timecodes, progress bars, tracked caps or kickers.
 
 ## 11. Plan checks
 
-- **Chrome audit.** Every text on screen: the hook question (the film's one line in the viewer's voice), "Disco
-  point" (the product's pose name), three cue cards, the score and the countdown (product UI), "Poseit" (the logo,
-  once) and "Free for Android. Works offline." (the one line under it). No labels, counters, category names,
-  corner text, URL or button.
-- **Picture audit.** Every beat's "picture with the text covered" is a world with an object in it; none is a flat
-  colour or a card on a colour.
-- **Carrier audit.** The figure changes role, size or ground at every seam (section 8).
-- **Decided or reached for.**
-  - Shape: a joke and one case, because the audience's own question is the strongest hook and the case is the app's
-    real three-step flow.
-  - Ground: paper and black, because those are the app's only two surfaces.
-  - Type: Archivo in the app's roles, because it is the app's only family.
-  - Ending: the matched figure relaxes into the launcher pose, because the icon is a pose.
-  - Sound: a dry studio-disco groove whose hats are shutter clicks, because the film is about a camera and the
-    hero pose is Disco point.
-  - Transitions: two carried-figure cuts and one capture flash, because every ground change has a cause inside the
-    product (choosing a pose opens the camera, taking the photo ends it).
-- **Transformation chain?** The figure passes through several roles, the most over-used shape. It is kept because
-  each link is literally true of the app (the pose you pick becomes the guide, the photo is taken when you match it,
-  the icon is a pose), and nothing is a dot turning into a logo.
-- **Could it be another brand's film?** No: without drawn, posable figures and an icon that is one of them, the
-  chorus and the ending don't exist.
-- **Slide test.** No frame is a centred headline on a field; the only typed line shares the frame with the body it
-  describes.
+- **Chrome audit:** the hook question (the viewer's voice, never over a person), "Hands in pockets" (a pose name),
+  the app's cue cards, score and countdown (product UI), "Poseit" and its one line. Nothing else: no clip credits on
+  screen, no labels, no URL.
+- **Picture audit:** every beat's picture with the text covered is a world with a subject (real people in a real
+  place, or the lit studio); none is a card on a colour.
+- **Carrier audit:** the figure changes role, size or ground at every seam (section 8).
+- **Stock audit:** no names or captions on people; nobody shown as awkward (the freeze is the stick figure's); no
+  testimonial framing (no stars, quotes, smiles at the phone after the shot); the wordmark and end line never over a
+  person; no face crop; no other camera app or phone brand on screen; Mixkit Free License only, every clip muted.
+- **Decided or reached for:**
+  - Shape: a joke and a montage before one case, because the hook's question deserves a literal answer and the
+    montage is where real people show the library is real.
+  - Ground: grey footage, because the app allows no colour but match feedback; black and paper as in v1.
+  - Type and colour: the app's.
+  - Ending: the figure from the photo relaxes into the icon pose, because the icon is a pose.
+  - Sound: v1's studio-disco groove; the colour photo gets the warm chord.
+  - Transitions: carried figures, one hit after a drop, one flash, because each world change has a cause.
+- **Could it be another brand's film?** No: without drawn, posable figures that a matcher fits to real bodies, and an
+  icon that is one of them, the chorus, the pick and the ending do not exist.
+- **Slide test:** no frame is a headline on a field; the only typed lines share the frame with the figure they name.
 
 ## 12. Data and assets for the build
 
-- **Pose data (real):** a pose-core JVM test or task writes `promo/data/poses.json`: for each of the 99
-  `BuiltInPoses.all` templates its id, name, category, `frameAspect` and, per figure, the joints and the
-  `FigureShapes.build` primitives (capsules, circles, polygon) in isotropic units. The geometry is exported, not
-  re-implemented, so the film's figures are the app's figures.
-- **Live match (real if it runs):** the keyframed skeleton for B5-B7 (front-camera scene space) goes through the real
-  `PoseMatcher` frame by frame, writing `promo/data/match.json` (score, per-limb state, top hint). The film shows those
-  numbers, colours and hints. If the matcher can't be driven offline, the numbers are illustrative and NOTE.md says
-  so.
-- **Hero poses:** `fun_disco_point` (B4-B8, flipped for display), `stand_hand_on_hip` (B8, the launcher pose).
-- **Chorus poses, all 99, by category:**
-  - Standing: stand_hand_on_hip, stand_hands_in_pockets, stand_crossed_ankles, stand_collar_touch, stand_look_away,
-    stand_arms_crossed, stand_hand_in_hair, stand_over_shoulder, stand_power_pose, stand_sunglasses.
-  - Sitting: sit_crossed_legs, sit_elbows_on_knees, sit_one_knee_up, sit_side_saddle, sit_steps_sideways,
-    sit_hug_knees, sit_armchair_lounge, sit_chair_backwards, sit_ankle_on_knee, sit_high_perch.
-  - Leaning: lean_shoulder_wall, lean_foot_on_wall, lean_hand_on_wall, lean_railing_forward, lean_crossed_legs,
-    lean_door_frame, lean_pole_swing, lean_table_edge, lean_railing_back.
-  - Walking: walk_toward_camera, walk_across, walk_look_back, walk_kerb_step, walk_skip, walk_hat_hold, walk_pockets,
-    walk_twirl, walk_coffee_run, walk_jacket_shoulder.
-  - On the ground: floor_street_squat, floor_low_crouch, floor_one_knee, floor_cross_legged, floor_side_lie,
-    floor_feet_up, floor_lean_back, floor_overhead_lie, floor_sit_on_heels.
-  - Portrait: port_chin_rest, port_face_frame, port_hand_in_hair, port_over_shoulder, port_arms_crossed_smile,
-    port_chin_on_hand, port_dreamy_gaze, port_collar_adjust, port_shoulder_touch.
-  - Selfie: selfie_classic, selfie_peace, selfie_high_angle, selfie_hand_on_cheek, selfie_mirror,
-    selfie_mirror_two_hands, selfie_look_up, selfie_lean_in.
-  - Professional: pro_headshot, pro_arms_crossed, pro_blazer_pocket, pro_desk_edge, pro_open_palm, pro_table_lean,
-    pro_cuff_adjust, pro_folder_hold.
-  - Fun: fun_star_jump, fun_tuck_jump, fun_twirl, fun_superhero, fun_disco_point, fun_laugh_bend, fun_high_kick,
-    fun_peace_lean, fun_victory.
-  - Couple: couple_side_hug, couple_forehead_touch, couple_back_hug, couple_walk_hands, couple_piggyback, couple_dip,
-    couple_hold_hands_facing, couple_sit_lean, couple_walk_toward, couple_cheek_kiss.
-  - Group: group_arms_around, group_v_formation, group_jump, group_walk_line, group_sitting_row, group_levels,
-    group_back_to_back.
-- **Illustrative, declared in NOTE.md:** the stiff stance (B1-B2), the person's skeleton keyframes (B1, B5-B7), the
-  studio and its lattice, the HUD's 2.3x scale and vertical arrangement.
-- **Real strings:** "Your feet are cut off. Step back", "Raise your left arm", "Perfect. Hold it" (MatchHints.kt);
-  "Disco point" (FunPoses.kt); "Free for Android. Works offline." (social preview); VO phrasing from README.md and
-  OnboardingScreen.kt.
-- **Fonts:** the six static Archivo cuts in `app/src/main/res/font/`, copied with `app/src/main/assets/licenses/OFL-Archivo.txt`.
-- **Assumption to confirm with the user:** the link (github.com/mdhaarishussain/Poseit, releases/latest) travels in
-  the message with the video. If the film has to stand alone (an Instagram post), the end line can become "Download
-  it from GitHub", still one line and still no URL on screen.
+**The footage** (`footage/manifest.json`, `CREDITS.md`). Ten Mixkit clips (one alternate), all under the Mixkit Stock
+Video Free License. Nothing from Coverr (its licence bars evaluating AI models; every shot here is detected).
 
-## 13. Left out on purpose
+**Pipeline** (all outputs gitignored unless marked committed):
 
-The library screen and its filters and search, the pose editor, "Pose from a photo", photoshoot mode, the
-volume-key shutter, the raise-a-hand timer, grid, level and aspect options, lighting hints, the back-camera hints for
-the photographer, export and import, and the spoken guidance (the app speaks through Android TextToSpeech; we don't
-fake that voice). Each would be another beat of a feature tour. The film follows one person, one pose and one photo.
+1. **Fetch:** `curl -L -o public/footage/src/<clip>.mp4 <file>` for each clip the shots use (1080 files; the couple's
+   4K file).
+2. **Plates:** one film-ready file per shot, `public/footage/<shot>.mp4`: trimmed to the shot's source window plus
+   0.5 s handles, cropped to the manifest rect, scaled to 1080x1920, 30 fps by frame repetition, audio stripped:
+   `ffmpeg -ss <in-0.5> -t <dur+1> -i src/<clip>.mp4 -vf "crop=w:h:x:y,scale=1080:1920:flags=lanczos,fps=30" -an -c:v libx264 -crf 14 -pix_fmt yuv420p <shot>.mp4`.
+   The live plate also carries the time remap (step 6). Plate frame n is film frame `film[0] + n` (after the handle).
+3. **Detection:** `promo/.venv/bin/python scripts/detect.py public/footage/<shot>.mp4 -o public/footage/<shot>.landmarks.json`
+   (the app's lite model and live settings; `--num-poses 2` for c9). Landmarks are then in scene space: the plate is
+   the scene (9:16, photo orientation). The venv needs `libegl1` and `libgles2` on a fresh container. The landmark
+   files are derived data and may be committed (they are what the matcher read).
+4. **B2 data (WORLD):** `public/footage/b2-alive.json`, committed: `{ source, shot, from: 80, fps: 30, frames: [{ f, person: { joints, visibility } | null }] }`
+   in scene space, joints named as `figure/types.ts` JointName.
+5. **Chorus match (WORLD):** a pose-core JVM test (`pose-core/src/test/kotlin/com/poseit/app/tools/PromoChorusMatch.kt`)
+   reads each chorus shot's key-frame detection and runs the app's `PoseMatcher.match` against every single-person
+   template (couple templates for c9), each mapped into the 9:16 scene with `SceneMapping` and an `OverlayTransform`
+   solved to the person (mid-hip and torso length), `mirroredView = false`, `FramingAudience.PHOTOGRAPHER`. It writes
+   `public/footage/chorus.json`, committed: `{ source, shots: [{ id, film, clip, keyFrame, poseId, score, partScores, transform: { scale, offsetX, offsetY } | [per figure], ranking: [top 5 { poseId, score }] }] }`.
+   WORLD applies the manifest snap rule and records any substitution in NOTE.md.
+6. **Live match (LIVE):** `scripts/export-live.ts` builds `public/live.json` from the live plate's detection (no more
+   keyframed performer) and the guide (`stand_hands_in_pockets` mapped with `SceneMapping` and the solved
+   `OverlayTransform`); `PromoMatchExport.kt` runs PoseMatcher, HintStabilizer and CaptureCoach with
+   `mirroredView = false`, `FramingAudience.PHOTOGRAPHER` and the app's coach defaults, writing `public/match.json`
+   (committed; v1 schema plus `camera`, `transform`, `remap`). Order: 1x plate -> match -> set the ramp from the
+   measured hold frame -> retimed plate -> detect -> match again -> check the acceptance list in the manifest.
+7. **Sound:** `npm run audio` as before; `src/events.ts` derives every cue from the sources above.
+
+**Shared code contracts.**
+- `src/footage/manifest.ts` (committed by the director): typed `MANIFEST`, `clipById`, `shotById`,
+  `sourceTimeAt(shot, frame)`, `plateFrameAt(shot, frame)`. Read-only for both builders; changes go through the
+  manifest JSON.
+- `theme.footage` (committed by the director): the ramp's two inks, the guide's chorus alpha, the landing scale, the
+  photo push.
+- `src/scenes/shots.ts`: LIVE owns `GUIDE_FRAME` and `guideScreenFrame(f)` (now the back-camera, unflipped guide from
+  fitFrame plus the transform) and adds `PHOTO_FIGURE_AT_CUT` (her figure's screen frame on f554 with the photo push);
+  WORLD owns `HOOK` (the new push) and adds `B2_BODY_AT_CUT`; `HERO_AT_CUT` follows `GUIDE_FRAME`.
+
+**Real, rebuilt, illustrative (to record in NOTE.md).** Real: the footage (stock models), every detection (the app's
+lite model), every chorus pose choice and every act IV number, colour, card, hold, countdown and capture frame (the
+app's code), the poses and figure geometry, the strings, the fonts. Rebuilt: the HUD (v1). Illustrative: the stick
+figure's stiff stance (hook), the studio, the grade, the 0.5x stretch of the held pose (the verdicts are computed on
+the stretched frames), the guide's placement (a drag and pinch any user could make), and the people never used the
+app: the overlays show what the app would draw on these frames.
+
+**Real strings.** "Hands in pockets", "Hand on hip" (StandingPoses); "Perfect. Hold it" and whatever hint the
+stabiliser shows (MatchHints.kt, PHOTOGRAPHER phrasing); "Free for Android. Works offline." (social preview); the
+hook question (the viewer's voice, v1).
+
+## 13. Build split
+
+Two builders work in parallel in the same tree. Ownership is by file; shared files take small, local edits only,
+and each section of a shared file has one owner.
+
+**BUILDER LIVE: act IV and V (B5-B7, f336-555) and the live-match pipeline.**
+- Owns: `src/scenes/Viewfinder.tsx` (the live view, HUD, flash and the colour photo up to f555),
+  `src/scenes/viewfinder/*` (rig, match reader; `performer.ts` is retired), `src/ui/Hud.tsx`, `scripts/export-live.ts`,
+  `scripts/check-live.ts`, `scripts/detect.py`, `app/src/test/java/com/poseit/app/promo/PromoMatchExport.kt`,
+  `public/live.json`, `public/match.json`, the `b5-live` plate and its landmarks.
+- Acceptance: the manifest's `b5-live.acceptance` list; capture in f505-531; the lock frame is the hero still.
+- Exposes in `shots.ts`: `GUIDE_FRAME`, `guideScreenFrame(f)`, `PHOTO_FIGURE_AT_CUT`.
+- `scripts/detect.py` is LIVE's to change; WORLD calls it as is (read-only) for its own plates.
+
+**BUILDER WORLD: everything else (B1-B4, B8) and the chorus pipeline.**
+- Owns: `src/scenes/Hook.tsx`, `src/scenes/StudioShot.tsx` (now the pick only, from f272), `src/scenes/studio/*`,
+  new `src/scenes/People.tsx` and `src/scenes/people/*` (B2 and the chorus), `src/scenes/TheName.tsx`, `src/world/*`
+  (a new footage layer with the Studio ramp goes here: `src/world/Footage.tsx`, which LIVE also uses read-only),
+  `scripts/footage.mjs` (fetch and plates from the manifest, if scripted), `pose-core/src/test/kotlin/com/poseit/app/tools/PromoChorusMatch.kt`,
+  `public/footage/b2-alive.json`, `public/footage/chorus.json`, the plates for `b2-alive` and `c1`-`c9`.
+- Exposes in `shots.ts`: `HOOK`, `B2_BODY_AT_CUT`, `HERO_AT_CUT`.
+
+**Shared** (small local edits, owner per section):
+- `src/beats.ts`, `src/scenes/timing.ts` (director's plan; WORLD owns `HOOK_TIMING`, `STUDIO_TIMING`,
+  `PEOPLE_TIMING`, `NAME_TIMING`; LIVE owns `LIVE_PLAN`, which the real `MATCH_EVENTS` supersede).
+- `src/scenes/shots.ts` (sections as above).
+- `src/Promo.tsx` (WORLD swaps the act II placeholder for `People` when it lands; LIVE does not edit it).
+- `src/events.ts` (WORLD; act IV events already derive from `MATCH_EVENTS`, so LIVE edits only if it adds an event).
+- `src/theme.ts` (no edits expected; the director added `theme.footage`).
+- `src/footage/*` (director; read-only for both).
+- `src/audio/voiceover.ts`, `scripts/gen-audio.mjs`, `sound-plan.md` (WORLD, after LIVE's act IV frames settle).
+- `NOTE.md` (both append their own sections).
+
+**Placeholders in the tree now:** `Promo.tsx` already assembles the five v2 acts; act II (f80-272) renders v1's studio
+chorus until `People.tsx` exists; `StudioShot` still shows Disco point and `Viewfinder` the v1 performer until each
+builder replaces them. `npm run check` passes on this state.
+
+## 14. Left out on purpose
+
+- **The v1 studio chorus and "everyone freezes" joke** (B2-B3): replaced by real people; the studio stays for the one
+  beat where all 99 poses matter.
+- **Pose names and scores in the chorus:** unreadable at 8-16 frames, and the one name is saved for the answer.
+- **Coverr clips**, including the only clip with a phone photographer and a full body: the licence's ban on evaluating
+  AI models.
+- **The phone-photographer cutaways and reaction shots:** another camera app's interface, branded phones, and a
+  smiling-at-the-photo shot would read as an endorsement.
+- **Anyone shown as awkward** (the "unsure" clip): the stick figure carries the freeze.
+- **Keying the green screens onto paper:** the ramp already turns them into a grey seamless.
+- **Slow motion of real movement:** interpolating a hair flick tears; only the near-still hold is stretched.
+- **A group of three or more:** no free clip frames a group in 9:16.
+- **Feature tour** (library filters, editor, pose from a photo, photoshoot mode, voice coaching, settings): one
+  question, one pose, one photo.

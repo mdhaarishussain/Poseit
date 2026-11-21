@@ -1,9 +1,69 @@
 # Poseit promo: sound plan
 
+**v2:** the deltas for the real-people film are in the next section; the rest of this file is v1 as built.
+
 Film: 664 frames at 30 fps (22.13 s), see `STORYBOARD.md`. All audio is synthesized in Node by our own scripts
 (deterministic, seeded, 48 kHz 16-bit WAV), because there is no ElevenLabs key in this session. The voice-over is
 written (`vo.txt`) but not voiced: no fake or placeholder voice goes into the mix. When a key arrives, the VO drops
 into the windows below and the music is ducked under it; the picture does not move.
+
+## v2 deltas (STORYBOARD.md v2: real people, the app's graphics on top)
+
+Same film length (664 f), same grid (112.5 BPM, bar lines f16 + 64n), same kit, same mix targets. The sound is still
+placed from `src/events.ts`, so most cues move by themselves once the scenes and `match.json` change; this list says
+what moves, what goes and what is new. Everything below "As built" is v1 and stays the reference for the timbres.
+
+**Unchanged:** room tone from f0; the hook's silence and fidget (f0-62); the f80 cut with the groove's first kick and
+the whoosh peaking on it; the drop f248-272 (music out, the reversed swell); hit 1 on the f272 unison; the frame-mark
+pop at f288 and the 4 dB dip while the pose name is read (f288-310); the push whoosh into f336; the coaching bed 6 dB
+down; the card tick; the countdown beep (the app's TONE_PROP_BEEP at D6); the 8 f of stillness before the capture;
+hit 3, the shutter, as the loudest SFX; the relax's wooden joint ticks on twos (f576-588); no sound on the wordmark.
+
+**Moves:**
+- The hook's push whoosh now has a picture under it: the camera rushes into the stiff body f70-80. Its peak stays on
+  the f80 cut. The words leave silently at f62-70.
+- Chorus snaps (one shutter-click family): v1 f112, 128, 144, 160 (beats), 176, 184, 192, 200, 208 (eighths), 224
+  (couple), 240 (group) become v2 **f144, 160, 176, 192** (beats), **208, 216, 224, 232** (eighths) and **240** (the
+  couple: a double click). There is no f112 or f128 snap: f80-144 is the first real person, carried by the groove
+  alone. The clap still joins on f144 (now with the first guide) and the 16th tick layer with the eighth snaps
+  (f208-240); the bass climb follows the snaps.
+- Act IV cues come from the new `match.json` on the footage: the card tick on each displayed card, **hit 2** on the
+  app's hold frame (planned f402, v1 f443), the beeps on the digits (planned f423, 453, 483, v1 f464, 494, 524), the
+  stillness on capture - 8 and **hit 3** on the capture (planned f513, v1 f554; it must land in f505-531). The
+  countdown build keeps following the digits, so it starts about 40 f earlier.
+- **The final chord moves to the colour.** v1 struck it at f600 with the pull back. In v2 the first colour frame of the
+  film arrives as the capture flash decays (capture + 8, planned f521), so the Am(add9) blooms there, over the photo,
+  and rings through the f555 cut to paper. A soft low A re-strike under the pull back (f600) keeps the name off a dying
+  tail. The music stays muted from capture - 8 until the chord.
+- Voice-over windows (`vo.txt`, five lines; `src/audio/voiceover.ts`): line 1 f150-222 (chorus), line 2 f292-310,
+  line 3 f344-400 (coaching), line 4 f426-505 (countdown, silent by capture - 8), line 5 f590-650.
+
+**Goes:**
+- The chorus ripple ticks (the lattice's three-rows-per-frame ripple): the chorus is now one person per shot.
+- The "Group" triple click (no group shot; if the couple falls back to a single, f240 is a single click).
+
+**New:**
+- **Footage is muted.** Mixkit clips can carry an audio track; every plate is prepared without audio and every
+  OffthreadVideo is muted. The film's sound is still entirely our own synthesis.
+- An optional dry fabric swish under her arm move in B2 (f88-144, peak about f116), at -20 dB or lower, only if the
+  groove leaves room. No sound for the guides landing beyond the shutter-click family.
+- **Hits stay three:** the unison (f272), the lock (the app's hold frame) and the shutter (the capture). The colour
+  bloom is the chord, not a fourth hit.
+
+**Silences that move:** the stillness before the shutter moves with the capture (planned f505-513). The drop does not
+move (f248-272).
+
+| v2 section | Frames | Music |
+|---|---|---|
+| Hook | 0-80 | Room tone; the whoosh into f80 |
+| The first person | 80-144 | Groove A from the f80 kick: kick, bass, shutter-click hats |
+| Chorus | 144-248 | Clap joins f144; snaps on every cut; 16th ticks and the bass climb on f208-240 |
+| Drop | 248-272 | Music out, the reversed swell |
+| Unison, pick, push | 272-336 | Groove B; dip under the name; whoosh into f336 |
+| Coaching | 336-hold | Bed 6 dB down, no kick or clap |
+| Hold and countdown | hold-capture | Build on the app's clock; out at capture - 8 |
+| Shutter and colour | capture-555 | The shutter, then the chord blooming with the colour |
+| The name | 555-664 | The chord rings; low A re-strike at f600; room tone to the end |
 
 ## As built
 

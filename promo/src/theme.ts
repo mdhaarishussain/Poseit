@@ -12,6 +12,7 @@
  *   theme.spring  Remotion spring() configs: `land` (no overshoot) and `theOne` (the film's single spring)
  *   theme.dur     default durations in frames (motionmaxxing motion.md R1.1 medians)
  *   theme.signal  forScore(score 0..1, onDark): the app's own per-limb colour ramp (Studio.forScore)
+ *   theme.footage v2: the Studio ramp the stock footage is printed in until the shutter, the chorus guide, the photo
  *
  * Eases. The shapes are the measured eases of motionmaxxing's motion.md (Apache-2.0, Tejas Makwana): landing
  * decelerates with most travel in the first 4-8 frames, leaving accelerates and ends at peak speed. Re-written here
@@ -230,6 +231,24 @@ export const theme = {
     ctaEnter: 6,
   },
   signal: { forScore, mixOklab },
+  /**
+   * v2 footage (STORYBOARD.md v2, footage/manifest.json). Until the shutter every plate is printed in the Studio ramp:
+   * Rec.709 luma (after the shot's `trim`) mapped from `ramp.shadow` (black point) to `ramp.highlight` (white point)
+   * with a gentle S (`ramp.contrast`), saturation 0. Colour appears only as match feedback (act IV) and in the
+   * captured photo (B7). No vignette, no glow.
+   */
+  footage: {
+    ramp: { shadow: studio.ink, highlight: studio.sheet, contrast: 1.06, saturation: 0 },
+    /** the chorus guides (B3): Mannequin fill at this alpha with the usual contour; act IV keeps hud.guideAlpha */
+    chorusGuideAlpha: 0.62,
+    /** a chorus guide lands from this scale about the person's mid-hip (softLand 5 f on beats, 4 f on eighths) */
+    guideLandFrom: 1.25,
+    guideLandAlpha: 0.9,
+    /** the colour photo's slow push (B7) */
+    photoPush: [1, 1.03] as [number, number],
+    /** the chorus film camera's push across f144-248 */
+    chorusPush: [1, 1.08] as [number, number],
+  },
   /** Remotion's own colour interpolation, re-exported so scenes don't import it ad hoc. */
   interpolateColors,
 } as const;

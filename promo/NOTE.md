@@ -3,7 +3,25 @@
 The plan is in `STORYBOARD.md`, the sound in `sound-plan.md` and the voice-over script in `vo.txt`. This file says
 what is built, what is real and what is illustrative, and records what was checked. It grows with the film.
 
-## Status: picture and sound built; the voice waits for a key
+## Status v2: re-directed for real people (boards done, build next)
+
+`STORYBOARD.md` is now v2: real stock footage of people is the subject and the app's graphics are the overlays.
+`footage/manifest.json` lists every clip, crop, in-point, time remap and planned pose; `CREDITS.md` credits the clips.
+`src/beats.ts`, `src/scenes/timing.ts` and `src/Promo.tsx` already follow the v2 acts, with v1 scenes standing in until
+the two builders replace them (STORYBOARD.md section 13 has the split). Everything below this section describes v1 as
+built and stays true for the parts v2 keeps (the hook, the studio, the HUD, the end card, the sound engine).
+
+Map additions for v2:
+
+| Path | What it is |
+|---|---|
+| `footage/catalogue.md`, `catalogue.json` | The scout's checked catalogue of 56 stock clips: licences, detection runs, holds, verdicts. |
+| `footage/manifest.json` | The clips and shots the v2 film uses (source, page, file URL, licence, in/out, rate or remap, 9:16 crop, grade, pose plan, alternates). |
+| `scripts/detect.py` | Runs the app's own pose model (lite by default) on a video with the app's live settings; per-frame landmarks and a summary. Needs `promo/.venv` (MediaPipe) and the system `libegl1` and `libgles2`. |
+| `src/footage/manifest.ts` | Typed reader of the manifest: clips, shots, source time and plate frame for a film frame. |
+| `CREDITS.md` | Every clip with its page and licence; the people are stock models who endorse nothing. |
+
+## Status v1: picture and sound built; the voice waits for a key
 
 Every beat of the storyboard is built in `src/scenes/` and assembled in `Promo` (664 f, 22.13 s, 1080 x 1920). The act
 III numbers, colours, cards, hold and countdown are the app's own verdicts: the app's PoseMatcher, HintStabilizer and
