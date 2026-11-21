@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import android.view.Window
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,9 +43,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -63,7 +66,9 @@ import com.poseit.app.input.HardwareKeys
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.theme.LightSystemBarIcons
+import com.poseit.app.ui.theme.Space
 import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -76,7 +81,6 @@ import kotlin.math.abs
  */
 @Composable
 fun CameraScreen(initialPoseId: String?, onBack: () -> Unit, onOpenGallery: () -> Unit, initialMirrored: Boolean = false) {
-    CameraWindowEffects()
     // Sheets and dialogs opened from the camera sit over the black surround: give their windows white bar icons.
     LightSystemBarIcons { CameraScreenContent(initialPoseId, onBack, onOpenGallery, initialMirrored) }
 }
@@ -86,9 +90,11 @@ private fun CameraScreenContent(initialPoseId: String?, onBack: () -> Unit, onOp
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(Studio.LiveView),
     ) {
         CameraPermissionGate(onBack = onBack) {
+            // Only once the black camera UI shows: the permission rationale is on light paper and keeps dark icons.
+            CameraWindowEffects()
             val context = LocalContext.current
             val vm: CameraViewModel = viewModel(
                 factory = remember(initialPoseId, initialMirrored) { CameraViewModel.factory(context, initialPoseId, initialMirrored) },
@@ -220,9 +226,10 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
     LaunchedEffect(vm) {
         vm.events.collect { event ->
             when (event) {
+                // With the countdown, the camera's one orchestrated moment: a crisp white flash that decays fast.
                 CameraEvent.Flash -> launch {
                     flashAlpha.snapTo(0.85f)
-                    flashAlpha.animateTo(0f, tween(durationMillis = 320))
+                    flashAlpha.animateTo(0f, tween(durationMillis = 280, easing = LinearOutSlowInEasing))
                 }
                 is CameraEvent.PhotoSaved -> showMessage("Saved to Pictures/Poseit", "View") { currentOpenGallery() }
                 is CameraEvent.Message -> showMessage(event.text)
@@ -316,7 +323,7 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                     Modifier
                         .fillMaxSize()
                         .graphicsLayer { alpha = flashAlpha.value }
-                        .background(Color.White),
+                        .background(Studio.Mannequin),
                 )
             }
 
@@ -328,9 +335,11 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                     // Makes the whole panel a hit target (without consuming anything), so touches in its gaps and
                     // padding don't fall through to the preview below (tap-to-focus, dragging the guide).
                     .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }
-                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.55f), Color.Black.copy(alpha = 0.75f))))
+                    // Flat black at 45%: black over the surround, a translucent control bar where it overlaps the
+                    // preview on short screens.
+                    .background(Studio.ControlScrim)
                     .navigationBarsPadding()
-                    .padding(top = 12.dp),
+                    .padding(top = Space.m),
             ) {
                 PoseStrip(
                     poses = stripPoses,
@@ -354,9 +363,9 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                 snackbar,
                 Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = controlsHeight + 8.dp)
+                    .padding(bottom = controlsHeight + Space.s)
                     .widthIn(max = 560.dp),
-            )
+            ) { data -> CueSnackbar(data) }
         }
     }
 
@@ -427,10 +436,11 @@ private fun PreviewHud(
     Box(
         Modifier
             .fillMaxSize()
-            .padding(10.dp),
+            .padding(Space.m),
     ) {
         when {
             session != null && session.isPhotoshoot -> ShotCounter(session, vm::stopSession, Modifier.align(Alignment.TopStart))
+            // In the corner, clear of the guide figure; the score badge shows a warning glyph too.
             ui.detectorError != null && ui.hasPose -> DetectorNotice(Modifier.align(Alignment.TopStart))
         }
         if (ui.hasPose) {
@@ -442,27 +452,25 @@ private fun PreviewHud(
             onClick = onOpenTips,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(horizontal = 66.dp),
+                .padding(horizontal = ScoreBadgeSize + Space.s),
         )
         Column(
             Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 72.dp, start = 4.dp, end = 4.dp),
+                .padding(top = ScoreBadgeSize + Space.l),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(Space.s),
         ) {
             if (ui.hasPose && countdown == null) HintBanner(coaching.hint)
-            LightingChip(
-                hint = coaching.lighting.takeIf { countdown == null },
-                modifier = Modifier.padding(top = 6.dp),
-            )
+            LightingChip(hint = coaching.lighting.takeIf { countdown == null })
             if (storageBlocked) {
                 // Persistent, so kept clear of the ToolRail on the right edge (the hint banner above may overlap
                 // it briefly; this notice stays up for as long as storage is denied).
                 CameraErrorNotice(
                     STORAGE_BLOCKED_NOTICE,
                     Modifier
-                        .padding(top = 6.dp)
-                        .padding(horizontal = 50.dp)
+                        .padding(horizontal = RoundControlSize + Space.s)
+                        .clip(StudioShapes.Medium)
                         .clickable(onClickLabel = "Allow storage access", onClick = onAllowStorage),
                 )
             }
@@ -517,6 +525,21 @@ private suspend fun View.awaitLayout(targetAspect: Float) {
             withFrameNanos { }
         }
     }
+}
+
+/** Messages over the camera use the cue-card style: Ink on a Sheet card, legible against the black surround. */
+@Composable
+private fun CueSnackbar(data: SnackbarData) {
+    Snackbar(
+        snackbarData = data,
+        modifier = Modifier.padding(horizontal = Space.m),
+        shape = StudioShapes.Medium,
+        containerColor = Studio.Sheet,
+        contentColor = Studio.Ink,
+        actionColor = Studio.Ink,
+        actionContentColor = Studio.Ink,
+        dismissActionContentColor = Studio.Ink,
+    )
 }
 
 /** Favourites first, then the strip category; the current pose is always included. */

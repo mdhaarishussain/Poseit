@@ -12,32 +12,21 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -45,18 +34,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.components.PrimaryButton
+import com.poseit.app.ui.components.StudioTopBar
+import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioType
 
 private const val PREFS = "poseit_camera_permissions"
 
@@ -162,6 +154,10 @@ internal fun CameraPermissionGate(onBack: () -> Unit, content: @Composable () ->
     }
 }
 
+/**
+ * Why Poseit needs the camera, on the light Studio paper: a left-aligned Display heading, one paragraph, and the
+ * one action at the bottom within thumb reach ("Allow camera", or "Open settings" after a permanent denial).
+ */
 @Composable
 private fun PermissionRationale(
     permanentlyDenied: Boolean,
@@ -169,74 +165,59 @@ private fun PermissionRationale(
     onOpenSettings: () -> Unit,
     onBack: () -> Unit,
 ) {
-    Box(
+    Column(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(PoseitColors.Background, Color.Black)))
-            .windowInsetsPadding(WindowInsets.safeDrawing),
+            .background(Studio.Paper)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)),
     ) {
-        IconButton(onClick = onBack, modifier = Modifier.padding(4.dp)) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+        StudioTopBar(title = "", onBack = onBack)
+        Column(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Space.gutter)
+                .padding(top = Space.xl),
+        ) {
+            Text(
+                "Let Poseit use the camera",
+                style = StudioType.display,
+                color = Studio.Ink,
+                modifier = Modifier
+                    .widthIn(max = 560.dp)
+                    .semantics { heading() },
+            )
+            Spacer(Modifier.height(Space.l))
+            Text(
+                "The camera shows the pose guide over the live picture and checks your pose on your phone. " +
+                    "The picture never leaves your phone, and Poseit works offline.",
+                style = StudioType.body,
+                color = Studio.Ink,
+                modifier = Modifier.widthIn(max = 560.dp),
+            )
+            if (permanentlyDenied) {
+                Spacer(Modifier.height(Space.l))
+                Text(
+                    "Camera access is turned off for Poseit. Turn it on in the app settings under Permissions.",
+                    style = StudioType.bodyStrong,
+                    color = Studio.Ink,
+                    modifier = Modifier.widthIn(max = 560.dp),
+                )
+            }
         }
         Column(
             Modifier
-                .align(Alignment.Center)
-                .widthIn(max = 420.dp)
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 32.dp, vertical = 56.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+                .padding(horizontal = Space.gutter, vertical = Space.l),
         ) {
-            Box(
-                Modifier
-                    .size(96.dp)
-                    .background(PoseitColors.Violet.copy(alpha = 0.18f), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    Icons.Filled.PhotoCamera,
-                    contentDescription = null,
-                    tint = PoseitColors.Violet,
-                    modifier = Modifier.size(48.dp),
-                )
-            }
-            Spacer(Modifier.height(24.dp))
-            Text(
-                "Let Poseit use the camera",
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                "The camera shows the pose guide over the live picture and checks your pose on the phone. " +
-                    "The camera picture never leaves your phone – Poseit works offline.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = PoseitColors.OnSurfaceMuted,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(32.dp))
             if (permanentlyDenied) {
-                Text(
-                    "Camera access is turned off for Poseit. Turn it on in the app settings under Permissions.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PoseitColors.Amber,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(Modifier.height(16.dp))
-                Button(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Filled.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.size(8.dp))
-                    Text("Open settings")
-                }
+                PrimaryButton("Open settings", onClick = onOpenSettings, modifier = Modifier.fillMaxWidth())
             } else {
-                Button(onClick = onAllow, modifier = Modifier.fillMaxWidth()) {
-                    Text("Allow camera")
-                }
+                PrimaryButton("Allow camera", onClick = onAllow, modifier = Modifier.fillMaxWidth())
             }
-            Spacer(Modifier.height(8.dp))
-            TextButton(onClick = onBack) { Text("Not now") }
+            Spacer(Modifier.height(Space.s))
+            TertiaryButton("Not now", onClick = onBack, modifier = Modifier.fillMaxWidth())
         }
     }
 }
