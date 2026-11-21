@@ -2,6 +2,8 @@ package com.poseit.app.ui.nav
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,32 +33,43 @@ object Routes {
     fun editor(id: String?) = if (id == null) "editor" else "editor?poseId=${Uri.encode(id)}"
 }
 
+/**
+ * Runs [block] only while [entry] is the top of the back stack. During the NavHost cross-fade the screen that is
+ * leaving (or being covered) stays composed and keeps receiving taps; without this guard a quick second tap on a
+ * back arrow pops the start destination (blank screen) and a second tap on a card or sheet option pushes the
+ * screen twice. Unlike a RESUMED-lifecycle check it never drops an event-driven callback (a save finishing while
+ * the app is in the background, a deleted pose closing its detail screen).
+ */
+private inline fun NavHostController.ifCurrent(entry: NavBackStackEntry, block: NavHostController.() -> Unit) {
+    if (currentBackStackEntry?.id == entry.id) block()
+}
+
 @Composable
 fun PoseitNavHost(startOnboarding: Boolean) {
     val nav = rememberNavController()
     NavHost(navController = nav, startDestination = if (startOnboarding) Routes.ONBOARDING else Routes.LIBRARY) {
-        composable(Routes.ONBOARDING) {
+        composable(Routes.ONBOARDING) { entry ->
             OnboardingScreen(onDone = {
-                nav.navigate(Routes.LIBRARY) { popUpTo(Routes.ONBOARDING) { inclusive = true } }
+                nav.ifCurrent(entry) { navigate(Routes.LIBRARY) { popUpTo(Routes.ONBOARDING) { inclusive = true } } }
             })
         }
-        composable(Routes.LIBRARY) {
+        composable(Routes.LIBRARY) { entry ->
             LibraryScreen(
-                onOpenPose = { nav.navigate(Routes.detail(it)) },
-                onOpenCamera = { nav.navigate(Routes.camera(it)) },
-                onOpenGallery = { nav.navigate(Routes.GALLERY) },
-                onCreateFromPhoto = { nav.navigate(Routes.CREATE) },
-                onOpenEditor = { nav.navigate(Routes.editor(it)) },
-                onOpenSettings = { nav.navigate(Routes.SETTINGS) },
+                onOpenPose = { id -> nav.ifCurrent(entry) { navigate(Routes.detail(id)) } },
+                onOpenCamera = { id -> nav.ifCurrent(entry) { navigate(Routes.camera(id)) } },
+                onOpenGallery = { nav.ifCurrent(entry) { navigate(Routes.GALLERY) } },
+                onCreateFromPhoto = { nav.ifCurrent(entry) { navigate(Routes.CREATE) } },
+                onOpenEditor = { id -> nav.ifCurrent(entry) { navigate(Routes.editor(id)) } },
+                onOpenSettings = { nav.ifCurrent(entry) { navigate(Routes.SETTINGS) } },
             )
         }
         composable(Routes.DETAIL, arguments = listOf(navArgument("poseId") { type = NavType.StringType })) { entry ->
             val id = entry.arguments?.getString("poseId").orEmpty()
             PoseDetailScreen(
                 poseId = id,
-                onBack = { nav.popBackStack() },
-                onTryPose = { nav.navigate(Routes.camera(it)) },
-                onEdit = { nav.navigate(Routes.editor(it)) },
+                onBack = { nav.ifCurrent(entry) { popBackStack() } },
+                onTryPose = { poseId -> nav.ifCurrent(entry) { navigate(Routes.camera(poseId)) } },
+                onEdit = { poseId -> nav.ifCurrent(entry) { navigate(Routes.editor(poseId)) } },
             )
         }
         composable(
@@ -65,17 +78,17 @@ fun PoseitNavHost(startOnboarding: Boolean) {
         ) { entry ->
             CameraScreen(
                 initialPoseId = entry.arguments?.getString("poseId"),
-                onBack = { nav.popBackStack() },
-                onOpenGallery = { nav.navigate(Routes.GALLERY) },
+                onBack = { nav.ifCurrent(entry) { popBackStack() } },
+                onOpenGallery = { nav.ifCurrent(entry) { navigate(Routes.GALLERY) } },
             )
         }
-        composable(Routes.GALLERY) {
-            GalleryScreen(onBack = { nav.popBackStack() })
+        composable(Routes.GALLERY) { entry ->
+            GalleryScreen(onBack = { nav.ifCurrent(entry) { popBackStack() } })
         }
-        composable(Routes.CREATE) {
+        composable(Routes.CREATE) { entry ->
             CreateFromPhotoScreen(
-                onBack = { nav.popBackStack() },
-                onSaved = { id -> nav.navigate(Routes.detail(id)) { popUpTo(Routes.LIBRARY) } },
+                onBack = { nav.ifCurrent(entry) { popBackStack() } },
+                onSaved = { id -> nav.ifCurrent(entry) { navigate(Routes.detail(id)) { popUpTo(Routes.LIBRARY) } } },
             )
         }
         composable(
@@ -84,12 +97,12 @@ fun PoseitNavHost(startOnboarding: Boolean) {
         ) { entry ->
             PoseEditorScreen(
                 basePoseId = entry.arguments?.getString("poseId"),
-                onBack = { nav.popBackStack() },
-                onSaved = { id -> nav.navigate(Routes.detail(id)) { popUpTo(Routes.LIBRARY) } },
+                onBack = { nav.ifCurrent(entry) { popBackStack() } },
+                onSaved = { id -> nav.ifCurrent(entry) { navigate(Routes.detail(id)) { popUpTo(Routes.LIBRARY) } } },
             )
         }
-        composable(Routes.SETTINGS) {
-            SettingsScreen(onBack = { nav.popBackStack() })
+        composable(Routes.SETTINGS) { entry ->
+            SettingsScreen(onBack = { nav.ifCurrent(entry) { popBackStack() } })
         }
     }
 }

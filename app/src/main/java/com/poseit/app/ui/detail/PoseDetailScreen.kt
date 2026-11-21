@@ -42,7 +42,6 @@ import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.StayCurrentLandscape
 import androidx.compose.material.icons.filled.StayCurrentPortrait
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
@@ -575,8 +574,14 @@ private fun CameraSetupCard(camera: CameraAdvice) {
             SetupDivider()
             SetupRow(Icons.Filled.CropFree, PoseitColors.Amber, camera.shot.label, shotAdvice(camera.shot))
             SetupDivider()
+            // The camera is portrait-only: wide (landscape-frame) poses are letterboxed into the portrait scene.
             if (camera.landscape) {
-                SetupRow(Icons.Filled.StayCurrentLandscape, PoseitColors.Coral, "Landscape", "Turn the phone sideways.")
+                SetupRow(
+                    Icons.Filled.StayCurrentPortrait,
+                    PoseitColors.Coral,
+                    "Wide shot",
+                    "Hold the phone upright and step back: the wide guide sits in the middle of the frame.",
+                )
             } else {
                 SetupRow(Icons.Filled.StayCurrentPortrait, PoseitColors.Coral, "Portrait", "Hold the phone upright.")
             }

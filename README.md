@@ -4,7 +4,9 @@
 Don't know how to pose? Pick a pose, line yourself up with the on-screen figure, and Poseit tells you what to fix.
 It shoots automatically when you've got it right.
 
-Poseit combines the best ideas of the paid pose apps, with no subscription, no ads, no account and no internet:
+Poseit combines the best ideas of the paid pose apps, with no subscription, no ads and no account. It works fully
+offline, and your camera feed and photos never leave your phone (the bundled MediaPipe library may send anonymous
+usage statistics to Google when you're online):
 
 | Idea | From | In Poseit |
 |---|---|---|

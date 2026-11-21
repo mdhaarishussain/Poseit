@@ -118,7 +118,9 @@ fun CreateFromPhotoScreen(onBack: () -> Unit, onSaved: (String) -> Unit) {
 
     // Back from a result goes back to the explainer first; saving can't be interrupted.
     val inFlow = state.step != CreateStep.INTRO
-    BackHandler(enabled = inFlow && !state.saving) { viewModel.reset() }
+    // Enabled while saving too, so system Back is swallowed instead of popping the screen mid-save (which would
+    // cancel the save and delete its files).
+    BackHandler(enabled = inFlow || state.saving) { if (!state.saving) viewModel.reset() }
 
     Scaffold(
         topBar = {

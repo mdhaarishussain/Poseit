@@ -211,7 +211,7 @@ private fun PermissionRationale(
             Spacer(Modifier.height(12.dp))
             Text(
                 "The camera shows the pose guide over the live picture and checks your pose on the phone. " +
-                    "Nothing is uploaded – Poseit works completely offline.",
+                    "The camera picture never leaves your phone – Poseit works offline.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = PoseitColors.OnSurfaceMuted,
                 textAlign = TextAlign.Center,

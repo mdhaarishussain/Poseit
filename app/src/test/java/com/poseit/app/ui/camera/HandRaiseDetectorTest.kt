@@ -94,4 +94,14 @@ class HandRaiseDetectorTest {
         assertFalse(HandRaiseDetector.templateRaisesHand(template(Skeleton(lowered.points))))
         assertEquals(false, HandRaiseDetector.templateRaisesHand(PoseTemplate("e", "E", PoseCategory.FUN, emptyList())))
     }
+
+    @Test
+    fun `templates with a hand at head height pause the trigger too`() {
+        fun template(sk: Skeleton) = PoseTemplate("t", "T", PoseCategory.FUN, listOf(sk))
+        // Wrist just below the nose (hand behind the head / on the wall at head height): a person copying it easily
+        // lifts the wrist above the nose, so the trigger must be paused for this pose.
+        assertTrue(HandRaiseDetector.templateRaisesHand(template(Skeleton(person(leftWristY = 0.27f).points))))
+        // A hand at chest height is far enough below.
+        assertFalse(HandRaiseDetector.templateRaisesHand(template(Skeleton(person(leftWristY = 0.45f).points))))
+    }
 }

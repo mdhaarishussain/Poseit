@@ -86,6 +86,9 @@ internal fun PoseOverlay(
     val live = vm.live.collectAsState()
     val transform = vm.transform.collectAsState()
     val tilt = vm.tilt.collectAsState()
+    // The lens actually bound (PoseCamera falls back to the other lens when the requested one doesn't exist):
+    // the preview is mirrored according to this one, so the overlay must be too.
+    val activeLens by vm.camera.lens.collectAsState()
     val onFocus by rememberUpdatedState(onTapFocus)
 
     var focusPoint by remember { mutableStateOf<Offset?>(null) }
@@ -101,7 +104,7 @@ internal fun PoseOverlay(
         focusPoint = null
     }
 
-    val flip = ui.lens == Lens.FRONT
+    val flip = activeLens == Lens.FRONT
     val adjustable = ui.hasPose && !ui.overlayLocked
 
     Canvas(
@@ -148,6 +151,7 @@ internal fun PoseOverlay(
             vm = vm,
             ui = ui,
             settings = settings,
+            flip = flip,
             live = live,
             transform = transform,
             tilt = tilt,
@@ -161,13 +165,13 @@ private fun DrawScope.drawOverlay(
     vm: CameraViewModel,
     ui: CameraUiState,
     settings: AppSettings,
+    flip: Boolean,
     live: State<LiveFrame>,
     transform: State<OverlayTransform>,
     tilt: State<DeviceTilt?>,
     focus: Offset?,
     focusProgress: Float,
 ) {
-    val flip = ui.lens == Lens.FRONT
     ui.sceneLock?.let { drawSceneLock(it, flip) }
     drawGrid(settings.grid)
 

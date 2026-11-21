@@ -37,13 +37,22 @@ internal object Phrasing {
 }
 
 /** Builds the prioritised coaching hints for one [PoseMatcher.match] call. */
-internal class HintBuilder(private val audience: FramingAudience, private val templates: List<TemplateInfo>) {
+internal class HintBuilder(
+    private val audience: FramingAudience,
+    private val templates: List<TemplateInfo>,
+    private val mirroredView: Boolean = false,
+) {
 
     private val multi = templates.size > 1
 
-    /** 1-based person numbers, assigned left to right in the template. */
+    /**
+     * 1-based person numbers, assigned left to right as shown on screen: scene x order, reversed for a mirrored
+     * (front-camera) preview.
+     */
     private val numbers: IntArray = IntArray(templates.size).also { arr ->
-        templates.indices.sortedBy { templates[it].centre.x }.forEachIndexed { rank, idx -> arr[idx] = rank + 1 }
+        templates.indices
+            .sortedBy { if (mirroredView) -templates[it].centre.x else templates[it].centre.x }
+            .forEachIndexed { rank, idx -> arr[idx] = rank + 1 }
     }
 
     private fun prefix(figure: Int): String = if (multi) "Person ${numbers[figure]}: " else ""
@@ -326,7 +335,8 @@ internal class HintBuilder(private val audience: FramingAudience, private val te
         val framed = evals.filter { it.framing != null }
         if (framed.isEmpty()) return emptyList()
         return when (audience) {
-            FramingAudience.SUBJECT -> framed.flatMap { subjectFraming(it, it.template.index in steppedBack) }
+            FramingAudience.SUBJECT ->
+                framed.flatMap { subjectFraming(it, it.template.index in steppedBack) } + subjectVertical(framed)
             FramingAudience.PHOTOGRAPHER -> photographerFraming(framed, steppedBack)
         }
     }
@@ -348,6 +358,19 @@ internal class HintBuilder(private val audience: FramingAudience, private val te
             }
         }
         return out
+    }
+
+    /**
+     * Vertical offset for a subject who frames themselves: they can't fix it by stepping, so they move the phone.
+     * Uses the mean offset (one hint per match, no "Person N" prefix) so a group never gets contradictory hints.
+     * Person too low in the picture (ny > 0) -> lower the phone (content moves up), and vice versa.
+     */
+    private fun subjectVertical(evals: List<PairEval>): List<CoachHint> {
+        val offsets = evals.mapNotNull { it.framing?.ny }
+        if (offsets.isEmpty()) return emptyList()
+        val ny = offsets.average().toFloat()
+        if (abs(ny) <= OFFSET_HINT) return emptyList()
+        return listOf(hint(if (ny > 0f) "Lower the phone a little" else "Raise the phone a little", HintKind.FRAMING, offsetSeverity(ny)))
     }
 
     private fun photographerFraming(evals: List<PairEval>, steppedBack: Set<Int>): List<CoachHint> {

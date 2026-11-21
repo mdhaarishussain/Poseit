@@ -202,6 +202,13 @@ class CameraViewModel(
     @Volatile private var lastDetectionAt = Long.MIN_VALUE
     @Volatile private var sceneCache: SceneCache? = null
 
+    /**
+     * Android 9 and below without storage permission: photos can't be saved, so the automatic paths (auto-capture,
+     * hand raise) stay off instead of opening the permission dialog every few seconds. Refreshed on every resume
+     * (the permission dialog pauses and resumes the screen, so a grant or denial is always picked up).
+     */
+    @Volatile private var storageMissing = false
+
     /** Camera-thread only. */
     private var lastLumaFrameTs = Long.MIN_VALUE
 
@@ -223,12 +230,14 @@ class CameraViewModel(
         observeActive()
         observeLevel()
         observeVoiceSetting()
+        observeCameraError()
     }
 
     // ------------------------------------------------------------------ screen lifecycle
 
     /** Called by the screen: true while RESUMED. Detection, coaching and the level pause otherwise. */
     fun setActive(value: Boolean) {
+        if (value) storageMissing = safely { appContext.needsLegacyStoragePermission() } ?: false
         if (active.value == value) return
         active.value = value
         if (!value) {
@@ -237,14 +246,17 @@ class CameraViewModel(
         }
     }
 
-    /** Frame callback for [PoseCamera.bind]; runs on the camera's background thread. Never keeps [bitmap]. */
-    fun onFrame(bitmap: Bitmap, timestampMs: Long) {
+    /**
+     * Frame callback for [PoseCamera.bind]; runs on the camera's background thread. Never keeps [bitmap].
+     * @param aspect the aspect of the binding that produced the frame (NOT the current UI aspect: after an aspect
+     *   switch the old binding keeps delivering frames cropped to the old viewport until the camera is rebound)
+     */
+    fun onFrame(bitmap: Bitmap, timestampMs: Long, aspect: SceneAspect) {
         if (!active.value) return
         try {
-            val aspect = _ui.value.aspect
             // Under the lock so a detector is never fed while (or after) it is being closed.
             synchronized(detectorLock) { detector?.detectLive(bitmap, timestampMs, aspect.ratio) }
-            if (sceneLockRequested) {
+            if (sceneLockRequested && aspect == _ui.value.aspect) {
                 sceneLockRequested = false
                 bitmap.copy(Bitmap.Config.ARGB_8888, false)?.let { copy ->
                     _ui.update { it.copy(sceneLock = copy.asImageBitmap()) }
@@ -270,14 +282,16 @@ class CameraViewModel(
         if (st.exposureIndex != 0) safely { camera.setExposure(st.exposureIndex) }
     }
 
+    /**
+     * A synchronous bind failure. The reason itself is shown by the camera-error notice (PoseCamera reports it
+     * through [PoseCamera.error] for every failure, deferred ones included); here we only fall back to the back lens.
+     */
     fun onCameraError(error: Throwable) {
         Log.e(TAG, "Camera bind failed", error)
         val st = _ui.value
         if (st.lens == Lens.FRONT) {
             _ui.update { it.copy(lens = Lens.BACK) }
             _events.trySend(CameraEvent.Message("The front camera isn't available"))
-        } else {
-            _events.trySend(CameraEvent.Message("Couldn't start the camera. Close other camera apps and try again."))
         }
     }
 
@@ -336,7 +350,18 @@ class CameraViewModel(
         safely { camera.setZoom(r) }
     }
 
-    fun zoomBy(factor: Float) = setZoom(_ui.value.zoom * factor)
+    /**
+     * Pinch step. Applied without [setZoom]'s small-change threshold: a slow pinch delivers many tiny factors that
+     * must add up instead of each being discarded.
+     */
+    fun zoomBy(factor: Float) {
+        if (!factor.isFinite() || factor <= 0f) return
+        val current = _ui.value.zoom
+        val target = (current * factor).coerceIn(1f, maxZoom.value.coerceAtLeast(1f))
+        if (target == current) return
+        _ui.update { it.copy(zoom = target) }
+        safely { camera.setZoom(target) }
+    }
 
     fun setExposure(index: Int) {
         val range = exposureRange.value
@@ -647,6 +672,8 @@ class CameraViewModel(
         try {
             val now = SystemClock.uptimeMillis()
             val st = _ui.value
+            // A frame from the previous binding (or in flight across an aspect switch) is in another scene space.
+            if (abs(result.sceneAspect - st.aspect.ratio) > 1e-3f) return
             val s = settings.value
             val people = safely { smoother.smooth(result.people, result.frameTimestampMs) } ?: result.people
             val pose = st.pose?.takeIf { st.hasPose }
@@ -666,13 +693,16 @@ class CameraViewModel(
     private fun matchPose(pose: PoseTemplate, people: List<Skeleton>, st: CameraUiState, s: AppSettings): MatchResult {
         val scene = templateScene(pose, _transform.value, st.poseMirrored, st.aspect)
         if (scene.isEmpty()) return MatchResult.EMPTY
+        // The lens actually bound: PoseCamera falls back to the other lens when the requested one doesn't exist.
+        val lens = camera.lens.value
         return safely {
             PoseMatcher.match(
                 templateFigures = scene,
                 detected = people,
                 sceneAspect = st.aspect.ratio,
-                audience = st.audienceMode.resolve(st.lens),
+                audience = st.audienceMode.resolve(lens),
                 config = MatchConfig(perfectScore = s.matchThreshold),
+                mirroredView = lens == Lens.FRONT,
             )
         } ?: MatchResult.EMPTY
     }
@@ -699,7 +729,7 @@ class CameraViewModel(
             handRaise.reset()
             return
         }
-        val idle = !captureInFlight &&
+        val idle = !captureInFlight && !storageMissing &&
             (safely { coach.state } ?: CaptureState.Idle) == CaptureState.Idle &&
             safely { coach.isSessionActive } != true
         if (handRaise.update(people, st.aspect.ratio, now, allowTrigger = idle)) {
@@ -745,7 +775,7 @@ class CameraViewModel(
         val st = _ui.value
         val s = settings.value
         val desired = CoachSettings(
-            autoCapture = s.autoCapture && st.hasPose && st.detectorReady,
+            autoCapture = s.autoCapture && st.hasPose && st.detectorReady && !storageMissing,
             threshold = s.matchThreshold,
             countdownSeconds = s.countdownSeconds,
         )
@@ -810,15 +840,21 @@ class CameraViewModel(
         captureInFlight = true
         lastCueKey = null
         scope.launch {
+            var askedForStorage = false
             try {
                 if (appContext.needsLegacyStoragePermission()) {
+                    askedForStorage = true
+                    storageMissing = true
                     _events.trySend(CameraEvent.RequestStoragePermission)
                 } else {
                     takePhotoNow()
                 }
             } finally {
                 withContext(NonCancellable + pipeline) {
-                    if (viaCoach) safely { coach.onCaptured(SystemClock.uptimeMillis()) }
+                    if (viaCoach) {
+                        // No photo was taken: end the timer / photoshoot instead of re-arming it into another prompt.
+                        if (askedForStorage) safely { coach.cancel() } else safely { coach.onCaptured(SystemClock.uptimeMillis()) }
+                    }
                     captureInFlight = false
                     _capture.value = safely { coach.state } ?: CaptureState.Idle
                 }
@@ -827,14 +863,14 @@ class CameraViewModel(
     }
 
     private suspend fun takePhotoNow() {
-        val st = _ui.value
         val s = settings.value
         _ui.update { it.copy(capturing = true) }
         try {
             _events.trySend(CameraEvent.Flash)
             if (s.shutterSound) safely { voice.shutter() }
             if (s.haptics) safely { voice.haptic() }
-            val uri = camera.takePhoto(mirror = st.lens == Lens.FRONT && s.mirrorFrontPhotos)
+            // The lens actually bound (PoseCamera may have fallen back to the other one), not the requested one.
+            val uri = camera.takePhoto(mirror = camera.lens.value == Lens.FRONT && s.mirrorFrontPhotos)
             _ui.update { it.copy(lastPhoto = uri) }
             _events.trySend(CameraEvent.PhotoSaved(uri))
         } catch (e: CancellationException) {
@@ -857,7 +893,7 @@ class CameraViewModel(
         val face = frame.people.firstOrNull()
             ?.takeIf { frame.aspect == st.aspect }
             ?.let { FrameAnalysis.faceBox(it, st.aspect.ratio) }
-        val result = safely { LightingAnalyzer.analyze(grid, face, st.audienceMode.resolve(st.lens)) } ?: return
+        val result = safely { LightingAnalyzer.analyze(grid, face, st.audienceMode.resolve(camera.lens.value)) } ?: return
         val issue = result.issue
         if (issue == lastLightingIssue) {
             val hint = result.hint.takeIf { issue != LightingIssue.OK }
@@ -882,6 +918,12 @@ class CameraViewModel(
                     }
                 }
         }
+    }
+
+    /** Mirrors [PoseCamera.error] (deferred bind failures, camera in use / disabled...) into the UI state. */
+    private fun observeCameraError() {
+        val errors = safely { camera.error } ?: return
+        scope.launch { errors.collect { msg -> _ui.update { if (it.cameraError == msg) it else it.copy(cameraError = msg) } } }
     }
 
     private fun observeVoiceSetting() {

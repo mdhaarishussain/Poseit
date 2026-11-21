@@ -98,6 +98,8 @@ data class CameraUiState(
     val detectorReady: Boolean = false,
     /** Pose detection could not be started; the camera keeps working without matching. */
     val detectorError: String? = null,
+    /** Why the camera can't start or stopped working ([com.poseit.app.camera.PoseCamera.error]); null while it works. */
+    val cameraError: String? = null,
     val capturing: Boolean = false,
 ) {
     val hasPose: Boolean get() = pose != null && pose.figures.isNotEmpty()

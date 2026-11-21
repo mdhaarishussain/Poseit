@@ -27,10 +27,14 @@ internal class TemplateInfo(val index: Int, val skeleton: Skeleton, val aspect: 
 
     fun iso(j: Joint): Vec2? = skeleton[j]?.let { Vec2(it.x * aspect, it.y) }
 
-    /** Present, confidently visible and inside the scene. */
+    /**
+     * Present, confidently visible and inside the scene. No margin here: a template joint just outside the frame
+     * (e.g. the phone hand of a selfie) can't be seen in the image, so MediaPipe reports it as not visible and
+     * requiring it would cap the score with an unfixable "keep your hand visible" hint.
+     */
     fun usable(j: Joint): Boolean {
         val p = skeleton[j] ?: return false
-        return skeleton.isVisible(j, minVisibility) && MatchGeometry.inScene(p)
+        return skeleton.isVisible(j, minVisibility) && MatchGeometry.inScene(p, margin = 0f)
     }
 
     val required: Map<Segment, RequiredSegment>

@@ -112,8 +112,8 @@ object PoseMatcher {
      * - Segments: TORSO = mid-hip -> mid-shoulder, HEAD = mid-shoulder -> nose, SHOULDER_LINE = right -> left
      *   shoulder, HIP_LINE = right -> left hip, limbs from their joint pairs; angles via [com.poseit.app.pose.limbAngle].
      *   Midpoints only use the joints both poses show.
-     * - A template segment is REQUIRED when its joints exist, have visibility >= [MatchConfig.minVisibility] and lie in
-     *   the scene (0..1 with a 0.02 margin). Shoulder/hip lines shorter than 25 % of their normal length (profile views)
+     * - A template segment is REQUIRED when its joints exist, have visibility >= [MatchConfig.minVisibility] and lie
+     *   inside the scene (0..1). Shoulder/hip lines shorter than 25 % of their normal length (profile views)
      *   and degenerate limbs are skipped.
      * - `segmentScore` = 1 within [MatchConfig.perfectWithinDeg], 0 at >= [MatchConfig.zeroAtDeg], Hermite smoothstep
      *   in between. The HEAD additionally loses score when the nose-to-shoulders distance differs (chin up/down).
@@ -136,12 +136,15 @@ object PoseMatcher {
      * HINTS (at most 3, most severe first, never empty): NO_PERSON, MISSING_PERSON, VISIBILITY (cut-off or hidden
      * joints), POSE (worst weighted segments, anatomical side, image directions converted with the person's facing),
      * FRAMING (position / size / cropping), or a single PERFECT when score >= [MatchConfig.perfectScore] and every
-     * figure has a person. Multi-person hints are prefixed "Person N: ", numbered left to right in the template.
+     * figure has a person. Multi-person hints are prefixed "Person N: ", numbered left to right as shown on screen
+     * (the template's scene order, reversed when [mirroredView] is true).
      *
      * @param templateFigures template figures in SCENE space (see [com.poseit.app.pose.scene.SceneMapping.templateToScene])
      * @param detected detected people in SCENE space (see [com.poseit.app.pose.detect.LandmarkMapping.toScene])
      * @param sceneAspect scene width / height – needed to measure angles correctly
      * @param audience who acts on framing hints
+     * @param mirroredView true when the user sees the scene mirrored (front-camera preview); only affects the
+     *   left-to-right "Person N" numbering, never the anatomical sides or the scoring
      */
     fun match(
         templateFigures: List<Skeleton>,
@@ -149,8 +152,9 @@ object PoseMatcher {
         sceneAspect: Float,
         audience: FramingAudience = FramingAudience.SUBJECT,
         config: MatchConfig = MatchConfig(),
+        mirroredView: Boolean = false,
     ): MatchResult = try {
-        compute(templateFigures, detected, sceneAspect, audience, config)
+        compute(templateFigures, detected, sceneAspect, audience, config, mirroredView)
     } catch (e: RuntimeException) {
         // Last line of defence for the camera loop: a bad frame must never crash the app.
         MatchResult(
@@ -169,6 +173,7 @@ object PoseMatcher {
         sceneAspect: Float,
         audience: FramingAudience,
         config: MatchConfig,
+        mirroredView: Boolean,
     ): MatchResult {
         val aspect = MatchGeometry.sanitizeAspect(sceneAspect)
         val cfg = sanitize(config)
@@ -176,7 +181,7 @@ object PoseMatcher {
         val people = detected.mapIndexedNotNull { i, s ->
             DetectionInfo(i, MatchGeometry.sanitize(s), aspect, cfg.minVisibility).takeIf { it.hasUsableJoint }
         }
-        val hints = HintBuilder(audience, templates)
+        val hints = HintBuilder(audience, templates, mirroredView)
 
         if (templates.isEmpty()) {
             return MatchResult(0f, emptyList(), listOf(if (people.isEmpty()) hints.noPerson() else hints.noPose()), people.size)

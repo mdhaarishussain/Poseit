@@ -83,7 +83,7 @@ internal object MatchGeometry {
 
     fun isFinite(p: Vec2): Boolean = p.x.isFinite() && p.y.isFinite()
 
-    fun inScene(p: Vec2): Boolean = SCENE.contains(p, SCENE_MARGIN)
+    fun inScene(p: Vec2, margin: Float = SCENE_MARGIN): Boolean = SCENE.contains(p, margin)
 
     fun sanitizeAspect(aspect: Float): Float = if (aspect.isFinite() && aspect > 0.05f && aspect < 20f) aspect else 0.75f
 

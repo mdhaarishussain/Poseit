@@ -67,8 +67,14 @@ class HandRaiseDetector(
             }
         }
 
-        /** True when the pose itself has a hand above the head (the trigger would fire while posing). */
+        /**
+         * Template wrists up to this many body units BELOW the nose still count as raised: a person reproducing a
+         * hand-at-head-height pose easily ends up [MARGIN_UNITS] above the nose and would trigger the timer.
+         */
+        private const val TEMPLATE_MARGIN_UNITS = -0.25f
+
+        /** True when the pose itself has a hand above or near the head (the trigger would fire while posing). */
         fun templateRaisesHand(template: PoseTemplate): Boolean =
-            template.figures.any { isHandRaised(it, template.frameAspect, minVisibility = 0f, marginUnits = 0f) }
+            template.figures.any { isHandRaised(it, template.frameAspect, minVisibility = 0f, marginUnits = TEMPLATE_MARGIN_UNITS) }
     }
 }

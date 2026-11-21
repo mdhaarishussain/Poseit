@@ -60,6 +60,6 @@ CameraX ImageAnalysis (RGBA, KEEP_ONLY_LATEST, viewport-cropped)
 - Poseit extras: live MediaPipe pose matching with a score, per-limb colouring, spoken corrections, auto-capture when matched, hand-raise trigger, pose editor.
 
 ## Conventions
-- Kotlin, Jetpack Compose + Material 3, dark theme (`PoseitTheme`, `PoseitColors`), no DI framework, no network at runtime.
+- Kotlin, Jetpack Compose + Material 3, dark theme (`PoseitTheme`, `PoseitColors`), no DI framework, no network needed at runtime (MediaPipe's built-in usage logging aside: its tasks-core dependency adds INTERNET and sends anonymous usage stats when online).
 - All pose art is original and generated from the DSL. Never copy assets from other apps.
 - Build: `./gradlew :app:assembleDebug` · engine tests: `./gradlew :pose-core:test`.

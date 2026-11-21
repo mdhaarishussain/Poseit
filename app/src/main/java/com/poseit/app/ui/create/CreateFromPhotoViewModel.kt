@@ -201,7 +201,8 @@ class CreateFromPhotoViewModel(
 
     /** Runs MediaPipe on [photo]. Null when the detector can't run at all (missing model, native crash, ...). */
     private fun detect(photo: Bitmap): List<Skeleton>? = try {
-        PoseDetector(appContext, accurate = true, maxPoses = MAX_PEOPLE).use { it.detectStill(photo) }
+        // Still-photo only: no live-stream (GPU) landmarker, so the full model is loaded once, not twice.
+        PoseDetector(appContext, accurate = true, maxPoses = MAX_PEOPLE, liveStream = false).use { it.detectStill(photo) }
     } catch (e: Exception) {
         Log.e(TAG, "Pose detection failed", e)
         null

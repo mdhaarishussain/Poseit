@@ -283,6 +283,26 @@ internal fun DetectorNotice(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Why the camera isn't working (in use by another app, disabled, failed to start...), shown over the black preview
+ * for as long as [com.poseit.app.camera.PoseCamera.error] reports it.
+ */
+@Composable
+internal fun CameraErrorNotice(message: String, modifier: Modifier = Modifier) {
+    Surface(color = HudScrim, shape = RoundedCornerShape(16.dp), modifier = modifier.widthIn(max = 320.dp)) {
+        Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.WarningAmber, contentDescription = null, tint = PoseitColors.Amber, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(10.dp))
+            Text(
+                message,
+                color = Color.White,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
+        }
+    }
+}
+
 /** Big animated countdown numbers. */
 @Composable
 internal fun CountdownNumber(seconds: Int?, modifier: Modifier = Modifier) {

@@ -32,9 +32,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
+import androidx.compose.material.icons.filled.StayCurrentPortrait
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -158,7 +158,7 @@ internal fun QuickSettingsSheet(
             SwitchRow(
                 "Hand-raise trigger",
                 if (ui.templateRaisesHand) {
-                    "Paused for this pose because it has a raised hand"
+                    "Paused for this pose because a hand is at head height"
                 } else {
                     "Hold a hand above your head for a moment to start the timer"
                 },
@@ -547,9 +547,9 @@ internal fun PoseTipsSheet(
             if (pose.camera.landscape) {
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.ScreenRotation, contentDescription = null, tint = PoseitColors.Amber, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Filled.StayCurrentPortrait, contentDescription = null, tint = PoseitColors.Amber, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Works best as a landscape photo.", style = MaterialTheme.typography.bodyMedium)
+                    Text("Wide shot: keep the phone upright and step back so everyone fits.", style = MaterialTheme.typography.bodyMedium)
                 }
             }
             pose.camera.note?.takeIf { it.isNotBlank() }?.let { note ->

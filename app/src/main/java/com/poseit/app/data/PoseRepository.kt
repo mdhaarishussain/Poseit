@@ -92,12 +92,23 @@ class PoseRepository(private val context: Context) {
         val updated = _custom.value - victim
         writeCustom(updated)
         _custom.value = updated
-        // Remove a reference image we copied into app storage.
-        victim.referenceImage?.let { ref ->
-            if (ref.startsWith(context.filesDir.absolutePath)) runCatching { File(ref).delete() }
+        // Remove the reference photo and outline we copied into app storage (files/refs), unless another pose still
+        // uses them (an imported backup copy of an edited pose keeps the same image paths).
+        val stillUsed = updated.flatMap { listOfNotNull(it.referenceImage, it.outlineImage) }.toSet()
+        withContext(Dispatchers.IO) {
+            val refsDir = runCatching { File(context.filesDir, REFS_DIR).canonicalPath + File.separator }.getOrNull()
+            if (refsDir != null) {
+                listOfNotNull(victim.referenceImage, victim.outlineImage)
+                    .distinct()
+                    .filter { it !in stillUsed && runCatching { File(it).canonicalPath.startsWith(refsDir) }.getOrDefault(false) }
+                    .forEach { runCatching { File(it).delete() } }
+            }
         }
         context.libraryStore.edit { prefs ->
             prefs[Keys.favorites]?.let { prefs[Keys.favorites] = it - id }
+            prefs[Keys.recent]?.let { recent ->
+                prefs[Keys.recent] = recent.split(',').filter { it.isNotBlank() && it != id }.joinToString(",")
+            }
         }
     }
 
@@ -121,5 +132,8 @@ class PoseRepository(private val context: Context) {
 
     private companion object {
         const val TAG = "PoseRepository"
+
+        /** Folder under filesDir holding the reference photos and outlines of photo-based poses. */
+        const val REFS_DIR = "refs"
     }
 }

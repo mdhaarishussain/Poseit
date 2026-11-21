@@ -30,11 +30,13 @@ import kotlin.math.roundToInt
  * @param people detected people in SCENE space (see com.poseit.app.pose.scene.SceneMapping docs), at most maxPoses
  * @param frameTimestampMs timestamp passed to [PoseDetector.detectLive]
  * @param inferenceMs how long MediaPipe took
+ * @param sceneAspect the scene aspect passed to [PoseDetector.detectLive] for this frame (the space [people] are in)
  */
 data class DetectionResult(
     val people: List<Skeleton>,
     val frameTimestampMs: Long,
     val inferenceMs: Long,
+    val sceneAspect: Float,
 )
 
 /**
@@ -55,12 +57,15 @@ data class DetectionResult(
  * @param accurate true = full model, false = lite model
  * @param maxPoses maximum number of people to detect (2 for couples, 3 for groups)
  * @param preferGpu try the GPU delegate first for live detection (falls back to CPU automatically)
+ * @param liveStream build the live-stream landmarker up front; false for still-photo-only use ([detectLive] is then
+ *   a no-op and nothing is loaded until the first [detectStill])
  */
 class PoseDetector(
     context: Context,
     val accurate: Boolean,
     val maxPoses: Int = 2,
     preferGpu: Boolean = true,
+    liveStream: Boolean = true,
 ) : Closeable {
 
     private val appContext: Context = context.applicationContext ?: context
@@ -107,7 +112,7 @@ class PoseDetector(
     private class PendingFrame(val width: Int, val height: Int, val sceneAspect: Float, val sentAtMs: Long)
 
     init {
-        live = createLiveLandmarker(if (preferGpu) Delegate.GPU else Delegate.CPU)
+        if (liveStream) live = createLiveLandmarker(if (preferGpu) Delegate.GPU else Delegate.CPU)
     }
 
     /**
@@ -160,12 +165,16 @@ class PoseDetector(
         }
     }
 
-    /** Returns people in IMAGE-normalized coordinates (sceneAspect = bitmap aspect). Blocking. */
-    fun detectStill(bitmap: Bitmap): List<Skeleton> {
+    /**
+     * Returns people in IMAGE-normalized coordinates (sceneAspect = bitmap aspect). Blocking.
+     * Null when the still landmarker can't be created at all (missing model, unsupported device), so callers can
+     * tell "pose detection unavailable" from "nobody in the photo".
+     */
+    fun detectStill(bitmap: Bitmap): List<Skeleton>? {
         if (closed.get() || bitmap.isRecycled || bitmap.width <= 0 || bitmap.height <= 0) return emptyList()
         synchronized(stillLock) {
             if (closed.get()) return emptyList()
-            val landmarker = still ?: createStillLandmarker()?.also { still = it } ?: return emptyList()
+            val landmarker = still ?: createStillLandmarker()?.also { still = it } ?: return null
             var input: Bitmap? = null
             return try {
                 val prepared = prepareStillInput(bitmap)
@@ -210,7 +219,7 @@ class PoseDetector(
             hadLiveResult = true
             val people = toSkeletons(result, frame.width, frame.height, frame.sceneAspect)
             val inferenceMs = SystemClock.uptimeMillis() - frame.sentAtMs
-            _results.tryEmit(DetectionResult(people, timestamp, inferenceMs))
+            _results.tryEmit(DetectionResult(people, timestamp, inferenceMs, frame.sceneAspect))
         } catch (e: Throwable) {
             // Never let an exception escape into MediaPipe's native callback thread.
             inFlight.set(false)

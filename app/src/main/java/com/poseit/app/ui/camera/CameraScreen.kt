@@ -193,7 +193,8 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                 }
                 is CameraEvent.PhotoSaved -> showMessage("Saved to Pictures/Poseit", "View") { currentOpenGallery() }
                 is CameraEvent.Message -> showMessage(event.text)
-                CameraEvent.RequestStoragePermission -> askStorage(thenShoot = false)
+                // A grant then takes the photo the coach wanted to take.
+                CameraEvent.RequestStoragePermission -> askStorage(thenShoot = true)
             }
         }
     }
@@ -424,6 +425,7 @@ private fun PreviewHud(
             onToggleSceneLock = vm::toggleSceneLock,
             modifier = Modifier.align(Alignment.CenterEnd),
         )
+        ui.cameraError?.let { CameraErrorNotice(it, Modifier.align(Alignment.Center)) }
         CountdownNumber(countdown, Modifier.align(Alignment.Center))
     }
 }
@@ -439,7 +441,9 @@ private fun CameraBinding(vm: CameraViewModel, previewView: PreviewView, lifecyc
     LaunchedEffect(previewView, lifecycleOwner, lens, aspect) {
         previewView.awaitLayout(aspect.ratio)
         try {
-            vm.camera.bind(lifecycleOwner, previewView, lens, aspect, vm::onFrame)
+            // Each binding tags its frames with its own aspect, so frames still arriving from the old binding after
+            // an aspect switch are never mapped into the new scene.
+            vm.camera.bind(lifecycleOwner, previewView, lens, aspect) { bitmap, timestampMs -> vm.onFrame(bitmap, timestampMs, aspect) }
             vm.onCameraBound()
             // Some devices finish opening the camera asynchronously: apply flash/zoom/exposure once more.
             delay(REAPPLY_DELAY_MILLIS)

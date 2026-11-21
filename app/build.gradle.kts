@@ -36,6 +36,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // MediaPipe Tasks calls java.time (API 26+) whenever a task is created; without desugaring every
+        // PoseLandmarker / ImageSegmenter creation fails on Android 7.x (minSdk 24).
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlin {
         compilerOptions {
@@ -126,6 +129,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 

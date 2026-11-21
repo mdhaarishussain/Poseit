@@ -192,7 +192,7 @@ object CouplePoses {
                 "Look into each other's eyes",
             )
             tags(PoseTag.ROMANTIC, PoseTag.ELEGANT, PoseTag.PARTY, PoseTag.CITY)
-            camera(CameraHeight.WAIST, ShotType.FULL_BODY, landscape = true, note = "Shoot from the side, slightly low, in landscape.")
+            camera(CameraHeight.WAIST, ShotType.FULL_BODY, landscape = true, note = "Shoot from the side, slightly low.")
             difficulty = 3
             figure(cx = 0.44f, bottom = 0.93f, bodyHeight = 0.86f) {
                 facing = 70f

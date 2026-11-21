@@ -432,7 +432,7 @@ private fun AboutSection(onShowLicenses: () -> Unit, onShowIntro: () -> Unit) {
         SettingsRow(
             icon = Icons.Filled.VerifiedUser,
             accent = PoseitColors.Mint,
-            title = "100% offline · no ads · no account",
+            title = "Works offline · no ads · no account",
             subtitle = "Your camera feed and photos never leave your phone",
         )
         SettingsDivider()

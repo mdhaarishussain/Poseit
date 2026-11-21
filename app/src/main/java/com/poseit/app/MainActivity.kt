@@ -1,6 +1,7 @@
 package com.poseit.app
 
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,16 +10,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.poseit.app.data.AppSettings
 import com.poseit.app.input.HardwareKeys
 import com.poseit.app.ui.nav.PoseitNavHost
 import com.poseit.app.ui.theme.PoseitTheme
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,10 +30,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             PoseitTheme {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                    // Wait for the first settings emission so we know whether to show onboarding.
-                    val onboardingDone by remember { settingsFlow.map<AppSettings, Boolean?> { it.onboardingDone } }
-                        .collectAsState(initial = null)
-                    onboardingDone?.let { done -> PoseitNavHost(startOnboarding = !done) }
+                    // Read the onboarding flag ONCE. The NavHost's start destination must never change while it is
+                    // shown: a new start destination rebuilds the graph and wipes the back stack (finishing the
+                    // intro would then push Library twice, and "Show intro again" would throw the user out of
+                    // Settings). Saved, so a recreated activity keeps the start its restored back stack belongs to.
+                    var startOnboarding by rememberSaveable { mutableStateOf<Boolean?>(null) }
+                    LaunchedEffect(Unit) {
+                        if (startOnboarding == null) {
+                            startOnboarding = try {
+                                !settingsFlow.first().onboardingDone
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                Log.w("MainActivity", "Could not read settings", e)
+                                true
+                            }
+                        }
+                    }
+                    startOnboarding?.let { PoseitNavHost(startOnboarding = it) }
                 }
             }
         }

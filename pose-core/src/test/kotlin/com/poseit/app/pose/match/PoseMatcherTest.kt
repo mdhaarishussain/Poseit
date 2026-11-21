@@ -300,8 +300,41 @@ class PoseMatcherTest {
 
         val high = detected(t).shifted(0f, -0.12f)
         assertEquals("Tilt the phone up", match(t, high, photographer, strict).firstFraming()!!.text)
+        // The subject can't fix a vertical offset by stepping, so they get a phone instruction too (once, unprefixed).
         val r = match(t, high, subject, strict)
-        assertTrue(r.hints.none { it.text.contains("phone") })
+        assertEquals(listOf("Raise the phone a little"), r.hints.filter { it.text.contains("phone") }.map { it.text })
+        val low = detected(t).shifted(0f, 0.04f)
+        assertTrue(match(t, low, subject, strict).hints.none { it.text.contains("phone") }) // within tolerance
+    }
+
+    @Test
+    fun subjectVerticalHintIsEmittedOncePerMatch() {
+        // Two people both too high in the picture: a single, unprefixed "Raise the phone" hint, never "Lower".
+        val a = figure(cx = 0.3f, bodyHeight = 0.6f) { }
+        val b = figure(cx = 0.72f, bodyHeight = 0.6f) { }
+        val r = PoseMatcher.match(
+            listOf(a, b),
+            listOf(detected(a).shifted(0f, -0.15f), detected(b).shifted(0f, -0.15f)),
+            ASPECT,
+            subject,
+            strict,
+        )
+        val phone = r.hints.filter { it.text.contains("phone") }
+        assertEquals(listOf("Raise the phone a little"), phone.map { it.text })
+        assertNull(phone.single().figureIndex)
+    }
+
+    @Test
+    fun personNumbersFollowTheMirroredView() {
+        // Person 2 (right in the scene) keeps the arm down. On a mirrored (front-camera) preview that figure is drawn
+        // on the LEFT of the screen, so it is "Person 1" there.
+        val (a, b) = SceneMapping.templateToScene(couple, ASPECT)
+        val bWrong = detected(figure(cx = 0.72f, bodyHeight = 0.6f) { facing = -20f })
+        val plain = PoseMatcher.match(listOf(a, b), listOf(detected(a), bWrong), ASPECT)
+        assertEquals("Person 2: Raise your right arm", plain.firstPose()!!.text)
+        val mirrored = PoseMatcher.match(listOf(a, b), listOf(detected(a), bWrong), ASPECT, mirroredView = true)
+        assertEquals("Person 1: Raise your right arm", mirrored.firstPose()!!.text)
+        assertEquals(1, mirrored.firstPose()!!.figureIndex)
     }
 
     @Test
