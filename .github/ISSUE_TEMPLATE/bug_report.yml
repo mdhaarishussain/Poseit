@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         One problem per report, please. Some things are known not to work yet: see
-        [known limitations](https://github.com/mdhaarishussain/Poseit#status-and-known-limitations).
+        [known limitations](https://github.com/mdhaarishussain/Poseit#known-limitations).
   - type: textarea
     id: what-happened
     attributes:

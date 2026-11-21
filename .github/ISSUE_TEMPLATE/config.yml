@@ -5,5 +5,5 @@ contact_links:
     url: https://github.com/mdhaarishussain/Poseit/releases/latest
     about: Install or update Poseit. The release notes list what changed.
   - name: Known limitations
-    url: https://github.com/mdhaarishussain/Poseit#status-and-known-limitations
+    url: https://github.com/mdhaarishussain/Poseit#known-limitations
     about: Things that are known not to work yet, so you don't need to report them.

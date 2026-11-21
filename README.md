@@ -1,26 +1,26 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/banner-dark.png">
-  <img src="docs/images/banner-light.png" width="100%" alt="Poseit: a pose guide for people who freeze in front of a camera. Five white lay figures stand on studio-grey paper: one with a hand on the hip, one walking, a couple walking hand in hand, and one pointing up.">
-</picture>
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/banner-dark.png">
+    <img src="docs/images/banner-light.png" width="100%" alt="Poseit: a pose guide for people who freeze in front of a camera. Five white lay figures stand in a row: one with a hand on the hip, one walking, a couple walking hand in hand, and one pointing up.">
+  </picture>
+</p>
 
-Poseit is a free pose-guide camera for Android. Pick one of 99 poses, line yourself up with the figure on
-screen, and Poseit tells you what to change, out loud and on screen. When you hold the pose, it takes the
-photo. Everything runs on your phone and works offline, with no account, ads or subscription.
+Poseit is a free pose-guide camera for Android. Pick one of 99 poses and line yourself up with the figure
+drawn over the camera. Poseit tells you what to change, out loud and on screen, and takes the photo when you
+hold the pose. Everything runs on your phone and works offline, with no account, ads or subscription.
 
 [![Latest release](https://img.shields.io/github/v/release/mdhaarishussain/Poseit?style=flat-square&label=release&labelColor=5A5C5B&color=17181A)](https://github.com/mdhaarishussain/Poseit/releases/latest)
 [![Build APK workflow status](https://img.shields.io/github/actions/workflow/status/mdhaarishussain/Poseit/android.yml?branch=main&style=flat-square&label=build&labelColor=5A5C5B&color=17181A)](https://github.com/mdhaarishussain/Poseit/actions/workflows/android.yml)
 [![Android 7.0 or newer](https://img.shields.io/badge/Android-7.0%2B-17181A?style=flat-square&labelColor=5A5C5B)](#download)
-[![Kotlin and Jetpack Compose](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-17181A?style=flat-square&labelColor=5A5C5B)](#how-it-works)
-[![Works offline](https://img.shields.io/badge/works-offline-17181A?style=flat-square&labelColor=5A5C5B)](#privacy)
 
 ## Download
 
-<a href="https://github.com/mdhaarishussain/Poseit/releases/latest"><img src="docs/images/qr-latest-release.png" width="168" align="right" alt="QR code that opens the latest Poseit release on GitHub"></a>
+<a href="https://github.com/mdhaarishussain/Poseit/releases/latest"><img src="docs/images/qr-latest-release.png" width="144" align="right" alt="QR code that opens the latest Poseit release on GitHub"></a>
 
-**[Download the latest APK](https://github.com/mdhaarishussain/Poseit/releases/latest)** from the Assets of
-the newest release. The current version is 1.1.0 ([release notes](docs/releases/v1.1.0.md)), and the file is
-called `Poseit-v1.1.0.apk`. If you're reading this on a computer, scan the code with your phone to open the
-release there. Poseit needs Android 7.0 or newer and runs best on a recent phone.
+**[Download the latest APK](https://github.com/mdhaarishussain/Poseit/releases/latest)** from the newest
+release, where it's listed under Assets. On a computer, scan the code with your phone to open the release
+there. The current version is 1.1.0 ([release notes](docs/releases/v1.1.0.md)) and the file is
+`Poseit-v1.1.0.apk`. Poseit needs Android 7.0 or newer and runs best on a recent phone.
 
 To install, open the APK on your phone. The first time, Android asks you to allow your browser or file manager
 to install unknown apps: allow it, then tap Install.
@@ -28,22 +28,19 @@ to install unknown apps: allow it, then tap Install.
 To update, install the new APK over the old one. Your poses, favourites and settings stay, because every
 release is signed with the same key.
 
+Poseit hasn't been tried on a physical phone yet. [Status](#status) lists what has been tested and what is
+known not to work.
+
 ## Screenshots
 
-<table>
-  <tr>
-    <td valign="top" width="33%"><img src="docs/images/screens/1-library.png" width="240" alt="The library: today's pose at the top, tabs for all poses, favourites, recent and my poses, filter chips for solo, couple and group, and a grid of pose tiles."><br>The library, with today's pose and filters</td>
-    <td valign="top" width="33%"><img src="docs/images/screens/2-pose-detail.png" width="240" alt="The Side hug pose: two figures in different tones inside frame marks, a short description, numbered steps, and the buttons Customise and Try this pose."><br>Every pose explains how to do it</td>
-    <td valign="top" width="33%"><img src="docs/images/screens/3-camera.png" width="240" alt="The camera on a black preview: the Superhero stance guide drawn in green with a white stick skeleton on top, a score ring showing 93, and the hint Perfect. Hold it."><br>The guide turns green as you match it</td>
-  </tr>
-</table>
-<table>
-  <tr>
-    <td valign="top" width="33%"><img src="docs/images/screens/4-editor.png" width="240" alt="The pose editor, based on Disco point: a mannequin with a round handle on each joint over a grid, and tools for mirror, reset, grid and add person."><br>Drag the joints to make your own pose</td>
-    <td valign="top" width="33%"><img src="docs/images/screens/5-pose-from-photo.png" width="240" alt="Pose from a photo: the headline Recreate any photo, three numbered steps, a note that the photo is never uploaded, and the button Choose a photo."><br>Or trace one from any photo</td>
-    <td valign="top" width="33%"><img src="docs/images/screens/6-settings.png" width="240" alt="Settings: switches for voice guidance and auto-capture, a match strictness slider, countdown chips from off to 10 seconds, and three guide styles."><br>Coaching and guide settings</td>
-  </tr>
-</table>
+<p>
+  <img src="docs/images/screens/1-library.png" width="32%" alt="The library: today's pose at the top, tabs for all poses, favourites, recent and my poses, filter chips for solo, couple and group, and a grid of pose tiles.">
+  <img src="docs/images/screens/2-pose-detail.png" width="32%" alt="The Side hug pose: two figures in different tones inside frame marks, a short description, numbered steps, and the buttons Customise and Try this pose.">
+  <img src="docs/images/screens/3-camera.png" width="32%" alt="The camera on a black preview: the Superhero stance guide drawn in green with a white stick skeleton on top, a score ring showing 93, and the hint Perfect. Hold it."><br>
+  <img src="docs/images/screens/4-editor.png" width="32%" alt="The pose editor, based on Disco point: a mannequin with a round handle on each joint over a grid, and tools for mirror, reset, grid and add person.">
+  <img src="docs/images/screens/5-pose-from-photo.png" width="32%" alt="Pose from a photo: the headline Recreate any photo, three numbered steps, a note that the photo is never uploaded, and the button Choose a photo.">
+  <img src="docs/images/screens/6-settings.png" width="32%" alt="Settings: switches for voice guidance and auto-capture, a match strictness slider, countdown chips from off to 10 seconds, and three guide styles.">
+</p>
 
 ## Features
 
@@ -96,6 +93,36 @@ takes the photo by itself and lets you edit poses. Poseit isn't affiliated with 
 Poseit needs no account and no network connection. The camera feed, your photos and your poses stay on your
 phone. The one exception is MediaPipe's built-in usage logging: the library adds the internet permission and
 may send anonymous usage statistics to Google while you're online.
+
+## Status
+
+Poseit 1.1.0 hasn't been tried on a physical phone yet. Its 273 automated tests all pass on the JVM:
+
+- engine tests, including a check that every built-in pose can actually be matched;
+- Robolectric UI-flow tests on Android 7.0, 9 and 15 (onboarding, library, detail, editor, settings, gallery,
+  pose from a photo, camera permission and controls);
+- screenshot tests, including small phones and large fonts.
+
+Three independent review rounds fixed 50 issues. What the tests can't reach still needs a check on a phone:
+live CameraX and MediaPipe detection, voice (TextToSpeech), saving to the gallery, and how well real
+detections score. If you try it on a phone, please
+[report what you see](https://github.com/mdhaarishussain/Poseit/issues/new/choose), with the phone model and
+Android version.
+
+### Known limitations
+
+- Lying-down poses and wide couple and group poses are shown smaller, because the camera is portrait-only.
+- Arms that go around a partner are drawn across the partner's figure. The figures have no depth or props.
+- Exporting your poses saves the poses but not the photos behind photo-based poses.
+- Builds are signed with a public sideload key, for easy updates. Add your own key (see [Releases](#releases))
+  before you distribute the app to other people.
+
+### Ideas for later
+
+- Remember the lens, aspect ratio and timer between camera visits.
+- A review screen limited to the shots from the last photoshoot.
+- Switch to the front camera automatically for selfie poses.
+- Include reference photos in exports.
 
 ## How it works
 
@@ -159,38 +186,6 @@ repository secrets `POSEIT_KEYSTORE_BASE64`, `POSEIT_KEYSTORE_PASSWORD`, `POSEIT
 `POSEIT_KEY_PASSWORD`. After a switch, people have to uninstall the sideload-signed app once before they can
 install yours.
 
-## Status and known limitations
-
-Poseit 1.1.0 has been tested on the JVM but not yet on a physical phone.
-
-- 273 automated tests pass:
-  - engine tests, including a check that every built-in pose can actually be matched;
-  - Robolectric UI-flow tests on Android 7.0, 9 and 15 (onboarding, library, detail, editor, settings,
-    gallery, pose from a photo, camera permission and controls);
-  - screenshot tests, including small phones and large fonts.
-- Three independent review rounds fixed 50 issues.
-- What a JVM can't exercise still needs a check on a phone: live CameraX and MediaPipe detection, voice
-  (TextToSpeech), saving to the gallery, and how well real detections score.
-
-If you try it on a phone, please
-[report what you see](https://github.com/mdhaarishussain/Poseit/issues/new/choose), with the phone model and
-Android version.
-
-Known limitations:
-
-- Lying-down poses and wide couple and group poses are shown smaller, because the camera is portrait-only.
-- Arms that go around a partner are drawn across the partner's figure. The figures have no depth or props.
-- Exporting your poses saves the poses but not the photos behind photo-based poses.
-- Builds are signed with a public sideload key, for easy updates. Add your own key (see [Releases](#releases))
-  before you distribute the app to other people.
-
-Ideas for later:
-
-- Remember the lens, aspect ratio and timer between camera visits.
-- A review screen limited to the shots from the last photoshoot.
-- Switch to the front camera automatically for selfie poses.
-- Include reference photos in exports.
-
 ## Credits and third-party licences
 
 - Pose detection and segmentation: [MediaPipe](https://github.com/google-ai-edge/mediapipe) Tasks Vision with
@@ -203,7 +198,7 @@ Ideas for later:
 - All pose figures are original. Poseit's own DSL generates them from joint angles; no images were copied from
   other apps.
 
-In the app, these notices are under Settings, About, Open-source notices.
+In the app, open Settings and choose Open-source notices, under About.
 
 ## Licence
 
