@@ -139,7 +139,7 @@
       "source": "Mixkit",
       "page": "https://mixkit.co/free-stock-video/happy-mature-couple-posing-100743/",
       "file": "https://assets.mixkit.co/8djmxnezf86m2zgeksnxmi6ffef3",
-      "fileRes": "4096x2160",
+      "fileRes": "3840x2160",
       "fps": 23.976,
       "duration": 12.054,
       "licence": {
@@ -561,6 +561,34 @@
             4.48
           ]
         ],
+        "measured": {
+          "keys": [
+            [
+              336,
+              0
+            ],
+            [
+              422,
+              2.8667
+            ],
+            [
+              432,
+              3.1167
+            ],
+            [
+              512,
+              4.45
+            ]
+          ],
+          "from": {
+            "plate": "b5-live.1x",
+            "guide": "stand_hands_in_pockets",
+            "strictness": 0.75,
+            "hold": 401,
+            "countdown": 422,
+            "note": "written by scripts/footage-match.mjs: real time to the app's countdown start, 1x -> 0.5x over 10 f, 0.5x to the capture"
+          }
+        },
         "rule": "Real time (1x) from f336 until the countdown starts (the app's hold frame + 21 f), then eased to 0.5x over 10 f for the held pose, so the app's 700 ms hold and 3 s countdown complete inside her hold (2.71-5.38 s). Run the matcher at 1x first, set the ramp from the measured hold frame, render the retimed plate, then run detect.py and the matcher again on exactly the retimed frames. Frames before the ramp are identical in both runs.",
         "interpolation": "The 0.5x stretch may use frame blending or motion interpolation: she is nearly still (pose speed under 15 deg/s). The real-time stretch uses plain frame repetition (24 -> 30 fps), never interpolation (the hair flick would tear)."
       },

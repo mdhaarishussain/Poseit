@@ -1,7 +1,8 @@
 /**
  * Root.tsx: compositions.
  *   Promo        the film: 1080x1920, 30 fps, 664 f (STORYBOARD.md)
- *   Dev-*        foundation checks rendered as stills (figure sheet, blends, worlds); not part of the film
+ *   Dev-*        foundation checks rendered as stills (figure sheet, blends, worlds, the footage sheet); not part of
+ *                the film
  */
 import React from "react";
 import { Composition } from "remotion";
@@ -13,6 +14,7 @@ import { BlendSheet } from "./dev/BlendSheet";
 import { StudioDemo } from "./dev/StudioDemo";
 import { ViewfinderDemo } from "./dev/ViewfinderDemo";
 import { EndDemo } from "./dev/EndDemo";
+import { FootageSheet, SHEET_PLATES } from "./dev/FootageSheet";
 
 ensureFonts();
 
@@ -26,5 +28,6 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="Dev-StudioDemo" component={StudioDemo} width={W} height={H} fps={fps} durationInFrames={96} />
     <Composition id="Dev-Viewfinder" component={ViewfinderDemo} width={W} height={H} fps={fps} durationInFrames={2} />
     <Composition id="Dev-End" component={EndDemo} width={W} height={H} fps={fps} durationInFrames={1} />
+    <Composition id="Dev-FootageSheet" component={FootageSheet} width={W} height={H} fps={fps} durationInFrames={SHEET_PLATES.length} />
   </>
 );

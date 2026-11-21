@@ -21,6 +21,87 @@ Map additions for v2:
 | `src/footage/manifest.ts` | Typed reader of the manifest: clips, shots, source time and plate frame for a film frame. |
 | `CREDITS.md` | Every clip with its page and licence; the people are stock models who endorse nothing. |
 
+## Footage prep (v2): plates, landmarks and the app's verdicts on real footage
+
+Built by the footage stage for both builders: every manifest clip is downloaded (`npm run footage`, nothing
+committed), cut into film-time plates, detected with the app's lite model, smoothed with the app's own Kotlin
+`LandmarkSmoother`, and matched with the app's own PoseMatcher, HintStabilizer and CaptureCoach. `Dev-FootageSheet`
+proves the overlay sits on the person (15 pages, 4 frames each, one through a 1.35x push): skeleton and raw dots land
+on the body on every page; the smoothed joints trail the raw dots by a few px only on fast moves (the One Euro filter,
+as on a phone).
+
+| Plate | Clip | Frames (film) | Crop scale | Detected | Note |
+|---|---|---|---|---|---|
+| b2-alive | mk-34404 | 94 (f65-158) | 1.00 | 1.00 | full body every frame |
+| c1 | mk-1236 | 46 (f129-174) | 1.35 | 1.00 | |
+| c2 | mk-101459 | 51 (f145-195) | 1.00 | 1.00 | |
+| c3 | mk-3191 | 48 (f161-208) | 1.00 | 1.00 | half body; the nearer woman (the selfie-taker) is the one found |
+| c4 | mk-50649 | 49 (f177-225) | 1.78 | 1.00 | half body |
+| c5 | mk-41665 | 39 (f193-231) | 1.38 | 1.00 | a photographer's camera at the right edge |
+| c6 | mk-1236 | 45 (f201-245) | 1.56 | 1.00 | |
+| c7 | mk-41664 | 39 (f209-247) | 1.39 | 1.00 | |
+| c8 | mk-1236 | 47 (f217-263) | 1.31 | 1.00 | |
+| c9 | mk-100743 | 96 (f225-320) | 0.92 | 1.00 | one person only (see below) |
+| c9-alt1 | mk-100766 | 62 (f225-286) | 1.00 | 1.00 | one merged skeleton over both people |
+| c9-alt2 | mk-50649 | 62 (f225-286) | 1.78 | 0.92 (1.00 in the shot) | half body |
+| c1-alt1 | mk-1236 | 46 (f129-174) | 1.35 | 1.00 | same take as c8 |
+| b5-live | mk-39676 | 249 (f321-569) | 1.25 | 1.00 | time-remapped |
+| b5-live.1x | mk-39676 | 249 (f321-569) | 1.25 | 1.00 | real time, for the hold measurement |
+
+**Act III (the app's verdicts, `public/footage/b5-live.match.json`).** The guide is `stand_hands_in_pockets` fitted at
+source 4.0 s (scale 0.906, offset -0.012, +0.015). At the default strictness 0.80 it never locks: on the 1x plate the
+score is >= 0.80 from f403 to f421 while she arrives in the pose (peak 91 at f408), the 700 ms hold needs one more
+frame, and her settled hold scores 0.70-0.78 against the figure ("Ask them to bend their left elbow more"). The
+manifest's fallbacks in order: `walk_pockets` at 0.80 behaves the same (>= 0.80 f404-421); the planned guide at 0.75
+("Balanced", the next real strictness setting, declared here) locks. With it, on the remapped plate:
+- the score crosses into match at f401 and stays there to f473, then holds 0.69-0.73 (above the 0.63 abort line) to
+  the capture;
+- cards: f348 "Ask them to bend their right elbow more" (POSE), f413 "Perfect. Hold it", f486 "Ask them to bend
+  their left elbow more" (during the countdown, when the app removes the banner);
+- hold f401, countdown 3 / 2 / 1 at f422 / f452 / f482, capture f512 (inside f505-531: acceptance PASS).
+The remap the rule gives from that countdown start is `[[336,0],[422,2.8667],[432,3.1167],[512,4.45]]` (planned:
+423 / 433 / 513), now `timeRemap.measured` in the manifest; the capture frame shows source 4.45 s, inside her hold.
+For comparison, a guide made by the app's pose-from-a-photo path from her own 4.0 s frame locks at 0.80 (capture
+f498); it is not the film's guide (the punchline is the library pose's name). By the matcher, the library pose
+nearest her hold at 4.0 s is `lean_foot_on_wall` (0.95); "Hands in pockets" scores about 0.77 there.
+
+**Chorus snaps (`public/footage/nearest.json`).** Every template with the right person count, drawn and flipped,
+fitted to the person at the key time. The snap rule now also needs `fit` >= 0.8 (the share of what the person shows
+in frame that the fitted template also requires): without it a template pushed mostly out of a half-body frame wins on
+the two or three segments left (`walk_twirl` scored 1.00 on c3 and c4).
+
+| Shot | Key time | Pick (score) | Planned (score, rank) | Best in the in-point window |
+|---|---|---|---|---|
+| c1 | 10.59 s | none: best usable `stand_hands_in_pockets` flipped 0.77 (excluded), `fun_superhero` 0.72 | fun_superhero 0.72, 4 | 10.89 s `port_arms_crossed_smile` 0.89 |
+| c2 | 0.50 s | none: `floor_cross_legged` 0.68 | floor_cross_legged 0.68, 1 | 0.58 s `floor_cross_legged` 0.81 |
+| c3 | 3.71 s | none: `stand_sunglasses` flipped 0.79 | selfie_classic 0.48, 20 | 4.00 s `stand_sunglasses` flipped 0.87 |
+| c4 | 0.50 s | `stand_arms_crossed` 0.99 | port_arms_crossed_smile flipped 0.99, 4 | 0.54 s `stand_arms_crossed` 1.00 |
+| c5 | 6.51 s | `port_face_frame` flipped 0.96 | fun_peace_lean 0.92, 3 | 6.46 s `port_face_frame` flipped 0.97 |
+| c6 | 6.09 s | `port_arms_crossed_smile` flipped 0.92 | pro_arms_crossed flipped 0.91, 2 | 6.17 s `pro_arms_crossed` flipped 0.96 |
+| c7 | 2.79 s | `stand_hand_on_hip` 0.93 | same, 1 | 2.54 s `walk_toward_camera` flipped 0.99 |
+| c8 | 0.58 s | `port_face_frame` 1.00 | same, 1 | same |
+| c9 | 4.00 s | none: one person detected of two; best couple template 0.47 | couple, not reached | |
+| c9-alt1 | 3.00 s | none: one person; 0.49 | couple, not reached | |
+| c9-alt2 | 4.21 s | `stand_crossed_ankles` 0.991 | stand_hand_in_hair 0.991, 6 | |
+
+- c5 and c8 both pick `port_face_frame`; `distinct` in nearest.json gives each snap its best unused pose (c8 then
+  takes `selfie_mirror_two_hands`, 0.98).
+- The couple fails the manifest's condition: MediaPipe finds one person in every frame of c9 and c9-alt1, with the lite
+  and the full model, with the manifest crop and a re-centred one. The couple's 2160 file is 3840x2160 (the manifest
+  said 4096x2160; corrected) and no 9:16 window holds both of them. c9-alt2 is the manifest's single-person fallback;
+  its legs are out of frame, so legs cannot separate `stand_crossed_ankles` from `stand_hand_in_hair` (both 0.991:
+  pick by the arms), and its mid-hip fit draws the frontal figure left of her three-quarter body.
+
+**Real and illustrative here.** Real: the footage, every detection (the app's model and settings; VIDEO mode, since a
+file has no live clock), the smoothing (the app's Kotlin), every verdict (the app's Kotlin; the coach is ticked once
+per 30 fps frame, the app ticks it every 33 ms). The guide placement is a solved drag and pinch any user could make.
+The 0.5x stretch is frame repetition of her real hold; the verdicts are computed on the stretched frames. The grade is
+an interpretation of the manifest's words: the shot's `trim` is a midtone lift that keeps black and white
+(`l + trim 4 l (1 - l)`), the S is 30% of a smoothstep for `contrast` 1.06 (`src/footage/grade.tsx`).
+
+**Remotion note.** `<Freeze frame={n}>` clamps n to the composition's length, so a short composition shows the wrong
+plate frame; `Footage` freezes at 0 and trims the video to n instead.
+
 ## Status v1: picture and sound built; the voice waits for a key
 
 Every beat of the storyboard is built in `src/scenes/` and assembled in `Promo` (664 f, 22.13 s, 1080 x 1920). The act
@@ -45,6 +126,18 @@ npm run studio       # Remotion Studio
 npx remotion still src/index.ts Promo out/f.png --frame 40
 npm run draft        # half-size draft to out/draft.mp4
 python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13 --expect-audio
+
+# v2 footage (needs promo/.venv: python3 -m venv .venv && .venv/bin/pip install mediapipe opencv-python-headless numpy,
+# and on a bare Linux image the system libraries libegl1 and libgles2)
+npm run footage        # download the manifest's clips to public/footage/src/ and build the film-time plates
+                       # public/footage/<plate>.mp4 (both gitignored) + public/footage/plates.json; skips what is up to date
+npm run landmarks      # the app's lite model on every plate (scripts/detect.py -> out/footage/), then the app's own
+                       # LandmarkMapping + LandmarkSmoother (pose-core PromoFootageLandmarks) -> public/footage/<plate>.landmarks.json
+npm run footage-match  # the app's PoseMatcher + HintStabilizer + CaptureCoach on the footage (app PromoFootageMatch)
+                       # -> public/footage/nearest.json and <plate>.match.json; sets b5-live's time remap from the app's
+                       # countdown start (manifest timeRemap.measured), rebuilds that plate and matches it again
+npx remotion render src/index.ts Dev-FootageSheet out/sheet --sequence --image-format=png --concurrency=2
+                       # the alignment proof: one page per plate, four frames each (one with a 1.35x push)
 ```
 
 `remotion.config.ts` points Remotion at the Playwright headless shell in `/opt/pw-browsers` when it exists (set
@@ -69,6 +162,15 @@ python3 <motionmaxxing>/scripts/look.py out/draft.mp4 --out look --expect 22.13 
 | `src/dev/` | Check compositions (`Dev-*`), rendered as stills: the figure sheet, blends, the studio, the viewfinder and the end frame. They are not part of the film. |
 | `scripts/check-shapes.ts` | Checks the TS geometry against Kotlin for every figure. |
 | `../pose-core/src/test/kotlin/com/poseit/app/tools/PromoPoseExport.kt` | Writes `public/poses.json`. |
+| `scripts/fetch-footage.mjs` (`npm run footage`) | Downloads every manifest clip to `public/footage/src/<catalogue>.mp4` and builds one plate per shot, `public/footage/<plate>.mp4`: 30 fps CFR, H.264 yuv420p (BT.709 tags), keyframe every 15 f, no audio, the manifest crop scaled to 1080x1920. Plates are in FILM time with a 15-frame handle each side: plate frame n = global frame `filmFrom + n`, showing source frame `floor(S(f) * fps)` (frame repetition, never interpolation; S = in + rate t, or the time-remap keys). Also `b5-live.1x` (the live shot at 1x, to measure the hold) and the alternates' plates (`c9-alt1`, `c9-alt2`, `c1-alt1`). Idempotent (a parameter hash per plate). |
+| `public/footage/plates.json` (committed) | Every plate: shot, clip, film window, `filmFrom`, frames, crop and crop scale, source fps, and the source frame shown on each plate frame. |
+| `public/footage/src/`, `public/footage/*.mp4` (gitignored) | The downloaded clips and the plates. Never committed. |
+| `scripts/landmarks.mjs` (`npm run landmarks`) | `scripts/detect.py` (unchanged: lite model, confidence 0.5, VIDEO mode, un-mirrored; 2 poses for couple plates) on every plate into `out/footage/<plate>.detect.json`, the act III guide frame through the full model (`public/footage/b5-live.guide-photo.json`, the app's "pose from a photo" detection), then the pose-core test below. |
+| `../pose-core/src/test/kotlin/com/poseit/app/tools/PromoFootageLandmarks.kt` | The app's live path on the detections: `LandmarkMapping.toScene` (scene 9:16 = the plate) and `LandmarkSmoother` (One Euro per joint, min cutoff 1.2 Hz, beta 0.03; visibility 120 ms; CameraViewModel.onDetection) at the plate's 30 fps timestamps. Writes `public/footage/<plate>.landmarks.json` (committed): per plate frame the 33 raw landmarks and the smoothed 21-joint skeletons the overlay draws (visibility >= 0.5) and the matcher reads. |
+| `scripts/footage-match.mjs` (`npm run footage-match`) | Runs the app test below, sets b5-live's `timeRemap.measured` from the app's countdown start on the 1x plate (real time, then 1x -> 0.5x over 10 f, 0.5x to the capture), rebuilds that plate, its landmarks and its match, and prints the acceptance checks and the snaps. |
+| `../app/src/test/java/com/poseit/app/promo/PromoFootageMatch.kt` | The app's PoseMatcher + HintStabilizer + CaptureCoach over the smoothed landmarks (back camera: `mirroredView=false`, PHOTOGRAPHER audience; app defaults: 700 ms hold, 3 s countdown, abort margin 0.12). Guides are library templates mapped with `SceneMapping.templateToScene` and an `OverlayTransform` solved like a drag and pinch (mid-hip and torso length; scale 0.4-2.5, offsets +-0.9). Writes `public/footage/nearest.json` (every snap: all templates of the right person count, drawn and flipped, ranked; the snap-rule pick; the best frame in the in-point window; a no-repeat `distinct` pick) and `<plate>.match.json` (same records as `public/match.json` plus the guide in scene space, the events and, for b5-live, every acceptance attempt). `b5-live.photo-guide.match.json` is the comparison run with a guide from the app's pose-from-a-photo path (`CustomPoseFactory.fromDetection`). |
+| `src/footage/` | `plates.ts` (the plates and `plateFrameFor`), `transform.ts` (the one plate -> composition transform: a push about a scene anchor, `cssMatrix`, `sceneToComp`, `pushAt`), `grade.tsx` (the Studio ramp `RampFilter`, `rampCurve`), `data.ts` (file types, `peopleAt`, `drawable`, `matchRecordAt`, `guideFigures`, `partColors`), `hooks.ts` (`useLandmarks`, `useFootageMatch`, `useFootageJson`: fetched from `public/` with delayRender, not bundled), `Footage.tsx` (a plate on the film's clock, graded, with children drawn in plate pixels through the same transform), `index.ts`. `manifest.ts` now reads `timeRemap.measured` first (`remapKeys`). |
+| `src/dev/FootageSheet.tsx` (`Dev-FootageSheet`) | One page per plate: four frames (first, guide or middle, fastest move, last with a 1.35x push) with the smoothed skeleton, the raw landmarks as red dots and the guide in the app's paint. |
 
 ## Real, rebuilt, illustrative
 
