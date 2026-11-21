@@ -117,7 +117,7 @@ class PhotoScreensScreenshotTest {
         var name by remember { mutableStateOf("My pose 1") }
         var category by remember { mutableStateOf(PoseCategory.CUSTOM) }
         var tags by remember { mutableStateOf(setOf(PoseTag.CASUAL)) }
-        StudioTopBar("Your new pose", onBack = {})
+        // The review draws its own top bar card ("Your new pose"), fused to the traced photo.
         Column(Modifier.weight(1f)) {
             ReviewContent(
                 state = state,
@@ -129,9 +129,9 @@ class PhotoScreensScreenshotTest {
                 onTagsChange = { tags = it },
                 onTogglePerson = {},
                 onPickAnother = {},
+                bottomBar = { ReviewBottomBar(saving = false, canSave = true, onSave = {}) },
             )
         }
-        ReviewBottomBar(saving = false, canSave = true, onSave = {})
     }
 
     @Test
