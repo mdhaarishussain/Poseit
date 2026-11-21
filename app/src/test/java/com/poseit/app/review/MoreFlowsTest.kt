@@ -173,7 +173,7 @@ class MoreFlowsTest {
             waitText("No poses match")
             shot("no-match")
             byText("Clear filters").performClick()
-            waitText("POSE OF THE DAY")
+            waitText("Today's pose")
             byText("Favourites").performClick()
             compose.waitForIdle()
             shot("favourites-tab")

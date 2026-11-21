@@ -1,71 +1,45 @@
 package com.poseit.app.ui.library
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -73,8 +47,17 @@ import androidx.compose.ui.unit.sp
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
 import com.poseit.app.pose.PoseTemplate
-import com.poseit.app.ui.components.PoseThumbnail
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.components.PoseTile
+import com.poseit.app.ui.components.SecondaryButton
+import com.poseit.app.ui.components.StudioChip
+import com.poseit.app.ui.components.StudioIconButton
+import com.poseit.app.ui.components.StudioIconSize
+import com.poseit.app.ui.components.StudioTabs
+import com.poseit.app.ui.components.VerticalHairline
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
 
 /** Lets a full-width child (e.g. a chip row) ignore the parent's horizontal content padding. */
 internal fun Modifier.bleedHorizontally(amount: Dp): Modifier = layout { measurable, constraints ->
@@ -89,32 +72,42 @@ internal fun Modifier.bleedHorizontally(amount: Dp): Modifier = layout { measura
     layout(width, placeable.height) { placeable.place(-extra / 2, 0) }
 }
 
-/** Pill-shaped search field. Pressing the keyboard's search key just hides the keyboard (results are live). */
+/**
+ * The search field: a Sheet patch with the Small radius and an outlined search glyph, Ink outline only while
+ * focused. Pressing the keyboard's search key just hides the keyboard (results are live).
+ */
 @Composable
 internal fun LibrarySearchField(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
     val keyboard = LocalSoftwareKeyboardController.current
     val focus: FocusManager = LocalFocusManager.current
-    TextField(
+    OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier.fillMaxWidth(),
-        placeholder = { Text("Search poses, places, moods…", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-        trailingIcon = {
-            if (query.isNotEmpty()) {
-                IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Filled.Close, contentDescription = "Clear search")
-                }
-            }
+        textStyle = MaterialTheme.typography.bodyLarge,
+        placeholder = {
+            Text("Search poses, places, moods…", style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(StudioIconSize)) },
+        trailingIcon = if (query.isNotEmpty()) {
+            { StudioIconButton(Icons.Outlined.Close, "Clear search", onClick = { onQueryChange("") }, tint = Studio.Graphite) }
+        } else {
+            null
         },
         singleLine = true,
-        shape = RoundedCornerShape(28.dp),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
+        shape = StudioShapes.Small,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Studio.Sheet,
+            unfocusedContainerColor = Studio.Sheet,
+            focusedBorderColor = Studio.Ink,
+            unfocusedBorderColor = Color.Transparent,
+            focusedTextColor = Studio.Ink,
+            unfocusedTextColor = Studio.Ink,
+            cursorColor = Studio.Ink,
+            focusedPlaceholderColor = Studio.Graphite,
+            unfocusedPlaceholderColor = Studio.Graphite,
+            focusedLeadingIconColor = Studio.Ink,
+            unfocusedLeadingIconColor = Studio.Graphite,
         ),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
@@ -124,63 +117,25 @@ internal fun LibrarySearchField(query: String, onQueryChange: (String) -> Unit, 
     )
 }
 
-/** Segmented control with a sliding highlight. Labels shrink to fit on narrow phones. */
+/** All / Favourites / Recent / My poses as Studio text tabs, edge to edge with the first tab on the gutter. */
 @Composable
 internal fun LibraryTabs(selected: LibraryTab, onSelect: (LibraryTab) -> Unit, modifier: Modifier = Modifier) {
     val tabs = LibraryTab.entries
-    val selectedIndex = tabs.indexOf(selected)
-    BoxWithConstraints(
-        modifier
-            .fillMaxWidth()
-            .height(46.dp)
-            .clip(RoundedCornerShape(23.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(4.dp),
-    ) {
-        val segment = maxWidth / tabs.size
-        val indicatorOffset by animateDpAsState(segment * selectedIndex, spring(dampingRatio = 0.8f, stiffness = 500f), label = "tabIndicator")
-        Box(
-            Modifier
-                .offset(x = indicatorOffset)
-                .width(segment)
-                .fillMaxHeight()
-                .clip(RoundedCornerShape(19.dp))
-                .background(MaterialTheme.colorScheme.primary),
-        )
-        Row(Modifier.fillMaxSize()) {
-            tabs.forEach { tab ->
-                val isSelected = tab == selected
-                val textColor by animateColorAsState(
-                    if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    label = "tabText",
-                )
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(19.dp))
-                        .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab) })
-                        .padding(horizontal = 4.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    BasicText(
-                        text = tab.label,
-                        style = MaterialTheme.typography.labelLarge.copy(color = textColor, textAlign = TextAlign.Center),
-                        maxLines = 1,
-                        autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 14.sp, stepSize = 0.5.sp),
-                    )
-                }
-            }
-        }
-    }
+    StudioTabs(
+        labels = tabs.map { it.label },
+        selectedIndex = tabs.indexOf(selected),
+        onSelect = { onSelect(tabs[it]) },
+        modifier = modifier.bleedHorizontally(Space.gutter),
+        edgePadding = Space.gutter,
+    )
 }
 
-/** A horizontally scrolling row of chips that starts with a small caption, edge to edge on screen. */
+/** A horizontally scrolling row of chips that starts with a short caption, edge to edge on screen. */
 @Composable
 internal fun ChipRow(
     caption: String,
     modifier: Modifier = Modifier,
-    horizontalPadding: Dp = 16.dp,
+    horizontalPadding: Dp = Space.gutter,
     content: LazyListScope.() -> Unit,
 ) {
     LazyRow(
@@ -188,16 +143,16 @@ internal fun ChipRow(
             .fillMaxWidth()
             .bleedHorizontally(horizontalPadding),
         contentPadding = PaddingValues(horizontal = horizontalPadding),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(Space.s),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         item(key = "caption") {
             Text(
                 caption,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = StudioType.label,
+                color = Studio.Graphite,
                 modifier = Modifier
-                    .padding(end = 2.dp)
+                    .padding(end = Space.xs)
                     .semantics { heading() },
             )
         }
@@ -205,37 +160,7 @@ internal fun ChipRow(
     }
 }
 
-@Composable
-internal fun LibraryChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    leadingIcon: ImageVector? = null,
-) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label, maxLines = 1) },
-        leadingIcon = leadingIcon?.let { icon ->
-            { Icon(icon, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
-        },
-        shape = RoundedCornerShape(50),
-        colors = FilterChipDefaults.filterChipColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            selectedContainerColor = PoseitColors.Violet,
-            selectedLabelColor = Color.White,
-            selectedLeadingIconColor = Color.White,
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            enabled = true,
-            selected = selected,
-            borderColor = MaterialTheme.colorScheme.outline,
-            selectedBorderColor = Color.Transparent,
-        ),
-    )
-}
-
-/** The three filter rows: people, category, place + mood. */
+/** The three filter rows: people, category, place + mood. Category, place and mood chips are text only. */
 @Composable
 internal fun LibraryFilters(
     filter: LibraryFilter,
@@ -248,11 +173,11 @@ internal fun LibraryFilters(
     onMood: (PoseTag) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(modifier) {
         ChipRow(caption = "Who's in the photo?") {
             items(PeopleFilter.entries.size, key = { "people_$it" }) { i ->
                 val option = PeopleFilter.entries[i]
-                LibraryChip(
+                StudioChip(
                     label = option.label,
                     selected = filter.people == option,
                     onClick = { onPeople(option) },
@@ -268,12 +193,12 @@ internal fun LibraryFilters(
         if (categories.size > 1) {
             ChipRow(caption = "Category") {
                 item(key = "cat_all") {
-                    LibraryChip(label = "All", selected = filter.category == null, onClick = { onCategory(null) })
+                    StudioChip(label = "All", selected = filter.category == null, onClick = { onCategory(null) })
                 }
                 items(categories.size, key = { "cat_${categories[it].name}" }) { i ->
                     val category = categories[i]
-                    LibraryChip(
-                        label = category.label,
+                    StudioChip(
+                        label = category.displayLabel,
                         selected = filter.category == category,
                         onClick = { onCategory(category) },
                     )
@@ -284,21 +209,24 @@ internal fun LibraryFilters(
             ChipRow(caption = "Where are you?") {
                 items(locationTags.size, key = { "loc_${locationTags[it].name}" }) { i ->
                     val tag = locationTags[i]
-                    LibraryChip(
+                    StudioChip(
                         label = tag.label,
-                        leadingIcon = Icons.Filled.Place,
                         selected = filter.location == tag,
                         onClick = { onLocation(tag) },
                     )
                 }
                 if (locationTags.isNotEmpty() && moodTags.isNotEmpty()) {
                     item(key = "divider") {
-                        VerticalDivider(Modifier.height(24.dp).padding(horizontal = 4.dp))
+                        VerticalHairline(
+                            Modifier
+                                .height(20.dp)
+                                .padding(horizontal = Space.xs),
+                        )
                     }
                 }
                 items(moodTags.size, key = { "mood_${moodTags[it].name}" }) { i ->
                     val tag = moodTags[i]
-                    LibraryChip(
+                    StudioChip(
                         label = tag.label,
                         selected = filter.mood == tag,
                         onClick = { onMood(tag) },
@@ -309,107 +237,53 @@ internal fun LibraryFilters(
     }
 }
 
-/** Big gradient card with today's pose. Tapping the card opens it, "Try it" goes straight to the camera. */
+/** The name in the featured row: the wide display cut, a step below the detail screen's 28sp. */
+private val FeaturedName = StudioType.display.copy(fontSize = 22.sp, lineHeight = 28.sp)
+
+/**
+ * Today's pose: a larger figure on its patch of studio paper, the name in the wide cut, its category and
+ * difficulty as two quiet words, and "Try it". Tapping anywhere else opens the pose.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun PoseOfTheDayCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () -> Unit, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-    ) {
+internal fun TodaysPose(pose: PoseTemplate, onOpen: () -> Unit, onTry: () -> Unit, modifier: Modifier = Modifier) {
+    val source = remember { MutableInteractionSource() }
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        val gap = Space.l
+        val tileWidth = (maxWidth - gap) * 0.44f
+        // The text column is at least as tall as the tile, so "Try it" sits level with the tile's foot; with a
+        // large font it grows past it instead of squeezing the button.
+        val tileHeight = tileWidth * (4f / 3f)
         Row(
             Modifier
                 .fillMaxWidth()
-                .height(196.dp)
-                .background(HeroGradient)
-                .clickable(onClickLabel = "Open pose of the day", onClick = onOpen),
+                .clickable(interactionSource = source, indication = null, onClickLabel = "Open today's pose", onClick = onOpen),
+            horizontalArrangement = Arrangement.spacedBy(gap),
         ) {
-            Box(
-                Modifier
-                    .weight(0.44f)
-                    .fillMaxHeight()
-                    .padding(start = 8.dp, top = 12.dp, bottom = 12.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    Modifier
-                        .size(132.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.12f)),
-                )
-                PoseThumbnail(template = pose, modifier = Modifier.fillMaxSize(), background = null)
-            }
+            PoseTile(
+                pose = pose,
+                name = null,
+                detail = null,
+                interactionSource = source,
+                modifier = Modifier.width(tileWidth),
+            )
             Column(
                 Modifier
-                    .weight(0.56f)
-                    .fillMaxHeight()
-                    .padding(top = 18.dp, bottom = 16.dp, end = 16.dp, start = 4.dp),
+                    .weight(1f)
+                    .heightIn(min = tileHeight),
             ) {
-                Text(
-                    "POSE OF THE DAY",
-                    style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.5.sp, fontWeight = FontWeight.Bold),
-                    color = Color.White.copy(alpha = 0.8f),
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    pose.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    "${pose.categoryText} · ${Difficulty.label(pose.difficulty)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.85f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.weight(1f))
-                Button(
-                    onClick = onTry,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = PoseitColors.VioletDark),
-                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp),
-                ) {
-                    Icon(Icons.Filled.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Try it")
+                Text("Today's pose", style = StudioType.label, color = Studio.Graphite)
+                Spacer(Modifier.height(Space.xs))
+                Text(pose.name, style = FeaturedName, color = Studio.Ink, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(Space.s))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                    Text(pose.categoryText, style = StudioType.label, color = Studio.Graphite)
+                    Text(Difficulty.label(pose.difficulty), style = StudioType.label, color = Studio.Graphite)
                 }
+                Spacer(Modifier.height(Space.l))
+                Spacer(Modifier.weight(1f))
+                SecondaryButton("Try it", onClick = onTry)
             }
-        }
-    }
-}
-
-private val HeroGradient = Brush.linearGradient(
-    listOf(PoseitColors.VioletDark, PoseitColors.Violet, Color(0xFFB765E8), PoseitColors.Coral),
-)
-
-/** Text + actions for empty lists. */
-@Composable
-internal fun EmptyState(
-    title: String,
-    message: String,
-    modifier: Modifier = Modifier,
-    actions: @Composable ColumnScope.() -> Unit = {},
-) {
-    Column(
-        modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(20.dp))
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            actions()
         }
     }
 }

@@ -73,7 +73,7 @@ abstract class SmallPhoneShots(private val prefix: String) {
     @Test
     fun library() {
         set { LibraryScreen({}, {}, {}, {}, {}, {}) }
-        waitText("POSE OF THE DAY")
+        waitText("Today's pose")
         capture("library")
     }
 

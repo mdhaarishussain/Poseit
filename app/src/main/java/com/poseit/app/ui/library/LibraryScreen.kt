@@ -1,24 +1,25 @@
 package com.poseit.app.ui.library
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -27,30 +28,17 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddAPhoto
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Draw
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -62,14 +50,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -80,7 +63,18 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.poseit.app.appContainer
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.components.EmptyState
+import com.poseit.app.ui.components.HairlineDivider
+import com.poseit.app.ui.components.PrimaryButton
+import com.poseit.app.ui.components.SecondaryButton
+import com.poseit.app.ui.components.SettingRow
+import com.poseit.app.ui.components.StudioButtonHeight
+import com.poseit.app.ui.components.StudioIconButton
+import com.poseit.app.ui.components.StudioLargeTopBar
+import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.launch
 
 /** Home screen: browse / search / filter the pose library. */
@@ -118,7 +112,6 @@ fun LibraryScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LibraryContent(
     state: LibraryUiState,
@@ -138,55 +131,26 @@ private fun LibraryContent(
     onOpenEditor: (String?) -> Unit,
     onOpenSettings: () -> Unit,
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val gridState = rememberLazyGridState()
     val fabExpanded by remember { derivedStateOf { gridState.firstVisibleItemIndex < 2 } }
     var showCreateSheet by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Studio.Paper,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Poseit",
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            brush = Brush.linearGradient(listOf(Color.White, Color(0xFFD9CCFF), PoseitColors.Coral)),
-                            fontWeight = FontWeight.ExtraBold,
-                        ),
-                    )
-                },
-                actions = {
-                    IconButton(onClick = onOpenGallery) { Icon(Icons.Filled.PhotoLibrary, contentDescription = "Your photos") }
-                    IconButton(onClick = onOpenSettings) { Icon(Icons.Filled.Settings, contentDescription = "Settings") }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                ),
-                scrollBehavior = scrollBehavior,
-            )
+            StudioLargeTopBar("Poseit") {
+                StudioIconButton(Icons.Outlined.Add, "Create a pose", onClick = { showCreateSheet = true })
+                StudioIconButton(Icons.Outlined.PhotoLibrary, "Your photos", onClick = onOpenGallery)
+                StudioIconButton(Icons.Outlined.Settings, "Settings", onClick = onOpenSettings)
+            }
         },
         floatingActionButton = {
-            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                SmallFloatingActionButton(
-                    onClick = { showCreateSheet = true },
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Create a pose")
-                }
-                ExtendedFloatingActionButton(
-                    onClick = { onOpenCamera(null) },
-                    expanded = fabExpanded,
-                    // The expandable FAB hides its text from accessibility (it can collapse away): label the icon.
-                    icon = { Icon(Icons.Filled.CameraAlt, contentDescription = "Pose camera") },
-                    text = { Text("Pose camera") },
-                    containerColor = PoseitColors.Violet,
-                    contentColor = Color.White,
-                )
-            }
+            PoseCameraButton(
+                expanded = fabExpanded,
+                onClick = { onOpenCamera(null) },
+                // Scaffold keeps the FAB 16dp from the edges; this puts it on the 20dp gutter.
+                modifier = Modifier.padding(end = Space.xs, bottom = Space.xs),
+            )
         },
     ) { padding ->
         if (state.loading) {
@@ -195,7 +159,7 @@ private fun LibraryContent(
                     .fillMaxSize()
                     .padding(padding),
                 contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator() }
+            ) { CircularProgressIndicator(color = Studio.Ink, strokeWidth = 2.dp) }
             return@Scaffold
         }
         LazyVerticalGrid(
@@ -203,26 +167,32 @@ private fun LibraryContent(
             state = gridState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                top = padding.calculateTopPadding() + 4.dp,
-                bottom = padding.calculateBottomPadding() + 152.dp,
+                start = Space.gutter,
+                end = Space.gutter,
+                top = padding.calculateTopPadding() + Space.xs,
+                // Room for the camera button over the last row.
+                bottom = padding.calculateBottomPadding() + StudioButtonHeight + Space.xxl,
             ),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(Space.m),
         ) {
             fullWidth("search") {
-                LibrarySearchField(query = query, onQueryChange = onQueryChange)
+                LibrarySearchField(
+                    query = query,
+                    onQueryChange = onQueryChange,
+                    modifier = Modifier.padding(bottom = Space.xl),
+                )
             }
             if (state.showHero) {
                 val hero = state.poseOfTheDay
                 if (hero != null) {
                     fullWidth("hero") {
-                        PoseOfTheDayCard(
+                        TodaysPose(
                             pose = hero,
                             onOpen = { onOpenPose(hero.id) },
                             onTry = { onOpenCamera(hero.id) },
-                            modifier = Modifier.animateItem(),
+                            modifier = Modifier
+                                .animateItem()
+                                .padding(bottom = Space.section),
                         )
                     }
                 }
@@ -240,6 +210,7 @@ private fun LibraryContent(
                     onCategory = onToggleCategory,
                     onLocation = onToggleLocation,
                     onMood = onToggleMood,
+                    modifier = Modifier.padding(top = Space.s),
                 )
             }
             if (state.poses.isNotEmpty()) {
@@ -248,7 +219,9 @@ private fun LibraryContent(
                         count = state.poses.size,
                         showClear = state.filter.hasRefinements,
                         onClear = onClearFilters,
-                        modifier = Modifier.animateItem(),
+                        modifier = Modifier
+                            .animateItem()
+                            .padding(top = Space.xs, bottom = Space.xs),
                     )
                 }
             }
@@ -258,8 +231,7 @@ private fun LibraryContent(
                         onClick = { showCreateSheet = true },
                         modifier = Modifier
                             .animateItem()
-                            .fillMaxWidth()
-                            .aspectRatio(0.68f),
+                            .padding(bottom = Space.xl),
                     )
                 }
             }
@@ -271,18 +243,23 @@ private fun LibraryContent(
                     onToggleFavorite = { onToggleFavorite(pose.id) },
                     onTry = { onOpenCamera(pose.id) },
                     onCustomize = { onOpenEditor(pose.id) },
-                    modifier = Modifier.animateItem(),
+                    modifier = Modifier
+                        .animateItem()
+                        .padding(bottom = Space.xl),
                 )
             }
             if (state.poses.isEmpty()) {
                 fullWidth("empty") {
                     LibraryEmptyState(
-                        modifier = Modifier.animateItem(),
+                        modifier = Modifier
+                            .animateItem()
+                            // EmptyState brings its own 20dp gutter; the grid already has one.
+                            .bleedHorizontally(Space.gutter),
                         state = state,
                         onClearFilters = onClearFilters,
                         onShowAll = { onSelectTab(LibraryTab.ALL) },
                         onOpenCamera = { onOpenCamera(null) },
-                        onCreateFromPhoto = onCreateFromPhoto,
+                        onCreate = { showCreateSheet = true },
                         onDraw = { onOpenEditor(null) },
                     )
                 }
@@ -296,6 +273,32 @@ private fun LibraryContent(
             onFromPhoto = onCreateFromPhoto,
             onDraw = { onOpenEditor(null) },
         )
+    }
+}
+
+/**
+ * The screen's one primary action, floating bottom-end: Ink, Medium radius, 48dp, flat. It folds to the camera
+ * glyph once the grid scrolls, so it covers less of the poses.
+ */
+@Composable
+private fun PoseCameraButton(expanded: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    PrimaryButton(onClick = onClick, modifier = modifier) {
+        // The label can fold away, so the glyph carries the name while it is hidden.
+        Icon(
+            Icons.Outlined.CameraAlt,
+            contentDescription = if (expanded) null else "Pose camera",
+            modifier = Modifier.size(18.dp),
+        )
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn(tween(200)) + expandHorizontally(tween(200)),
+            exit = fadeOut(tween(150)) + shrinkHorizontally(tween(200)),
+        ) {
+            Row {
+                Spacer(Modifier.width(Space.s))
+                Text("Pose camera", maxLines = 1)
+            }
+        }
     }
 }
 
@@ -319,21 +322,23 @@ private fun LazyGridScope.fullWidth(key: String, content: @Composable LazyGridIt
     item(key = key, span = { GridItemSpan(maxLineSpan) }, contentType = key) { content() }
 }
 
+/** "24 poses" in Label Graphite, and "Clear filters" while anything narrows the list. */
 @Composable
 private fun ResultsHeader(count: Int, showClear: Boolean, onClear: () -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier
             .fillMaxWidth()
-            .height(36.dp),
+            .heightIn(min = StudioButtonHeight),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             if (count == 1) "1 pose" else "$count poses",
-            style = MaterialTheme.typography.titleMedium,
+            style = StudioType.label,
+            color = Studio.Graphite,
             modifier = Modifier.weight(1f),
         )
-        AnimatedVisibility(visible = showClear, enter = fadeIn(), exit = fadeOut()) {
-            TextButton(onClick = onClear) { Text("Clear filters") }
+        AnimatedVisibility(visible = showClear, enter = fadeIn(tween(200)), exit = fadeOut(tween(150))) {
+            TertiaryButton("Clear filters", onClick = onClear)
         }
     }
 }
@@ -345,51 +350,39 @@ private fun LibraryEmptyState(
     onClearFilters: () -> Unit,
     onShowAll: () -> Unit,
     onOpenCamera: () -> Unit,
-    onCreateFromPhoto: () -> Unit,
+    onCreate: () -> Unit,
     onDraw: () -> Unit,
 ) {
+    // The camera button is the screen's primary action, so each empty state offers one secondary button.
     val tab = state.filter.tab
     when {
         state.tabTotal == 0 && tab == LibraryTab.FAVORITES -> EmptyState(
             modifier = modifier,
             title = "No favourites yet",
             message = "Tap the heart on any pose to keep it here for your next shoot.",
-        ) { Button(onClick = onShowAll) { Text("Browse poses") } }
+            action = { SecondaryButton("Browse poses", onClick = onShowAll) },
+        )
 
         state.tabTotal == 0 && tab == LibraryTab.RECENT -> EmptyState(
             modifier = modifier,
             title = "Nothing tried yet",
             message = "Poses you use in the camera show up here, so you can find them again quickly.",
-        ) {
-            Button(onClick = onOpenCamera) {
-                Icon(Icons.Filled.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Open the pose camera")
-            }
-        }
+            action = { SecondaryButton("Open the pose camera", onClick = onOpenCamera) },
+        )
 
         state.tabTotal == 0 && tab == LibraryTab.MINE -> EmptyState(
             modifier = modifier,
             title = "Make your first pose",
             message = "Turn any photo you love into a pose guide, or drag the mannequin into a pose of your own.",
-        ) {
-            Button(onClick = onCreateFromPhoto) {
-                Icon(Icons.Filled.AddAPhoto, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("From a photo")
-            }
-            OutlinedButton(onClick = onDraw) {
-                Icon(Icons.Filled.Draw, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Draw your own")
-            }
-        }
+            action = { SecondaryButton("Create a pose", onClick = onCreate) },
+        )
 
         state.tabTotal == 0 -> EmptyState(
             modifier = modifier,
             title = "No poses here",
             message = "Create your own pose from a photo or draw one with the mannequin.",
-        ) { FilledTonalButton(onClick = onDraw) { Text("Draw a pose") } }
+            action = { SecondaryButton("Draw a pose", onClick = onDraw) },
+        )
 
         else -> EmptyState(
             modifier = modifier,
@@ -399,7 +392,8 @@ private fun LibraryEmptyState(
             } else {
                 "Try a different combination of filters."
             },
-        ) { Button(onClick = onClearFilters) { Text("Clear filters") } }
+            action = { SecondaryButton("Clear filters", onClick = onClearFilters) },
+        )
     }
 }
 
@@ -417,7 +411,9 @@ private fun CreatePoseSheet(onDismiss: () -> Unit, onFromPhoto: () -> Unit, onDr
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Studio.Sheet,
+        contentColor = Studio.Ink,
+        tonalElevation = 0.dp,
         // Full-height sheets would otherwise slide under the status bar (M3 1.3 only insets the bottom).
         modifier = Modifier.statusBarsPadding(),
     ) {
@@ -425,59 +421,35 @@ private fun CreatePoseSheet(onDismiss: () -> Unit, onFromPhoto: () -> Unit, onDr
             Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(start = 20.dp, end = 20.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(bottom = Space.l),
         ) {
-            Text("Create a pose", style = MaterialTheme.typography.titleLarge)
             Text(
-                "Your poses work just like the built-in ones: match, coach and auto-capture.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                "Create a pose",
+                style = StudioType.title,
+                color = Studio.Ink,
+                modifier = Modifier
+                    .padding(horizontal = Space.gutter)
+                    .semantics { heading() },
             )
-            Spacer(Modifier.height(4.dp))
-            CreateOption(
-                icon = Icons.Filled.AddAPhoto,
-                accent = PoseitColors.Coral,
+            Spacer(Modifier.height(Space.s))
+            Text(
+                "Your poses work in the camera just like the built-in ones.",
+                style = StudioType.body,
+                color = Studio.Graphite,
+                modifier = Modifier.padding(horizontal = Space.gutter),
+            )
+            Spacer(Modifier.height(Space.m))
+            SettingRow(
                 title = "From a photo",
                 subtitle = "Pick a photo you like. Poseit traces the pose and turns it into a guide.",
                 onClick = { closeThen(onFromPhoto) },
             )
-            CreateOption(
-                icon = Icons.Filled.Draw,
-                accent = PoseitColors.Mint,
+            HairlineDivider(Modifier.padding(horizontal = Space.gutter))
+            SettingRow(
                 title = "Draw your own",
                 subtitle = "Drag the mannequin's joints into exactly the pose you have in mind.",
                 onClick = { closeThen(onDraw) },
             )
-        }
-    }
-}
-
-@Composable
-private fun CreateOption(icon: ImageVector, accent: Color, title: String, subtitle: String, onClick: () -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(accent.copy(alpha = 0.18f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(icon, contentDescription = null, tint = accent)
-        }
-        Spacer(Modifier.width(16.dp))
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(2.dp))
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
