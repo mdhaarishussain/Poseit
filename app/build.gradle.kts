@@ -15,22 +15,45 @@ android {
         applicationId = "com.poseit.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
         // Phones only (keeps the APK small); add "x86_64" to run on an emulator.
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
+    signingConfigs {
+        // A PUBLIC, throwaway key committed to the repo so that every build (local, CI, GitHub releases) has the same
+        // signature and installs over the previous one. It is not a secret: anyone can sign with it. For builds you
+        // distribute to other people, provide your own key through the POSEIT_KEYSTORE* environment variables below
+        // (the release workflow reads them from repository secrets).
+        create("sideload") {
+            storeFile = file("signing/poseit-sideload.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+        val ownKeystore = System.getenv("POSEIT_KEYSTORE")
+        if (!ownKeystore.isNullOrBlank() && file(ownKeystore).exists()) {
+            create("own") {
+                storeFile = file(ownKeystore)
+                storePassword = System.getenv("POSEIT_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("POSEIT_KEY_ALIAS")
+                keyPassword = System.getenv("POSEIT_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("sideload")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Signed with the debug key so the release APK is installable without extra setup.
-            // Replace with your own signingConfig before publishing anywhere.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("own") ?: signingConfigs.getByName("sideload")
         }
     }
     compileOptions {

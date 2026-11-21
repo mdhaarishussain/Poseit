@@ -1,0 +1,97 @@
+name: Release
+
+# Push a version tag (e.g. `git tag v1.1.0 && git push origin v1.1.0`) to build the release APK and publish it as a
+# GitHub Release. Release notes come from docs/releases/<tag>.md when that file exists.
+#
+# Signing: by default the APK is signed with the public sideload key in app/signing/ (same signature as local
+# builds, so it installs over earlier versions). To sign with your own key instead, add these repository secrets:
+#   POSEIT_KEYSTORE_BASE64   base64 of your .jks/.keystore file
+#   POSEIT_KEYSTORE_PASSWORD
+#   POSEIT_KEY_ALIAS
+#   POSEIT_KEY_PASSWORD
+# (Switching keys means people must uninstall the sideload-signed app once before installing yours.)
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to (re)build and publish, e.g. v1.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Cache MediaPipe models
+        uses: actions/cache@v4
+        with:
+          path: app/src/main/assets/models
+          key: mediapipe-models-v1
+
+      - name: Use your own signing key (if configured)
+        env:
+          KEYSTORE_B64: ${{ secrets.POSEIT_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.POSEIT_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.POSEIT_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.POSEIT_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/poseit.keystore"
+            {
+              echo "POSEIT_KEYSTORE=$RUNNER_TEMP/poseit.keystore"
+              echo "POSEIT_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+              echo "POSEIT_KEY_ALIAS=$KEY_ALIAS"
+              echo "POSEIT_KEY_PASSWORD=$KEY_PASSWORD"
+            } >> "$GITHUB_ENV"
+            echo "Signing with your own key."
+          else
+            echo "No signing secrets: using the public sideload key."
+          fi
+
+      - name: Build release APK
+        run: ./gradlew :pose-core:test :app:assembleRelease --console=plain
+
+      - name: Verify alignment and signature
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/zipalign" -c -P 16 -v 4 app/build/outputs/apk/release/app-release.apk | tail -1
+          "$BT/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | head -3
+          cp app/build/outputs/apk/release/app-release.apk "Poseit-${TAG}.apk"
+
+      - name: Release notes
+        run: |
+          if [ -f "docs/releases/${TAG}.md" ]; then
+            cp "docs/releases/${TAG}.md" "$RUNNER_TEMP/notes.md"
+          else
+            printf 'Poseit %s\n\nInstall: download the APK below on your Android phone and open it.\n' "$TAG" > "$RUNNER_TEMP/notes.md"
+          fi
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Poseit ${{ env.TAG }}
+          body_path: ${{ runner.temp }}/notes.md
+          files: Poseit-${{ env.TAG }}.apk
+          fail_on_unmatched_files: true

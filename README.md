@@ -21,9 +21,16 @@ usage statistics to Google when you're online):
 
 ## Install
 
-Download `app-release.apk` (or `app-debug.apk`) from the latest
-[GitHub Actions run](../../actions/workflows/android.yml) → *Artifacts → poseit-apks*, copy it to your phone and
-open it (allow "install unknown apps" when asked). Android 7.0+ required; best on a recent phone.
+Download the latest `Poseit-vX.Y.Z.apk` from [Releases](../../releases) on your Android phone and open it (allow
+"install unknown apps" when asked). Android 7.0+ required; best on a recent phone. New versions install over old
+ones: every build is signed with the same public sideload key (`app/signing/`). Builds from any branch are also
+available as artifacts of the [Build APK workflow](../../actions/workflows/android.yml).
+
+To publish a release, push a version tag: `git tag v1.2.0 && git push origin v1.2.0`. The
+[Release workflow](.github/workflows/release.yml) builds the APK and attaches it to a GitHub Release, using
+`docs/releases/<tag>.md` as the notes. To sign with your own key instead of the public one, add the
+`POSEIT_KEYSTORE_BASE64`, `POSEIT_KEYSTORE_PASSWORD`, `POSEIT_KEY_ALIAS` and `POSEIT_KEY_PASSWORD` repository
+secrets.
 
 ## Build it yourself
 
@@ -57,8 +64,8 @@ Known limitations:
 * Lying-down and landscape (couple/group) poses are shown smaller, because the camera is portrait-only.
 * Arms that go around a partner are drawn across the partner's figure. The figures have no depth or props.
 * "Export my poses" saves the poses but not the photos behind photo-based poses.
-* The release APK is signed with the Android debug key, for easy sideloading. Sign it with your own key before
-  publishing it anywhere.
+* Builds are signed with a public sideload key, for easy updates. Add your own key (see Install) before
+  distributing the app to other people.
 
 Ideas for later:
 
