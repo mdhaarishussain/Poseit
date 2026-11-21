@@ -6,12 +6,8 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,22 +22,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,13 +35,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,7 +47,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.poseit.app.appContainer
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.components.PrimaryButton
+import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.launch
 
 private const val PAGE_COUNT = 4
@@ -105,13 +94,18 @@ fun OnboardingScreen(onDone: () -> Unit) {
     }
 
     // A Surface (not a plain Box) so text gets the theme's on-background colour.
-    Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
+    Surface(color = Studio.Paper, contentColor = Studio.Ink, modifier = Modifier.fillMaxSize()) {
         Column(
             Modifier
                 .fillMaxSize()
-                .background(TopGlow)
                 .systemBarsPadding(),
         ) {
+            StepMarks(
+                count = PAGE_COUNT,
+                current = pagerState.currentPage,
+                modifier = Modifier.padding(start = Space.gutter, top = Space.l, bottom = Space.l),
+            )
+
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
@@ -120,74 +114,54 @@ fun OnboardingScreen(onDone: () -> Unit) {
             ) { page ->
                 when (page) {
                     0 -> OnboardingPage(
-                        title = "Never wonder how to pose again",
-                        body = "Pick a pose from a library of original poses for solo, couple and group photos, then line yourself up with the guide.",
-                    ) { MannequinCarousel(Modifier.fillMaxSize()) }
+                        title = "Pick a pose to copy",
+                        body = "Choose from original poses for one person, a couple or a group. Each pose is a " +
+                            "figure you line up with in the camera.",
+                    ) { FigurePicture() }
 
                     1 -> OnboardingPage(
-                        title = "Match the outline",
-                        body = "Poseit sees your body through the camera, colours each limb from red to green and tells you exactly what to fix.",
-                    ) { MatchDemo(Modifier.fillMaxSize()) }
+                        title = "Match the guide",
+                        body = "The camera tracks your body and colours each limb of the guide, from red when it's " +
+                            "off to green when it matches. A short hint says what to change.",
+                    ) { MatchPicture() }
 
                     2 -> OnboardingPage(
-                        title = "Hands-free shots",
-                        body = "No more running back and forth to the timer. Hold the pose and Poseit takes the picture for you.",
-                    ) { HandsFreeDemo(Modifier.fillMaxSize()) }
+                        title = "Hold the pose",
+                        body = "Poseit takes the photo for you after a short countdown. To start the timer " +
+                            "yourself, raise a hand above your head.",
+                    ) { CountdownPicture() }
 
                     else -> OnboardingPage(
-                        title = "Make it yours",
-                        body = "Turn photos you love into pose guides, or drag the mannequin into any pose you can imagine.",
-                        footer = { CameraPermissionNote() },
-                    ) { MakeItYoursDemo(Modifier.fillMaxSize()) }
+                        title = "Make your own poses",
+                        body = "Turn a photo into a pose guide, or drag the figure's joints into a new pose.",
+                        note = "Next, Poseit asks for the camera to show the guide over the live view. The camera " +
+                            "feed and your photos stay on this phone.",
+                    ) { PosingPicture() }
                 }
             }
 
-            PageIndicator(
-                count = PAGE_COUNT,
-                current = pagerState.currentPage,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 12.dp),
-            )
-
-            AnimatedContent(
-                targetState = isLast,
-                transitionSpec = { fadeIn() togetherWith fadeOut() },
-                label = "onboardingButtons",
-                modifier = Modifier
+            Row(
+                Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, end = 24.dp, bottom = 20.dp),
-            ) { last ->
-                if (last) {
-                    Button(
-                        onClick = getStarted,
-                        enabled = !finishing,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = PoseitColors.Violet, contentColor = Color.White),
-                    ) {
-                        if (finishing) {
-                            CircularProgressIndicator(Modifier.size(22.dp), color = Color.White, strokeWidth = 2.5.dp)
-                        } else {
-                            Text("Get started", style = MaterialTheme.typography.titleMedium)
-                        }
-                    }
-                } else {
-                    Row(Modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = { scope.launch { pagerState.animateScrollToPage(PAGE_COUNT - 1) } }) {
-                            Text("Skip")
-                        }
-                        Spacer(Modifier.weight(1f))
-                        Button(
-                            onClick = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } },
-                            modifier = Modifier.height(52.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = PoseitColors.Violet, contentColor = Color.White),
-                        ) {
-                            Text("Next")
-                            Spacer(Modifier.width(8.dp))
-                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
-                        }
+                    // Skip's text lines up with the 20dp gutter (a text button pads its label by 12dp).
+                    .padding(start = Space.gutter - 12.dp, end = Space.gutter, top = Space.l, bottom = Space.l),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (!isLast) {
+                    TertiaryButton("Skip", onClick = { scope.launch { pagerState.animateScrollToPage(PAGE_COUNT - 1) } })
+                }
+                Spacer(Modifier.weight(1f))
+                PrimaryButton(
+                    onClick = {
+                        if (isLast) getStarted() else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                    },
+                    enabled = !(isLast && finishing),
+                    modifier = Modifier.widthIn(min = 128.dp),
+                ) {
+                    if (isLast && finishing) {
+                        CircularProgressIndicator(Modifier.size(20.dp), color = Studio.Ink, strokeWidth = 2.dp)
+                    } else {
+                        Text(if (isLast) "Get started" else "Next", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
@@ -195,105 +169,67 @@ fun OnboardingScreen(onDone: () -> Unit) {
     }
 }
 
-private val TopGlow = Brush.radialGradient(
-    colors = listOf(PoseitColors.Violet.copy(alpha = 0.22f), Color.Transparent),
-    center = androidx.compose.ui.geometry.Offset(0f, 0f),
-    radius = 1400f,
-)
-
+/**
+ * One page: the picture on a Set tile that takes the free height, then the headline (Display) and the body,
+ * left-aligned on the gutters. [note] is a smaller line under the body.
+ */
 @Composable
 private fun OnboardingPage(
     title: String,
     body: String,
-    footer: (@Composable () -> Unit)? = null,
-    visual: @Composable BoxScope.() -> Unit,
+    note: String? = null,
+    picture: @Composable BoxScope.() -> Unit,
 ) {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .padding(horizontal = Space.gutter),
     ) {
         Box(
             Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .heightIn(min = 120.dp)
-                .padding(top = 16.dp, bottom = 20.dp),
+                .clip(StudioShapes.Medium)
+                .background(Studio.Set),
             contentAlignment = Alignment.Center,
-            content = visual,
+            content = picture,
         )
+        Spacer(Modifier.height(Space.xl))
         Text(
             title,
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
+            style = StudioType.display,
+            color = Studio.Ink,
             modifier = Modifier.semantics { heading() },
         )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            body,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-        if (footer != null) {
-            Spacer(Modifier.height(16.dp))
-            footer()
+        Spacer(Modifier.height(Space.m))
+        // A page with a note reserves fewer body lines, so the tile keeps about the same height on every page.
+        Text(body, style = StudioType.body, color = Studio.Graphite, minLines = if (note == null) 4 else 2)
+        if (note != null) {
+            Spacer(Modifier.height(Space.m))
+            Text(note, style = StudioType.label, color = Studio.Graphite)
         }
-        Spacer(Modifier.height(8.dp))
     }
 }
 
+/** Where the intro is: one short mark per page, Ink up to the current page and Hairline after it. */
 @Composable
-private fun PageIndicator(count: Int, current: Int, modifier: Modifier = Modifier) {
+private fun StepMarks(count: Int, current: Int, modifier: Modifier = Modifier) {
     Row(
         modifier.semantics { contentDescription = "Page ${current + 1} of $count" },
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.xs),
     ) {
         repeat(count) { i ->
-            val selected = i == current
-            val width by animateDpAsState(if (selected) 26.dp else 8.dp, label = "dotWidth")
             val color by animateColorAsState(
-                if (selected) PoseitColors.Violet else MaterialTheme.colorScheme.outline,
-                label = "dotColor",
+                if (i <= current) Studio.Ink else Studio.Hairline,
+                animationSpec = tween(200),
+                label = "stepMark",
             )
             Box(
                 Modifier
-                    .height(8.dp)
-                    .width(width)
-                    .clip(CircleShape)
+                    .size(width = 24.dp, height = 2.dp)
                     .background(color),
             )
         }
-    }
-}
-
-@Composable
-private fun CameraPermissionNote() {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(PoseitColors.Mint.copy(alpha = 0.16f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(Icons.Filled.Lock, contentDescription = null, tint = PoseitColors.Mint, modifier = Modifier.size(20.dp))
-        }
-        Spacer(Modifier.width(14.dp))
-        Text(
-            "Next, Poseit asks for your camera to show the live guide. Everything is processed on your phone: " +
-                "no uploads, no account, no ads.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }

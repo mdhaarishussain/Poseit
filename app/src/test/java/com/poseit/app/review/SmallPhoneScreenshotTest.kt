@@ -114,7 +114,7 @@ abstract class SmallPhoneShots(private val prefix: String) {
     fun onboardingPage2() {
         set { OnboardingScreen(onDone = {}) }
         compose.onAllNodes(hasText("Next") and hasClickAction()).onFirst().performClick()
-        waitText("Match the outline")
+        waitText("Match the guide")
         capture("onboarding-2")
     }
 
