@@ -103,7 +103,7 @@ class AppFlowTest {
     fun onboarding_finish_landsOnLibrary_andBackExits() {
         resetSettings(onboardingDone = false)
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            compose.waitForText("Never wonder how to pose again")
+            compose.waitForText("Pick a pose to copy")
             shot("onboarding-1")
             repeat(3) {
                 compose.onNodeWithText("Next").performClick()
@@ -125,7 +125,7 @@ class AppFlowTest {
                 )
             }
             compose.waitForText("Pose camera")
-            compose.waitGone("Never wonder how to pose again")
+            compose.waitGone("Pick a pose to copy")
             shot("library-after-onboarding")
             assertTrue(runBlocking { app.container.settingsRepository.settings.first().onboardingDone })
 
@@ -237,24 +237,24 @@ class AppFlowTest {
             // "Show intro again" plays the intro right away; Back on its first page returns to Settings.
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText("Show intro again"))
             clickable("Show intro again").performClick()
-            compose.waitForText("Never wonder how to pose again")
+            compose.waitForText("Pick a pose to copy")
             shot("intro-again")
             systemBack(scenario)
-            compose.waitGone("Never wonder how to pose again")
+            compose.waitGone("Pick a pose to copy")
             compose.waitForText("Show intro again")
 
             // Finishing the replayed intro also returns to Settings (not a second Library on top of it).
             shadowOf(app).grantPermissions(Manifest.permission.CAMERA)
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText("Show intro again"))
             clickable("Show intro again").performClick()
-            compose.waitForText("Never wonder how to pose again")
+            compose.waitForText("Pick a pose to copy")
             repeat(3) {
                 compose.onNodeWithText("Next").performClick()
                 compose.waitForIdle()
             }
             compose.waitForText("Get started")
             compose.onNodeWithText("Get started").performClick()
-            compose.waitGone("Never wonder how to pose again")
+            compose.waitGone("Pick a pose to copy")
             compose.waitForText("Show intro again")
             assertTrue(runBlocking { app.container.settingsRepository.settings.first() }.onboardingDone)
             systemBack(scenario)

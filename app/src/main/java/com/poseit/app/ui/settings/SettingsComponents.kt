@@ -1,12 +1,15 @@
 package com.poseit.app.ui.settings
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -15,217 +18,102 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.GridType
 import com.poseit.app.data.OverlayStyle
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.FigurePaint
 import com.poseit.app.ui.components.FigureStyle
+import com.poseit.app.ui.components.HairlineDivider
+import com.poseit.app.ui.components.SectionHeading
+import com.poseit.app.ui.components.StudioIconSize
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.fitFrameRect
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
 
-/** Section title above a group card. */
-@Composable
-internal fun SettingsSectionTitle(title: String, modifier: Modifier = Modifier) {
-    Text(
-        title,
-        style = MaterialTheme.typography.labelLarge,
-        color = Color(0xFFB9A8FF),
-        modifier = modifier
-            .padding(start = 8.dp, top = 20.dp, bottom = 8.dp)
-            .semantics { heading() },
-    )
-}
+/*
+ * Pieces of the settings screen that the shared Studio rows don't cover: the group frame, the picture tiles for
+ * the guide style and the grid, and the countdown control.
+ */
 
-/** Rounded card grouping several rows, separated by hairlines. */
+/** A settings group: a Title-style heading on the gutter, then its rows. The list puts 32dp between groups. */
 @Composable
-internal fun SettingsGroup(content: @Composable ColumnScope.() -> Unit) {
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        shape = RoundedCornerShape(24.dp),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(Modifier.padding(vertical = 4.dp), content = content)
+internal fun SettingsGroup(title: String, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    Column(modifier.fillMaxWidth()) {
+        SectionHeading(title, Modifier.padding(horizontal = Space.gutter))
+        Spacer(Modifier.height(Space.xs))
+        content()
     }
 }
 
+/** A Hairline between two rows of one group, on the gutters. */
 @Composable
-internal fun SettingsDivider() {
-    HorizontalDivider(
-        Modifier.padding(start = 68.dp, end = 16.dp),
-        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+internal fun RowDivider() = HairlineDivider(Modifier.padding(horizontal = Space.gutter))
+
+/** The end of a row that opens something else (a file picker, a dialog, the intro). */
+@Composable
+internal fun RowChevron() {
+    Icon(
+        Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+        contentDescription = null,
+        tint = Studio.Graphite,
+        // The glyph has ~8dp of air on its right; move it out so it ends on the gutter, in line with the switches.
+        modifier = Modifier
+            .offset(x = 7.dp)
+            .size(StudioIconSize),
     )
 }
 
+/** Equally wide picture tiles under a row title, on the gutters, as one radio group. */
 @Composable
-internal fun SettingsIcon(icon: ImageVector, accent: Color) {
-    Box(
-        Modifier
-            .size(36.dp)
-            .clip(RoundedCornerShape(11.dp))
-            .background(accent.copy(alpha = 0.16f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
-    }
-}
-
-/** Icon + title + optional subtitle + trailing content. */
-@Composable
-internal fun SettingsRow(
-    icon: ImageVector,
-    accent: Color,
-    title: String,
-    subtitle: String?,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    trailing: @Composable (() -> Unit)? = null,
-) {
+internal fun TileRow(content: @Composable (Modifier) -> Unit) {
     Row(
-        modifier
+        Modifier
             .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-            .alpha(if (enabled) 1f else 0.5f),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        SettingsIcon(icon, accent)
-        Spacer(Modifier.width(16.dp))
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            if (subtitle != null) {
-                Spacer(Modifier.height(2.dp))
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        if (trailing != null) {
-            Spacer(Modifier.width(12.dp))
-            trailing()
-        }
-    }
+            .selectableGroup()
+            .padding(start = Space.gutter, end = Space.gutter, bottom = Space.m),
+        horizontalArrangement = Arrangement.spacedBy(Space.s),
+    ) { content(Modifier.weight(1f)) }
 }
 
-/** A row that toggles a boolean when tapped anywhere. */
-@Composable
-internal fun SwitchRow(
-    icon: ImageVector,
-    accent: Color,
-    title: String,
-    subtitle: String?,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    SettingsRow(
-        icon = icon,
-        accent = accent,
-        title = title,
-        subtitle = subtitle,
-        modifier = Modifier.toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange),
-    ) {
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-            colors = SwitchDefaults.colors(checkedTrackColor = PoseitColors.Violet, checkedThumbColor = Color.White),
-        )
-    }
-}
-
-/** A tappable row with a chevron. */
-@Composable
-internal fun ActionRow(
-    icon: ImageVector,
-    accent: Color,
-    title: String,
-    subtitle: String?,
-    onClick: () -> Unit,
-    enabled: Boolean = true,
-    showChevron: Boolean = true,
-) {
-    SettingsRow(
-        icon = icon,
-        accent = accent,
-        title = title,
-        subtitle = subtitle,
-        enabled = enabled,
-        modifier = Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick),
-        trailing = if (showChevron) {
-            { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-        } else {
-            null
-        },
-    )
-}
-
-/** Title row with a value label on the right and a slider underneath. */
-@Composable
-internal fun SliderRow(
-    icon: ImageVector,
-    accent: Color,
-    title: String,
-    valueLabel: String,
-    subtitle: String?,
-    value: Float,
-    onValueChange: (Float) -> Unit,
-    onValueChangeFinished: () -> Unit,
-    valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int = 0,
-) {
-    Column(Modifier.padding(bottom = 4.dp)) {
-        SettingsRow(icon = icon, accent = accent, title = title, subtitle = subtitle) {
-            Text(valueLabel, style = MaterialTheme.typography.titleSmall, color = accent)
-        }
-        Slider(
-            value = value.coerceIn(valueRange.start, valueRange.endInclusive),
-            onValueChange = onValueChange,
-            onValueChangeFinished = onValueChangeFinished,
-            valueRange = valueRange,
-            steps = steps,
-            colors = SliderDefaults.colors(thumbColor = accent, activeTrackColor = accent),
-            modifier = Modifier
-                .padding(start = 64.dp, end = 16.dp)
-                .semantics { stateDescription = valueLabel },
-        )
-    }
-}
-
-/** Generic selectable tile with a preview drawn by [preview]. */
+/**
+ * A choice drawn as a small pose-tile-like picture: a Set patch with the Medium radius and the label below it.
+ * The selected tile takes a 2dp Ink outline and an Ink label; the others have Graphite labels.
+ * @param description the radio button's accessible name
+ */
 @Composable
 internal fun ChoiceTile(
     label: String,
@@ -233,90 +121,72 @@ internal fun ChoiceTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     description: String = label,
-    preview: @Composable () -> Unit,
+    preview: @Composable BoxScope.() -> Unit,
 ) {
-    val borderColor by animateColorAsState(
-        if (selected) PoseitColors.Violet else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
-        label = "tileBorder",
-    )
+    val source = remember { MutableInteractionSource() }
+    val outline by animateColorAsState(if (selected) Studio.Ink else Color.Transparent, tween(150), label = "tileOutline")
     Column(
         modifier
-            .clip(RoundedCornerShape(18.dp))
-            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(18.dp))
-            .background(if (selected) PoseitColors.Violet.copy(alpha = 0.12f) else Color.Transparent)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
-            .semantics { contentDescription = description }
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .selectable(selected = selected, interactionSource = source, indication = null, role = Role.RadioButton, onClick = onClick)
+            .semantics { contentDescription = description },
     ) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .aspectRatio(0.75f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(PreviewScene),
-        ) { preview() }
-        Spacer(Modifier.height(6.dp))
+                .aspectRatio(3f / 4f)
+                .clip(StudioShapes.Medium)
+                .background(Studio.Set)
+                .indication(source, ripple())
+                .border(2.dp, outline, StudioShapes.Medium),
+            content = preview,
+        )
+        Spacer(Modifier.height(Space.s))
         Text(
             label,
-            style = MaterialTheme.typography.labelMedium,
-            color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            style = StudioType.label,
+            color = if (selected) Studio.Ink else Studio.Graphite,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
         )
     }
 }
 
-/** A camera-ish backdrop so the overlay previews look like they would over the live preview. */
-private val PreviewScene = Brush.verticalGradient(listOf(Color(0xFF465A7A), Color(0xFF3A4458), Color(0xFF4B4038)))
-
-internal fun OverlayStyle.toFigureStyle(): FigureStyle = when (this) {
-    OverlayStyle.SILHOUETTE -> FigureStyle.SILHOUETTE
-    OverlayStyle.OUTLINE -> FigureStyle.OUTLINE
-    OverlayStyle.STICK -> FigureStyle.STICK
-}
-
-/** The overlay as it would be drawn on the camera, at [opacity]. */
+/**
+ * The guide as each style draws it. On the light tile the outline and stick styles are drawn in Ink (the camera
+ * draws them in Mannequin white, which would vanish on Set) and the silhouette is the lay figure. The tiles follow
+ * the opacity slider, but never fade below 45% so the three styles stay legible.
+ */
 @Composable
 internal fun OverlayPreview(template: PoseTemplate, style: OverlayStyle, opacity: Float) {
     Canvas(
         Modifier
             .fillMaxSize()
-            .padding(4.dp),
+            .padding(Space.s),
     ) {
         val rect = fitFrameRect(size, template.frameAspect)
         template.figures.forEachIndexed { i, figure ->
-            drawPoseFigure(
-                figure,
-                template.frameAspect,
-                rect,
-                FigurePaint(
-                    style = style.toFigureStyle(),
-                    fill = PoseitColors.FigureTints[i % PoseitColors.FigureTints.size],
-                    alpha = opacity.coerceIn(0f, 1f),
-                ),
-            )
+            val paint = when (style) {
+                OverlayStyle.SILHOUETTE -> FigurePaint(fill = Studio.FigureTones[i % Studio.FigureTones.size])
+                OverlayStyle.OUTLINE -> FigurePaint(style = FigureStyle.OUTLINE, fill = Studio.Ink)
+                OverlayStyle.STICK -> FigurePaint(style = FigureStyle.STICK, fill = Studio.Ink, showFaceMarker = false)
+            }
+            drawPoseFigure(figure, template.frameAspect, rect, paint.copy(alpha = 0.35f + 0.65f * opacity.coerceIn(0f, 1f)))
         }
     }
 }
 
-/** Lines of a composition grid on a small frame. */
+/** The lines of a composition grid across the tile. "Off" is the bare tile. */
 @Composable
 internal fun GridPreview(grid: GridType) {
     Canvas(Modifier.fillMaxSize()) {
-        val stroke = 1.5.dp.toPx()
-        val color = Color.White.copy(alpha = 0.85f)
+        val stroke = 1.dp.toPx()
+        val color = Studio.Ink.copy(alpha = 0.5f)
         val w = size.width
         val h = size.height
         fun verticalAt(f: Float) = drawLine(color, Offset(w * f, 0f), Offset(w * f, h), stroke)
         fun horizontalAt(f: Float) = drawLine(color, Offset(0f, h * f), Offset(w, h * f), stroke)
         when (grid) {
-            GridType.NONE -> {
-                // A slashed frame reads as "off".
-                val r = Rect(Offset(w * 0.3f, h * 0.36f), Offset(w * 0.7f, h * 0.64f))
-                drawLine(color.copy(alpha = 0.6f), r.topLeft, r.bottomRight, stroke)
-            }
+            GridType.NONE -> Unit
             GridType.THIRDS -> {
                 verticalAt(1f / 3f); verticalAt(2f / 3f); horizontalAt(1f / 3f); horizontalAt(2f / 3f)
             }
@@ -340,13 +210,43 @@ internal val GridType.shortLabel: String
         GridType.CENTER -> "Centre"
     }
 
-/** A row of equally wide tiles. */
+/** "Off", "2 s", "10 s": the number and unit never split across lines. */
+internal fun countdownLabel(seconds: Int): String = if (seconds == 0) "Off" else "$seconds s"
+
+/**
+ * The countdown as a five-part segmented control: Small-radius Hairline outline, the selected part Ink with a
+ * Sheet label. Labels shrink instead of breaking at the largest font sizes (five parts on a 360dp phone).
+ */
 @Composable
-internal fun TileRow(content: @Composable (Modifier) -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, bottom = 14.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) { content(Modifier.weight(1f)) }
+internal fun CountdownControl(selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+    val colors = SegmentedButtonDefaults.colors(
+        activeContainerColor = Studio.Ink,
+        activeContentColor = Studio.Sheet,
+        activeBorderColor = Studio.Ink,
+        inactiveContainerColor = Color.Transparent,
+        inactiveContentColor = Studio.Ink,
+        // Solid, so the 1dp overlap between parts doesn't show as a darker seam.
+        inactiveBorderColor = MaterialTheme.colorScheme.outline,
+    )
+    SingleChoiceSegmentedButtonRow(modifier.fillMaxWidth()) {
+        COUNTDOWN_CHOICES.forEachIndexed { index, seconds ->
+            SegmentedButton(
+                selected = seconds == selected,
+                onClick = { onSelect(seconds) },
+                shape = SegmentedButtonDefaults.itemShape(index, COUNTDOWN_CHOICES.size, baseShape = StudioShapes.Small),
+                colors = colors,
+                icon = {},
+            ) {
+                BasicText(
+                    text = countdownLabel(seconds),
+                    style = MaterialTheme.typography.labelLarge.copy(color = LocalContentColor.current),
+                    maxLines = 1,
+                    autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 14.sp, stepSize = 0.5.sp),
+                    modifier = Modifier.semantics {
+                        contentDescription = if (seconds == 0) "No countdown" else "$seconds seconds"
+                    },
+                )
+            }
+        }
+    }
 }

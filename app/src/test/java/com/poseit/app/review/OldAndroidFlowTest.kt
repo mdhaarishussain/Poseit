@@ -109,7 +109,7 @@ abstract class OldAndroidFlows {
     fun walkEveryScreen() {
         runBlocking { app.container.settingsRepository.update { AppSettings(onboardingDone = false) } }
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            waitText("Never wonder how to pose again")
+            waitText("Pick a pose to copy")
             byText("Skip").performClick()
             waitText("Get started")
             byText("Get started").performClick()

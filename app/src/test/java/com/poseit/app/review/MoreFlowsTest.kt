@@ -87,7 +87,7 @@ class MoreFlowsTest {
     private fun launch(onboardingDone: Boolean = true): ActivityScenario<MainActivity> {
         runBlocking { app.container.settingsRepository.update { AppSettings(onboardingDone = onboardingDone) } }
         val scenario = ActivityScenario.launch(MainActivity::class.java)
-        if (onboardingDone) waitText("Pose camera") else waitText("Never wonder how to pose again")
+        if (onboardingDone) waitText("Pose camera") else waitText("Pick a pose to copy")
         return scenario
     }
 
@@ -204,7 +204,7 @@ class MoreFlowsTest {
             // Onboarding mid-way, then finish, then recreate: must stay on the library.
             byText("Next").performClick()
             recreate(scenario)
-            waitText("Never wonder how to pose again")
+            waitText("Pick a pose to copy")
             byText("Skip").performClick()
             waitText("Get started")
             byText("Get started").performClick() // CAMERA already granted: finishes directly

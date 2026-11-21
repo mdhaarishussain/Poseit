@@ -7,59 +7,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Brush
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material.icons.filled.FileUpload
-import androidx.compose.material.icons.filled.FlipCameraAndroid
-import androidx.compose.material.icons.filled.GridOn
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.Memory
-import androidx.compose.material.icons.filled.Opacity
-import androidx.compose.material.icons.filled.RecordVoiceOver
-import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Straighten
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.Vibration
-import androidx.compose.material.icons.filled.VerifiedUser
-import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -71,10 +36,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -82,12 +46,19 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.poseit.app.BuildConfig
 import com.poseit.app.appContainer
 import com.poseit.app.data.AppSettings
-import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.GridType
 import com.poseit.app.data.OverlayStyle
 import com.poseit.app.data.countdownChoiceFor
+import com.poseit.app.ui.components.SettingRow
+import com.poseit.app.ui.components.SliderRow
+import com.poseit.app.ui.components.StudioTopBar
+import com.poseit.app.ui.components.SwitchRow
+import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.onboarding.DemoPoses
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -95,7 +66,9 @@ private const val STRICTNESS_MIN = 0.60f
 private const val STRICTNESS_MAX = 0.95f
 private const val OPACITY_MIN = 0.15f
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** A row title with its picture tiles or segmented control underneath (no bottom padding of its own). */
+private val TitleAbovePadding = PaddingValues(start = Space.gutter, end = Space.gutter, top = Space.m, bottom = Space.m)
+
 @Composable
 fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
     val appContext = LocalContext.current.applicationContext
@@ -130,25 +103,22 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
         }
     }
 
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Studio.Paper,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             Column {
-                TopAppBar(
-                    title = { Text("Settings") },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    ),
-                    scrollBehavior = scrollBehavior,
-                )
-                if (busy) LinearProgressIndicator(Modifier.fillMaxWidth(), color = PoseitColors.Violet)
+                StudioTopBar("Settings", onBack = onBack)
+                // Always 2dp tall, so the list doesn't jump when an import or export starts.
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(2.dp),
+                ) {
+                    if (busy) {
+                        LinearProgressIndicator(Modifier.fillMaxSize(), color = Studio.Ink, trackColor = Studio.Hairline)
+                    }
+                }
             }
         },
     ) { padding ->
@@ -159,23 +129,25 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
                     .fillMaxSize()
                     .padding(padding),
                 contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator() }
+            ) { CircularProgressIndicator(color = Studio.Ink) }
             return@Scaffold
         }
+        val layoutDirection = LocalLayoutDirection.current
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                top = padding.calculateTopPadding(),
-                bottom = padding.calculateBottomPadding() + 32.dp,
+                start = padding.calculateStartPadding(layoutDirection),
+                end = padding.calculateEndPadding(layoutDirection),
+                top = padding.calculateTopPadding() + Space.s,
+                bottom = padding.calculateBottomPadding() + Space.section,
             ),
+            verticalArrangement = Arrangement.spacedBy(Space.section),
         ) {
-            item(key = "coaching") { CoachingSection(current, vm::update) }
-            item(key = "overlay") { OverlaySection(current, vm::update) }
-            item(key = "camera") { CameraSection(current, vm::update) }
+            item(key = "coaching") { CoachingGroup(current, vm::update) }
+            item(key = "guide") { GuideGroup(current, vm::update) }
+            item(key = "camera") { CameraGroup(current, vm::update) }
             item(key = "poses") {
-                MyPosesSection(
+                YourPosesGroup(
                     customCount = customCount,
                     busy = busy,
                     onExport = {
@@ -189,7 +161,7 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
                 )
             }
             item(key = "about") {
-                AboutSection(
+                AboutGroup(
                     onShowLicenses = { showLicenses = true },
                     // Plays it right away; the stored "intro seen" flag stays set (the intro sets it again on finish).
                     onShowIntro = onShowIntro,
@@ -204,36 +176,29 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
 /* ---------------------------------------------------------------------------------------------- */
 
 @Composable
-private fun CoachingSection(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
-    SettingsSectionTitle("Coaching")
-    SettingsGroup {
+private fun CoachingGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
+    SettingsGroup("Coaching") {
         SwitchRow(
-            icon = Icons.Filled.RecordVoiceOver,
-            accent = PoseitColors.Amber,
             title = "Voice guidance",
-            subtitle = "Spoken corrections and countdown",
+            subtitle = "Spoken hints and countdown",
             checked = s.voiceGuidance,
             onCheckedChange = { v -> update { it.copy(voiceGuidance = v) } },
         )
-        SettingsDivider()
+        RowDivider()
         SwitchRow(
-            icon = Icons.Filled.AutoAwesome,
-            accent = PoseitColors.Mint,
             title = "Auto-capture",
             subtitle = "Take the photo as soon as you hold the pose",
             checked = s.autoCapture,
             onCheckedChange = { v -> update { it.copy(autoCapture = v) } },
         )
-        SettingsDivider()
+        RowDivider()
         var strictness by remember(s.matchThreshold) {
             mutableFloatStateOf(s.matchThreshold.coerceIn(STRICTNESS_MIN, STRICTNESS_MAX))
         }
         val percent = (strictness * 100).roundToInt()
         SliderRow(
-            icon = Icons.Filled.Speed,
-            accent = PoseitColors.Violet,
             title = "Match strictness",
-            valueLabel = "$percent% · ${strictnessLabel(strictness)}",
+            valueLabel = "$percent%, ${strictnessLabel(strictness).lowercase()}",
             subtitle = strictnessHint(strictness),
             value = strictness,
             onValueChange = { strictness = it },
@@ -244,39 +209,17 @@ private fun CoachingSection(s: AppSettings, update: ((AppSettings) -> AppSetting
             valueRange = STRICTNESS_MIN..STRICTNESS_MAX,
             steps = 6,
         )
-        SettingsDivider()
-        SettingsRow(
-            icon = Icons.Filled.Timer,
-            accent = PoseitColors.Coral,
+        RowDivider()
+        SettingRow(
             title = "Countdown",
-            subtitle = "Seconds between “matched” and the photo",
+            subtitle = "Seconds between a match and the photo",
+            contentPadding = TitleAbovePadding,
         )
-        val selected = countdownChoiceFor(s.countdownSeconds)
-        // Full card width (not indented under the title): five segments on a 360dp phone leave ~25dp per label
-        // otherwise, which breaks "10s" into "10" at larger font sizes.
-        SingleChoiceSegmentedButtonRow(
-            Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = 14.dp),
-        ) {
-            COUNTDOWN_CHOICES.forEachIndexed { index, seconds ->
-                SegmentedButton(
-                    selected = seconds == selected,
-                    onClick = { update { it.copy(countdownSeconds = seconds) } },
-                    shape = SegmentedButtonDefaults.itemShape(index, COUNTDOWN_CHOICES.size),
-                    icon = {},
-                    colors = SegmentedButtonDefaults.colors(activeContainerColor = PoseitColors.Violet.copy(alpha = 0.35f)),
-                ) {
-                    // Shrinks instead of breaking the word at the largest font scales.
-                    BasicText(
-                        text = if (seconds == 0) "Off" else "${seconds}s",
-                        style = LocalTextStyle.current.copy(color = LocalContentColor.current),
-                        maxLines = 1,
-                        autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 14.sp, stepSize = 0.5.sp),
-                    )
-                }
-            }
-        }
+        CountdownControl(
+            selected = countdownChoiceFor(s.countdownSeconds),
+            onSelect = { seconds -> update { it.copy(countdownSeconds = seconds) } },
+            modifier = Modifier.padding(start = Space.gutter, end = Space.gutter, bottom = Space.m),
+        )
     }
 }
 
@@ -287,22 +230,20 @@ internal fun strictnessLabel(threshold: Float): String = when {
 }
 
 private fun strictnessHint(threshold: Float): String = when (strictnessLabel(threshold)) {
-    "Relaxed" -> "Forgiving – great for kids, groups and quick snaps"
-    "Balanced" -> "A close match before the shot is taken"
-    else -> "Only a near-perfect pose counts"
+    "Relaxed" -> "A rough match is enough. Suits kids and groups."
+    "Balanced" -> "Needs a close match before the photo"
+    else -> "Needs an almost exact match"
 }
 
 @Composable
-private fun OverlaySection(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
+private fun GuideGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
     val demo = remember { DemoPoses.handOnHip }
     var opacity by remember(s.overlayOpacity) { mutableFloatStateOf(s.overlayOpacity.coerceIn(OPACITY_MIN, 1f)) }
-    SettingsSectionTitle("Overlay")
-    SettingsGroup {
-        SettingsRow(
-            icon = Icons.Filled.Layers,
-            accent = PoseitColors.Violet,
+    SettingsGroup("Guide") {
+        SettingRow(
             title = "Guide style",
             subtitle = "How the pose is drawn over the camera",
+            contentPadding = TitleAbovePadding,
         )
         TileRow { weight ->
             OverlayStyle.entries.forEach { style ->
@@ -315,33 +256,27 @@ private fun OverlaySection(s: AppSettings, update: ((AppSettings) -> AppSettings
                 ) { OverlayPreview(demo, style, opacity) }
             }
         }
-        SettingsDivider()
+        RowDivider()
         SliderRow(
-            icon = Icons.Filled.Opacity,
-            accent = PoseitColors.Mint,
             title = "Guide opacity",
             valueLabel = "${(opacity * 100).roundToInt()}%",
-            subtitle = null,
             value = opacity,
             onValueChange = { opacity = it },
             onValueChangeFinished = { update { it.copy(overlayOpacity = opacity) } },
             valueRange = OPACITY_MIN..1f,
         )
-        SettingsDivider()
+        RowDivider()
         SwitchRow(
-            icon = Icons.Filled.Accessibility,
-            accent = PoseitColors.Coral,
             title = "Live skeleton",
             subtitle = "Show the body Poseit detects as dots and lines",
             checked = s.showLiveSkeleton,
             onCheckedChange = { v -> update { it.copy(showLiveSkeleton = v) } },
         )
-        SettingsDivider()
-        SettingsRow(
-            icon = Icons.Filled.GridOn,
-            accent = PoseitColors.Amber,
+        RowDivider()
+        SettingRow(
             title = "Grid",
             subtitle = s.grid.label,
+            contentPadding = TitleAbovePadding,
         )
         TileRow { weight ->
             GridType.entries.forEach { grid ->
@@ -354,10 +289,8 @@ private fun OverlaySection(s: AppSettings, update: ((AppSettings) -> AppSettings
                 ) { GridPreview(grid) }
             }
         }
-        SettingsDivider()
+        RowDivider()
         SwitchRow(
-            icon = Icons.Filled.Straighten,
-            accent = PoseitColors.Mint,
             title = "Level indicator",
             subtitle = "Helps you keep the horizon straight",
             checked = s.showLevel,
@@ -367,39 +300,29 @@ private fun OverlaySection(s: AppSettings, update: ((AppSettings) -> AppSettings
 }
 
 @Composable
-private fun CameraSection(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
-    SettingsSectionTitle("Camera")
-    SettingsGroup {
+private fun CameraGroup(s: AppSettings, update: ((AppSettings) -> AppSettings) -> Unit) {
+    SettingsGroup("Camera") {
         SwitchRow(
-            icon = Icons.Filled.Memory,
-            accent = PoseitColors.Violet,
             title = "High-accuracy model",
             subtitle = "More accurate, slightly slower",
             checked = s.accurateModel,
             onCheckedChange = { v -> update { it.copy(accurateModel = v) } },
         )
-        SettingsDivider()
+        RowDivider()
         SwitchRow(
-            icon = Icons.Filled.FlipCameraAndroid,
-            accent = PoseitColors.Coral,
             title = "Mirror front-camera photos",
             subtitle = "Save selfies the way they look in the preview",
             checked = s.mirrorFrontPhotos,
             onCheckedChange = { v -> update { it.copy(mirrorFrontPhotos = v) } },
         )
-        SettingsDivider()
+        RowDivider()
         SwitchRow(
-            icon = Icons.AutoMirrored.Filled.VolumeUp,
-            accent = PoseitColors.Amber,
             title = "Shutter sound",
-            subtitle = null,
             checked = s.shutterSound,
             onCheckedChange = { v -> update { it.copy(shutterSound = v) } },
         )
-        SettingsDivider()
+        RowDivider()
         SwitchRow(
-            icon = Icons.Filled.Vibration,
-            accent = PoseitColors.Mint,
             title = "Haptics",
             subtitle = "Vibrate when a photo is taken or a raised hand starts the timer",
             checked = s.haptics,
@@ -409,74 +332,56 @@ private fun CameraSection(s: AppSettings, update: ((AppSettings) -> AppSettings)
 }
 
 @Composable
-private fun MyPosesSection(customCount: Int, busy: Boolean, onExport: () -> Unit, onImport: () -> Unit) {
-    SettingsSectionTitle("My poses")
-    SettingsGroup {
-        ActionRow(
-            icon = Icons.Filled.FileUpload,
-            accent = PoseitColors.Violet,
-            title = "Export my poses",
+private fun YourPosesGroup(customCount: Int, busy: Boolean, onExport: () -> Unit, onImport: () -> Unit) {
+    SettingsGroup("Your poses") {
+        SettingRow(
+            title = "Export poses",
             subtitle = if (customCount == 0) {
                 "Nothing to export yet"
             } else {
-                "Save ${PoseBackup.poses(customCount)} to a file (photo guides stay on this phone)"
+                "Save ${PoseBackup.poses(customCount)} to a file. Photo guides stay on this phone."
             },
             onClick = onExport,
             enabled = !busy,
-        )
-        SettingsDivider()
-        ActionRow(
-            icon = Icons.Filled.FileDownload,
-            accent = PoseitColors.Mint,
+        ) { RowChevron() }
+        RowDivider()
+        SettingRow(
             title = "Import poses",
             subtitle = "Add poses from a Poseit file",
             onClick = onImport,
             enabled = !busy,
-        )
+        ) { RowChevron() }
     }
 }
 
 @Composable
-private fun AboutSection(onShowLicenses: () -> Unit, onShowIntro: () -> Unit) {
-    SettingsSectionTitle("About")
-    SettingsGroup {
-        SettingsRow(
-            icon = Icons.Filled.Info,
-            accent = PoseitColors.Violet,
-            title = "Poseit",
-            subtitle = "Version ${BuildConfig.VERSION_NAME}",
-        )
-        SettingsDivider()
-        SettingsRow(
-            icon = Icons.Filled.VerifiedUser,
-            accent = PoseitColors.Mint,
-            title = "Works offline · no ads · no account",
-            subtitle = "Your camera feed and photos never leave your phone",
-        )
-        SettingsDivider()
-        SettingsRow(
-            icon = Icons.Filled.Brush,
-            accent = PoseitColors.Coral,
-            title = "All poses are original illustrations",
-            subtitle = "Every figure is generated by Poseit's own pose engine",
-        )
-        SettingsDivider()
-        ActionRow(
-            icon = Icons.Filled.Code,
-            accent = PoseitColors.Amber,
-            title = "Open-source notices",
-            subtitle = "Libraries and models that make Poseit possible",
-            onClick = onShowLicenses,
-        )
-        SettingsDivider()
-        ActionRow(
-            icon = Icons.Filled.Replay,
-            accent = PoseitColors.Violet,
-            title = "Show intro again",
-            subtitle = null,
-            onClick = onShowIntro,
-            showChevron = false,
-        )
+private fun AboutGroup(onShowLicenses: () -> Unit, onShowIntro: () -> Unit) {
+    SettingsGroup("About") {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Space.gutter, vertical = Space.m),
+            verticalArrangement = Arrangement.spacedBy(Space.m),
+        ) {
+            Column {
+                Text("Poseit", style = StudioType.bodyStrong, color = Studio.Ink)
+                Text("Version ${BuildConfig.VERSION_NAME}", style = StudioType.label, color = Studio.Graphite)
+            }
+            Text(
+                "Works offline, with no ads and no account. The camera feed and your photos stay on this phone.",
+                style = StudioType.body,
+                color = Studio.Ink,
+            )
+            Text(
+                "Pose detection uses MediaPipe (Apache License 2.0). The typeface is Archivo (SIL Open Font License 1.1).",
+                style = StudioType.label,
+                color = Studio.Graphite,
+            )
+        }
+        RowDivider()
+        SettingRow(title = "Open-source notices", onClick = onShowLicenses) { RowChevron() }
+        RowDivider()
+        SettingRow(title = "Show intro again", onClick = onShowIntro) { RowChevron() }
     }
 }
 
@@ -484,52 +389,48 @@ private data class Notice(val name: String, val owner: String, val license: Stri
 
 private val notices = listOf(
     Notice("MediaPipe Tasks Vision", "Google LLC", "Apache License 2.0"),
-    Notice("MediaPipe Pose Landmarker models (lite & full)", "Google LLC", "Apache License 2.0"),
+    Notice("MediaPipe Pose Landmarker models (lite and full)", "Google LLC", "Apache License 2.0"),
     Notice("DeepLab v3 segmentation model (MediaPipe)", "Google LLC", "Apache License 2.0"),
     Notice("AndroidX, Jetpack Compose, CameraX, DataStore, Navigation", "The Android Open Source Project", "Apache License 2.0"),
     Notice("Material Icons", "Google LLC", "Apache License 2.0"),
     Notice("Coil", "Coil Contributors", "Apache License 2.0"),
     Notice("Kotlin, kotlinx.coroutines, kotlinx.serialization", "JetBrains s.r.o. and contributors", "Apache License 2.0"),
+    Notice("Archivo typeface", "The Archivo Project Authors (Omnibus-Type)", "SIL Open Font License 1.1"),
 )
 
 @Composable
 private fun LicensesDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Filled.Code, contentDescription = null) },
+        shape = StudioShapes.Medium,
         title = { Text("Open-source notices") },
         text = {
             Column(
                 Modifier
                     .heightIn(max = 420.dp)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(Space.m),
             ) {
                 notices.forEach { n ->
                     Column {
-                        Text(n.name, style = MaterialTheme.typography.titleSmall)
-                        Text(
-                            "${n.owner} · ${n.license}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        Text(n.name, style = StudioType.bodyStrong, color = Studio.Ink)
+                        Text("${n.owner}, ${n.license}", style = MaterialTheme.typography.bodySmall, color = Studio.Graphite)
                     }
                 }
-                Spacer(Modifier.height(4.dp))
                 Text(
-                    "Licensed under the Apache License, Version 2.0. You may obtain a copy of the license at " +
-                        "https://www.apache.org/licenses/LICENSE-2.0. Software distributed under the license is " +
-                        "distributed on an \"AS IS\" basis, without warranties or conditions of any kind.",
+                    "The Apache License 2.0 is at apache.org/licenses/LICENSE-2.0 and the SIL Open Font License 1.1 " +
+                        "at openfontlicense.org. Software and fonts under these licences are distributed \"as is\", " +
+                        "without warranties or conditions of any kind.",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Studio.Graphite,
                 )
                 Text(
                     "All pose illustrations in Poseit are original and generated by the app itself.",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Studio.Graphite,
                 )
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { TertiaryButton("Close", onClick = onDismiss) },
     )
 }
