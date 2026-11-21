@@ -1,0 +1,557 @@
+[
+ {
+  "pose_id": "walk_toward_camera",
+  "pose_name": "Walk toward the camera",
+  "category": "WALKING",
+  "photo": "app/src/main/assets/pose_photos/walk_toward_camera.webp",
+  "bytes": 43962,
+  "source": "Mixkit",
+  "title": "Girl listens to music and dances happily",
+  "page_url": "https://mixkit.co/free-stock-video/girl-listens-to-music-and-dances-happily-4856/",
+  "file_url": "https://mixkit.co/free-stock-video/download/4856/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/4856/4856-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 13.18,
+  "hold_time_s_in_preview": 13.347,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/girl-listens-to-music-and-dances-happily-4856/)",
+  "changes": [
+   "still frame at 13.18 s of the 1080p download",
+   "cropped to [525, 0, 1316, 1054] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   525,
+   0,
+   1316,
+   1054
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.6683,
+  "score_detail": {
+   "score_source_frame": 0.5463,
+   "score_shipped_file": 0.6683,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Full-body woman walking straight at the camera on a park path mid-stride, arms swinging softly; the clearest 'walk toward the camera' among the candidates."
+ },
+ {
+  "pose_id": "walk_across",
+  "pose_name": "Walk across",
+  "category": "WALKING",
+  "photo": "app/src/main/assets/pose_photos/walk_across.webp",
+  "bytes": 45682,
+  "source": "Mixkit",
+  "title": "Young man walking listening to music from his headphones",
+  "page_url": "https://mixkit.co/free-stock-video/young-man-walking-listening-to-music-from-his-headphones-4855/",
+  "file_url": "https://mixkit.co/free-stock-video/download/4855/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/4855/4855-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 8.376,
+  "hold_time_s_in_preview": 8.342,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/young-man-walking-listening-to-music-from-his-headphones-4855/)",
+  "changes": [
+   "still frame at 8.376 s of the 1080p download",
+   "cropped to [525, 35, 1221, 963] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   525,
+   35,
+   1221,
+   963
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.7964,
+  "score_detail": {
+   "score_source_frame": 0.7946,
+   "score_shipped_file": 0.7964,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.889,
+   "tcov": 0.8,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Side-on full stride across the frame, arms swinging opposite to the legs, sharp and evenly lit: exactly the drawn walk."
+ },
+ {
+  "pose_id": "walk_look_back",
+  "pose_name": "Walk away, look back",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No one walking away and glancing back: the best-ranked frame (Mixkit 4856 at 9.3 s) is a dancing spin with the back to the camera, the rest stand still or walk away without looking back."
+ },
+ {
+  "pose_id": "walk_kerb_step",
+  "pose_name": "Off the kerb",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No step down from a kerb or step in any candidate; the high scorers are people standing or walking on flat ground."
+ },
+ {
+  "pose_id": "walk_skip",
+  "pose_name": "Happy skip",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No skip with a knee lifted high; top candidates are a ballet pose and dancers."
+ },
+ {
+  "pose_id": "walk_hat_hold",
+  "pose_name": "Hat in the wind",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No one holding a hat on the head while walking; the two Commons garden photos show a hat held out or waved, not the drawn hand-on-hat."
+ },
+ {
+  "pose_id": "walk_pockets",
+  "pose_name": "Pocket stroll",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No walking with hands in pockets; the only hands-in-pockets photo (Commons 'Young man standing on a rusty bridge') is a standing pose whose description names the person, so it is excluded."
+ },
+ {
+  "pose_id": "walk_twirl",
+  "pose_name": "Arms-out spin",
+  "category": "WALKING",
+  "photo": "app/src/main/assets/pose_photos/walk_twirl.webp",
+  "bytes": 48464,
+  "source": "Mixkit",
+  "title": "Skillful man practicing pirouettes in a park",
+  "page_url": "https://mixkit.co/free-stock-video/skillful-man-practicing-pirouettes-in-a-park-41017/",
+  "file_url": "https://mixkit.co/free-stock-video/download/41017/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/41017/41017-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 2.244,
+  "hold_time_s_in_preview": 2.002,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/skillful-man-practicing-pirouettes-in-a-park-41017/)",
+  "changes": [
+   "still frame at 2.244 s of the 1080p download",
+   "cropped to [0, 139, 1080, 1579] px of the 1080x1920 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   0,
+   139,
+   1080,
+   1579
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.6046,
+  "score_detail": {
+   "score_source_frame": 0.5772,
+   "score_shipped_file": 0.6046,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.917,
+   "tcov": 0.917,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Slow-motion spin with both arms out wide and one foot kicked up behind, the shape of the drawn arms-out spin."
+ },
+ {
+  "pose_id": "walk_coffee_run",
+  "pose_name": "Coffee run",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No one walking with a cup; the coffee clips are people seated in cafes or at home."
+ },
+ {
+  "pose_id": "walk_jacket_shoulder",
+  "pose_name": "Jacket over shoulder",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No jacket slung over the shoulder in any candidate."
+ },
+ {
+  "pose_id": "sit_crossed_legs",
+  "pose_name": "Crossed legs",
+  "category": "SITTING",
+  "photo": "app/src/main/assets/pose_photos/sit_crossed_legs.webp",
+  "bytes": 24036,
+  "source": "Mixkit",
+  "title": "Girl posing for the camera in the middle of nowhere",
+  "page_url": "https://mixkit.co/free-stock-video/girl-posing-for-the-camera-in-the-middle-of-nowhere-34407/",
+  "file_url": "https://mixkit.co/free-stock-video/download/34407/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/34407/34407-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 8.117,
+  "hold_time_s_in_preview": 8.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/girl-posing-for-the-camera-in-the-middle-of-nowhere-34407/)",
+  "changes": [
+   "still frame at 8.117 s of the 1080p download",
+   "cropped to [170, 704, 833, 1588] px of the 1080x1920 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   170,
+   704,
+   833,
+   1588
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.4027,
+  "score_detail": {
+   "score_source_frame": 0.2718,
+   "score_shipped_file": 0.4027,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.835,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Seated upright on a chair facing the camera with the legs crossed at the knee and angled to one side; the hands are behind the head rather than on the knee (the clip's other hold, 5.0 s, has the hands at the lap but she is looking down adjusting her dress)."
+ },
+ {
+  "pose_id": "sit_elbows_on_knees",
+  "pose_name": "Elbows on knees",
+  "category": "SITTING",
+  "photo": "app/src/main/assets/pose_photos/sit_elbows_on_knees.webp",
+  "bytes": 133412,
+  "source": "Wikimedia Commons",
+  "title": "File:Young man in Brazil sitting on steps.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Young_man_in_Brazil_sitting_on_steps.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Young_man_in_Brazil_sitting_on_steps.jpg",
+  "rendition_used": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Young_man_in_Brazil_sitting_on_steps.jpg/1920px-Young_man_in_Brazil_sitting_on_steps.jpg",
+  "author": "Ana Paula Lima",
+  "credit_line": "https://www.pexels.com/photo/35mm-boy-boy-street-brazil-354555/",
+  "licence": {
+   "name": "CC0",
+   "url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "attribution_required": "false",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Ana Paula Lima, CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Young_man_in_Brazil_sitting_on_steps.jpg)",
+  "changes": [
+   "cropped to [535, 221, 1287, 1223] px of the 1920x1280 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   535,
+   221,
+   1287,
+   1223
+  ],
+  "source_size": [
+   1920,
+   1280
+  ],
+  "app_matcher_score": 0.2077,
+  "score_detail": {
+   "score_source_frame": 0.335,
+   "score_shipped_file": 0.2077,
+   "shipped_matches_flipped_pose": true,
+   "fit": 0.909,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Sitting on steps, knees apart, forearms resting on the knees with the hands loosely clasped: the pose seen from the front (the figure is drawn side-on, hence the low matcher score)."
+ },
+ {
+  "pose_id": "sit_one_knee_up",
+  "pose_name": "One knee up",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No one sitting on steps with one foot a step higher; the step-sitters have both feet level."
+ },
+ {
+  "pose_id": "sit_side_saddle",
+  "pose_name": "Side-saddle",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No knees-together, legs-to-one-side sit on a bench or chair; the closest (Mixkit 34407) is used for crossed legs, others are a bathroom counter (excluded context) or candid seniors."
+ },
+ {
+  "pose_id": "sit_steps_sideways",
+  "pose_name": "Sideways on steps",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No one sitting along a step with the back to the wall."
+ },
+ {
+  "pose_id": "sit_hug_knees",
+  "pose_name": "Hugging knees",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "Near miss only: Mixkit 51062 (8.3 s) hugs one knee, not both, with the photographer's blurred shoulder in the foreground and the feet cut off; Commons 'Blond woman in a red dress seated on stairs' holds a wine glass (alcohol). Left empty."
+ },
+ {
+  "pose_id": "sit_armchair_lounge",
+  "pose_name": "Armchair lounge",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No one draped sideways over an armchair; the top Commons hit is a swimwear photo (excluded)."
+ },
+ {
+  "pose_id": "sit_chair_backwards",
+  "pose_name": "Backwards chair",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "The only backwards-chair photo is a named public figure (Commons 'Leonard Bernstein in his studio'), excluded."
+ },
+ {
+  "pose_id": "sit_ankle_on_knee",
+  "pose_name": "Ankle on knee",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "The one clear ankle-on-knee (Mixkit 2146, man on a stool) has a large projected countdown digit behind him and a light grid over his body; not a clean demonstration."
+ },
+ {
+  "pose_id": "sit_high_perch",
+  "pose_name": "High perch",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "Only Mixkit 2146 (same stool clip as above: large projected digit, grid light over the body, and one leg crossed rather than on a rung)."
+ },
+ {
+  "pose_id": "floor_street_squat",
+  "pose_name": "Street squat",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No one squatting; the top scores are people sitting on steps (seen from the front they match the shape, but they are not squats)."
+ },
+ {
+  "pose_id": "floor_low_crouch",
+  "pose_name": "Low crouch",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No crouch on the balls of the feet; Commons crouching photos are candid street scenes with other people, side-on and small."
+ },
+ {
+  "pose_id": "floor_one_knee",
+  "pose_name": "One knee down",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No one kneeling on one knee."
+ },
+ {
+  "pose_id": "floor_cross_legged",
+  "pose_name": "Cross-legged",
+  "category": "FLOOR",
+  "photo": "app/src/main/assets/pose_photos/floor_cross_legged.webp",
+  "bytes": 53550,
+  "source": "Mixkit",
+  "title": "Girl meditating in yoga pose in a park",
+  "page_url": "https://mixkit.co/free-stock-video/girl-meditating-in-yoga-pose-in-a-park-4892/",
+  "file_url": "https://mixkit.co/free-stock-video/download/4892/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/4892/4892-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 8.042,
+  "hold_time_s_in_preview": 8.342,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/girl-meditating-in-yoga-pose-in-a-park-4892/)",
+  "changes": [
+   "still frame at 8.042 s of the 1080p download",
+   "cropped to [545, 0, 1355, 1080] px of the 1920x1080 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   545,
+   0,
+   1355,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.5311,
+  "score_detail": {
+   "score_source_frame": 0.2763,
+   "score_shipped_file": 0.5311,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.802,
+   "tcov": 0.736,
+   "people": 1,
+   "framing": "knees",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Sitting cross-legged on grass with the knees low and wide and the hands resting on the knees; three-quarter view, eyes closed (a meditation clip), whole body in frame."
+ },
+ {
+  "pose_id": "floor_side_lie",
+  "pose_name": "Side lie on elbow",
+  "category": "FLOOR",
+  "photo": "app/src/main/assets/pose_photos/floor_side_lie.webp",
+  "bytes": 43256,
+  "source": "Mixkit",
+  "title": "Indian Model in Full Body Pose",
+  "page_url": "https://mixkit.co/free-stock-video/indian-model-in-full-body-pose-101457/",
+  "file_url": "https://mixkit.co/free-stock-video/download/101457/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/26gn69640d3iaou8njqpvvbjlnhy",
+  "video_quality": "1080p",
+  "frame_time_s": 3.246,
+  "hold_time_s_in_preview": 3.337,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/indian-model-in-full-body-pose-101457/)",
+  "changes": [
+   "still frame at 3.246 s of the 1080p download",
+   "cropped to [0, 480, 1080, 1920] px of the 1080x1920 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   0,
+   480,
+   1080,
+   1920
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.2668,
+  "score_detail": {
+   "score_source_frame": 0.2715,
+   "score_shipped_file": 0.2668,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.818,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Lying on her side on floor cushions propped on one elbow with the head in that hand and the knees bent, head to the right as drawn; the matcher scores lying poses low."
+ },
+ {
+  "pose_id": "floor_feet_up",
+  "pose_name": "Feet in the air",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No one lying on the stomach with feet up."
+ },
+ {
+  "pose_id": "floor_lean_back",
+  "pose_name": "Lean back & relax",
+  "category": "FLOOR",
+  "photo": "app/src/main/assets/pose_photos/floor_lean_back.webp",
+  "bytes": 74228,
+  "source": "Wikimedia Commons",
+  "title": "File:A Woman in a Red Sundress.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:A_Woman_in_a_Red_Sundress.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/A_Woman_in_a_Red_Sundress.jpg",
+  "rendition_used": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/A_Woman_in_a_Red_Sundress.jpg/1920px-A_Woman_in_a_Red_Sundress.jpg",
+  "author": "ZigmarsBerzins",
+  "credit_line": "https://pixabay.com/photos/woman-jetty-lake-rest-leisure-1784755/ https://www.pexels.com/photo/beautiful-blur-daylight-dock-221342/",
+  "licence": {
+   "name": "CC0",
+   "url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "attribution_required": "false",
+   "restrictions": "personality",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: ZigmarsBerzins, CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:A_Woman_in_a_Red_Sundress.jpg)",
+  "changes": [
+   "cropped to [512, 0, 1466, 1272] px of the 1920x1272 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   512,
+   0,
+   1466,
+   1272
+  ],
+  "source_size": [
+   1920,
+   1272
+  ],
+  "app_matcher_score": 0.8262,
+  "score_detail": {
+   "score_source_frame": 0.6224,
+   "score_shipped_file": 0.8262,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.778,
+   "tcov": 0.636,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Sitting on a jetty with the legs stretched out, leaning back on straight arms with the face tipped up to the light: the drawn lean-back almost exactly (mirrored to match the figure)."
+ },
+ {
+  "pose_id": "floor_overhead_lie",
+  "pose_name": "Overhead dreamer",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No overhead shot of someone lying on their back (the one overhead clip, Mixkit 41737, is a dark head-and-shoulders close-up among candles)."
+ },
+ {
+  "pose_id": "floor_sit_on_heels",
+  "pose_name": "Sit on your heels",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No one kneeling back on the heels; the nearest is a sideways floor sit (Mixkit 101459), which reads as a different pose."
+ }
+]
