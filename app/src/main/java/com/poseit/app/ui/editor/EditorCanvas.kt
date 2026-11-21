@@ -1,8 +1,10 @@
 package com.poseit.app.ui.editor
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -11,17 +13,18 @@ import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Sync
-import androidx.compose.material.icons.rounded.ZoomOutMap
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.ZoomOutMap
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,19 +34,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -56,18 +57,24 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.poseit.app.pose.BodyPart
 import com.poseit.app.pose.Joint
 import com.poseit.app.pose.Vec2
 import com.poseit.app.ui.components.FigurePaint
 import com.poseit.app.ui.components.FigureStyle
+import com.poseit.app.ui.components.drawFrameMarks
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.fitFrameRect
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
 import kotlin.math.max
 import kotlin.math.roundToInt
 
 private const val MAX_VIEW_ZOOM = 4f
+
+/** Space between the canvas edge and the photo frame at zoom 1. */
+private val FramePadding = Space.xl
 
 /** Maps isotropic frame units (x * aspect, y; see [SkeletonEditing]) to canvas pixels and back. */
 internal class EditorViewport(val frame: Rect) {
@@ -97,8 +104,9 @@ internal fun DragTarget.label(): String = when (this) {
 }
 
 /**
- * The editing surface: the frame with the figures drawn large, draggable joint handles for the selected figure,
- * tap-to-select for multi-person poses, and two-finger zoom / pan of the view for precise work.
+ * The editing surface, a Set-coloured panel like a pose tile: the photo frame marked by viewfinder frame marks, the
+ * figures drawn large, draggable joint handles for the selected figure, tap-to-select for multi-person poses, and
+ * two-finger zoom / pan of the view for precise work.
  */
 @Composable
 internal fun EditorCanvas(viewModel: PoseEditorViewModel, modifier: Modifier = Modifier) {
@@ -106,10 +114,10 @@ internal fun EditorCanvas(viewModel: PoseEditorViewModel, modifier: Modifier = M
     var pan by remember { mutableStateOf(Offset.Zero) }
     val haptics = LocalHapticFeedback.current
     val density = LocalDensity.current
-    val paddingPx = with(density) { 18.dp.toPx() }
-    val rotatePainter = rememberVectorPainter(Icons.Rounded.Sync)
+    val paddingPx = with(density) { FramePadding.toPx() }
+    val rotatePainter = rememberVectorPainter(Icons.Outlined.Sync)
 
-    Box(modifier.clipToBounds()) {
+    Box(modifier.clip(StudioShapes.Medium).background(Studio.Set)) {
         Canvas(
             Modifier
                 .fillMaxSize()
@@ -172,7 +180,8 @@ internal fun EditorCanvas(viewModel: PoseEditorViewModel, modifier: Modifier = M
             val vp = editorViewport(size, viewModel.aspect, paddingPx, zoom, pan)
             drawFrame(vp, viewModel)
             drawFigures(vp, viewModel)
-            dimOutsideFrame(vp.frame)
+            fadeOutsideFrame(vp.frame)
+            drawFrameMarks(vp.frame)
             drawHandles(vp, viewModel, rotatePainter)
         }
 
@@ -180,43 +189,53 @@ internal fun EditorCanvas(viewModel: PoseEditorViewModel, modifier: Modifier = M
         val active = viewModel.activeTarget
         AnimatedVisibility(
             visible = active != null,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp),
+            enter = fadeIn(tween(150)),
+            exit = fadeOut(tween(150)),
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = Space.m),
         ) {
             Text(
                 text = active?.label().orEmpty(),
-                style = MaterialTheme.typography.labelLarge,
-                color = Color.White,
+                style = StudioType.label,
+                color = Studio.Sheet,
                 modifier = Modifier
-                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(50))
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                    .background(Studio.Ink, StudioShapes.Small)
+                    .padding(horizontal = Space.m, vertical = Space.xs),
             )
         }
         AnimatedVisibility(
             visible = zoom > 1f,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
+            enter = fadeIn(tween(150)),
+            exit = fadeOut(tween(150)),
+            modifier = Modifier.align(Alignment.TopEnd).padding(Space.xs),
         ) {
-            AssistChip(
+            Surface(
                 onClick = {
                     zoom = 1f
                     pan = Offset.Zero
                 },
-                label = { Text("Fit") },
-                leadingIcon = { Icon(Icons.Rounded.ZoomOutMap, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)),
-            )
+                shape = StudioShapes.Small,
+                color = Studio.Sheet,
+                contentColor = Studio.Ink,
+                border = BorderStroke(1.dp, Studio.Hairline),
+            ) {
+                Row(
+                    Modifier
+                        .heightIn(min = 32.dp)
+                        .padding(horizontal = Space.m),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Outlined.ZoomOutMap, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(Space.s))
+                    Text("Fit", style = StudioType.label)
+                }
+            }
         }
     }
 }
 
-private val FrameGradient = Brush.verticalGradient(listOf(Color(0xFF2B2E3A), Color(0xFF1C1E25)))
-
+/** The reference photo (when shown) and the optional rule-of-thirds grid, inside the frame. */
 private fun DrawScope.drawFrame(vp: EditorViewport, viewModel: PoseEditorViewModel) {
     val frame = vp.frame
-    drawRect(FrameGradient, topLeft = frame.topLeft, size = frame.size)
     val reference = viewModel.referenceBitmap
     if (reference != null && viewModel.showReference) {
         drawImage(
@@ -228,106 +247,91 @@ private fun DrawScope.drawFrame(vp: EditorViewport, viewModel: PoseEditorViewMod
     }
     if (viewModel.showGrid) {
         clipRect(frame.left, frame.top, frame.right, frame.bottom) {
-            val fine = Color.White.copy(alpha = 0.05f)
-            val thirds = Color.White.copy(alpha = 0.16f)
             val thin = 1.dp.toPx()
-            for (i in 1 until 12) {
-                if (i % 4 == 0) continue
-                val x = frame.left + frame.width * i / 12f
-                val y = frame.top + frame.height * i / 12f
-                drawLine(fine, Offset(x, frame.top), Offset(x, frame.bottom), thin)
-                drawLine(fine, Offset(frame.left, y), Offset(frame.right, y), thin)
-            }
             for (i in 1..2) {
                 val x = frame.left + frame.width * i / 3f
                 val y = frame.top + frame.height * i / 3f
-                drawLine(thirds, Offset(x, frame.top), Offset(x, frame.bottom), thin)
-                drawLine(thirds, Offset(frame.left, y), Offset(frame.right, y), thin)
+                drawLine(Studio.Hairline, Offset(x, frame.top), Offset(x, frame.bottom), thin)
+                drawLine(Studio.Hairline, Offset(frame.left, y), Offset(frame.right, y), thin)
             }
         }
     }
 }
 
+/** Lay figures in their tones; with several people, the ones not being edited are faded. */
 private fun DrawScope.drawFigures(vp: EditorViewport, viewModel: PoseEditorViewModel) {
     val figures = viewModel.figures
     val selected = viewModel.selected
     val multi = figures.size > 1
     figures.forEachIndexed { i, skeleton ->
         val isSelected = i == selected
-        val base = PoseitColors.FigureTints[i % PoseitColors.FigureTints.size]
-        // Tint left / right limbs of the figure being edited like its handles (left = coral, right = violet).
-        val sideTints = if (isSelected) {
-            val left = lerp(base, PoseitColors.Coral, 0.30f)
-            val right = lerp(base, PoseitColors.Violet, 0.30f)
-            mapOf(BodyPart.LEFT_ARM to left, BodyPart.LEFT_LEG to left, BodyPart.RIGHT_ARM to right, BodyPart.RIGHT_LEG to right)
-        } else {
-            emptyMap()
-        }
         drawPoseFigure(
             skeleton,
             viewModel.aspect,
             vp.frame,
             FigurePaint(
                 style = FigureStyle.SILHOUETTE,
-                fill = base,
-                partColors = sideTints,
+                fill = Studio.FigureTones[i % Studio.FigureTones.size],
                 alpha = if (isSelected || !multi) 1f else 0.45f,
+                // Contour grey rather than Ink, so the face dot can't be mistaken for an Ink joint handle.
+                faceColor = Studio.MannequinContour,
             ),
         )
     }
 }
 
-private fun DrawScope.dimOutsideFrame(frame: Rect) {
-    val dim = Color.Black.copy(alpha = 0.45f)
+/** Washes the set back over whatever lies outside the frame, so cropped-off limbs read as outside the photo. */
+private fun DrawScope.fadeOutsideFrame(frame: Rect) {
+    val wash = Studio.Set.copy(alpha = 0.72f)
     val w = size.width
     val h = size.height
-    if (frame.top > 0f) drawRect(dim, Offset.Zero, Size(w, frame.top))
-    if (frame.bottom < h) drawRect(dim, Offset(0f, frame.bottom), Size(w, h - frame.bottom))
+    if (frame.top > 0f) drawRect(wash, Offset.Zero, Size(w, frame.top))
+    if (frame.bottom < h) drawRect(wash, Offset(0f, frame.bottom), Size(w, h - frame.bottom))
     val top = frame.top.coerceAtLeast(0f)
     val bottom = frame.bottom.coerceAtMost(h)
     if (bottom > top) {
-        if (frame.left > 0f) drawRect(dim, Offset(0f, top), Size(frame.left, bottom - top))
-        if (frame.right < w) drawRect(dim, Offset(frame.right, top), Size(w - frame.right, bottom - top))
+        if (frame.left > 0f) drawRect(wash, Offset(0f, top), Size(frame.left, bottom - top))
+        if (frame.right < w) drawRect(wash, Offset(frame.right, top), Size(w - frame.right, bottom - top))
     }
-    drawRect(Color.White.copy(alpha = 0.22f), frame.topLeft, frame.size, style = Stroke(1.dp.toPx()))
 }
 
+/**
+ * Joint handles of the selected figure, told apart by tone rather than hue: the figure's left joints are Ink dots
+ * with a white ring, its right (and centre) joints white dots with an Ink ring. The handle being dragged gets an Ink
+ * halo and turns Ink. The hips handle (rotate the upper body) is a Sheet disc with an Ink ring and rotate glyph.
+ */
 private fun DrawScope.drawHandles(
     vp: EditorViewport,
     viewModel: PoseEditorViewModel,
-    rotatePainter: androidx.compose.ui.graphics.painter.Painter,
+    rotatePainter: Painter,
 ) {
     val skeleton = viewModel.figures.getOrNull(viewModel.selected) ?: return
     val active = viewModel.activeTarget
-    val ring = Color(0xFF15161A)
+    val ring = 1.5.dp.toPx()
     val handles = SkeletonEditing.handles(skeleton, viewModel.aspect)
     // Joints first, then head and the hips badge on top.
     val ordered = handles.sortedBy { if (it.target is DragTarget.JointTarget) 0 else 1 }
     for (handle in ordered) {
         val center = vp.toPx(handle.position)
-        val color = when (val t = handle.target) {
-            is DragTarget.JointTarget -> when (t.joint.isLeft) {
-                true -> PoseitColors.Coral
-                false -> PoseitColors.Violet
-                null -> Color.White
-            }
-            DragTarget.Lean -> PoseitColors.Mint
-            else -> Color.White
-        }
         val isActive = handle.target == active
-        if (isActive) drawCircle(color.copy(alpha = 0.3f), radius = 22.dp.toPx(), center = center)
+        if (isActive) drawCircle(Studio.Ink.copy(alpha = 0.12f), radius = 20.dp.toPx(), center = center)
         if (handle.target == DragTarget.Lean) {
-            val r = 10.dp.toPx()
-            drawCircle(ring.copy(alpha = 0.85f), radius = r, center = center)
-            drawCircle(color, radius = r, center = center, style = Stroke(1.5.dp.toPx()))
-            val icon = 13.dp.toPx()
+            val r = 11.dp.toPx()
+            drawCircle(if (isActive) Studio.Ink else Studio.Sheet, radius = r, center = center)
+            drawCircle(Studio.Ink, radius = r - ring / 2f, center = center, style = Stroke(ring))
+            val icon = 14.dp.toPx()
             translate(center.x - icon / 2f, center.y - icon / 2f) {
-                with(rotatePainter) { draw(Size(icon, icon), colorFilter = ColorFilter.tint(color)) }
+                with(rotatePainter) {
+                    draw(Size(icon, icon), colorFilter = ColorFilter.tint(if (isActive) Studio.Sheet else Studio.Ink))
+                }
             }
         } else {
-            val r = if (handle.target == DragTarget.Head) 7.dp.toPx() else 6.dp.toPx()
-            drawCircle(ring, radius = r + 2.dp.toPx(), center = center)
-            drawCircle(color, radius = r, center = center)
+            val r = if (handle.target == DragTarget.Head) 6.dp.toPx() else 5.dp.toPx()
+            val left = (handle.target as? DragTarget.JointTarget)?.joint?.isLeft == true
+            val dot = if (left || isActive) Studio.Ink else Studio.Mannequin
+            val outer = if (left || isActive) Studio.Mannequin else Studio.Ink
+            drawCircle(outer, radius = r + ring, center = center)
+            drawCircle(dot, radius = r, center = center)
         }
     }
 }

@@ -1,10 +1,9 @@
 package com.poseit.app.ui.gallery
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,28 +23,24 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.DeleteOutline
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,21 +53,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.poseit.app.data.SavedPhoto
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.components.DestructiveButton
+import com.poseit.app.ui.components.StudioButtonHeight
+import com.poseit.app.ui.components.StudioIconButton
+import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
+/** Chrome colour on the viewer's black: Mannequin white, like the camera's controls. */
+private val OnPhoto = Studio.Mannequin
+
 /**
  * Full-screen photo viewer: swipe between photos, pinch / double-tap to zoom, share, delete, open in another app,
  * plus a quick review bar (Delete / Keep) to cull a burst of shots fast.
+ *
+ * True black around the photo, like the camera's live view. The bars are flat black at 45% (no gradient scrims)
+ * with Mannequin-white outlined icons; a tap on the photo hides them.
  */
 @Composable
 internal fun PhotoViewer(
@@ -117,7 +125,7 @@ internal fun PhotoViewer(
         if (idx >= 0 && idx != pagerState.currentPage) pagerState.scrollToPage(idx)
     }
 
-    Box(modifier.fillMaxSize().background(Color.Black)) {
+    Box(modifier.fillMaxSize().background(Studio.LiveView)) {
         HorizontalPager(
             state = pagerState,
             key = { photos.getOrNull(it)?.uri?.toString() ?: "page_$it" },
@@ -138,51 +146,55 @@ internal fun PhotoViewer(
         // ---- top bar -------------------------------------------------------------------------------------
         AnimatedVisibility(
             visible = chromeVisible,
-            enter = fadeIn() + slideInVertically { -it / 2 },
-            exit = fadeOut() + slideOutVertically { -it / 2 },
+            enter = fadeIn(tween(180)),
+            exit = fadeOut(tween(180)),
             modifier = Modifier.align(Alignment.TopCenter),
         ) {
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.75f), Color.Transparent)))
+                    .background(Studio.ControlScrim)
                     .statusBarsPadding()
-                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                    .height(64.dp)
+                    // Glyphs land on the 20dp gutter (48dp targets around 22dp icons).
+                    .padding(horizontal = 7.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IconButton(onClick = onClose) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Close viewer", tint = Color.White)
-                }
-                Column(Modifier.weight(1f).padding(start = 4.dp)) {
+                StudioIconButton(Icons.AutoMirrored.Outlined.ArrowBack, "Close viewer", onClose, tint = OnPhoto)
+                Column(Modifier.weight(1f).padding(start = Space.xs)) {
                     Text(
                         text = if (photos.isEmpty()) "" else "${(pagerState.currentPage + 1).coerceAtMost(photos.size)} / ${photos.size}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
+                        style = StudioType.numeral(15.sp),
+                        color = OnPhoto,
                     )
                     if (current != null) {
                         Text(
                             text = formatPhotoDateTime(current.dateTakenMillis, context),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.7f),
+                            style = StudioType.label,
+                            color = OnPhoto.copy(alpha = 0.72f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
-                IconButton(onClick = { current?.let(onShare) }, enabled = current != null) {
-                    Icon(Icons.Rounded.Share, contentDescription = "Share", tint = Color.White)
-                }
-                IconButton(onClick = { confirmDelete = current }, enabled = current != null) {
-                    Icon(Icons.Rounded.DeleteOutline, contentDescription = "Delete", tint = Color.White)
-                }
+                StudioIconButton(Icons.Outlined.Share, "Share", { current?.let(onShare) }, enabled = current != null, tint = OnPhoto)
+                StudioIconButton(Icons.Outlined.Delete, "Delete", { confirmDelete = current }, enabled = current != null, tint = OnPhoto)
                 Box {
-                    IconButton(onClick = { menuOpen = true }) {
-                        Icon(Icons.Rounded.MoreVert, contentDescription = "More options", tint = Color.White)
-                    }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    StudioIconButton(Icons.Outlined.MoreVert, "More options", { menuOpen = true }, tint = OnPhoto)
+                    DropdownMenu(
+                        expanded = menuOpen,
+                        onDismissRequest = { menuOpen = false },
+                        shape = StudioShapes.Small,
+                        containerColor = Studio.Sheet,
+                        tonalElevation = 0.dp,
+                        shadowElevation = 0.dp,
+                        border = BorderStroke(1.dp, Studio.Hairline),
+                    ) {
                         DropdownMenuItem(
-                            text = { Text("Open in gallery app") },
-                            leadingIcon = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null) },
+                            text = { Text("Open in gallery app", style = StudioType.body, color = Studio.Ink) },
+                            leadingIcon = {
+                                Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null, tint = Studio.Ink, modifier = Modifier.size(20.dp))
+                            },
                             onClick = {
                                 menuOpen = false
                                 current?.let(onOpenExternally)
@@ -200,11 +212,24 @@ internal fun PhotoViewer(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            SnackbarHost(snackbarHostState, Modifier.navigationBarsPadding().padding(bottom = if (chromeVisible) 0.dp else 8.dp))
+            // On black, the snackbar inverts to Sheet with Ink text so it stays visible.
+            SnackbarHost(
+                snackbarHostState,
+                Modifier.navigationBarsPadding().padding(bottom = if (chromeVisible) 0.dp else Space.s),
+            ) { data ->
+                Snackbar(
+                    data,
+                    shape = StudioShapes.Small,
+                    containerColor = Studio.Sheet,
+                    contentColor = Studio.Ink,
+                    actionColor = Studio.Ink,
+                    actionContentColor = Studio.Ink,
+                )
+            }
             AnimatedVisibility(
                 visible = chromeVisible,
-                enter = fadeIn() + slideInVertically { it / 2 },
-                exit = fadeOut() + slideOutVertically { it / 2 },
+                enter = fadeIn(tween(180)),
+                exit = fadeOut(tween(180)),
             ) {
                 ReviewBar(
                     enabled = current != null,
@@ -225,59 +250,77 @@ internal fun PhotoViewer(
     confirmDelete?.let { photo ->
         AlertDialog(
             onDismissRequest = { confirmDelete = null },
-            icon = { Icon(Icons.Rounded.DeleteOutline, contentDescription = null) },
-            title = { Text("Delete this photo?") },
-            text = { Text("It will be removed from your phone's gallery. This can't be undone.") },
+            shape = StudioShapes.Medium,
+            containerColor = Studio.Sheet,
+            tonalElevation = 0.dp,
+            title = { Text("Delete this photo?", style = StudioType.title, color = Studio.Ink) },
+            text = { Text("It's removed from your phone's gallery. This can't be undone.", style = StudioType.body, color = Studio.Graphite) },
             confirmButton = {
-                TextButton(
+                DestructiveButton(
+                    text = "Delete",
+                    filled = true,
                     onClick = {
                         confirmDelete = null
                         onDeleteConfirmed(photo)
                     },
-                    colors = ButtonDefaults.textButtonColors(contentColor = PoseitColors.Red),
-                ) { Text("Delete") }
+                )
             },
-            dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text("Cancel") } },
+            dismissButton = { TertiaryButton("Cancel", onClick = { confirmDelete = null }) },
         )
     }
 }
 
+/**
+ * Delete / Keep, side by side on the flat scrim. Delete is outlined with the bright Miss text (the dark-surround
+ * variant of the signal); Keep is the primary action, inverted for black: a Sheet fill with an Ink check and label.
+ */
 @Composable
 private fun ReviewBar(enabled: Boolean, isLast: Boolean, onDelete: () -> Unit, onKeep: () -> Unit) {
     Box(
         Modifier
             .fillMaxWidth()
-            .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))))
+            .background(Studio.ControlScrim)
             .navigationBarsPadding()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(horizontal = Space.gutter, vertical = Space.l),
         contentAlignment = Alignment.Center,
     ) {
         Row(
             Modifier.widthIn(max = 480.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(Space.m),
         ) {
             OutlinedButton(
                 onClick = onDelete,
                 enabled = enabled,
-                modifier = Modifier.weight(1f).height(52.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = PoseitColors.Red),
-                border = BorderStroke(1.5.dp, PoseitColors.Red.copy(alpha = if (enabled) 0.9f else 0.35f)),
+                modifier = Modifier.weight(1f).heightIn(min = StudioButtonHeight),
+                shape = StudioShapes.Medium,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Studio.MissBright,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = OnPhoto.copy(alpha = 0.38f),
+                ),
+                border = BorderStroke(1.dp, OnPhoto.copy(alpha = 0.32f)),
             ) {
-                Icon(Icons.Rounded.Close, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Delete", fontWeight = FontWeight.SemiBold)
+                Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(Space.s))
+                Text("Delete", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Button(
                 onClick = onKeep,
                 enabled = enabled,
-                modifier = Modifier.weight(1f).height(52.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = PoseitColors.Mint, contentColor = Color(0xFF0B2A1D)),
+                modifier = Modifier.weight(1f).heightIn(min = StudioButtonHeight),
+                shape = StudioShapes.Medium,
+                elevation = null,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Studio.Sheet,
+                    contentColor = Studio.Ink,
+                    disabledContainerColor = OnPhoto.copy(alpha = 0.12f),
+                    disabledContentColor = OnPhoto.copy(alpha = 0.38f),
+                ),
             ) {
-                Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(if (isLast) "Keep · done" else "Keep", fontWeight = FontWeight.SemiBold)
+                Icon(Icons.Outlined.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(Space.s))
+                Text(if (isLast) "Keep and finish" else "Keep", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }

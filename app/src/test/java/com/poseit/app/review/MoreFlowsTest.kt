@@ -291,7 +291,7 @@ class MoreFlowsTest {
                 shadow.receiveResult(started.intent, android.app.Activity.RESULT_OK, android.content.Intent().setData(uri))
             }
             // MediaPipe has no native library on the JVM: the screen must land on its error state, not crash.
-            waitFor { has("Something went wrong") || has("We couldn't spot anyone") || has("Your new pose") }
+            waitFor { has("Couldn't trace a pose") || has("No one found in this photo") || has("Your new pose") }
             shot("create-after-pick")
             // A perfectly valid PNG must at least be opened (detection itself can't run on the JVM).
             assertTrue("The picked photo was rejected as unreadable", !has("Couldn't open that photo. Try another one."))

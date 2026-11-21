@@ -4,41 +4,34 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
+import com.poseit.app.ui.components.StudioChip
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
 
 /** Longest pose name the forms accept. */
 internal const val POSE_NAME_MAX_LENGTH = 40
 
-/** Name, category and optional tags of a pose being saved (used by "create from photo" and the editor). */
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Name, category and optional tags of a pose being saved (used by "create from photo" and the editor's save
+ * sheet): a Sheet text field, then text-only chips for the category (pick one) and the tags (pick any). Each part
+ * has a Label caption above it.
+ */
 @Composable
 internal fun PoseDetailsForm(
     name: String,
@@ -50,81 +43,84 @@ internal fun PoseDetailsForm(
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        OutlinedTextField(
-            value = name,
-            onValueChange = { onNameChange(it.take(POSE_NAME_MAX_LENGTH)) },
-            label = { Text("Name") },
-            singleLine = true,
-            isError = name.isBlank(),
-            supportingText = {
-                Text(if (name.isBlank()) "Give your pose a name" else "${name.length} / $POSE_NAME_MAX_LENGTH")
-            },
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        var expanded by remember { mutableStateOf(false) }
-        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-            OutlinedTextField(
-                value = category.label,
-                onValueChange = {},
-                readOnly = true,
-                singleLine = true,
-                label = { Text("Category") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            )
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                PoseCategory.entries.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option.label) },
-                        trailingIcon = if (option == category) {
-                            { Icon(Icons.Rounded.Check, contentDescription = "Selected") }
-                        } else {
-                            null
-                        },
-                        onClick = {
-                            onCategoryChange(option)
-                            expanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                    )
-                }
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Space.xl)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+            Caption("Name")
+            NameField(name, onNameChange, onDone = { focusManager.clearFocus() })
+        }
+        ChipGroup("Category") {
+            PoseCategory.entries.forEach { option ->
+                StudioChip(label = option.label, selected = option == category, onClick = { onCategoryChange(option) })
             }
         }
-
-        TagSection("Mood", PoseTag.entries.filter { !it.isLocation }, tags, onTagsChange)
-        TagSection("Where", PoseTag.entries.filter { it.isLocation }, tags, onTagsChange)
+        TagGroup("Mood (optional)", PoseTag.entries.filter { !it.isLocation }, tags, onTagsChange)
+        TagGroup("Where (optional)", PoseTag.entries.filter { it.isLocation }, tags, onTagsChange)
     }
 }
 
+/** A Sheet field with a Hairline outline: Ink when focused, Miss while the name is empty. */
 @Composable
-private fun TagSection(title: String, options: List<PoseTag>, selected: Set<PoseTag>, onChange: (Set<PoseTag>) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = "$title · optional",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 2.dp),
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            options.forEach { tag ->
-                val isSelected = tag in selected
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { onChange(if (isSelected) selected - tag else selected + tag) },
-                    label = { Text(tag.label) },
-                    leadingIcon = if (isSelected) {
-                        { Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
-                    } else {
-                        null
-                    },
-                )
-            }
+private fun NameField(name: String, onNameChange: (String) -> Unit, onDone: () -> Unit) {
+    OutlinedTextField(
+        value = name,
+        onValueChange = { onNameChange(it.take(POSE_NAME_MAX_LENGTH)) },
+        singleLine = true,
+        isError = name.isBlank(),
+        supportingText = {
+            Text(if (name.isBlank()) "Give your pose a name" else "${name.length} / $POSE_NAME_MAX_LENGTH")
+        },
+        textStyle = StudioType.body,
+        shape = StudioShapes.Small,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Studio.Sheet,
+            unfocusedContainerColor = Studio.Sheet,
+            errorContainerColor = Studio.Sheet,
+            focusedTextColor = Studio.Ink,
+            unfocusedTextColor = Studio.Ink,
+            errorTextColor = Studio.Ink,
+            cursorColor = Studio.Ink,
+            errorCursorColor = Studio.Miss,
+            focusedBorderColor = Studio.Ink,
+            unfocusedBorderColor = Studio.Hairline,
+            errorBorderColor = Studio.Miss,
+            focusedSupportingTextColor = Studio.Graphite,
+            unfocusedSupportingTextColor = Studio.Graphite,
+            errorSupportingTextColor = Studio.Miss,
+        ),
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { onDone() }),
+        // The caption above is a separate Text, so the field names itself for screen readers.
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = "Name" },
+    )
+}
+
+@Composable
+private fun TagGroup(title: String, options: List<PoseTag>, selected: Set<PoseTag>, onChange: (Set<PoseTag>) -> Unit) {
+    ChipGroup(title) {
+        options.forEach { tag ->
+            val isSelected = tag in selected
+            StudioChip(
+                label = tag.label,
+                selected = isSelected,
+                onClick = { onChange(if (isSelected) selected - tag else selected + tag) },
+            )
         }
+    }
+}
+
+/** The Label-style Graphite caption over a field or a chip group. */
+@Composable
+private fun Caption(text: String) {
+    Text(text, style = StudioType.label, color = Studio.Graphite)
+}
+
+/** A caption over a wrapping row of chips, 8dp apart. */
+@Composable
+private fun ChipGroup(title: String, chips: @Composable () -> Unit) {
+    Column {
+        Caption(title)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(Space.s)) { chips() }
     }
 }

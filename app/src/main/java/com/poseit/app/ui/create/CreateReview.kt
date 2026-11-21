@@ -16,34 +16,17 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.TouchApp
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,34 +37,41 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.poseit.app.pose.Box as PoseBox
+import com.poseit.app.pose.PoseCategory
+import com.poseit.app.pose.PoseTag
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.pose.Skeleton
 import com.poseit.app.pose.Vec2
 import com.poseit.app.pose.render.FigureShapes
 import com.poseit.app.ui.components.FigurePaint
 import com.poseit.app.ui.components.FigureStyle
+import com.poseit.app.ui.components.HairlineDivider
 import com.poseit.app.ui.components.PoseThumbnail
+import com.poseit.app.ui.components.PrimaryButton
+import com.poseit.app.ui.components.SectionHeading
+import com.poseit.app.ui.components.StudioChip
+import com.poseit.app.ui.components.StudioTabs
+import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.drawPoseFigure
-import com.poseit.app.ui.theme.PoseitColors
-
-/** Vivid per-person colours for skeletons drawn over a photo. */
-private val PersonColors = listOf(PoseitColors.Mint, PoseitColors.Amber, PoseitColors.Coral, Color(0xFF6EC8FF))
-
-private fun personColor(index: Int) = PersonColors[index % PersonColors.size]
+import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.StudioType
+import kotlin.math.max
 
 /** Only the joints MediaPipe was reasonably sure about (what the saved template will contain). */
 internal fun Skeleton.visibleOnly(): Skeleton {
@@ -92,44 +82,75 @@ internal fun Skeleton.visibleOnly(): Skeleton {
 private enum class GuidePreview(val label: String, val caption: String) {
     MANNEQUIN("Mannequin", "A clean figure to line up with."),
     PHOTO("Photo", "Your photo, shown see-through over the camera."),
-    OUTLINE("Outline", "Just the person's outline – great for exact framing."),
+    OUTLINE("Outline", "Just the person's outline, for exact framing."),
 }
 
 @Composable
-internal fun ReviewContent(viewModel: CreateFromPhotoViewModel) {
-    val state = viewModel.state
+internal fun ReviewContent(viewModel: CreateFromPhotoViewModel, onPickAnother: () -> Unit) {
+    ReviewContent(
+        state = viewModel.state,
+        name = viewModel.name,
+        onNameChange = { viewModel.name = it },
+        category = viewModel.category,
+        onCategoryChange = { viewModel.category = it },
+        tags = viewModel.tags,
+        onTagsChange = { viewModel.tags = it },
+        onTogglePerson = viewModel::togglePerson,
+        onPickAnother = onPickAnother,
+    )
+}
+
+/** The review step: the traced photo, who to include, a preview of the guide styles and the pose's details. */
+@Composable
+internal fun ReviewContent(
+    state: CreateUiState,
+    name: String,
+    onNameChange: (String) -> Unit,
+    category: PoseCategory,
+    onCategoryChange: (PoseCategory) -> Unit,
+    tags: Set<PoseTag>,
+    onTagsChange: (Set<PoseTag>) -> Unit,
+    onTogglePerson: (Int) -> Unit,
+    onPickAnother: () -> Unit,
+) {
     val photo = state.photo ?: return
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+            .padding(horizontal = Space.gutter)
+            .padding(top = Space.s, bottom = Space.xl),
     ) {
-        Spacer(Modifier.height(0.dp))
         DetectedPhoto(
             photo = photo,
             aspect = state.imageAspect,
             people = state.people,
             selected = state.selected,
-            onTogglePerson = viewModel::togglePerson,
+            onTogglePerson = onTogglePerson,
         )
-        PeopleSection(state.people.size, state.selected, viewModel::togglePerson)
-        GuidePreviewCard(state, name = viewModel.name)
-        Text("Details", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(Space.s))
+        PeopleSection(state.people.size, state.selected, onTogglePerson, onPickAnother)
+        Spacer(Modifier.height(Space.section))
+        GuidePreviewSection(state, name = name)
+        Spacer(Modifier.height(Space.section))
+        SectionHeading("Details")
+        Spacer(Modifier.height(Space.m))
         PoseDetailsForm(
-            name = viewModel.name,
-            onNameChange = { viewModel.name = it },
-            category = viewModel.category,
-            onCategoryChange = { viewModel.category = it },
-            tags = viewModel.tags,
-            onTagsChange = { viewModel.tags = it },
+            name = name,
+            onNameChange = onNameChange,
+            category = category,
+            onCategoryChange = onCategoryChange,
+            tags = tags,
+            onTagsChange = onTagsChange,
         )
-        Spacer(Modifier.height(8.dp))
     }
 }
 
-/** The picked photo with the traced skeleton(s) on top; tap a person to include / exclude them. */
+/**
+ * The picked photo with the traced skeleton(s) on top; tap a person to include / exclude them. Skeletons are
+ * Mannequin-white sticks over an Ink shadow line so they read on any photo; people left out are faded. With more
+ * than one person, each carries a numbered tag that matches its chip.
+ */
 @Composable
 private fun DetectedPhoto(
     photo: Bitmap,
@@ -138,65 +159,70 @@ private fun DetectedPhoto(
     selected: Set<Int>,
     onTogglePerson: (Int) -> Unit,
 ) {
-    val image = remember(photo) { photo.asImageBitmap() }
     val drawable = remember(people) { people.map { it.visibleOnly() } }
     val textMeasurer = rememberTextMeasurer()
     val currentToggle by rememberUpdatedState(onTogglePerson)
     val multi = people.size > 1
-    BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        val maxH = 460.dp
-        Box(
+    PhotoStage(photo, aspect, heightLimit = 520.dp, contentDescription = "Your photo with the traced pose") {
+        Canvas(
             Modifier
-                .heightIn(max = maxH)
-                .aspectRatio(aspect, matchHeightConstraintsFirst = maxWidth / maxH > aspect)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .fillMaxSize()
+                .pointerInput(drawable, multi) {
+                    if (!multi) return@pointerInput
+                    detectTapGestures { tap ->
+                        val p = Vec2(tap.x / size.width, tap.y / size.height)
+                        // Smallest bounding box containing the tap wins (people can overlap).
+                        drawable.indices
+                            .mapNotNull { i -> PoseBox.around(drawable[i].points.values)?.let { i to it } }
+                            .filter { (_, b) -> b.contains(p, margin = 0.04f) }
+                            .minByOrNull { (_, b) -> b.width * b.height }
+                            ?.let { currentToggle(it.first) }
+                    }
+                },
         ) {
-            Image(image, contentDescription = "Your photo with the traced pose", contentScale = ContentScale.FillBounds, modifier = Modifier.fillMaxSize())
-            Canvas(
-                Modifier
-                    .fillMaxSize()
-                    .pointerInput(drawable, multi) {
-                        if (!multi) return@pointerInput
-                        detectTapGestures { tap ->
-                            val p = Vec2(tap.x / size.width, tap.y / size.height)
-                            // Smallest bounding box containing the tap wins (people can overlap).
-                            drawable.indices
-                                .mapNotNull { i -> PoseBox.around(drawable[i].points.values)?.let { i to it } }
-                                .filter { (_, b) -> b.contains(p, margin = 0.04f) }
-                                .minByOrNull { (_, b) -> b.width * b.height }
-                                ?.let { currentToggle(it.first) }
-                        }
-                    },
-            ) {
-                val rect = Rect(Offset.Zero, size)
-                drawRect(Color.Black.copy(alpha = 0.18f))
-                drawable.forEachIndexed { i, person ->
-                    val isOn = i in selected
-                    drawPoseFigure(
-                        person, aspect, rect,
-                        FigurePaint(
-                            style = FigureStyle.STICK,
-                            fill = if (isOn) personColor(i) else Color.White,
-                            alpha = if (isOn) 0.9f else 0.35f,
-                        ),
-                    )
-                    if (multi) {
-                        // Number badge above the head.
-                        val iso = person.toIsotropic(aspect)
-                        val unit = person.estimatedUnit(aspect)
-                        val head = FigureShapes.headCenter(iso, unit, person.midShoulder()?.let { Vec2(it.x * aspect, it.y) })
-                            ?: PoseBox.around(iso.values)?.let { Vec2(it.center.x, it.top) }
-                        if (head != null) {
-                            val r = 13.dp.toPx()
-                            val c = Offset(
-                                (head.x * size.height).coerceIn(r, size.width - r),
-                                (head.y * size.height - unit * size.height * 0.45f - r).coerceIn(r, size.height - r),
-                            )
-                            drawCircle(if (isOn) personColor(i) else Color.Gray, radius = r, center = c)
-                            val label = textMeasurer.measure("${i + 1}", TextStyle(color = Color(0xFF15161A), fontSize = 13.sp, fontWeight = FontWeight.Bold))
-                            drawText(label, topLeft = Offset(c.x - label.size.width / 2f, c.y - label.size.height / 2f))
-                        }
+            val rect = Rect(Offset.Zero, size)
+            drawRect(Studio.LiveView.copy(alpha = 0.18f))
+            drawable.forEachIndexed { i, person ->
+                val isOn = i in selected
+                val unitPx = person.estimatedUnit(aspect) * size.height
+                val line = max(2.dp.toPx(), unitPx * 0.06f)
+                // Shadow line first, then the white stick on top of it.
+                drawPoseFigure(
+                    person, aspect, rect,
+                    FigurePaint(
+                        style = FigureStyle.STICK,
+                        fill = Studio.Ink,
+                        alpha = if (isOn) 0.45f else 0.15f,
+                        strokeWidthPx = line + 3.dp.toPx(),
+                    ),
+                )
+                drawPoseFigure(
+                    person, aspect, rect,
+                    FigurePaint(style = FigureStyle.STICK, fill = Studio.Mannequin, alpha = if (isOn) 1f else 0.4f, strokeWidthPx = line),
+                )
+                if (multi) {
+                    // Number tag above the head.
+                    val iso = person.toIsotropic(aspect)
+                    val unit = person.estimatedUnit(aspect)
+                    val head = FigureShapes.headCenter(iso, unit, person.midShoulder()?.let { Vec2(it.x * aspect, it.y) })
+                        ?: PoseBox.around(iso.values)?.let { Vec2(it.center.x, it.top) }
+                    if (head != null) {
+                        val half = 12.dp.toPx()
+                        val c = Offset(
+                            (head.x * size.height).coerceIn(half, size.width - half),
+                            (head.y * size.height - unit * size.height * 0.45f - half).coerceIn(half, size.height - half),
+                        )
+                        drawRoundRect(
+                            Studio.Sheet.copy(alpha = if (isOn) 1f else 0.6f),
+                            topLeft = Offset(c.x - half, c.y - half),
+                            size = Size(half * 2, half * 2),
+                            cornerRadius = CornerRadius(6.dp.toPx()),
+                        )
+                        val label = textMeasurer.measure(
+                            "${i + 1}",
+                            StudioType.numeral(15.sp).copy(color = if (isOn) Studio.Ink else Studio.Graphite, lineHeight = 15.sp),
+                        )
+                        drawText(label, topLeft = Offset(c.x - label.size.width / 2f, c.y - label.size.height / 2f))
                     }
                 }
             }
@@ -204,63 +230,39 @@ private fun DetectedPhoto(
     }
 }
 
+/** What was found, the way back to the picker, and (for a group) a chip per person to include or leave out. */
 @Composable
-private fun PeopleSection(count: Int, selected: Set<Int>, onToggle: (Int) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun PeopleSection(count: Int, selected: Set<Int>, onToggle: (Int) -> Unit, onPickAnother: () -> Unit) {
+    Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .background(PoseitColors.Mint.copy(alpha = 0.2f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(Icons.Rounded.Check, contentDescription = null, tint = PoseitColors.Mint, modifier = Modifier.size(18.dp))
-            }
-            Spacer(Modifier.width(10.dp))
             Text(
                 text = if (count == 1) "Pose traced" else "Found $count people",
-                style = MaterialTheme.typography.titleMedium,
+                style = StudioType.bodyStrong,
+                color = Studio.Ink,
+                modifier = Modifier.weight(1f),
             )
+            // Nudged by its own padding so the label, not the ripple, ends on the gutter.
+            TertiaryButton("Choose another photo", onClick = onPickAnother, modifier = Modifier.offset(x = Space.m))
         }
         if (count > 1) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Rounded.TouchApp, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    "Choose who to include – tap the chips or the people in the photo.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                "Choose who to include. Tap a chip or a person in the photo.",
+                style = StudioType.label,
+                color = Studio.Graphite,
+            )
+            Spacer(Modifier.height(Space.xs))
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
                 repeat(count) { i ->
-                    val isOn = i in selected
-                    FilterChip(
-                        selected = isOn,
-                        onClick = { onToggle(i) },
-                        label = { Text("Person ${i + 1}") },
-                        leadingIcon = {
-                            Box(
-                                Modifier
-                                    .size(FilterChipDefaults.IconSize)
-                                    .clip(CircleShape)
-                                    .background(if (isOn) personColor(i) else Color.Gray),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                if (isOn) Icon(Icons.Rounded.Check, contentDescription = null, tint = Color(0xFF15161A), modifier = Modifier.size(12.dp))
-                            }
-                        },
-                    )
+                    StudioChip(label = "Person ${i + 1}", selected = i in selected, onClick = { onToggle(i) })
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** A preview of the three guide styles on the studio set. A preview only: the camera picks the style. */
 @Composable
-private fun GuidePreviewCard(state: CreateUiState, name: String) {
+private fun GuidePreviewSection(state: CreateUiState, name: String) {
     var mode by rememberSaveable { mutableStateOf(GuidePreview.MANNEQUIN) }
     val photo = state.photo ?: return
     val aspect = state.imageAspect
@@ -268,79 +270,68 @@ private fun GuidePreviewCard(state: CreateUiState, name: String) {
         PoseTemplate(
             id = "preview",
             name = name,
-            category = com.poseit.app.pose.PoseCategory.CUSTOM,
+            category = PoseCategory.CUSTOM,
             figures = state.selectedPeople.map { it.visibleOnly() }.filter { it.points.isNotEmpty() },
             frameAspect = aspect,
         )
     }
-    Surface(
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            // A preview only, not a saved choice: the camera picks the style (see the note below).
-            Text("Preview the guide styles", style = MaterialTheme.typography.titleMedium)
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                GuidePreview.entries.forEachIndexed { i, option ->
-                    SegmentedButton(
-                        selected = mode == option,
-                        onClick = { mode = option },
-                        shape = SegmentedButtonDefaults.itemShape(index = i, count = GuidePreview.entries.size),
-                        // No icons: three labels have to fit on a 360 dp phone.
-                        icon = {},
-                        label = { Text(option.label, maxLines = 1) },
+    Column {
+        SectionHeading("Guide styles")
+        Spacer(Modifier.height(Space.xs))
+        StudioTabs(
+            labels = GuidePreview.entries.map { it.label },
+            selectedIndex = mode.ordinal,
+            onSelect = { mode = GuidePreview.entries[it] },
+        )
+        Spacer(Modifier.height(Space.l))
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+                .clip(StudioShapes.Medium)
+                .background(Studio.Set),
+            contentAlignment = Alignment.Center,
+        ) {
+            when (mode) {
+                GuidePreview.MANNEQUIN -> if (previewTemplate.figures.isNotEmpty()) {
+                    PoseThumbnail(previewTemplate, Modifier.fillMaxSize().padding(Space.s), background = null)
+                }
+                GuidePreview.PHOTO -> PhotoPreview(photo, aspect, alpha = 0.75f)
+                GuidePreview.OUTLINE -> when (state.outlineStatus) {
+                    OutlineStatus.READY -> state.outline?.let { outline ->
+                        Box(contentAlignment = Alignment.Center) {
+                            PhotoPreview(photo, aspect, alpha = 0.25f)
+                            // The outline image is white; tint it Ink so it reads on the light set.
+                            PhotoPreview(outline, aspect, alpha = 1f, colorFilter = ColorFilter.tint(Studio.Ink, BlendMode.SrcIn))
+                        }
+                    }
+                    OutlineStatus.UNAVAILABLE -> Text(
+                        "No outline could be made for this photo. The mannequin and photo guides still work.",
+                        style = StudioType.label,
+                        color = Studio.Ink,
+                        modifier = Modifier.padding(Space.gutter),
                     )
-                }
-            }
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Brush.verticalGradient(listOf(Color(0xFF2B2E3A), Color(0xFF1C1E25)))),
-                contentAlignment = Alignment.Center,
-            ) {
-                when (mode) {
-                    GuidePreview.MANNEQUIN -> if (previewTemplate.figures.isNotEmpty()) {
-                        PoseThumbnail(previewTemplate, Modifier.fillMaxSize(), background = null)
-                    }
-                    GuidePreview.PHOTO -> PhotoPreview(photo, aspect, alpha = 0.75f)
-                    GuidePreview.OUTLINE -> when (state.outlineStatus) {
-                        OutlineStatus.READY -> state.outline?.let { outline ->
-                            Box(contentAlignment = Alignment.Center) {
-                                PhotoPreview(photo, aspect, alpha = 0.25f)
-                                PhotoPreview(outline, aspect, alpha = 1f)
-                            }
-                        }
-                        OutlineStatus.UNAVAILABLE -> Text(
-                            "No outline could be made for this photo.\nThe mannequin and photo guides still work.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(24.dp),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        )
-                        else -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(Modifier.size(28.dp), strokeWidth = 2.5.dp)
-                            Spacer(Modifier.height(10.dp))
-                            Text("Drawing the outline…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+                    else -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(Modifier.size(18.dp), color = Studio.Ink, strokeWidth = 2.dp)
+                        Spacer(Modifier.width(Space.m))
+                        Text("Drawing the outline…", style = StudioType.label, color = Studio.Ink)
                     }
                 }
             }
-            Text(mode.caption, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(
-                "The camera starts with the outline (or the photo); switch styles any time with the guide button on " +
-                    "the camera's right edge.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
+        Spacer(Modifier.height(Space.m))
+        Text(mode.caption, style = StudioType.label, color = Studio.Ink)
+        Spacer(Modifier.height(Space.xs))
+        Text(
+            "The camera starts with the outline when there is one. Switch styles with its guide button.",
+            style = StudioType.label,
+            color = Studio.Graphite,
+        )
     }
 }
 
 @Composable
-private fun PhotoPreview(bitmap: Bitmap, aspect: Float, alpha: Float) {
+private fun PhotoPreview(bitmap: Bitmap, aspect: Float, alpha: Float, colorFilter: ColorFilter? = null) {
     val image = remember(bitmap) { bitmap.asImageBitmap() }
     BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Image(
@@ -348,37 +339,33 @@ private fun PhotoPreview(bitmap: Bitmap, aspect: Float, alpha: Float) {
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
             alpha = alpha,
+            colorFilter = colorFilter,
             modifier = Modifier.aspectRatio(aspect, matchHeightConstraintsFirst = maxWidth / maxHeight > aspect),
         )
     }
 }
 
+/** The one primary action of the review, pinned above the navigation bar and the keyboard. */
 @Composable
-internal fun ReviewBottomBar(saving: Boolean, canSave: Boolean, onPickAnother: () -> Unit, onSave: () -> Unit) {
-    Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 8.dp) {
-        Row(
+internal fun ReviewBottomBar(saving: Boolean, canSave: Boolean, onSave: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(Studio.Paper),
+    ) {
+        HairlineDivider()
+        Box(
             Modifier
-                .fillMaxWidth()
                 .navigationBarsPadding()
                 .imePadding()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = Space.gutter, vertical = Space.m),
         ) {
-            TextButton(onClick = onPickAnother, enabled = !saving) { Text("Other photo") }
-            Button(
-                onClick = onSave,
-                enabled = canSave && !saving,
-                modifier = Modifier.weight(1f).widthIn(min = 160.dp).height(52.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
+            PrimaryButton(onClick = onSave, enabled = canSave && !saving, modifier = Modifier.fillMaxWidth()) {
                 if (saving) {
-                    CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = LocalContentColor.current)
-                    Spacer(Modifier.width(10.dp))
+                    CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = LocalContentColor.current)
+                    Spacer(Modifier.width(Space.m))
                     Text("Saving…")
                 } else {
-                    Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Spacer(Modifier.width(8.dp))
                     Text("Save pose")
                 }
             }
