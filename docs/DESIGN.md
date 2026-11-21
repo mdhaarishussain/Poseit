@@ -311,13 +311,19 @@ they are; where a label changes, its tests change with it.
 - Below, on the canvas: the search field (cream surface, 16dp corners, 1dp `border`), then `PillTabs` (All /
   Favourites / Recent / My poses) and one scrolling row of `FilterPill`s (people, category, place, mood groups
   split by short `VerticalHairline`s), both starting on `Space.edge`.
-- The count ("99 poses") in `supporting` on `textInset`; then the grid: `PoseTile`s two columns, 8dp apart, 8dp
-  from the sides.
+- While a tab or a filter narrows the list, the count ("12 poses") in `supporting` on `textInset` with
+  `TertiaryButton("Clear filters")` while filters are on; on the unfiltered list the badge already gives the count.
+  Then the grid: `PoseTile`s two columns (more on wide screens), 8dp apart, 8dp from the sides. Each row reserves
+  the name lines its longest name needs (measured), so the dark cards of a row end on one line.
+- "My poses" starts with a "Create a pose" tile: an outlined cream card with the footprint of a pose tile.
 - `FloatingPillBar`: left `CircleIconButton(camera, "Pose camera")`, middle `PillBarSegments(["Poses", "Photos"])`
   with Poses selected (Photos calls `onOpenGallery`; returning shows Poses again), right
-  `CircleIconButton(add, "Create a pose")` opening the existing create menu (`PoseitMenu`). The extended "Pose
-  camera" FAB goes away: tests that wait for the text "Pose camera" move to its content description.
-- Empty filters / favourites: `EmptyState` with one button.
+  `CircleIconButton(add, "Create a pose")` opening the create sheet (`PoseitBottomSheet`, two `OutlinedRow`s:
+  "Pose from a photo", "Draw a pose"). The extended "Pose camera" FAB goes away: tests that wait for the text
+  "Pose camera" move to its content description.
+- Empty tabs and filters: `EmptyState` inside a dark `PoseitCard`, its one button an `AccentButton` (the Today's
+  pose card is never shown with it).
+- The status bar sits on a canvas band, so the list scrolls under it, as it does under the pill bar's band.
 
 **Pose detail** (`detail/`)
 - `TopBarCard(pose name or "", onBack)` **joined** to the preview card: the figure on the stage inside cream
@@ -368,11 +374,14 @@ they are; where a label changes, its tests change with it.
 
 **Onboarding** (`onboarding/`)
 - Like the mockups' "Train your coordination." screen: the cream canvas with a connected stack filling the screen:
-  a top bar card (wordmark "Poseit" and a step `Badge("1 / 3")`), joined to the headline card (`display` Light,
-  e.g. "Pick a pose to copy."), joined to a tall picture card where the figure demo plays on the stage, with the
-  one-line instruction at its foot in `supporting` mist.
-- Below the stack on the canvas: `AccentButton("Next")` / `AccentButton("Get started")` full width and
-  `TertiaryButton("Skip")`. Page text stays the same words ("Next", "Get started" are looked up by tests).
+  a top bar card (wordmark "Poseit" and a step `Badge("1 / 4")`, read as "Page 1 of 4"), joined to the headline
+  card (`display` Light, e.g. "Pick a pose to copy", and the body in mist), joined to a tall picture card that takes
+  the rest of the height (`onboarding/FillingCardStack`), where the figure demo stands on the stage; the last
+  page's camera note sits at its foot in `supporting` mist. Each page is its own stack, so the whole stack slides
+  with the pager.
+- Below the stack on the canvas: `TertiaryButton("Skip")` and `AccentButton("Next")` taking the rest of the row;
+  on the last page `AccentButton("Get started")` full width. Page text stays the same words ("Next", "Get
+  started" are looked up by tests).
 
 **Dialogs, snackbars, empty states, menus** everywhere: `PoseitAlertDialog`, `PoseitSnackbarHost` (messages
 confirm with the button's own words: "Save pose" leads to "Pose saved"), `EmptyState`, `PoseitMenu`.

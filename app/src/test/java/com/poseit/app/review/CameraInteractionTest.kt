@@ -118,8 +118,8 @@ class CameraInteractionTest {
         runBlocking { app.container.settingsRepository.update { AppSettings(onboardingDone = true) } }
         shadowOf(app).grantPermissions(Manifest.permission.CAMERA)
         val scenario = ActivityScenario.launch(MainActivity::class.java)
-        compose.waitForText("Pose camera")
-        compose.onAllNodesWithText("Pose camera", useUnmergedTree = true).onFirst().performClick()
+        compose.waitForDesc("Pose camera")
+        compose.onAllNodesWithContentDescription("Pose camera", useUnmergedTree = true).onFirst().performClick()
         compose.waitForDesc("Take photo")
         settle()
         return scenario
@@ -168,7 +168,7 @@ class CameraInteractionTest {
             shot("after-shutter")
             crashes.assertNoCrashes()
             systemBack(scenario)
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
         }
         crashes.assertNoCrashes()
     }
@@ -229,15 +229,15 @@ class CameraInteractionTest {
             settle(1500)
             shot("after-gallery-return")
             byDesc("Back").performClick()
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
             settle(500)
 
             // Open it again: a fresh view model while the old one was cleared.
-            compose.onAllNodesWithText("Pose camera", useUnmergedTree = true).onFirst().performClick()
+            compose.onAllNodesWithContentDescription("Pose camera", useUnmergedTree = true).onFirst().performClick()
             compose.waitForDesc("Take photo")
             settle(1500)
             systemBack(scenario)
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
             crashes.assertNoCrashes()
         }
         crashes.assertNoCrashes()
@@ -253,10 +253,10 @@ class CameraInteractionTest {
             pressBackKey()
             settle(600)
             systemBack(scenario)
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
 
             // A new camera view model must start from the saved choices, not the defaults.
-            compose.onAllNodesWithText("Pose camera", useUnmergedTree = true).onFirst().performClick()
+            compose.onAllNodesWithContentDescription("Pose camera", useUnmergedTree = true).onFirst().performClick()
             compose.waitForDesc("Take photo")
             settle()
             openQuickSettings()
@@ -274,7 +274,7 @@ class CameraInteractionTest {
         runBlocking { app.container.settingsRepository.update { AppSettings(onboardingDone = true) } }
         shadowOf(app).grantPermissions(Manifest.permission.CAMERA)
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
             val pose = BuiltInPoses.all.first()
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(pose.name))
             byText(pose.name).performClick()

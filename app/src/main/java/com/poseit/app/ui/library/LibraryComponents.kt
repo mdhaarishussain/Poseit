@@ -1,36 +1,29 @@
 package com.poseit.app.ui.library
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -40,19 +33,21 @@ import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
 import com.poseit.app.pose.PoseTemplate
-import com.poseit.app.ui.components.PoseTile
-import com.poseit.app.ui.components.SecondaryButton
-import com.poseit.app.ui.components.StudioChip
-import com.poseit.app.ui.components.StudioIconButton
-import com.poseit.app.ui.components.StudioIconSize
-import com.poseit.app.ui.components.StudioTabs
+import com.poseit.app.ui.components.AccentButton
+import com.poseit.app.ui.components.CardSegment
+import com.poseit.app.ui.components.FilterPill
+import com.poseit.app.ui.components.IconSize
+import com.poseit.app.ui.components.PillTabs
+import com.poseit.app.ui.components.PlainIconButton
+import com.poseit.app.ui.components.PoseThumbnail
+import com.poseit.app.ui.components.PoseitIcons
 import com.poseit.app.ui.components.VerticalHairline
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitShapes
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
-import com.poseit.app.ui.theme.StudioType
 
-/** Lets a full-width child (e.g. a chip row) ignore the parent's horizontal content padding. */
+/** Lets a full-width child (e.g. a pill row) ignore the parent's horizontal content padding. */
 internal fun Modifier.bleedHorizontally(amount: Dp): Modifier = layout { measurable, constraints ->
     val extra = amount.roundToPx() * 2
     val placeable = measurable.measure(
@@ -66,8 +61,9 @@ internal fun Modifier.bleedHorizontally(amount: Dp): Modifier = layout { measura
 }
 
 /**
- * The search field: a Sheet patch with the Small radius and an outlined search glyph, Ink outline only while
- * focused. Pressing the keyboard's search key just hides the keyboard (results are live).
+ * The search field (Astryx Field): a cream surface with 16dp corners and a hairline edge that turns ink while
+ * focused, an outlined search glyph and a clear button while there is text. The keyboard's search key just hides
+ * the keyboard (results are live).
  */
 @Composable
 internal fun LibrarySearchField(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
@@ -77,30 +73,30 @@ internal fun LibrarySearchField(query: String, onQueryChange: (String) -> Unit, 
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier.fillMaxWidth(),
-        textStyle = MaterialTheme.typography.bodyLarge,
+        textStyle = PoseitType.bodyLarge,
         placeholder = {
-            Text("Search poses, places, moods…", style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Search poses, places, moods…", style = PoseitType.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
-        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(StudioIconSize)) },
+        leadingIcon = { Icon(PoseitIcons.search, contentDescription = null, modifier = Modifier.size(IconSize.standalone)) },
         trailingIcon = if (query.isNotEmpty()) {
-            { StudioIconButton(Icons.Outlined.Close, "Clear search", onClick = { onQueryChange("") }, tint = Studio.Graphite) }
+            { PlainIconButton(PoseitIcons.close, "Clear search", onClick = { onQueryChange("") }, tint = PoseitColors.textSecondary) }
         } else {
             null
         },
         singleLine = true,
-        shape = StudioShapes.Small,
+        shape = PoseitShapes.Row,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Studio.Sheet,
-            unfocusedContainerColor = Studio.Sheet,
-            focusedBorderColor = Studio.Ink,
-            unfocusedBorderColor = Color.Transparent,
-            focusedTextColor = Studio.Ink,
-            unfocusedTextColor = Studio.Ink,
-            cursorColor = Studio.Ink,
-            focusedPlaceholderColor = Studio.Graphite,
-            unfocusedPlaceholderColor = Studio.Graphite,
-            focusedLeadingIconColor = Studio.Ink,
-            unfocusedLeadingIconColor = Studio.Graphite,
+            focusedContainerColor = PoseitColors.backgroundSurface,
+            unfocusedContainerColor = PoseitColors.backgroundSurface,
+            focusedBorderColor = PoseitColors.borderEmphasized,
+            unfocusedBorderColor = PoseitColors.border,
+            focusedTextColor = PoseitColors.textPrimary,
+            unfocusedTextColor = PoseitColors.textPrimary,
+            cursorColor = PoseitColors.textPrimary,
+            focusedPlaceholderColor = PoseitColors.textSecondary,
+            unfocusedPlaceholderColor = PoseitColors.textSecondary,
+            focusedLeadingIconColor = PoseitColors.textPrimary,
+            unfocusedLeadingIconColor = PoseitColors.textSecondary,
         ),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
@@ -110,23 +106,27 @@ internal fun LibrarySearchField(query: String, onQueryChange: (String) -> Unit, 
     )
 }
 
-/** All / Favourites / Recent / My poses as Studio text tabs, edge to edge with the first tab on the gutter. */
+/**
+ * All / Favourites / Recent / My poses as pill tabs: a dark track with the lavender selection sliding to the chosen
+ * tab. It scrolls edge to edge, the track starting on the card edge.
+ */
 @Composable
 internal fun LibraryTabs(selected: LibraryTab, onSelect: (LibraryTab) -> Unit, modifier: Modifier = Modifier) {
     val tabs = LibraryTab.entries
-    StudioTabs(
+    PillTabs(
         labels = tabs.map { it.label },
         selectedIndex = tabs.indexOf(selected),
         onSelect = { onSelect(tabs[it]) },
-        modifier = modifier.bleedHorizontally(Space.gutter),
-        edgePadding = Space.gutter,
+        modifier = modifier.bleedHorizontally(Space.edge),
+        edgePadding = Space.edge,
     )
 }
 
 /**
- * Every filter in one horizontally scrolling chip row, edge to edge with the first chip on the gutter: who's in the
- * photo, then the category, the place and the mood, each group set off by a short vertical Hairline. The chips say
- * what they filter, so the groups need no captions. A selected chip is cleared by tapping it again.
+ * Every filter in one horizontally scrolling row of filter pills, edge to edge with the first pill on the card
+ * edge: who's in the photo, then the category, the place and the mood, each group set off by a short vertical
+ * hairline. The pills say what they filter, so the groups need no captions. A selected pill is cleared by tapping
+ * it again.
  */
 @Composable
 internal fun LibraryFilters(
@@ -140,21 +140,21 @@ internal fun LibraryFilters(
     onMood: (PoseTag) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Couple and Group are already people chips, and My poses is a tab, so they aren't offered as categories too.
+    // Couple and Group are already people pills, and My poses is a tab, so they aren't offered as categories too.
     val shownCategories = categories.filter { it !in RedundantCategories || it == filter.category }
     val people = PeopleFilter.entries.filter { it != PeopleFilter.ANY }
     LazyRow(
         modifier = modifier
             .fillMaxWidth()
-            .bleedHorizontally(Space.gutter),
-        contentPadding = PaddingValues(horizontal = Space.gutter),
+            .bleedHorizontally(Space.edge),
+        contentPadding = PaddingValues(horizontal = Space.edge),
         horizontalArrangement = Arrangement.spacedBy(Space.s),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         items(people.size, key = { "people_${people[it].name}" }) { i ->
             val option = people[i]
             val selected = filter.people == option
-            StudioChip(
+            FilterPill(
                 label = option.label,
                 selected = selected,
                 onClick = { onPeople(if (selected) PeopleFilter.ANY else option) },
@@ -170,21 +170,21 @@ internal fun LibraryFilters(
             items(shownCategories.size, key = { "cat_${shownCategories[it].name}" }) { i ->
                 val category = shownCategories[i]
                 // The view model clears the category when the selected one is tapped again.
-                StudioChip(label = category.label, selected = filter.category == category, onClick = { onCategory(category) })
+                FilterPill(label = category.label, selected = filter.category == category, onClick = { onCategory(category) })
             }
         }
         if (locationTags.isNotEmpty()) {
             item(key = "divider_location") { GroupDivider() }
             items(locationTags.size, key = { "loc_${locationTags[it].name}" }) { i ->
                 val tag = locationTags[i]
-                StudioChip(label = tag.label, selected = filter.location == tag, onClick = { onLocation(tag) })
+                FilterPill(label = tag.label, selected = filter.location == tag, onClick = { onLocation(tag) })
             }
         }
         if (moodTags.isNotEmpty()) {
             item(key = "divider_mood") { GroupDivider() }
             items(moodTags.size, key = { "mood_${moodTags[it].name}" }) { i ->
                 val tag = moodTags[i]
-                StudioChip(label = tag.label, selected = filter.mood == tag, onClick = { onMood(tag) })
+                FilterPill(label = tag.label, selected = filter.mood == tag, onClick = { onMood(tag) })
             }
         }
     }
@@ -201,38 +201,68 @@ private fun GroupDivider() {
     )
 }
 
+/** The Today's pose card's least height: the figure needs room to stand. */
+private val TodaysPoseMinHeight = 224.dp
+
 /**
- * Today's pose: a larger figure on its patch of studio paper, the name in the Title cut, its facts as one short
- * phrase and "Try this pose" right under them. Tapping anywhere else opens the pose.
+ * Today's pose, the card fused under the top bar card (docs/DESIGN.md, "Home"): "Today's pose" in mist, the name
+ * in the headline style, its facts as one short phrase and "Try this pose" at the foot, with the lay figure
+ * standing on the right of the dark card. The whole card opens the pose; the button opens the camera.
+ *
+ * It is one card of a connected stack, so put it in `TopBarCard(joined = { ... })`.
  */
 @Composable
-internal fun TodaysPose(pose: PoseTemplate, onOpen: () -> Unit, onTry: () -> Unit, modifier: Modifier = Modifier) {
-    val source = remember { MutableInteractionSource() }
-    BoxWithConstraints(modifier.fillMaxWidth()) {
-        val gap = Space.l
-        val tileWidth = (maxWidth - gap) * 0.44f
-        Row(
+internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () -> Unit, modifier: Modifier = Modifier) {
+    // With a large font the words get more of the card, so the button's label still fits on one line.
+    val largeFont = LocalDensity.current.fontScale > 1.15f
+    val textShare = if (largeFont) 0.66f else 0.58f
+    CardSegment(
+        modifier = modifier,
+        contentPadding = PaddingValues(0.dp),
+        onClick = onOpen,
+        onClickLabel = "Open today's pose",
+    ) {
+        Box(
             Modifier
                 .fillMaxWidth()
-                .clickable(interactionSource = source, indication = null, onClickLabel = "Open today's pose", onClick = onOpen),
-            horizontalArrangement = Arrangement.spacedBy(gap),
+                .heightIn(min = TodaysPoseMinHeight),
         ) {
-            PoseTile(
-                pose = pose,
-                name = null,
-                detail = null,
-                interactionSource = source,
-                modifier = Modifier.width(tileWidth),
-            )
-            Column(Modifier.weight(1f)) {
-                Text("Today's pose", style = StudioType.label, color = Studio.Graphite)
-                Spacer(Modifier.height(Space.xs))
-                Text(pose.name, style = StudioType.title, color = Studio.Ink, maxLines = 3, overflow = TextOverflow.Ellipsis)
-                Spacer(Modifier.height(Space.xs))
-                Text(pose.factsPhrase(), style = StudioType.label, color = Studio.Graphite)
-                Spacer(Modifier.height(Space.l))
-                // A secondary button: the floating Pose camera button is the screen's one primary action.
-                SecondaryButton("Try this pose", onClick = onTry)
+            Box(Modifier.matchParentSize()) {
+                PoseThumbnail(
+                    template = pose,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxWidth(1f - textShare + 0.04f)
+                        .fillMaxHeight()
+                        .padding(top = Space.l, end = Space.m, bottom = Space.m),
+                    background = null,
+                )
+            }
+            Column(
+                Modifier
+                    .fillMaxWidth(textShare)
+                    .heightIn(min = TodaysPoseMinHeight)
+                    .padding(start = Space.cardPadding, top = Space.cardPadding - Space.xs, bottom = Space.cardPadding),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column {
+                    Text("Today's pose", style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+                    Spacer(Modifier.height(Space.xs))
+                    Text(
+                        pose.name,
+                        style = PoseitType.headline,
+                        color = PoseitColors.textPrimaryInverted,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(Modifier.height(Space.xs))
+                    Text(pose.factsPhrase(), style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+                }
+                Column {
+                    Spacer(Modifier.height(Space.l))
+                    // The screen's one accent: the thing to do next.
+                    AccentButton("Try this pose", onClick = onTry)
+                }
             }
         }
     }

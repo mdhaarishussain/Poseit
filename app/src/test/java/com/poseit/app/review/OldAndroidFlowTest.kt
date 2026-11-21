@@ -114,7 +114,7 @@ abstract class OldAndroidFlows {
             waitText("Get started")
             byText("Get started").performClick()
             answerPermission(scenario, grant = true)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
 
             // Detail + favourite + customize + save.
             val pose = BuiltInPoses.all.first { it.personCount == 1 }
@@ -154,7 +154,7 @@ abstract class OldAndroidFlows {
             systemBack(scenario)
             waitText("Camera setup")
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
 
             // Settings, create, gallery from the library.
             byDesc("Settings").performClick()
@@ -162,18 +162,18 @@ abstract class OldAndroidFlows {
             byText("Voice guidance").performClick()
             settle(300)
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             byDesc("Create a pose").performClick()
             waitText("Pose from a photo")
             byText("Pose from a photo").performClick()
             waitText("Recreate any photo")
             systemBack(scenario)
-            waitText("Pose camera")
-            byDesc("Your photos").performClick()
+            waitDesc("Pose camera")
+            byText("Photos").performClick()
             waitText("Your photos")
             settle(800)
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             crashes.assertNoCrashes()
         }
         crashes.assertNoCrashes()

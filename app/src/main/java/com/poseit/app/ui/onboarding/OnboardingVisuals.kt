@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,25 +32,29 @@ import com.poseit.app.ui.components.PoseThumbnail
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.fitFrameRect
 import com.poseit.app.ui.components.frameMarks
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitShapes
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
-import com.poseit.app.ui.theme.StudioType
 
 /*
- * The intro's pictures. Each sits on the page's Set tile: the lay figure alone (the library), then the same figure
- * inside viewfinder frame marks with one added idea per page: limb colours and a hint (the camera), the countdown,
- * joint handles (the editor). They are still diagrams; Studio has no looping decoration.
+ * The intro's pictures. Each stands on the page's dark picture card (the stage): the lay figure alone (the
+ * library), then the same figure inside cream viewfinder frame marks with one added idea per page: limb colours and
+ * a hint (the camera), the countdown, joint handles (the editor). They are still diagrams; the design system has no
+ * looping decoration.
  */
 
-/** Page 1: the lay figure on the set, as in a pose tile. */
+/**
+ * Page 1: the lay figure on the stage, as in a pose tile, at about two thirds of the card's height so it stands in
+ * open space like the mockups' drawings rather than filling the card.
+ */
 @Composable
 internal fun FigurePicture(modifier: Modifier = Modifier) {
     PoseThumbnail(
         template = DemoPoses.handOnHip,
         modifier = modifier
-            .fillMaxSize()
-            .padding(vertical = Space.xl)
+            .fillMaxWidth()
+            .fillMaxHeight(0.62f)
             .clearAndSetSemantics { contentDescription = "A mannequin standing with one hand on its hip" },
         background = null,
     )
@@ -63,7 +68,8 @@ internal fun FigurePicture(modifier: Modifier = Modifier) {
 @Composable
 internal fun MatchPicture(modifier: Modifier = Modifier) {
     val target = remember { DemoPoses.raisedArm }
-    val partColors = remember { BodyPart.entries.associateWith { if (it == BodyPart.RIGHT_ARM) Studio.Miss else Studio.Match } }
+    // The camera's bright signal colours, as they read on the dark stage; the hint's words carry the meaning too.
+    val partColors = remember { BodyPart.entries.associateWith { if (it == BodyPart.RIGHT_ARM) PoseitColors.signalMissBright else PoseitColors.signalMatchBright } }
     Viewfinder(
         aspect = target.frameAspect,
         modifier = modifier.clearAndSetSemantics {
@@ -105,8 +111,8 @@ internal fun CountdownPicture(modifier: Modifier = Modifier) {
         )
         Text(
             "3",
-            style = StudioType.numeral(48.sp),
-            color = Studio.Ink,
+            style = PoseitType.numeralLarge,
+            color = PoseitColors.textPrimaryInverted,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = Space.m, end = Space.l),
@@ -119,7 +125,13 @@ private val HandleJoints = listOf(
     Joint.LEFT_HIP, Joint.RIGHT_HIP, Joint.LEFT_KNEE, Joint.RIGHT_KNEE, Joint.LEFT_ANKLE, Joint.RIGHT_ANKLE,
 )
 
-/** Page 4: the figure as the pose editor shows it, with a handle on each joint you can drag. */
+/** The handle shown as being dragged in [PosingPicture]. */
+private val SelectedJoint = Joint.LEFT_WRIST
+
+/**
+ * Page 4: the figure as the pose editor shows it, with a handle on each joint you can drag: dark discs ringed in
+ * cream, and the one being dragged (the raised hand) in lavender, as the editor marks its selected joint.
+ */
 @Composable
 internal fun PosingPicture(modifier: Modifier = Modifier) {
     val pose = remember { DemoPoses.star }
@@ -138,13 +150,20 @@ internal fun PosingPicture(modifier: Modifier = Modifier) {
             Canvas(Modifier.fillMaxSize()) {
                 val rect = fitFrameRect(size, pose.frameAspect)
                 val skeleton = pose.figures.first()
-                val radius = 5.dp.toPx()
+                // Handles scale with the figure, so a small picture (large font, small phone) isn't all rings.
+                val radius = (rect.height * 0.018f).coerceIn(3.dp.toPx(), 5.dp.toPx())
                 val ring = Stroke(1.5.dp.toPx())
                 for (joint in HandleJoints) {
                     val p = skeleton[joint] ?: continue
                     val center = Offset(rect.left + p.x * rect.width, rect.top + p.y * rect.height)
-                    drawCircle(Studio.Sheet, radius, center)
-                    drawCircle(Studio.Ink, radius, center, style = ring)
+                    val selected = joint == SelectedJoint
+                    drawCircle(if (selected) PoseitColors.accent else PoseitColors.backgroundCard, if (selected) radius * 1.4f else radius, center)
+                    drawCircle(
+                        if (selected) PoseitColors.onAccent else PoseitColors.textPrimaryInverted,
+                        if (selected) radius * 1.4f else radius,
+                        center,
+                        style = ring,
+                    )
                 }
             }
         }
@@ -171,18 +190,18 @@ private fun Viewfinder(aspect: Float, modifier: Modifier = Modifier, content: @C
 }
 
 /**
- * The camera's hint banner in miniature: Ink text on a Sheet card, always one line. It is part of a picture, so
+ * The camera's hint banner in miniature: the cream cue card with ink text, always one line. It is part of a picture, so
  * when the frame is narrow (large font on a small phone) the text shrinks rather than wrapping over the figure.
  */
 @Composable
 private fun CueCard(text: String, modifier: Modifier = Modifier) {
     BasicText(
         text,
-        style = StudioType.label.copy(color = Studio.Ink),
+        style = PoseitType.label.copy(color = PoseitColors.textPrimary),
         maxLines = 1,
-        autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = StudioType.label.fontSize, stepSize = 0.5.sp),
+        autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = PoseitType.label.fontSize, stepSize = 0.5.sp),
         modifier = modifier
-            .background(Studio.Sheet, StudioShapes.Medium)
+            .background(PoseitColors.backgroundSurface, PoseitShapes.Control)
             .padding(horizontal = Space.m, vertical = Space.s),
     )
 }

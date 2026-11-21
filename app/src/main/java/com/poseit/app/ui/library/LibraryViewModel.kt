@@ -35,6 +35,8 @@ data class LibraryUiState(
     val locationTags: List<PoseTag> = emptyList(),
     val moodTags: List<PoseTag> = emptyList(),
     val customCount: Int = 0,
+    /** Every pose in the library (built-in and your own), for the top bar's count. */
+    val libraryTotal: Int = 0,
 ) {
     /** The hero card only shows on the unfiltered home view. */
     val showHero: Boolean get() = poseOfTheDay != null && filter.tab == LibraryTab.ALL && !filter.hasRefinements
@@ -81,6 +83,7 @@ class LibraryViewModel(
             locationTags = locations,
             moodTags = moods,
             customCount = all.count { it.isCustom },
+            libraryTotal = all.size,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), LibraryUiState())
 

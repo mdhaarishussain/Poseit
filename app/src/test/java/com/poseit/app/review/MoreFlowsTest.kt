@@ -89,7 +89,7 @@ class MoreFlowsTest {
     private fun launch(onboardingDone: Boolean = true): ActivityScenario<MainActivity> {
         runBlocking { app.container.settingsRepository.update { AppSettings(onboardingDone = onboardingDone) } }
         val scenario = ActivityScenario.launch(MainActivity::class.java)
-        if (onboardingDone) waitText("Pose camera") else waitText("Pick a pose to copy")
+        if (onboardingDone) waitDesc("Pose camera") else waitText("Pick a pose to copy")
         return scenario
     }
 
@@ -136,7 +136,7 @@ class MoreFlowsTest {
             // The dialog's confirm button has the same name as the button that opened it.
             compose.onNode(hasText("Delete pose") and hasClickAction() and hasAnyAncestor(isDialog())).performClick()
             waitFor { app.container.poseRepository.customPoses.value.isEmpty() }
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             shot("after-delete")
             // Back stack: Library only (editor + old detail were popped on save).
             systemBack(scenario)
@@ -167,7 +167,7 @@ class MoreFlowsTest {
             byDesc("Back").performClick()
             waitText("Discard your changes?")
             byText("Discard").performClick()
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             crashes.assertNoCrashes()
         }
     }
@@ -198,7 +198,7 @@ class MoreFlowsTest {
             byText("Customise").performClick()
             waitText("Based on ${pose.name}")
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             crashes.assertNoCrashes()
         }
     }
@@ -214,9 +214,9 @@ class MoreFlowsTest {
             byText("Skip").performClick()
             waitText("Get started")
             byText("Get started").performClick() // CAMERA already granted: finishes directly
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             recreate(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             assertTrue("Onboarding came back after recreation", !has("Get started"))
 
             val pose = BuiltInPoses.all.first()
@@ -246,21 +246,21 @@ class MoreFlowsTest {
             systemBack(scenario)
             waitText("Camera setup")
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
 
-            byDesc("Your photos").performClick()
+            byText("Photos").performClick()
             waitText("No photos yet")
             recreate(scenario)
             waitText("No photos yet")
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
 
             byDesc("Settings").performClick()
             waitText("Voice guidance")
             recreate(scenario)
             waitText("Voice guidance")
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
 
             byDesc("Create a pose").performClick()
             waitText("Pose from a photo")
@@ -269,7 +269,7 @@ class MoreFlowsTest {
             recreate(scenario)
             waitText("Recreate any photo")
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             crashes.assertNoCrashes()
         }
     }
@@ -305,7 +305,7 @@ class MoreFlowsTest {
             systemBack(scenario)
             waitText("Recreate any photo")
             systemBack(scenario)
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             crashes.assertNoCrashes()
         }
     }
