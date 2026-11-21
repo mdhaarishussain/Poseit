@@ -5,7 +5,10 @@
  *   f555       hard cut from the colour photo to grey Studio paper: a solid lay figure in "Hands in pockets"
  *              (the pick, unflipped) stands exactly where she stood in the photo on f554 (shots.ts
  *              PHOTO_FIGURE_AT_CUT: the guide's frame with the photo's push), with its contact shadow. f555-576 a
- *              designed breath (0.7 s) kept alive by a 0.4% creep: the colour has gone and the pose stands alone
+ *              designed breath (0.7 s): the colour has gone and the pose stands alone, and the photo's push carries
+ *              across the cut (review 1): the camera keeps pushing in about the same point (her mid-hip), near the
+ *              photo's speed, and settles by f600 (softLand, 2%; more puts the feet on the bottom edge), instead of the
+ *              0.4% creep look.py counted as still
  *   f576-588   the figure relaxes ON TWOS (the posed clock): one hand leaves its pocket for the hip, landing in
  *              stand_hand_on_hip, the launcher icon's pose
  *   f600-624   the camera pulls back (a lens zoom about a fixed point, softLand 24 f) to reveal the cove; the figure
@@ -30,7 +33,7 @@ import { CameraGroup } from "../motion/CameraGroup";
 import { WordReveal, words } from "../motion/WordReveal";
 import { arrive, drift, tween } from "../motion";
 import { fitTextToWidth } from "../fonts";
-import { PHOTO_FIGURE_AT_CUT, type Rect } from "./shots";
+import { PHOTO, PHOTO_FIGURE_AT_CUT, type Rect } from "./shots";
 import { NAME_TIMING } from "./timing";
 
 const { W, H } = theme.size;
@@ -98,10 +101,18 @@ const CAM_END: StudioCam = (() => {
   return { ...cam, cx: cam.cx + (W / 2 - inkCx) };
 })();
 
+/**
+ * The breath (f555-600): the photo's push carried across the cut. The photo pushes about her mid-hip at about 0.21% a
+ * frame on f554 (shots.ts photoScale); a softLand of 2% over the breath starts near that speed (0.16% a frame) about
+ * the same screen point and settles before the pull back.
+ */
+const SETTLE = { to: 1.02, about: [PHOTO.anchor[0] * W, PHOTO.anchor[1] * H] as [number, number] };
+const CAM_SETTLED: StudioCam = zoomAbout(CAM_START, SETTLE.to, SETTLE.about);
+
 const PULL = (() => {
-  const k = CAM_END.focal / CAM_START.focal;
-  // the fixed point of the zoom that takes CAM_START's principal point to CAM_END's
-  const p: [number, number] = [(CAM_END.cx - k * CAM_START.cx) / (1 - k), (CAM_END.cy - k * CAM_START.cy) / (1 - k)];
+  const k = CAM_END.focal / CAM_SETTLED.focal;
+  // the fixed point of the zoom that takes CAM_SETTLED's principal point to CAM_END's
+  const p: [number, number] = [(CAM_END.cx - k * CAM_SETTLED.cx) / (1 - k), (CAM_END.cy - k * CAM_SETTLED.cy) / (1 - k)];
   return { k, p };
 })();
 
@@ -109,9 +120,10 @@ export const LOCKUP_ORIGIN: [number, number] = [W / 2, 0.58 * H];
 const creep = (f: number) => drift(f, [NAME_TIMING.wordmarkLanded, NAME_TIMING.end], [1, 1.008]);
 
 const camAt = (f: number): StudioCam => {
-  const e = tween(f, NAME_TIMING.pull, [0, 1], E.softLand);
-  const settle = drift(f, [NAME_TIMING.cut, NAME_TIMING.pull[0]], [1, 1.004]); // the designed breath: a 0.4% creep
-  const cam = zoomAbout(CAM_START, Math.pow(PULL.k, e) * settle, PULL.p);
+  const cam =
+    f < NAME_TIMING.pull[0]
+      ? zoomAbout(CAM_START, tween(f, [NAME_TIMING.cut, NAME_TIMING.pull[0]], [1, SETTLE.to], E.softLand), SETTLE.about)
+      : zoomAbout(CAM_SETTLED, Math.pow(PULL.k, tween(f, NAME_TIMING.pull, [0, 1], E.softLand)), PULL.p);
   return zoomAbout(cam, creep(f), LOCKUP_ORIGIN);
 };
 

@@ -247,8 +247,11 @@ export const theme = {
     chorusVeil: { land: 0.7, settled: 0.34, edge: 0.95 },
     /** a chorus guide lands from this scale about the person's mid-hip (softLand 5 f on beats, 4 f on eighths) */
     guideLandFrom: 1.25,
-    /** the colour photo's slow push (B7) */
-    photoPush: [1, 1.03] as [number, number],
+    /**
+     * the colour photo's slow push (B7). Review 1: the board's 1.03 measured as a still for its last 1.2 s
+     * (look.py "static-ish"); 1.06 keeps the film's first colour frame visibly alive into the f555 cut.
+     */
+    photoPush: [1, 1.06] as [number, number],
     /** the chorus film camera's push across f144-248 */
     chorusPush: [1, 1.08] as [number, number],
   },

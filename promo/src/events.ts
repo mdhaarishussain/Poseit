@@ -96,7 +96,7 @@ const list: PictureEvent[] = [
   ev(MATCH_EVENTS.digit1, "count", "countdown 1"),
   ev(MATCH_EVENTS.capture - 8, "breath", "half a beat of stillness", { to: MATCH_EVENTS.capture }),
   ev(MATCH_EVENTS.capture, "shutter", "capture: the app's flash; the photo it took, the film's first colour", { hit: 3, to: FLASH_END }),
-  ev(COLOUR, "camera", "the flash has decayed: the colour photo, pushing 1.00 -> 1.03", { to: PHOTO_CUT }),
+  ev(COLOUR, "camera", `the flash has decayed: the colour photo, pushing 1.00 -> ${theme.footage.photoPush[1].toFixed(2)}`, { to: PHOTO_CUT }),
   // ---- act V: the name
   ev(PHOTO_CUT, "cut", "hard cut: the colour photo -> grey paper; a solid lay figure where she stood"),
   ev(NAME_TIMING.relax[0], "body", "the figure relaxes on twos into the launcher pose", { to: NAME_TIMING.relax[1] }),

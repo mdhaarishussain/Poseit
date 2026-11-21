@@ -27,7 +27,7 @@
  *   - each digit lands from 115% over 200 ms (the app's scaleIn) and replaces the last on one frame (the app overlaps
  *     a 100 ms fade-out).
  *   - B7: under the app's capture flash (85% white, 280 ms decay) the frozen capture frame in colour, the whole frame
- *     (the photo is the full scene), no overlays, pushing 1.00 -> 1.03 to the cut.
+ *     (the photo is the full scene), no overlays, pushing 1.00 -> 1.06 to the cut (theme.footage.photoPush).
  */
 import React from "react";
 import { AbsoluteFill } from "remotion";
@@ -53,10 +53,13 @@ export const HUD_LAYOUT = {
   cardTop: 0.13 * H,
   cardMaxWidth: 0.94 * W,
   /**
-   * the countdown takes the card's place in the headroom: the glyph spans about 0.09-0.28 H, clear of her hair
-   * (about 0.33 H unpushed, 0.30 H under the film camera's last push)
+   * the countdown takes the card's place in the headroom, at 0.68 of CameraHud's 96 sp (review 1: at full size its
+   * glyph reached 0.09 H, inside the top 12.5% that a feed's own UI covers). The glyph and contour now span about
+   * 0.15-0.28 H settled and 0.14-0.29 H at the 115% landing: under the top safe line and clear of her hair (about
+   * 0.33 H unpushed, 0.30 H under the film camera's last push).
    */
-  countdown: [0.5 * W, 0.185 * H] as [number, number],
+  countdown: [0.5 * W, 0.215 * H] as [number, number],
+  countdownScale: 0.68,
   /** right of her body, under the softbox (a white ring on white would vanish there) */
   ring: [0.845 * W, 0.58 * H] as [number, number],
 };
@@ -97,7 +100,7 @@ const CountdownLayer: React.FC<{ frame: number }> = ({ frame }) => {
   if (!d) return null;
   const scale = tween(frame, [d.from, d.from + ms(200)], [1.15, 1], E.snapSettle);
   const opacity = tween(frame, [d.from, d.from + 3], [0.35, 1], E.softInOut);
-  return <CountdownNumeral value={d.v} cx={HUD_LAYOUT.countdown[0]} cy={HUD_LAYOUT.countdown[1]} scale={scale} opacity={opacity} />;
+  return <CountdownNumeral value={d.v} cx={HUD_LAYOUT.countdown[0]} cy={HUD_LAYOUT.countdown[1]} scale={scale * HUD_LAYOUT.countdownScale} opacity={opacity} />;
 };
 
 const GUIDE = MATCH_GUIDE.figures[0];

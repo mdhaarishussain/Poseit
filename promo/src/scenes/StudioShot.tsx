@@ -8,8 +8,10 @@
  *     f288  the detail screen's frame marks snap around the hero and its real name resolves under them (blur, rise
  *           and opacity, 5 f); the focus racks onto the hero's row
  *     f304  the accelerating push into the hero, solved every frame onto act IV's guide frame (shots.ts HERO_AT_CUT):
- *           the marks open out past the frame edges and the name leaves under the bottom edge; hard cut at f336 at
- *           peak speed
+ *           the marks open out past the frame edges and the name leaves downward with them; hard cut at f336 at
+ *           peak speed. Review 1: the name is gone (opacity and blur, accelerating, tied to its position) before its
+ *           top reaches 0.875 H, so it never reads in the bottom 12.5% a feed's UI covers (it used to cross it
+ *           readable for about 8 frames, f319-327)
  * The world: StudioPaper (shaded per pixel from the camera), StudioFigures (depth-sorted, contact shadows, depth of
  * field that follows the hero), FilmGrain. Frame marks and the name are Studio Ink on paper (DESIGN.md).
  */
@@ -60,6 +62,8 @@ export const StudioShot: React.FC<{ frame: number }> = ({ frame }) => {
   const r = marksRect(frame, hero);
   const name = focusIn(frame, MARKS_AT);
   const rise = land(frame, MARKS_AT, { from: 0.012 * H, frames: 8 });
+  const nameTop = r.y + r.h + 0.022 * H;
+  const nameOut = tween(nameTop, [0.8 * H, 0.875 * H], [0, 1], E.accelExit);
   const nameSize = theme.type.poseName.size;
   const markLen = Math.max(12 * theme.size.dp, 0.075 * r.w);
   const markW = Math.max(1.5 * theme.size.dp, 0.0065 * r.w);
@@ -75,7 +79,7 @@ export const StudioShot: React.FC<{ frame: number }> = ({ frame }) => {
               position: "absolute",
               left: 0,
               width: W,
-              top: r.y + r.h + 0.022 * H,
+              top: nameTop,
               textAlign: "center",
               fontFamily: theme.type.poseName.family,
               fontWeight: theme.type.poseName.weight,
@@ -83,8 +87,8 @@ export const StudioShot: React.FC<{ frame: number }> = ({ frame }) => {
               letterSpacing: theme.type.poseName.tracking,
               lineHeight: 1,
               color: theme.color.ink,
-              opacity: name.opacity,
-              filter: name.blur > 0.05 ? `blur(${name.blur}px)` : undefined,
+              opacity: name.opacity * (1 - nameOut),
+              filter: name.blur + 8 * nameOut > 0.05 ? `blur(${name.blur + 8 * nameOut}px)` : undefined,
               transform: `translateY(${rise}px)`,
             }}
           >

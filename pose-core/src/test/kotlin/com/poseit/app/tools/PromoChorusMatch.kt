@@ -47,7 +47,8 @@ import kotlin.math.hypot
  * key frame, the pose, its score, fit and hold, the part scores, the transform, the guide's figures in scene space and
  * the top of the ranking at the key frame.
  *
- * Run: ./gradlew :pose-core:test --tests 'com.poseit.app.tools.PromoChorusMatch'
+ * Run: ./gradlew :pose-core:test --tests 'com.poseit.app.tools.PromoChorusMatch' --rerun (the JSON it reads is not a
+ * declared task input, so without --rerun Gradle can call the test up to date and write nothing)
  */
 class PromoChorusMatch {
 

@@ -15,7 +15,7 @@
  *                        8 f; 1.11 at most
  *   guideScreenFrame(f)  the guide's template frame on screen at frame f of the live view (film camera applied)
  *   PHOTO, photoScale(f) B7: the captured photo (the whole frame, colour) and its slow push about her mid-hip,
- *                        1.00 at the capture, 1.03 on the f555 cut, still moving at the cut
+ *                        1.00 at the capture, about 1.06 on the f555 cut (theme.footage.photoPush), still moving at the cut
  *   PHOTO_FIGURE_AT_CUT  the guide's template frame on the photo on f554 (photo push applied): where B8's figure stands
  *   scaleRect(r, s, o)   a frame rectangle scaled about a screen point
  *   HERO_AT_CUT          the studio hero's frame on f335 (the guide's frame, one frame of push short)
@@ -129,7 +129,7 @@ export const guideScreenFrame = (f: number): Rect => scaleRect(GUIDE_FRAME, vfSc
 
 /**
  * B7: the photo the app saves is the whole scene, so under the capture flash the film camera lets go of the live
- * view's zoom and the frozen colour frame pushes 1.00 -> 1.03 about her mid-hip by the f555 cut (a sine drift over
+ * view's zoom and the frozen colour frame pushes 1.00 -> 1.06 about her mid-hip by the f555 cut (a sine drift over
  * twice the span, so it is still moving at the cut).
  */
 export const PHOTO = { from: MATCH_EVENTS.capture, cut: 555, anchor: guideHip, push: theme.footage.photoPush };

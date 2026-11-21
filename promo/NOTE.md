@@ -4,7 +4,7 @@ The plan is in `STORYBOARD.md`, the sound in `sound-plan.md` and the voice-over 
 what is built, what is real and what is illustrative, and records what was checked. It grows with the film; the newest
 state is at the top and v1's record is at the end.
 
-## Status v2: integrated (real people, the app's graphics on top; picture and sound built, the voice waits for a key)
+## Status v2: integrated and reviewed once (real people, the app's graphics on top; picture and sound built, the voice waits for a key)
 
 The whole v2 film is built and assembled in `Promo` (664 f, 22.13 s, 1080 x 1920, 30 fps): real people from Mixkit
 stock footage are the subject, and the app's graphics are overlays on them, as on a phone. The two builders' parts
@@ -17,46 +17,104 @@ and `npm run audio` places the sound on them. The voice-over (`vo.txt`, five lin
 |---|---|---|---|
 | B1 hook | 0-79 | The stiff stick skeleton in the black viewfinder, "What do I do / with my hands?"; the words leave f61-69; the rush f70-79 lands the skeleton on B2's body | drawn (illustrative stance) |
 | B2 | 80-143 | A woman on a desert, printed grey; the hook's skeleton becomes hers (f80-86), then the app's live skeleton follows her hands behind her head | Mixkit footage; the app's model and smoothing |
-| B3 chorus | 144-271 | Nine cuts on the grid (f144 ... f240), each with the library lay figure the app's matcher fits to that person; f248-271 the drop holds on c9 | Mixkit footage; the app's PoseMatcher scores (`chorus.json`) |
+| B3 chorus | 144-271 | Nine cuts on the grid (f144 ... f240), each with the library lay figure the app's matcher fits to that person; f248-271 the drop holds on c9 (the man of the couple clip in "Cuff adjust", re-cropped in review 1 so his partner's face is out of frame) | Mixkit footage; the app's PoseMatcher scores (`chorus.json`) |
 | B4 the pick | 272-335 | All 99 lay figures in "Hands in pockets" on studio paper, frame marks, the name, the push onto act IV's guide | drawn from the 99 real poses |
 | B5 coaching | 336-400 | A woman in a photo studio, printed grey; the app's see-through guide coloured per limb, her live skeleton, the ring, "Ask them to bend their right elbow more" (f348) | Mixkit footage; every number and card is the app's verdict |
-| B6 lock and countdown | 401-511 | The lock (f401, hit 2), every limb green from f404, "Perfect. Hold it" f413-421, 3 / 2 / 1 at f422 / 452 / 482, stillness f504-511 | the app's HintStabilizer and CaptureCoach |
-| B7 the photo | 512-554 | The app's capture flash (f512, hit 3), then the same frame in full colour, the film's first colour, pushing 1.00 -> 1.03 | the plate's frame at the app's capture frame |
-| B8 the name | 555-663 | A solid "Hands in pockets" figure where she stood, relaxing into the icon pose (f576-588), the pull back, "Poseit", "Free for Android. / Works offline." | drawn from the real poses |
+| B6 lock and countdown | 401-511 | The lock (f401, hit 2), every limb green from f404, "Perfect. Hold it" f413-421, 3 / 2 / 1 at f422 / 452 / 482 in the headroom (glyph 0.15-0.28 H), stillness f504-511 | the app's HintStabilizer and CaptureCoach |
+| B7 the photo | 512-554 | The app's capture flash (f512, hit 3), then the same frame in full colour, the film's first colour, pushing 1.00 -> 1.06 | the plate's frame at the app's capture frame |
+| B8 the name | 555-663 | A solid "Hands in pockets" figure where she stood, the photo's push carried across the cut and settling (2%, f555-600), relaxing into the icon pose (f576-588), the pull back, "Poseit", "Free for Android. / Works offline." | drawn from the real poses |
 
-**Checked on the integrated draft** (`npm run draft`, half size, `out/draft.mp4`; `look.py --expect 22.13
---expect-audio --events out/cuts.events.json`):
+**Checked on the review-1 draft** (`npm run draft`, half size, `out/draft.mp4`; `look.py --expect 22.13
+--expect-audio --events out/cuts.events.json`; the integration draft's numbers are in "Review 1" below):
 - G0 PASS: 22.14 s, 664 frames, audio present. G2 PASS: no run of more than 3 flat frames. G3 PASS: end hold 1.30 s;
   final shot 3.64 s, 16% of the film.
-- Audio: -14.0 LUFS integrated, LRA 6.9 LU, true peak -1.1 dBFS after the AAC encode; audible 0.07-22.13 s; 11 of 14
-  cuts within 80 ms of a sound onset (the misses: the eighth-note cuts f216 and f232, whose clicks sit under the
-  groove, and f555, where the colour chord rings on through the cut to paper by design); no flags.
-- Motion: mean frame-to-frame luma change 3.3/255, below the human band (median 6.8). The stillest stretches are
-  designed: the hook's awkward pause, the countdown on the 0.5x hold, the B8 breath f555-578 (a 0.4% creep, which
-  look.py counts as still) and the end hold.
-- Seams, by blending full-size stills on each side of each cut (`out/int/blends.png`): f79 / f80 the stiff skeleton
-  sits on her body (nose, ankles, mid-hip x); f335 / f336 the studio hero lies exactly under the app's guide;
-  f554 / f555 B8's figure sits on her head, shoulders and hips in the photo (her feet are crossed, the figure's are
-  not).
-- By eye on stills of every 15th frame plus every cut, hit and landing (`out/int/sheet0-3.png`, 91 frames): G1 the
-  cue text is 0.04 H, the score 0.042 H, the countdown about 0.19 H of glyph, the pose name 0.045 H; G4 one person with
-  their overlay per frame (the army with one framed hero in B4); G5 no corner labels, counters, timecodes or captions on
-  people. Nothing typed ever shares a frame with a real person except the app's own cards, score and digits.
+- Audio: -14.0 LUFS integrated, LRA 6.9 LU, true peak -1.1 dBFS after the AAC encode (mix.wav -14.02 LUFS, -1.50 dBTP,
+  sha256 9021657e9026, unchanged by the review); audible 0.07-22.13 s; 11 of 14 cuts within 80 ms of a sound onset
+  (the misses: the eighth-note cuts f216 and f232, whose clicks sit under the groove, and f555, where the colour
+  chord rings on through the cut to paper by design); no flags.
+- Motion: mean frame-to-frame luma change 3.3/255, below the human band (median 6.8). The only still run look.py
+  finds is 20.93-21.63 s (f628-649: the end line resolving over the resolved hold); the B8 breath (0.77 s still on
+  the integration draft) is gone. The stillest designed stretches: the hook's awkward pause, the countdown on the 0.5x
+  hold (0.55/255 at 96 px wide), the photo (0.52), the B8 breath (0.11 for f555-576) and the end hold.
+- Seams, by blending full-size stills on each side of each cut: f79 / f80 the stiff skeleton sits on her body (nose,
+  ankles, mid-hip x); f335 / f336 the studio hero lies exactly under the app's guide (`out/int/blends.png`, not
+  touched by the review); f554 / f555 B8's figure sits on her head, shoulders and hips in the photo at the new 6% push
+  (`out/rv1/blend-554-555.png`; her feet are crossed, the figure's are not).
+- By eye (review 1, `out/rv1sheet0-5.png`: every 10th frame plus every cut, hit and landing, 84 frames; then
+  `out/rv1bsheet0-2.png` and full-size f380, f485, f554, f555 after the fixes): G1 the cue text is 0.04 H, the score
+  0.042 H, the countdown glyph 0.13 H (0.68 of CameraHud's 96 sp), the pose name 0.045 H; G4 one person with their
+  overlay per frame (the army with one framed hero in B4); G5 no corner labels, counters, timecodes or captions on
+  people. No text sits in the outer 12.5% at the top or bottom (the cue card's top edge is at 0.131 H). Nothing typed
+  ever shares a frame with a real person except the app's own cards, score and digits.
 - `npm run check` passes (typecheck, mannequin parity against pose-core, act IV's plate, landmarks and verdicts in
   step and the acceptance list).
 
-**Known issues left for the review stages** (none blocks the cut):
+**Known issues left** (none blocks the cut; each is the app's real output or a documented choice):
 - The lock (f401, hit 2) lands while she is still sliding into the guide: at f401 her right arm scores 0.73 (amber
   green) and she is about 0.09 W left of the figure; every limb is green from f404 and she is inside the figure by
   about f450. The strongest still is f420 ("Perfect. Hold it", hold arc 0.91, score 82), 19 frames after the hit.
-- "Perfect. Hold it" is up 9 frames (f413-421): the app's own timing (400 ms stabiliser delay, the countdown removes
-  the banner 700 ms after the lock). It reads with the lock chime behind it.
-- The colour photo's 3% push measures as nearly still for its last 1.2 s; the B8 breath is 0.77 s of near stillness.
-- c2's hold is 0.57 (her arms leave the cross-legged figure's arms after the landing); c9 has one figure (the app's
-  model finds only the man of the couple), and its chin-rest arm reads inside the torso's outline.
+  What changes on f401 is the ring: it turns green and its hold arc starts, and the film camera steps 1.5%.
+- "Perfect. Hold it" is up 9 frames (f413-421): the app's own timing (400 ms stabiliser delay; at the countdown
+  `CameraScreen.kt` drops `HintBanner` from composition, `if (ui.hasPose && countdown == null)`, with no exit
+  animation, and the 700 ms hold is not a setting). It reads with the lock chime behind it.
+- Before the lock the guide is mostly green while she stands beside it (f336-400): the app's matcher compares limb
+  directions, not position; the guide stands where the solved placement put it (where she settles).
+- c2's hold is 0.57 (her arms leave the cross-legged figure's arms after the landing). In the chorus look (veil and
+  edge) arms that cross the torso read only by their elbows in the outline (c9's "Cuff adjust", c1, c4).
+- c9's figure head sits about a third of a head left of his face (sit 0.11 torso lengths overall, head part 0.96).
 - Mean motion is below the human band (above).
 - The dev compositions `Dev-StudioDemo`, `Dev-BlendSheet` and `Dev-Viewfinder` still show v1 content (Disco point,
   the v1 chorus, the front-camera viewfinder). They compile and are not part of the film.
+- Only half-size drafts were rendered; the full-size `npm run render` has not been run.
+
+## Review 1 (look and fix)
+
+Rendered the integration commit (11dc257) as a half-size draft, ran look.py, and looked at every 10th frame plus
+every cut, hit and landing (84 frames, `out/rv1sheet0-5.png`), the lock frame by frame (f396-416,
+`out/rv1lock0.png`), the B4 name's exit every 2nd frame (`out/rv1name0.png`) and full-size f250, f380 and f440.
+look.py on that draft: G0 PASS (22.14 s, audio), G2 PASS, G3 PASS (end hold 1.30 s, final shot 3.64 s = 16%);
+-14.0 LUFS, LRA 6.9, true peak -1.1 dBFS; 11 of 14 cuts on an onset; motion 3.3/255; still runs 18.50-19.27 s
+(0.77 s, the B8 breath) and 20.93-21.63 s (0.70 s).
+
+**Findings, worst first, and what was done** (G = the motionmaxxing gate it touches; "zone" = the outer 12.5% at the
+top and bottom of a 9:16 frame, which a feed's UI covers):
+
+1. **The countdown sat in the top zone (G1, zone).** Its glyph spanned 0.09-0.27 H settled and reached 0.075 H in
+   the 115% landing, for all 90 countdown frames (f422-511). Fixed in `Viewfinder.tsx` `HUD_LAYOUT`: 0.68 of
+   CameraHud's 96 sp (font 0.17 H, glyph about 0.13 H) centred at 0.215 H; glyph and contour now 0.15-0.28 H settled
+   and 0.14-0.29 H at the landing, still clear of her hair (0.31 H at f485 under the push, full-size still).
+2. **c9 cut a real woman's face in half at the right edge for 32 frames, the drop hold (stock audit, crop).** The
+   couple clip's window (x 1183) held the man and half of his partner's face; no 9:16 window holds both, and the app's
+   model finds only him. Re-cropped in the manifest (x 946, `recrop` note): the frame now ends just before her face
+   (her shoulder and their linked hands stay at the right edge; her hair first enters at plate frame 72, after the
+   last frame the shot can show, 61). Rebuilt with the pipeline (`node scripts/fetch-footage.mjs --only c9`,
+   `node scripts/landmarks.mjs --only c9`, `PromoChorusMatch` with `--rerun`). The app's matcher now picks
+   "Cuff adjust" (flipped) for him: score 0.99, fit 1.00, sit 0.11, hold 0.99 / sit 0.12, offset +15 (was
+   "Thoughtful chin rest" 0.89, hold 0.91, whose chin-rest arm read inside the torso). The other eight picks are
+   unchanged; `chorus.json`, `c9.landmarks.json` and `plates.json` change; `c9-alt1` / `c9-alt2` came out identical.
+3. **The colour photo read as a still (motion; G2 passes).** The 3% push measured as static-ish for its last 1.2 s,
+   on the film's emotional peak. `theme.footage.photoPush` is now 1.06 (shoes at 0.95 H on f554); `PHOTO_FIGURE_AT_CUT`
+   follows it, so B8's figure still lands on her (blend checked).
+4. **The B8 breath was a dead stop after a moving photo (handoff, motion).** A 0.4% creep from rest (0.77 s still in
+   look.py) after a cut at peak push speed. `TheName.tsx` now carries the push across the cut: a softLand of 2% about
+   the same screen point (her mid-hip) starting near the photo's speed (0.16% against 0.21% a frame), settled by the
+   pull back, which is re-solved from the settled camera so the lockup framing is unchanged. 2.6% matched the speed
+   but put the feet on the bottom edge; at 2% they end at about 0.98 H.
+5. **The pick's name crossed the bottom zone readable (zone).** "Hands in pockets" rode the marks down and was legible
+   below 0.875 H for about 8 frames (f319-327). `StudioShot.tsx` now takes it out (opacity and blur, accelExit) as its
+   top goes from 0.80 to 0.875 H: it reads f288-318 and is gone before the zone.
+6. **Run it had a silent no-op.** `./gradlew :pose-core:test --tests ...PromoChorusMatch` is up to date after a plate
+   changes (the JSON inputs are not declared), so it writes nothing; `--rerun` added to the command (the landmark and
+   footage-match scripts already pass it).
+
+**Looked at and kept** (with the reason): the lock's timing, the 9-frame "Perfect. Hold it" and the guide green
+beside her (the app's real output, under "Known issues"); the cue card's 0.94 W, whose right edge meets the white
+softbox (the text at 0.04 H needs it for the app's two lines, and the app's card has no border either); the hook's
+first word sitting left of centre on f0 (words are laid out at their final positions); the 1.25x veil whiting out
+most of the frame on each landing's first frame (one or two frames, the landing itself); the cut-sync misses f216 and
+f232 (79% of cuts already on an onset; raising the clicks would make the eighths metronomic); signal colours appear
+only in act IV and the cue dots (match feedback), full colour only in the photo; no dead air (the longest stretch
+without a new element is the countdown's 30 f per digit); every entrance moves on at least two properties.
 
 ## Integration (v2): what this stage changed
 
@@ -107,7 +165,7 @@ npm run footage-match  # the app's PoseMatcher + HintStabilizer + CaptureCoach o
                        # countdown start (manifest timeRemap.measured), rebuilds that plate and matches it again
 npx remotion render src/index.ts Dev-FootageSheet out/sheet --sequence --image-format=png --concurrency=2
                        # the alignment proof: one page per plate, four frames each (one with a 1.35x push)
-(cd .. && ./gradlew --console=plain -q :pose-core:test --tests 'com.poseit.app.tools.PromoChorusMatch')
+(cd .. && ./gradlew --console=plain -q :pose-core:test --tests 'com.poseit.app.tools.PromoChorusMatch' --rerun)
                        # the chorus poses -> public/footage/chorus.json (committed) and out/chorus-report.txt
 ```
 
@@ -275,7 +333,7 @@ file came out byte-identical; `nearest.json` changed only in its `liveGuide` ent
 | f413-421 | "Perfect. Hold it", 9 frames: the stabiliser shows it 400 ms after it tops the list and the countdown removes the banner 700 ms after the lock. That is the app's timing for any body that holds still; it is now opaque for all 9 frames (one-frame swap, no crossfade) and the "3" takes its place on f422. |
 | f422-511 | 3 / 2 / 1 in the headroom, each landing from 115% (200 ms) and replacing the last on one frame; the plate is at 0.5x (her real hold, frame repetition); she finishes sliding into the figure (her hip meets the guide's at about f450); score 79 -> 69; the film camera creeps to 1.045 and steps 1.5% on each digit (1.11 at most); f504-511 nothing moves but the footage. |
 | f512 | The app's capture flash (85% white, 280 ms decay). Under it the frozen capture frame in full colour, the whole frame (the saved photo is the full scene, so the film camera's zoom lets go), no overlays. |
-| f512-554 | The photo pushes 1.00 -> 1.03 about her mid-hip (a sine over twice the span, so it is still moving on the f555 cut). |
+| f512-554 | The photo pushes 1.00 -> 1.03 about her mid-hip (a sine over twice the span, so it is still moving on the f555 cut). Review 1: 1.00 -> 1.06. |
 
 **Seams exported in `shots.ts` (act IV section):** `GUIDE_FRAME` = the guide's template frame where the app put it
 (`rig.ts templateFrameRect`: `SceneMapping.fitFrame` + the solved `OverlayTransform`; it reproduces the app's mapped
@@ -287,7 +345,7 @@ figure's are not). `guideScreenFrame(f)` is the guide on the live view under the
 
 **Film choices on top of the app (declared):** the HUD is CameraHud.kt's magnified by `hud.k`; its arrangement is
 the film's: the card (top 0.13 H, max 0.94 W so the PHOTOGRAPHER strings fit the app's two lines; at 0.84 W "Ask them
-to bend their right elbow more" was cut to an ellipsis) and then the countdown (centre 0.185 H; the app centres it in
+to bend their right elbow more" was cut to an ellipsis) and then the countdown (centre 0.185 H, review 1: 0.215 H at 0.68 size, out of the top zone; the app centres it in
 the preview) in the headroom, the ring at (0.845 W, 0.58 H) right of her body, below the softbox, which prints near
 white. One card and one digit at a time (the app crossfades both; magnified, the overlap reads as a double exposure).
 The grid is set to Off (a real setting; the default thirds grid put a line through her head and the countdown).
@@ -307,7 +365,7 @@ digits and ring never touch her face or hands; the countdown's glyph bottom (0.2
 the largest push and her shoes stay in frame. `look.py` on the act IV clip alone (f336-554, half size, still the v1
 sound): G0 PASS (7.32 s), G2 PASS (no run of > 3 flat frames), G3 n/a for a clip (the photo is its last 1.45 s).
 Frame-to-frame luma change (96 px wide): B5 1.27, lock to countdown 2.13, countdown 0.74, the 8 f before the capture
-0.24, the photo 0.83 (the flash, then a 3% push: look.py calls f513-554 "static-ish"). The countdown is designed
+0.24, the photo 0.83 (the flash, then a 3% push: look.py calls f513-554 "static-ish"; review 1 made it 6%). The countdown is designed
 slow (0.5x footage, the sound carries the build); what moves is her last slide into the figure, the score, the digit
 landings and the camera's steps.
 
@@ -334,7 +392,7 @@ the colour photo's 3% push measures as nearly still for its last 1.2 s.
 | B2 the figure gets a body | 80-143 | Plate `b2-alive` in the Studio ramp, landing from 1.06 by f88 (softLand) and creeping to 1.02 (about her mid-hip). On f80 the hook's skeleton stands exactly on her; f80-86 it becomes HER skeleton (a chain blend from the stiff stance to the app's smoothed detection, softLand), then it is the app's live skeleton (useLandmarks: the lite model and the app's LandmarkSmoother) as she lifts both hands behind her head, landing on the f144 downbeat. |
 | B3 chorus | 144-271 | Hard cuts on the grid (beats f144-192, eighths f208-232, f240 holds through the drop f248-272). On each cut the lay figure the app's matcher found for that person lands on them: the veil from 1.25x (softLand 5 f on beats, 4 f on eighths) while it settles 0.70 -> 0.34, and the white edge a frame later from 1.32x, closing onto the body (a lock-on). It then stays put while the person moves, as the app's guide does. The film camera pushes 1.00 -> 1.08 across all shots about each person's mid-hip (one curve), then drifts 0.3% in the drop. No names, numbers or colour. |
 | B4 the pick | 272-335 | Hard cut on the unison: all 99 slots in "Hands in pockets", unflipped, set down at once (2% H, 6 f); the scale cut's softLand tail; f288 marks and the name (blur, a 0.012 H rise and opacity, 5-8 f), rack focus; f304-335 the accelerating push solved every frame onto LIVE's GUIDE_FRAME (HERO_AT_CUT = GUIDE_FRAME x 0.975): on f335 the hero frame equals HERO_AT_CUT to 0.1 px, and a blend of f335 and f336 shows the hero under act IV's guide. |
-| B8 the name | 555-663 | Hard cut from the photo to paper: a solid "Hands in pockets" figure, unflipped, at LIVE's PHOTO_FIGURE_AT_CUT; a 0.4% creep from f555; f576-588 one hand leaves its pocket for the hip on twos (stand_hand_on_hip, the icon pose; both unflipped, so no label crosses); then v1's pull back, wordmark and end line, unchanged. |
+| B8 the name | 555-663 | Hard cut from the photo to paper: a solid "Hands in pockets" figure, unflipped, at LIVE's PHOTO_FIGURE_AT_CUT; a 0.4% creep from f555 (review 1: the photo's push carried across the cut, 2% settling by f600); f576-588 one hand leaves its pocket for the hip on twos (stand_hand_on_hip, the icon pose; both unflipped, so no label crosses); then v1's pull back, wordmark and end line, unchanged. |
 
 **The chorus poses (`public/footage/chorus.json`, pose-core `PromoChorusMatch.kt`).** The prep's `nearest.json` scored
 one key frame per shot, and three shots had no usable pose there. The new test scores every single-person library pose,
@@ -362,6 +420,7 @@ lists every slot's candidates.
 | c7 | f224-232 | c7 | Walk toward the camera (flipped) | 0.99 | 1.00 | 0.17 | 0.99 / 0.18 | -9 | 2.50 s |
 | c8 | f232-240 | c8 | Two-hand mirror | 0.98 | 1.00 | 0.15 | 0.98 / 0.15 | -2 | 0.50 s |
 | c9 | f240-272 | c9 | Thoughtful chin rest | 0.89 | 1.00 | 0.15 | 0.91 / 0.15 | +14 | 4.42 s |
+| c9 (review 1, re-cropped) | f240-272 | c9 | Cuff adjust (flipped) | 0.99 | 1.00 | 0.11 | 0.99 / 0.12 | +15 | 4.46 s |
 
 c2's hold is 0.57: her arms leave the figure's arms after the landing while the cross-legged legs stay on it. c3 and c6
 use the whole handle (offset -15).
@@ -376,7 +435,9 @@ use the whole handle (offset -15).
    frames of blend make the seam the film's sentence (the figure gets a body). Illustrative, like the stiff stance.
 3. **c9 is one figure on the couple clip.** The app's model finds only the man (the prep's finding); the fallback list
    offered c9-alt2 (c4's person again, a 2.3x figure she walks out of). The couple clip keeps both people and a new
-   face; the figure sits on the man (sit 0.15 through the hold). The chorus therefore ends on one figure.
+   face; the figure sits on the man (sit 0.15 through the hold). The chorus therefore ends on one figure. (Review 1:
+   that window cut her face in half at the right edge for the whole drop; the clip is now framed on him, her face out
+   of frame, and the matcher picks "Cuff adjust", see "Review 1".)
 4. **B3 -> B4 is a plain cut on the hit.** The c9 figure is half-body and fills the frame; matching the studio hero to
    it would wreck the lattice framing (the board allows this).
 5. **The studio camera's v1 B2 zoom is gone** (the studio is on screen from f272 only); `studio/chorus.ts` is now the
