@@ -342,17 +342,32 @@ they are; where a label changes, its tests change with it.
   `SegmentedPill`s; dialogs as `PoseitAlertDialog`.
 
 **Settings** (`settings/`)
-- `TopBarCard("Settings", onBack)`. Groups: `SectionHeading` on `textInset`, then a `RowGroup` of rows; places to
-  go (Open-source notices, Show intro again, Back up) as `SettingRow(onClick) { RowChevron() }` inside a group or
-  `OutlinedRow`s. Choices of a few values ("Off / 2 s / 3 s") as `SegmentedPill(role = RadioButton)`. The guide
-  style previews: small dark stage tiles with the lavender outline when selected.
+- The top bar card (`TopBarContent("Settings", onBack)` in a `ConnectedCardStack`) **joined** to the two dark cards
+  that decide when the photo is taken: "Match strictness" (the value in `numeralLarge` Light beside a `ValueSlider`,
+  like the mockups' "79%" and its bar; the slider announces "80%, balanced") and "Countdown" (a five-option segmented
+  pill, "Off / 2 s / 3 s / 5 s / 10 s", spoken as "No countdown", "3 seconds"). The stack scrolls with the list; a
+  canvas band covers the status bar.
+- Groups (Coaching, Guide, Camera): `SectionHeading` on `textInset`, then a `RowGroup` of `SwitchRow`s and
+  `SliderRow`s. The guide style and grid choices are small dark stage tiles (12dp corners) in a radio group; the
+  selected one takes a lavender ring 4dp inside its edge and a medium-weight label.
+- Your poses: Export and Import as two `OutlinedRow`s; a spinner beside the heading while one runs.
+- About: a connected stack of an info card (wordmark, version, "Works offline, with no ads and no account." in
+  `headline`) and two dark link rows, "Open-source notices" (a `PoseitAlertDialog` listing every notice, Astryx's
+  MIT notice included) and "Show intro again".
 
 **Gallery and photo viewer** (`gallery/`)
-- `TopBarCard("Your photos", onBack, badge = { Badge("<n> photos") })`; the grid of photos with `tile` corners, 8dp
-  apart on `Space.edge`; empty state with `AccentButton("Open the camera")`.
-- Photo viewer: full-bleed black (`backgroundCamera`) with `LightSystemBarIconsEffect()`; controls as
-  `CircleIconButton(variant = Camera)`; the delete confirmation is `PoseitAlertDialog` with a filled
-  `DestructiveButton`.
+- The top bar card ("Your photos", back, `Badge("<n> photos")`) **joined** to a dark card, "Keep the good ones", with
+  a Block `AccentButton("Review")` that opens the viewer at the newest photo (the button moves under the words when
+  the title would no longer fit on one line beside it). Then a `SectionHeading` per day and the photos as 3:4 tiles
+  (most photos are portraits) with `tile` corners, 8dp apart on `Space.edge`. Hidden older photos: a `Banner` with
+  "Allow access".
+- Empty: the top bar joined to a dark card holding the `EmptyState` ("No photos yet") and
+  `AccentButton("Open the pose camera")`.
+- Photo viewer (Astryx Lightbox anatomy: media, close button, counter): full-bleed black (`backgroundCamera`) with
+  `LightSystemBarIconsEffect()`; no bars across the photo: `CircleIconButton(variant = Camera)` controls and a dark
+  position pill ("2 / 12", date) at the top, and at the foot the mockups' outlined-and-filled pill pair, Delete
+  (outlined, bright red label) and Keep (cream pill, "Keep and finish" on the last photo). The delete confirmation is
+  `PoseitAlertDialog` with a filled `DestructiveButton`.
 
 **Pose from a photo** (`create/`)
 - `TopBarCard("Pose from a photo", onBack)` joined to an explainer card (`display`-sized line "Make a pose from a

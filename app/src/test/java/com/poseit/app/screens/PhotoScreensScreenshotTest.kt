@@ -37,8 +37,10 @@ import com.poseit.app.ui.create.ProblemContent
 import com.poseit.app.ui.create.ReviewBottomBar
 import com.poseit.app.ui.create.ReviewContent
 import com.poseit.app.ui.create.WorkingContent
+import com.poseit.app.ui.gallery.GalleryHeader
 import com.poseit.app.ui.gallery.PhotoGrid
 import com.poseit.app.ui.gallery.PhotoViewer
+import com.poseit.app.ui.gallery.ReviewCard
 import com.poseit.app.ui.theme.PoseitTheme
 import com.poseit.app.ui.theme.Studio
 import org.junit.Rule
@@ -181,8 +183,13 @@ class PhotoScreensScreenshotTest {
     fun galleryGrid() {
         val photos = List(5) { photo(it, 0) } + List(4) { photo(10 + it, 1) } + List(3) { photo(20 + it, 9) }
         show {
-            StudioTopBar("Your photos", onBack = {})
-            PhotoGrid(photos = photos, permissionMissing = true, onGrantPermission = {}, onOpen = {})
+            PhotoGrid(
+                photos = photos,
+                permissionMissing = true,
+                onGrantPermission = {},
+                onOpen = {},
+                header = { GalleryHeader(photoCount = photos.size, onBack = {}) { ReviewCard(onReview = {}) } },
+            )
         }
         capture("gallery-grid")
     }
