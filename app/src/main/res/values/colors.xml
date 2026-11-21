@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="poseit_bg">#FF121316</color>
-    <color name="ic_launcher_background">#FF6C4DFF</color>
+    <!-- Studio tokens needed before Compose draws (launch window, launcher icon). Keep in sync with ui/theme/Color.kt. -->
+    <color name="studio_paper">#FFE4E5E1</color>
+    <color name="studio_set">#FFD2D3CF</color>
+    <color name="ic_launcher_background">@color/studio_set</color>
 </resources>

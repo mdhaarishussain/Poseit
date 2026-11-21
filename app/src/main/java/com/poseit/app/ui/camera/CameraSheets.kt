@@ -335,12 +335,11 @@ private sealed interface PoseTab {
     val label: String
 
     data object Favorites : PoseTab {
-        // A heart, as in the library (the star is the "My Poses" category's emoji).
-        override val label = "♥ Favourites"
+        override val label = "Favourites"
     }
 
     data class Category(val category: PoseCategory) : PoseTab {
-        override val label = "${category.emoji} ${category.label}"
+        override val label = category.label
     }
 }
 
@@ -518,7 +517,7 @@ internal fun PoseTipsSheet(
                     Spacer(Modifier.height(4.dp))
                     val people = if (pose.personCount > 1) " · ${pose.personCount} people" else ""
                     Text(
-                        "${pose.category.emoji} ${pose.category.label} · ${difficultyLabel(pose.difficulty)}$people",
+                        "${pose.category.label} · ${difficultyLabel(pose.difficulty)}$people",
                         style = MaterialTheme.typography.bodyMedium,
                         color = PoseitColors.OnSurfaceMuted,
                     )

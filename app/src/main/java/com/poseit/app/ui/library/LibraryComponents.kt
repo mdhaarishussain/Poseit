@@ -211,20 +211,13 @@ internal fun LibraryChip(
     selected: Boolean,
     onClick: () -> Unit,
     leadingIcon: ImageVector? = null,
-    leadingEmoji: String? = null,
 ) {
     FilterChip(
         selected = selected,
         onClick = onClick,
         label = { Text(label, maxLines = 1) },
-        leadingIcon = when {
-            leadingIcon != null -> {
-                { Icon(leadingIcon, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
-            }
-            leadingEmoji != null -> {
-                { Text(leadingEmoji, fontSize = 15.sp) }
-            }
-            else -> null
+        leadingIcon = leadingIcon?.let { icon ->
+            { Icon(icon, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
         },
         shape = RoundedCornerShape(50),
         colors = FilterChipDefaults.filterChipColors(
@@ -281,7 +274,6 @@ internal fun LibraryFilters(
                     val category = categories[i]
                     LibraryChip(
                         label = category.label,
-                        leadingEmoji = category.emoji,
                         selected = filter.category == category,
                         onClick = { onCategory(category) },
                     )
@@ -308,7 +300,6 @@ internal fun LibraryFilters(
                     val tag = moodTags[i]
                     LibraryChip(
                         label = tag.label,
-                        leadingEmoji = moodEmoji(tag),
                         selected = filter.mood == tag,
                         onClick = { onMood(tag) },
                     )
@@ -316,18 +307,6 @@ internal fun LibraryFilters(
             }
         }
     }
-}
-
-internal fun moodEmoji(tag: PoseTag): String? = when (tag) {
-    PoseTag.CASUAL -> "😌"
-    PoseTag.CONFIDENT -> "💪"
-    PoseTag.CANDID -> "📸"
-    PoseTag.ELEGANT -> "✨"
-    PoseTag.PLAYFUL -> "🎈"
-    PoseTag.COOL -> "😎"
-    PoseTag.ROMANTIC -> "💞"
-    PoseTag.SLIMMING -> "🌿"
-    else -> null
 }
 
 /** Big gradient card with today's pose. Tapping the card opens it, "Try it" goes straight to the camera. */
@@ -406,10 +385,9 @@ private val HeroGradient = Brush.linearGradient(
     listOf(PoseitColors.VioletDark, PoseitColors.Violet, Color(0xFFB765E8), PoseitColors.Coral),
 )
 
-/** Friendly illustration + text + actions for empty lists. */
+/** Text + actions for empty lists. */
 @Composable
 internal fun EmptyState(
-    emoji: String,
     title: String,
     message: String,
     modifier: Modifier = Modifier,
@@ -421,16 +399,6 @@ internal fun EmptyState(
             .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            Modifier
-                .size(88.dp)
-                .clip(CircleShape)
-                .background(PoseitColors.Violet.copy(alpha = 0.14f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(emoji, fontSize = 40.sp)
-        }
-        Spacer(Modifier.height(16.dp))
         Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
         Spacer(Modifier.height(8.dp))
         Text(

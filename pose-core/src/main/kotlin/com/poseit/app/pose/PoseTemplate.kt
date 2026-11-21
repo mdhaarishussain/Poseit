@@ -44,19 +44,19 @@ data class PoseTemplate(
 enum class PoseSource { BUILT_IN, FROM_PHOTO, DRAWN }
 
 @Serializable
-enum class PoseCategory(val label: String, val emoji: String) {
-    STANDING("Standing", "🧍"),
-    SITTING("Sitting", "🪑"),
-    LEANING("Leaning", "🧱"),
-    WALKING("Walking & Action", "🚶"),
-    PORTRAIT("Portrait", "🙂"),
-    SELFIE("Selfie", "🤳"),
-    PROFESSIONAL("Professional", "💼"),
-    FUN("Fun & Jumping", "🤸"),
-    FLOOR("Floor & Squat", "🧘"),
-    COUPLE("Couple", "💑"),
-    GROUP("Friends & Group", "👯"),
-    CUSTOM("My Poses", "⭐"),
+enum class PoseCategory(val label: String) {
+    STANDING("Standing"),
+    SITTING("Sitting"),
+    LEANING("Leaning"),
+    WALKING("Walking & Action"),
+    PORTRAIT("Portrait"),
+    SELFIE("Selfie"),
+    PROFESSIONAL("Professional"),
+    FUN("Fun & Jumping"),
+    FLOOR("Floor & Squat"),
+    COUPLE("Couple"),
+    GROUP("Friends & Group"),
+    CUSTOM("My Poses"),
 }
 
 /** Mood / location tags used for filtering and "where are you?" suggestions. */

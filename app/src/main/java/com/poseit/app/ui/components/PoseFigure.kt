@@ -18,11 +18,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.scale
 import com.poseit.app.pose.BodyPart
 import com.poseit.app.pose.Bone
 import com.poseit.app.pose.Joint
@@ -31,27 +33,30 @@ import com.poseit.app.pose.Skeleton
 import com.poseit.app.pose.Vec2
 import com.poseit.app.pose.render.FigureShape
 import com.poseit.app.pose.render.FigureShapes
-import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.Studio
 import kotlin.math.max
 
 enum class FigureStyle { SILHOUETTE, OUTLINE, STICK }
 
 /**
- * How to paint a figure.
+ * How to paint a figure. The defaults are the Studio lay figure: [Studio.Mannequin] fill, [Studio.MannequinContour]
+ * contour and an [Studio.Ink] face dot.
  * @param fill body colour (SILHOUETTE) / line colour (OUTLINE, STICK) when no part colour is given
  * @param outline colour of the contour drawn around a silhouette (Color.Transparent = none)
  * @param partColors optional per-body-part colours (e.g. match feedback); overrides [fill]
  * @param alpha opacity of the whole figure (applied once, so overlapping limbs don't get darker)
  * @param strokeWidthPx contour / line width in pixels (0 = automatic, relative to body size)
+ * @param faceColor the dot that shows which way a SILHOUETTE faces (OUTLINE draws it in the head's line colour)
  */
 data class FigurePaint(
     val style: FigureStyle = FigureStyle.SILHOUETTE,
-    val fill: Color = PoseitColors.FigureFill,
-    val outline: Color = PoseitColors.FigureOutline.copy(alpha = 0.85f),
+    val fill: Color = Studio.Mannequin,
+    val outline: Color = Studio.MannequinContour,
     val partColors: Map<BodyPart, Color> = emptyMap(),
     val alpha: Float = 1f,
     val strokeWidthPx: Float = 0f,
     val showFaceMarker: Boolean = true,
+    val faceColor: Color = Studio.Ink,
 )
 
 /**
@@ -80,10 +85,15 @@ fun DrawScope.drawPoseFigure(
         FigureStyle.SILHOUETTE, FigureStyle.OUTLINE -> {
             drawIntoCanvas { canvas ->
                 canvas.saveLayer(Rect(Offset.Zero, size), Paint().apply { alpha = paint.alpha.coerceIn(0f, 1f) })
-                // 1) contour: every shape inflated by the stroke width
+                // 1) contour: every shape inflated by the stroke width. A translucent silhouette contour is drawn
+                //    opaque into its own layer and faded as a whole, so overlapping shapes don't darken the joints.
                 val contourColor = if (paint.style == FigureStyle.OUTLINE) null else paint.outline
                 if (paint.style == FigureStyle.OUTLINE || paint.outline.alpha > 0f) {
-                    for (s in shapes) drawShape(s, ::px, h, inflatePx = autoStroke, color = contourColor ?: colorFor(s.part))
+                    val fadeContour = contourColor != null && contourColor.alpha < 1f
+                    if (fadeContour) canvas.saveLayer(Rect(Offset.Zero, size), Paint().apply { alpha = contourColor!!.alpha })
+                    val solid = contourColor?.copy(alpha = 1f)
+                    for (s in shapes) drawShape(s, ::px, h, inflatePx = autoStroke, color = solid ?: colorFor(s.part))
+                    if (fadeContour) canvas.restore()
                 }
                 // 2) body: fill (silhouette) or punch a hole (outline)
                 for (s in shapes) {
@@ -95,7 +105,7 @@ fun DrawScope.drawPoseFigure(
                 }
                 if (paint.showFaceMarker) {
                     FigureShapes.noseMarker(skeleton, aspect)?.let { n ->
-                        val c = if (paint.style == FigureStyle.OUTLINE) colorFor(BodyPart.HEAD) else paint.outline.copy(alpha = 0.9f)
+                        val c = if (paint.style == FigureStyle.OUTLINE) colorFor(BodyPart.HEAD) else paint.faceColor
                         drawCircle(c, radius = max(2f, n.radius * h), center = px(n.center))
                     }
                 }
@@ -203,8 +213,11 @@ fun fitFrameRect(size: Size, aspect: Float): Rect {
 }
 
 /**
- * A card-style thumbnail of a whole pose template (all figures), drawn on a soft gradient.
- * Respects the template's frame aspect; letterboxed inside the given modifier bounds.
+ * A whole pose template (all figures) standing on a flat patch of studio paper, with a soft contact shadow under
+ * each figure's feet. Respects the template's frame aspect; letterboxed inside the given modifier bounds.
+ * People in a multi-person pose take [Studio.FigureTones] in order.
+ * @param background fill behind the figures, [Studio.Set] by default; null draws nothing (the caller paints it)
+ * @param showGround draws the contact shadows
  */
 @Composable
 fun PoseThumbnail(
@@ -212,7 +225,7 @@ fun PoseThumbnail(
     modifier: Modifier = Modifier,
     style: FigureStyle = FigureStyle.SILHOUETTE,
     mirrored: Boolean = false,
-    background: Brush? = Brush.verticalGradient(listOf(Color(0xFF2B2E3A), Color(0xFF1C1E25))),
+    background: Brush? = SetBrush,
     showGround: Boolean = true,
 ) {
     val figures = remember(template, mirrored) { if (mirrored) template.figures.map { it.mirrored() } else template.figures }
@@ -225,30 +238,40 @@ fun PoseThumbnail(
             Canvas(Modifier.fillMaxSize()) {
                 val rect = Rect(Offset.Zero, size)
                 clipRect {
-                    if (showGround) {
-                        // soft floor shadow under each figure
-                        figures.forEach { sk ->
-                            val l = sk[Joint.LEFT_ANKLE]
-                            val r = sk[Joint.RIGHT_ANKLE]
-                            if (l != null && r != null && l.y in 0f..1.02f) {
-                                val cx = (l.x + r.x) / 2f * size.width
-                                val y = max(l.y, r.y) * size.height + size.height * 0.012f
-                                drawOval(
-                                    Color.Black.copy(alpha = 0.25f),
-                                    topLeft = Offset(cx - size.width * 0.16f, y - size.height * 0.012f),
-                                    size = Size(size.width * 0.32f, size.height * 0.024f),
-                                )
-                            }
-                        }
-                    }
+                    if (showGround) figures.forEach { drawContactShadow(it) }
                     figures.forEachIndexed { i, sk ->
                         drawPoseFigure(
                             sk, template.frameAspect, rect,
-                            FigurePaint(style = style, fill = PoseitColors.FigureTints[i % PoseitColors.FigureTints.size]),
+                            FigurePaint(style = style, fill = Studio.FigureTones[i % Studio.FigureTones.size]),
                         )
                     }
                 }
             }
         }
+    }
+}
+
+private val SetBrush = SolidColor(Studio.Set)
+
+/** The one shadow in Studio: a soft oval under the feet that puts the figure on the floor. */
+private fun DrawScope.drawContactShadow(sk: Skeleton) {
+    val l = sk[Joint.LEFT_ANKLE] ?: return
+    val r = sk[Joint.RIGHT_ANKLE] ?: return
+    if (l.y !in 0f..1.02f) return
+    val center = Offset((l.x + r.x) / 2f * size.width, max(l.y, r.y) * size.height + size.height * 0.014f)
+    val radius = size.width * 0.19f
+    // A radial fade squashed into an oval: dense under the feet, gone at the rim.
+    scale(scaleX = 1f, scaleY = 0.16f, pivot = center) {
+        drawCircle(
+            Brush.radialGradient(
+                0f to Studio.Ink.copy(alpha = 0.18f),
+                0.55f to Studio.Ink.copy(alpha = 0.10f),
+                1f to Color.Transparent,
+                center = center,
+                radius = radius,
+            ),
+            radius = radius,
+            center = center,
+        )
     }
 }

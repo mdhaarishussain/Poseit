@@ -352,14 +352,12 @@ private fun LibraryEmptyState(
     when {
         state.tabTotal == 0 && tab == LibraryTab.FAVORITES -> EmptyState(
             modifier = modifier,
-            emoji = "💜",
             title = "No favourites yet",
             message = "Tap the heart on any pose to keep it here for your next shoot.",
         ) { Button(onClick = onShowAll) { Text("Browse poses") } }
 
         state.tabTotal == 0 && tab == LibraryTab.RECENT -> EmptyState(
             modifier = modifier,
-            emoji = "🕒",
             title = "Nothing tried yet",
             message = "Poses you use in the camera show up here, so you can find them again quickly.",
         ) {
@@ -372,7 +370,6 @@ private fun LibraryEmptyState(
 
         state.tabTotal == 0 && tab == LibraryTab.MINE -> EmptyState(
             modifier = modifier,
-            emoji = "✨",
             title = "Make your first pose",
             message = "Turn any photo you love into a pose guide, or drag the mannequin into a pose of your own.",
         ) {
@@ -390,14 +387,12 @@ private fun LibraryEmptyState(
 
         state.tabTotal == 0 -> EmptyState(
             modifier = modifier,
-            emoji = "🧍",
             title = "No poses here",
             message = "Create your own pose from a photo or draw one with the mannequin.",
         ) { FilledTonalButton(onClick = onDraw) { Text("Draw a pose") } }
 
         else -> EmptyState(
             modifier = modifier,
-            emoji = "🔍",
             title = "No poses match",
             message = if (state.filter.query.isNotBlank()) {
                 "Nothing found for “${state.filter.query.trim()}”. Try another word or clear the filters."

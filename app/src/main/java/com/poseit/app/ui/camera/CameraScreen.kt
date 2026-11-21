@@ -4,6 +4,7 @@ import android.Manifest
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -42,6 +43,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -60,6 +62,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.poseit.app.input.HardwareKeys
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTemplate
+import com.poseit.app.ui.theme.LightSystemBarIcons
+import com.poseit.app.ui.theme.Studio
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -73,6 +77,12 @@ import kotlin.math.abs
 @Composable
 fun CameraScreen(initialPoseId: String?, onBack: () -> Unit, onOpenGallery: () -> Unit, initialMirrored: Boolean = false) {
     CameraWindowEffects()
+    // Sheets and dialogs opened from the camera sit over the black surround: give their windows white bar icons.
+    LightSystemBarIcons { CameraScreenContent(initialPoseId, onBack, onOpenGallery, initialMirrored) }
+}
+
+@Composable
+private fun CameraScreenContent(initialPoseId: String?, onBack: () -> Unit, onOpenGallery: () -> Unit, initialMirrored: Boolean) {
     Box(
         Modifier
             .fillMaxSize()
@@ -99,6 +109,10 @@ private fun CameraWindowEffects() {
         val lightNav = controller?.isAppearanceLightNavigationBars
         controller?.isAppearanceLightStatusBars = false
         controller?.isAppearanceLightNavigationBars = false
+        // API 26-28 draw the app's own translucent Paper nav-bar scrim (API 29+ use the system's contrast scrim,
+        // which follows the icon colour; API 24-25 already use a dark one): swap in a dark scrim for white icons.
+        val navColor = if (Build.VERSION.SDK_INT in 26..28) window?.navigationBarColorCompat else null
+        if (navColor != null) window?.navigationBarColorCompat = Studio.LiveView.copy(alpha = 0.5f).toArgb()
         val keepOn = view.keepScreenOn
         view.keepScreenOn = true
         onDispose {
@@ -106,10 +120,19 @@ private fun CameraWindowEffects() {
                 if (lightStatus != null) c.isAppearanceLightStatusBars = lightStatus
                 if (lightNav != null) c.isAppearanceLightNavigationBars = lightNav
             }
+            if (navColor != null) window?.navigationBarColorCompat = navColor
             view.keepScreenOn = keepOn
         }
     }
 }
+
+/** Window.navigationBarColor, which is deprecated (and ignored) on API 35+; only used on API 26-28 here. */
+@Suppress("DEPRECATION")
+private var Window.navigationBarColorCompat: Int
+    get() = navigationBarColor
+    set(value) {
+        navigationBarColor = value
+    }
 
 @Composable
 private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery: () -> Unit) {

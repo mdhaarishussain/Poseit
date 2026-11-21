@@ -68,7 +68,7 @@ internal fun PoseDetailsForm(
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             OutlinedTextField(
-                value = "${category.emoji}  ${category.label}",
+                value = category.label,
                 onValueChange = {},
                 readOnly = true,
                 singleLine = true,
@@ -81,7 +81,7 @@ internal fun PoseDetailsForm(
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 PoseCategory.entries.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text("${option.emoji}  ${option.label}") },
+                        text = { Text(option.label) },
                         trailingIcon = if (option == category) {
                             { Icon(Icons.Rounded.Check, contentDescription = "Selected") }
                         } else {

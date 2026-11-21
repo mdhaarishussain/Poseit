@@ -113,7 +113,6 @@ import com.poseit.app.ui.library.DifficultyDots
 import com.poseit.app.ui.library.EmptyState
 import com.poseit.app.ui.library.FavoriteToggle
 import com.poseit.app.ui.library.isCustom
-import com.poseit.app.ui.library.moodEmoji
 import com.poseit.app.ui.library.peopleIcon
 import com.poseit.app.ui.library.peopleLabel
 import com.poseit.app.ui.theme.PoseitColors
@@ -249,7 +248,6 @@ private fun PoseDetailContent(
                 contentAlignment = Alignment.Center,
             ) {
                 EmptyState(
-                    emoji = "🤷",
                     title = "Pose not found",
                     message = "This pose may have been deleted, or it isn't available on this device.",
                 ) { Button(onClick = onBack) { Text("Back to the library") } }
@@ -515,7 +513,7 @@ private fun DetailHeader(pose: PoseTemplate) {
     Text(pose.name, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
     Spacer(Modifier.height(10.dp))
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        InfoPill { Text(pose.category.emoji, fontSize = 14.sp); Text(pose.category.label) }
+        InfoPill { Text(pose.category.label) }
         InfoPill {
             DifficultyDots(pose.difficulty)
             Text(Difficulty.label(pose.difficulty))
@@ -665,8 +663,6 @@ private fun TagsSection(pose: PoseTemplate) {
             InfoPill {
                 if (tag.isLocation) {
                     Icon(Icons.Filled.Place, contentDescription = null, modifier = Modifier.size(16.dp), tint = PoseitColors.Coral)
-                } else {
-                    moodEmoji(tag)?.let { Text(it, fontSize = 14.sp) }
                 }
                 Text(tag.label)
             }

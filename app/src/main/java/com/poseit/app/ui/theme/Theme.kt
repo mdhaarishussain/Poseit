@@ -1,95 +1,101 @@
 package com.poseit.app.ui.theme
 
 import android.content.res.Configuration
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 
-object PoseitColors {
-    val Violet = Color(0xFF7C5CFF)
-    val VioletDark = Color(0xFF5A3FE0)
-    val Coral = Color(0xFFFF7A59)
-    val Mint = Color(0xFF3DDC97)
-    val Amber = Color(0xFFFFC145)
-    val Red = Color(0xFFFF5A5F)
-    val Background = Color(0xFF121316)
-    val Surface = Color(0xFF1B1D22)
-    val SurfaceHigh = Color(0xFF262932)
-    val OnSurfaceMuted = Color(0xFFA6A9B6)
-    val FigureFill = Color(0xFFF4F4F6)
-    val FigureOutline = Color(0xFF1B1D22)
-    /** Tints for the 2nd/3rd person in multi-person poses. */
-    val FigureTints = listOf(Color(0xFFF4F4F6), Color(0xFFFFC9A8), Color(0xFFA8D8FF))
+/**
+ * The Studio colours as a light M3 [ColorScheme], so stock components come out right without overrides.
+ *
+ * Studio has three surface tones, not M3's five-step container ladder: the containers that sheets (Low), menus
+ * (Container) and dialogs (High) read are all [Studio.Sheet], so they stand off the [Studio.Paper] background;
+ * Highest (filled cards, filled text fields) is [Studio.Set]. There is no elevation tint.
+ *
+ * Selected states read `secondaryContainer`, which is [Studio.Ink]. Two stock defaults therefore need Studio
+ * colours passed explicitly, or their track disappears: Slider (use `studioSliderColors()`) and determinate
+ * progress indicators (pass `trackColor = Studio.Hairline`).
+ */
+internal val StudioColorScheme: ColorScheme = lightColorScheme(
+    primary = Studio.Ink,
+    onPrimary = Studio.Sheet,
+    primaryContainer = Studio.Ink,
+    onPrimaryContainer = Studio.Sheet,
+    inversePrimary = Studio.Mannequin,
+    secondary = Studio.Ink,
+    onSecondary = Studio.Sheet,
+    secondaryContainer = Studio.Ink,
+    onSecondaryContainer = Studio.Sheet,
+    tertiary = Studio.Graphite,
+    onTertiary = Studio.Sheet,
+    tertiaryContainer = Studio.Set,
+    onTertiaryContainer = Studio.Ink,
+    background = Studio.Paper,
+    onBackground = Studio.Ink,
+    surface = Studio.Paper,
+    onSurface = Studio.Ink,
+    surfaceVariant = Studio.Set,
+    onSurfaceVariant = Studio.Graphite,
+    surfaceTint = Color.Transparent,
+    inverseSurface = Studio.Ink,
+    inverseOnSurface = Studio.Sheet,
+    error = Studio.Miss,
+    onError = Studio.Sheet,
+    errorContainer = Studio.Miss.copy(alpha = 0.12f).compositeOver(Studio.Sheet),
+    onErrorContainer = Color(0xFF8A231B),
+    outline = Studio.Hairline.compositeOver(Studio.Paper),
+    outlineVariant = Studio.Ink.copy(alpha = 0.07f).compositeOver(Studio.Paper),
+    scrim = Studio.Ink.copy(alpha = 0.32f),
+    surfaceBright = Studio.Sheet,
+    surfaceDim = Studio.Set,
+    surfaceContainerLowest = Studio.Sheet,
+    surfaceContainerLow = Studio.Sheet,
+    surfaceContainer = Studio.Sheet,
+    surfaceContainerHigh = Studio.Sheet,
+    surfaceContainerHighest = Studio.Set,
+)
 
-    /** Red -> amber -> mint for a 0..1 match score. */
-    fun forScore(score: Float): Color = when {
-        score >= 0.8f -> Mint
-        score >= 0.6f -> lerp(Amber, Mint, (score - 0.6f) / 0.2f)
-        score >= 0.35f -> lerp(Red, Amber, (score - 0.35f) / 0.25f)
-        else -> Red
-    }
-
-    private fun lerp(a: Color, b: Color, t: Float): Color {
-        val k = t.coerceIn(0f, 1f)
-        return Color(
-            red = a.red + (b.red - a.red) * k,
-            green = a.green + (b.green - a.green) * k,
-            blue = a.blue + (b.blue - a.blue) * k,
-            alpha = a.alpha + (b.alpha - a.alpha) * k,
+/**
+ * The app theme: Studio colours, Archivo type and Studio shapes. The app is always light.
+ *
+ * It also reports "not night" to everything below it, whatever the system setting, because M3's bottom-sheet
+ * dialogs pick their system-bar icon colour from `isSystemInDarkTheme()`; with the phone in dark mode they would
+ * otherwise put white icons on the light sheets.
+ */
+@Composable
+fun PoseitTheme(content: @Composable () -> Unit) {
+    ReportNightMode(night = false) {
+        MaterialTheme(
+            colorScheme = StudioColorScheme,
+            typography = StudioTypography,
+            shapes = StudioMaterialShapes,
+            content = content,
         )
     }
 }
 
-private val scheme = darkColorScheme(
-    primary = PoseitColors.Violet,
-    onPrimary = Color.White,
-    primaryContainer = PoseitColors.VioletDark,
-    onPrimaryContainer = Color.White,
-    secondary = PoseitColors.Coral,
-    onSecondary = Color.White,
-    tertiary = PoseitColors.Mint,
-    background = PoseitColors.Background,
-    onBackground = Color(0xFFF2F2F5),
-    surface = PoseitColors.Surface,
-    onSurface = Color(0xFFF2F2F5),
-    surfaceVariant = PoseitColors.SurfaceHigh,
-    onSurfaceVariant = PoseitColors.OnSurfaceMuted,
-    surfaceContainer = PoseitColors.Surface,
-    surfaceContainerHigh = PoseitColors.SurfaceHigh,
-    surfaceContainerHighest = Color(0xFF30333D),
-    error = PoseitColors.Red,
-    outline = Color(0xFF3A3D48),
-)
-
-private val typography = Typography().let { t ->
-    t.copy(
-        headlineMedium = t.headlineMedium.copy(fontWeight = FontWeight.Bold),
-        headlineSmall = t.headlineSmall.copy(fontWeight = FontWeight.Bold),
-        titleLarge = t.titleLarge.copy(fontWeight = FontWeight.SemiBold),
-        titleMedium = t.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-        labelLarge = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 14.sp, letterSpacing = 0.2.sp),
-    )
-}
+/**
+ * For content over the black camera surround: reports night mode below this point so M3 bottom sheets and dialogs
+ * opened from the camera give their windows light (white) system-bar icons. Colours are unchanged; sheets keep the
+ * light Studio colours.
+ */
+@Composable
+fun LightSystemBarIcons(content: @Composable () -> Unit) = ReportNightMode(night = true, content = content)
 
 @Composable
-fun PoseitTheme(content: @Composable () -> Unit) {
-    // The app is always dark. Report night mode to Compose too, so anything keyed on isSystemInDarkTheme() (the M3
-    // bottom-sheet dialogs set their system-bar icon colours from it) matches the UI instead of the system setting.
+private fun ReportNightMode(night: Boolean, content: @Composable () -> Unit) {
     val config = LocalConfiguration.current
-    val darkConfig = remember(config) {
+    val reported = remember(config, night) {
         Configuration(config).apply {
-            uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or Configuration.UI_MODE_NIGHT_YES
+            val mode = if (night) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
+            uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or mode
         }
     }
-    CompositionLocalProvider(LocalConfiguration provides darkConfig) {
-        MaterialTheme(colorScheme = scheme, typography = typography, content = content)
-    }
+    CompositionLocalProvider(LocalConfiguration provides reported, content = content)
 }

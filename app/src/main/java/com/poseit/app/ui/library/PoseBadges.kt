@@ -170,5 +170,5 @@ internal fun FavoriteToggle(
     }
 }
 
-/** "🧍 Standing" */
-internal val PoseTemplate.categoryText: String get() = "${category.emoji} ${category.label}"
+/** The category's label, e.g. "Standing". */
+internal val PoseTemplate.categoryText: String get() = category.label

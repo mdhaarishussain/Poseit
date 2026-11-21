@@ -32,7 +32,9 @@ coaches you by voice and on screen, and can shoot hands-free.
 - `voice/VoiceCoach`: TextToSpeech + beeps + haptics
 - `input/HardwareKeys`: volume-button shutter
 - `ui/components/PoseFigure.kt`: **shared** Compose mannequin renderer (`drawPoseFigure`, `PoseThumbnail`, `fitFrameRect`)
-- `ui/theme`, `ui/nav/PoseitNavHost` (routes), and one package per screen: `library`, `detail`, `camera`, `gallery`, `create`, `editor`, `settings`, `onboarding`
+- `ui/components/Studio*.kt`, `PoseTile`, `FrameMarks`, `EmptyState`, `Sections`: the shared Studio components (buttons, tabs, chips, rows, switch/slider, top bars, pose tile, viewfinder frame marks, empty state). `screens/ComponentGalleryScreenshotTest` renders them all to `app/build/screenshots/components.png`
+- `ui/theme`: the Studio design system in code (`docs/DESIGN.md`): `Color.kt` (`Studio` tokens), `Type.kt` (Archivo, `StudioType`), `Shape.kt` (`StudioShapes`, `Space`), `Theme.kt` (`PoseitTheme`)
+- `ui/nav/PoseitNavHost` (routes), and one package per screen: `library`, `detail`, `camera`, `gallery`, `create`, `editor`, `settings`, `onboarding`
 
 ## Coordinate spaces (important)
 - **Frame space**: a template's normalized frame (0..1, aspect `template.frameAspect`, default 3:4). Shows what the final photo should look like: photo orientation, anatomical left/right.
@@ -60,6 +62,6 @@ CameraX ImageAnalysis (RGBA, KEEP_ONLY_LATEST, viewport-cropped)
 - Poseit extras: live MediaPipe pose matching with a score, per-limb colouring, spoken corrections, auto-capture when matched, hand-raise trigger, pose editor.
 
 ## Conventions
-- Kotlin, Jetpack Compose + Material 3, dark theme (`PoseitTheme`, `PoseitColors`), no DI framework, no network needed at runtime (MediaPipe's built-in usage logging aside: its tasks-core dependency adds INTERNET and sends anonymous usage stats when online).
+- Kotlin, Jetpack Compose + Material 3 with the light "Studio" design system (`docs/DESIGN.md`, `PoseitTheme`, `Studio` tokens; the camera alone is dark), no DI framework, no network needed at runtime (MediaPipe's built-in usage logging aside: its tasks-core dependency adds INTERNET and sends anonymous usage stats when online).
 - All pose art is original and generated from the DSL. Never copy assets from other apps.
 - Build: `./gradlew :app:assembleDebug` · engine tests: `./gradlew :pose-core:test`.

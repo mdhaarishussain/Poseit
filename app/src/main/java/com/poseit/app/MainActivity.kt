@@ -18,24 +18,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import com.poseit.app.input.HardwareKeys
 import com.poseit.app.ui.nav.PoseitNavHost
 import com.poseit.app.ui.theme.PoseitTheme
+import com.poseit.app.ui.theme.Studio
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // The app is always dark, so the bars must not follow the system light/dark setting: light mode would give
-        // dark status icons on the dark UI and a white nav-bar scrim on Android 8-9. The nav bar uses auto() forced
-        // to dark rather than dark(): dark() turns off the system's contrast scrim behind 3-button navigation
-        // (API 29+), so white buttons would sit on bright photo thumbnails; auto() keeps it, and gives a dark
-        // translucent scrim on API 24-28.
-        val navScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)
+        // The app is always light (Studio paper), so the bars must not follow the system light/dark setting: dark
+        // icons on a transparent status bar. The nav bar uses auto() forced to light rather than light(): light()
+        // turns off the system's contrast scrim behind 3-button navigation (API 29+), which on API 35+ is a
+        // translucent Paper strip matching the window background; auto() keeps it and leaves gesture navigation
+        // transparent. API 26-28 get the Paper scrim below, API 24-25 (no dark nav icons) the Ink one.
+        val paperScrim = Studio.Paper.copy(alpha = 0.8f).toArgb()
+        val inkScrim = Studio.Ink.copy(alpha = 0.5f).toArgb()
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.auto(navScrim, navScrim) { true },
+            statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.auto(paperScrim, inkScrim) { false },
         )
         val settingsFlow = appContainer.settingsRepository.settings
         setContent {
