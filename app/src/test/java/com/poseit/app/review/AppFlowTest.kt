@@ -96,6 +96,8 @@ class AppFlowTest {
         resetSettings(onboardingDone = true)
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         compose.waitForText("Pose camera")
+        // The floating "Pose camera" button can appear a frame before the pose grid is scrollable.
+        compose.waitUntil(10_000) { compose.onAllNodes(hasScrollToNodeAction()).fetchSemanticsNodes().isNotEmpty() }
         return scenario
     }
 
