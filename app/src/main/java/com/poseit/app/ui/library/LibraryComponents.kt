@@ -34,6 +34,7 @@ import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.AccentButton
+import com.poseit.app.ui.components.ButtonForm
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.FilterPill
 import com.poseit.app.ui.components.IconSize
@@ -260,8 +261,8 @@ internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () ->
                 }
                 Column {
                     Spacer(Modifier.height(Space.l))
-                    // The screen's one accent: the thing to do next.
-                    AccentButton("Try this pose", onClick = onTry)
+                    // The screen's one accent: the thing to do next. A block, like every button inside a card.
+                    AccentButton("Try this pose", onClick = onTry, form = ButtonForm.Block)
                 }
             }
         }

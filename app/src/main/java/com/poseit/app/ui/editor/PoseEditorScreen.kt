@@ -68,6 +68,7 @@ import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.ButtonForm
+import com.poseit.app.ui.components.ButtonSize
 import com.poseit.app.ui.components.CapsLabel
 import com.poseit.app.ui.components.DestructiveButton
 import com.poseit.app.ui.components.FilterPill
@@ -152,6 +153,8 @@ fun PoseEditorScreen(basePoseId: String?, onBack: () -> Unit, onSaved: (id: Stri
                             onClick = { showSaveSheet = true },
                             enabled = !viewModel.loading,
                             form = ButtonForm.Block,
+                            // Small, so the bar keeps its air around the button, as around the badge on other screens.
+                            size = ButtonSize.Small,
                             // The bar pads for icon glyphs; this puts the button's edge 16dp in from the card's.
                             modifier = Modifier.padding(start = Space.s, end = Space.xs),
                         )

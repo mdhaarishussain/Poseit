@@ -52,10 +52,19 @@ enum class ButtonForm(internal val shape: Shape) {
     Block(PoseitShapes.Control),
 }
 
-/** Minimum height of every button. */
+/** Minimum height of every [ButtonSize.Medium] button. */
 val ButtonHeight: Dp = 48.dp
 
-private val ButtonPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
+/**
+ * Button heights (Astryx Button size). [Medium] (48dp) everywhere by default; [Small] (40dp, tighter sides) only
+ * where a button shares a row with a title, as Save does in the editor's top bar card. A Small button still answers
+ * touches across 48dp: Compose extends the hit area of a target smaller than the minimum touch size.
+ */
+enum class ButtonSize(internal val height: Dp, internal val padding: PaddingValues) {
+    Medium(ButtonHeight, PaddingValues(horizontal = 24.dp, vertical = 12.dp)),
+    Small(40.dp, PaddingValues(horizontal = 16.dp, vertical = 8.dp)),
+}
+
 private val TextButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp)
 private const val DisabledAlpha = 0.38f
 
@@ -100,7 +109,8 @@ fun AccentButton(
     enabled: Boolean = true,
     icon: ImageVector? = null,
     form: ButtonForm = ButtonForm.Pill,
-) = AccentButton(onClick, modifier, enabled, form) { ButtonLabel(text, icon) }
+    size: ButtonSize = ButtonSize.Medium,
+) = AccentButton(onClick, modifier, enabled, form, size) { ButtonLabel(text, icon) }
 
 /** [AccentButton] with a content slot. */
 @Composable
@@ -109,8 +119,9 @@ fun AccentButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     form: ButtonForm = ButtonForm.Pill,
+    size: ButtonSize = ButtonSize.Medium,
     content: @Composable RowScope.() -> Unit,
-) = FilledButton(onClick, modifier, enabled, form, container = PoseitColors.accent, content = PoseitColors.onAccent, slot = content)
+) = FilledButton(onClick, modifier, enabled, form, container = PoseitColors.accent, content = PoseitColors.onAccent, size = size, slot = content)
 
 /** The alternative: a 1dp outlined pill (dark outline on cream, mist outline on a dark card). Capitals label. */
 @Composable
@@ -147,7 +158,7 @@ fun SecondaryButton(
             disabledContentColor = fg.copy(alpha = DisabledAlpha),
         ),
         border = BorderStroke(1.dp, if (enabled) edge else edge.copy(alpha = DisabledAlpha)),
-        contentPadding = ButtonPadding,
+        contentPadding = ButtonSize.Medium.padding,
         content = content,
     )
 }
@@ -220,13 +231,14 @@ private fun FilledButton(
     form: ButtonForm,
     container: Color,
     content: Color,
+    size: ButtonSize = ButtonSize.Medium,
     slot: @Composable RowScope.() -> Unit,
 ) {
     val dark = LocalSurfaceTone.current == SurfaceTone.Dark
     val base = if (dark) PoseitColors.textPrimaryInverted else PoseitColors.textPrimary
     Button(
         onClick = onClick,
-        modifier = modifier.heightIn(min = ButtonHeight),
+        modifier = modifier.heightIn(min = size.height),
         enabled = enabled,
         shape = form.shape,
         colors = ButtonDefaults.buttonColors(
@@ -236,7 +248,7 @@ private fun FilledButton(
             disabledContentColor = base.copy(alpha = DisabledAlpha),
         ),
         elevation = null,
-        contentPadding = ButtonPadding,
+        contentPadding = size.padding,
         content = slot,
     )
 }

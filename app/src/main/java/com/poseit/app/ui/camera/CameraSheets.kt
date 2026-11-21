@@ -682,7 +682,7 @@ internal fun PhotoshootDialog(
                 Spacer(Modifier.height(Space.s))
                 PillRow {
                     TimerOption.INTERVAL_CHOICES.forEach { s ->
-                        CameraPill("${s}s", interval == s, onClick = { interval = s })
+                        CameraPill("$s s", interval == s, onClick = { interval = s })
                     }
                 }
                 Spacer(Modifier.height(Space.l))

@@ -231,8 +231,11 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   whole card a button (Astryx ClickableCard). `ProvideSurfaceTone`, `CapsLabel`.
 - **Connected cards** (`ConnectedCards.kt`): `ConnectedCardStack { ... }` and `ConnectedCardRow { ... }`: every
   direct child is one card; use `CardSegment(onClick?, contentPadding)` for padded, optionally clickable cards.
-- **Buttons** (`Buttons.kt`): pills at least 48dp tall with `caps` labels; `form = ButtonForm.Block` (12dp corners)
-  for compact buttons inside cards, like the mockups' START.
+- **Buttons** (`Buttons.kt`): pills at least 48dp tall with `caps` labels. The form follows where the button sits,
+  as in the mockups: a **pill on the canvas** (RESTART / PAUSE, the pinned action bands), a **Block** (`form =
+  ButtonForm.Block`, 12dp corners) **inside a dark card** (START, START GAME: Today's pose, the empty-state cards,
+  the gallery's Review). `size = ButtonSize.Small` (40dp, Astryx Button `sm`) only where a button shares a row with
+  a title (the editor's Save in its top bar card); Compose still extends its hit area to 48dp.
   - `AccentButton`: lavender, dark capitals. The one thing to do next ("Try this pose", "Get started"). One per
     screen.
   - `PrimaryButton`: dark pill on cream, cream pill on a dark card. The main action when there is no accent.
@@ -242,10 +245,12 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
 - **Icon buttons** (`IconButtons.kt`): `CircleIconButton(variant = Dark | Light | Accent | Outlined | Camera, size)`
   (48dp; 52dp in the pill bar), `CircleIconToggle` (camera toggles: scrim disc, cream disc when on), `PlainIconButton`
   (bare glyph, top bar actions, the tile heart), `IconToggle` (view options such as Mirror: a 40dp disc while on).
-- **Segmented pill** (`SegmentedPill.kt`): `SegmentedPill(options, selectedIndex, onSelect, size = Medium | Large,
-  role = RadioButton | Tab)`: dark track, lavender selected option with dark capitals, cream capitals for the rest,
-  equal widths, the selection slides. For two or three options: a value choice (countdown "Off / 3 s / 10 s") or
-  views. `PillTabs(labels, selectedIndex, onSelect, edgePadding)`: the same look with options hugging their labels
+- **Segmented pill** (`SegmentedPill.kt`): `SegmentedPill(options, selectedIndex, onSelect, size = Medium | Touch |
+  Large, role = RadioButton | Tab, descriptions?, optionPadding)`: dark track, lavender selected option with dark capitals, cream capitals for the rest,
+  equal widths, the selection slides. For two or three options: a value choice or views. `descriptions` gives an
+  option a spoken form (Astryx SegmentedControlItem label); the five-option countdown (`settings/CountdownChips`,
+  shared by Settings and the camera's Quick settings) uses it ("3 s" is read "3 seconds") with `size = Touch`
+  (48dp) and 6dp option padding, so it fits a 360dp phone at 130% text. `PillTabs(labels, selectedIndex, onSelect, edgePadding)`: the same look with options hugging their labels
   and horizontal scrolling, for three to five tabs (All / Favourites / Recent / My poses). Tabs and segmented
   options are the same thing in v2; there are no underline tabs.
 - **Badge** (`Badge.kt`): `Badge(text, tone = Accent | Dark | Light, icon?)`: 24dp tag, 8dp corners, capitals. The
@@ -298,7 +303,7 @@ they are; where a label changes, its tests change with it.
 **Home / library** (`library/`)
 - `TopBarCard("Poseit", wordmark = true, badge = { Badge("<n> poses") }, actions = { PlainIconButton(settings,
   "Settings") })`, **joined** to the Today's pose card: label "Today's pose" (`supporting`, mist), the pose name in
-  `headline`, the detail line ("Walking, easy") in `supporting`, an `AccentButton("Try this pose")` at the foot,
+  `headline`, the detail line ("Walking, easy") in `supporting`, an `AccentButton("Try this pose", form = Block)` at the foot,
   and the white figure on the stage filling the right side of the card. The whole card can open the pose
   (`CardSegment(onClick, onClickLabel)`); the button opens the camera.
 - Below, on the canvas: the search field (cream surface, 16dp corners, 1dp `border`), then `PillTabs` (All /
@@ -314,18 +319,22 @@ they are; where a label changes, its tests change with it.
   `CircleIconButton(add, "Create a pose")` opening the create sheet (`PoseitBottomSheet`, two `OutlinedRow`s:
   "Pose from a photo", "Draw a pose"). The extended "Pose camera" FAB goes away: tests that wait for the text
   "Pose camera" move to its content description.
-- Empty tabs and filters: `EmptyState` inside a dark `PoseitCard`, its one button an `AccentButton` (the Today's
+- Empty tabs and filters: `EmptyState` inside a dark `PoseitCard`, its one button a Block `AccentButton` (the Today's
   pose card is never shown with it).
 - The status bar sits on a canvas band, so the list scrolls under it, as it does under the pill bar's band.
 
 **Pose detail** (`detail/`)
-- `TopBarCard(pose name or "", onBack)` **joined** to the preview card: the figure on the stage inside cream
-  `frameMarks`, the Mirror `IconToggle` in the card's corner (lavender disc when on, since it sits on dark).
-- The pose name in `display` on `textInset` if it is not in the bar; facts as `Badge(tone = Dark)` or a
-  `StatRow` in a dark card ("People 2", "Level Easy", "Shot Full body").
-- "How to do it": `SectionHeading` + `NumberedSteps` on the canvas; "Camera setup" in a `RowGroup`.
-- Bottom action band on the canvas: `AccentButton("Try this pose")` with `SecondaryButton("Customise")` beside it.
-  Delete in the overflow (`PoseitMenu`, destructive item) with `PoseitAlertDialog`.
+- A fused stack that scrolls with the page (`detail/ScrollingStackScreen`): the top bar card (back, the category or
+  source as a lavender `Badge`, the favourite heart) **joined** to the name card (the pose name in `display` Light,
+  then three label/value pairs: "Level" with a 3-segment `SegmentedProgress`, "People", "Shot"), **joined** to the
+  preview card (the figure on the stage inside cream `frameMarks`, the Mirror `IconToggle` in its corner). Once the
+  stack's bar scrolls away, a plain `TopBarCard` titled with the pose name fades in; only one of the two bars is in
+  the semantics tree at a time.
+- Below on the canvas: the description, "How to do it" (`PoseSteps` in a dark card) and "Camera setup" (in an
+  outlined card), then Delete pose as a red `DestructiveButton` at the end of the content, confirmed by
+  `PoseitAlertDialog`.
+- Pinned action band on the canvas (`PinnedActions`): `SecondaryButton("Customise")` (or "Edit") and
+  `AccentButton("Try this pose")` taking the rest of the row.
 
 **Camera** (`camera/`)
 - Stays a dark viewfinder on true black. Wrap the HUD in `ProvideSurfaceTone(SurfaceTone.Dark)`.
@@ -351,9 +360,9 @@ they are; where a label changes, its tests change with it.
 - Countdown: 120sp Light numerals in cream with an ink contour; the one orchestrated moment.
 - Pose strip: `PoseTile(size = Compact, onDark = true)`; selected = lavender outline.
 - Sheets (quick settings, pose tips, all poses): `PoseitBottomSheet` in cream with headings on `textInset` and
-  `RowGroup`s on `edge`, like Settings. The countdown is a segmented pill (a 48dp private variant whose options carry
-  a spoken form, "2 seconds" for "2s"); the guide style is three small stage tiles drawing the pose in each style;
-  zoom presets and the photoshoot choices are `FilterPill`s. The tips sheet opens with the pose as a dark card
+  `RowGroup`s on `edge`, like Settings. The countdown is the shared `CountdownChips` segmented pill (48dp, options
+  spoken as "2 seconds"); the guide style is three small stage tiles drawing the pose in each style;
+  zoom presets and the photoshoot choices ("3 / 5 / 10 / Until I stop", "2 s / 3 s / 5 s / 10 s") are `FilterPill`s. The tips sheet opens with the pose as a dark card
   (name, facts, camera height and framing as label/value pairs, the figure). Dialogs as `PoseitAlertDialog`.
 - Permission screen: the top bar card joined to a headline card ("Let Poseit use the camera") and, when there is
   room, a picture card with a figure in viewfinder marks; `AccentButton("Allow camera")` and
@@ -380,7 +389,7 @@ they are; where a label changes, its tests change with it.
   (most photos are portraits) with `tile` corners, 8dp apart on `Space.edge`. Hidden older photos: a `Banner` with
   "Allow access".
 - Empty: the top bar joined to a dark card holding the `EmptyState` ("No photos yet") and
-  `AccentButton("Open the pose camera")`.
+  Block `AccentButton("Open the pose camera")`.
 - Photo viewer (Astryx Lightbox anatomy: media, close button, counter): full-bleed black (`backgroundCamera`) with
   `LightSystemBarIconsEffect()`; no bars across the photo: `CircleIconButton(variant = Camera)` controls and a dark
   position pill ("2 / 12", date) at the top, and at the foot the mockups' outlined-and-filled pill pair, Delete
@@ -388,16 +397,20 @@ they are; where a label changes, its tests change with it.
   `PoseitAlertDialog` with a filled `DestructiveButton`.
 
 **Pose from a photo** (`create/`)
-- `TopBarCard("Pose from a photo", onBack)` joined to an explainer card (`display`-sized line "Make a pose from a
-  photo." is too long for the bar: use `headline` in the card) with `NumberedSteps` in cream; the picked photo in a
-  dark card; working state with `SegmentedProgress` or `PoseitSpinner`; the review on the stage; actions
-  `AccentButton("Save pose")` + `SecondaryButton`. Errors as `Banner(status = Error)`.
+- The intro scrolls as one fused stack (`ScrollingStackScreen`): the top bar card joined to the explainer card
+  ("Recreate any photo" in `display`) and the before/after picture card with the privacy note; the three steps as
+  `NumberedSteps` on the canvas; `AccentButton("Choose a photo")` pinned at the foot. Working: the photo card fills
+  the screen (`FillingCardStack`) with "Tracing the pose..." in the card below. Review: "Your new pose" bar joined to
+  the traced photo, guide styles as a `SegmentedPill`, details form, `AccentButton("Save pose")` pinned. Errors as
+  `Banner(status = Error)` with `AccentButton("Choose another photo")` pinned.
 
 **Editor** (`editor/`)
-- `TopBarCard(title, onBack, actions = { save })` (save can be a compact `AccentButton(form = Block)` in the bar's
-  actions slot). The canvas is the dark stage in a card with `frameMarks`; joints and handles in cream and
-  lavender (selected joint lavender). Tools as a `FloatingPillBar` of `CircleIconToggle`s / a `SegmentedPill`.
-  The details sheet is a `PoseitBottomSheet`.
+- One fused stack filling the screen (`detail/FillingCardStack`): the top bar card ("Pose editor", back, and Save as
+  `AccentButton(form = Block, size = Small)`), **joined** to the canvas card (the pose's origin line, "Grid" and,
+  for photo poses, "Photo" as `FilterPill`s in its header; the dark stage with `frameMarks`; joints and handles in
+  cream and lavender; the hint with undo and redo at its foot), **joined** to the tools card (Mirror, Reset, Add
+  person, Remove as labelled glyphs; "Person N" as a `SegmentedPill` when there are several people).
+- The details sheet is a `PoseitBottomSheet` with `FilterPill` groups and `AccentButton("Save pose")`.
 
 **Onboarding** (`onboarding/`)
 - Like the mockups' "Train your coordination." screen: the cream canvas with a connected stack filling the screen:

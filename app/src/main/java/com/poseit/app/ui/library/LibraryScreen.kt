@@ -65,6 +65,7 @@ import com.poseit.app.appContainer
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
 import com.poseit.app.ui.components.AccentButton
+import com.poseit.app.ui.components.ButtonForm
 import com.poseit.app.ui.components.Badge
 import com.poseit.app.ui.components.ButtonHeight
 import com.poseit.app.ui.components.CircleIconButton
@@ -510,7 +511,7 @@ private fun LibraryEmptyState(
             title = content.title,
             message = content.message,
             horizontalPadding = 0.dp,
-            action = { AccentButton(content.action, onClick = content.onAction) },
+            action = { AccentButton(content.action, onClick = content.onAction, form = ButtonForm.Block) },
         )
     }
 }

@@ -465,14 +465,14 @@ private fun EmptyGallery(
                             title = "Let Poseit see your photos",
                             message = "Allow access to photos to see the shots you took with Poseit. They stay on this phone.",
                             horizontalPadding = 0.dp,
-                            action = { AccentButton("Allow access", onClick = onGrantPermission) },
+                            action = { AccentButton("Allow access", onClick = onGrantPermission, form = ButtonForm.Block) },
                         )
                     } else {
                         EmptyState(
                             title = "No photos yet",
                             message = "Photos you take with the pose camera show up here, and in Pictures/Poseit on this phone.",
                             horizontalPadding = 0.dp,
-                            action = { AccentButton("Open the pose camera", onClick = onOpenCamera) },
+                            action = { AccentButton("Open the pose camera", onClick = onOpenCamera, form = ButtonForm.Block) },
                         )
                     }
                 }
