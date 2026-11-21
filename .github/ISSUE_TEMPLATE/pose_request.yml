@@ -1,0 +1,57 @@
+name: Pose request
+description: Suggest a pose for the built-in library.
+title: "Pose: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every pose in Poseit is drawn from scratch with the pose DSL, so a reference helps but is never copied.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the pose
+      description: What the body does, from head to feet, and when you'd use it.
+      placeholder: Leaning on a railing with both forearms, looking out over the water, one foot crossed behind.
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Reference link or sketch
+      description: A link to a photo, or attach a rough sketch. A stick figure is enough.
+  - type: dropdown
+    id: people
+    attributes:
+      label: How many people
+      options:
+        - Solo
+        - Couple
+        - Group (3 or 4)
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Standing
+        - Sitting
+        - Leaning
+        - Walking
+        - Portrait
+        - Selfie
+        - Professional
+        - Fun & jumping
+        - On the ground
+        - Couple
+        - Group
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: place-mood
+    attributes:
+      label: Place or mood
+      description: Optional. Where it suits, or how it should feel.
+      placeholder: Beach, relaxed

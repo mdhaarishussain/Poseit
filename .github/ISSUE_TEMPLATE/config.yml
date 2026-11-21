@@ -1,0 +1,9 @@
+# Blank issues stay open for questions and anything the forms don't cover.
+blank_issues_enabled: true
+contact_links:
+  - name: Download the latest APK
+    url: https://github.com/mdhaarishussain/Poseit/releases/latest
+    about: Install or update Poseit. The release notes list what changed.
+  - name: Known limitations
+    url: https://github.com/mdhaarishussain/Poseit#known-limitations
+    about: Things that are known not to work yet, so you don't need to report them.
