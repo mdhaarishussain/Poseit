@@ -1,0 +1,10 @@
+# Remotion promo: source only. Renders, review sheets and installs stay local.
+node_modules/
+out/
+look*/
+stills/
+*.mp4
+*.mov
+*.webm
+.remotion/
+public/screens/
