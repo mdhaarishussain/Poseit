@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import com.poseit.app.data.PosePhoto
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitShapes
@@ -57,18 +58,29 @@ import com.poseit.app.ui.theme.Space
  *
  * - PhotoCompanionCard: "See it on a person", a dark card fused under the figure's card (the detail screen, the
  *   camera's pose tips).
- * - PhotoBadge: the photo as a small print beside a pose tile's caption, which is also the photo's credit button.
+ * - PhotoBadge: the photo as a small print with the credit glyph, which is also the photo's credit button (beside a
+ *   pose tile's caption; on Today's pose when its credit is too long to sit beside the print).
  */
 
-/** The companion card's heading. */
-const val PhotoCompanionTitle = "See it on a person"
+/**
+ * The companion card's heading, by the number of people the pose (and so its photo) has: "See it on a person", "See
+ * it on two people", "See it on a group". It says who is in the picture, never anything about them.
+ */
+fun photoCompanionTitle(people: Int): String = when {
+    people <= 1 -> "See it on a person"
+    people == 2 -> "See it on two people"
+    else -> "See it on a group"
+}
+
+/** Every heading [photoCompanionTitle] gives, for checking that a pose without a photo shows none of them. */
+val PhotoCompanionTitles: List<String> = listOf(1, 2, 3).map(::photoCompanionTitle)
 
 /**
- * "See it on a person": the pose's sample photo with its credit line, as one card of a [ConnectedCardStack], fused
- * directly under the card that shows the pose's figure. A portrait photo stands at the right of the words, smaller
- * than the figure above it; the landscape group photo runs under them, and so does a portrait photo once the
- * heading no longer fits on one line beside it (large font sizes, narrow phones). Never cropped: the photo keeps
- * its own aspect, so no head is ever cut off.
+ * "See it on a person" ([photoCompanionTitle]): the pose's sample photo with its credit line, as one card of a
+ * [ConnectedCardStack], fused directly under the card that shows the pose's figure. A portrait photo stands at the
+ * right of the words, smaller than the figure above it; the landscape group photo runs under them, and so does a
+ * portrait photo once the heading no longer fits on one line beside it (large font sizes, narrow phones). Never
+ * cropped at runtime: the photo keeps its own aspect.
  *
  * The photo is never mirrored with the figure: it is a real photograph and its credit lists every change made to
  * it. While the figure is mirrored ([figureMirrored]) the words say that the photo shows the original side.
@@ -76,8 +88,12 @@ const val PhotoCompanionTitle = "See it on a person"
  * TalkBack reads the heading, the line under it, the photo ("Photo of a person in the Hand on hip pose") and then
  * the credit button, in that order.
  *
- * @param compact a smaller photo, for a card whose figure is drawn small (the camera's pose tips), so the photo
- *   never outgrows the figure
+ * The photo's size comes from the card's width and, through [maxPhotoHeight], from the figure above it: pass about
+ * half the figure card's height, so on a short phone (where the figure's card shrinks) the photo shrinks with it and
+ * the figure stays the larger picture.
+ *
+ * @param compact a smaller photo and a shorter line, for a card whose figure is drawn small (the camera's pose tips)
+ * @param maxPhotoHeight the tallest the photo may be (portrait or landscape); unspecified, only the width decides
  */
 @Composable
 fun PhotoCompanionCard(
@@ -85,6 +101,7 @@ fun PhotoCompanionCard(
     modifier: Modifier = Modifier,
     figureMirrored: Boolean = false,
     compact: Boolean = false,
+    maxPhotoHeight: Dp = Dp.Unspecified,
     contentPadding: PaddingValues = PaddingValues(
         start = Space.cardPadding,
         end = Space.cardPadding,
@@ -99,10 +116,16 @@ fun PhotoCompanionCard(
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val density = LocalDensity.current
             val measurer = rememberTextMeasurer()
-            val sideWidth = if (compact) CompactSidePhoto else (maxWidth * SidePhotoShare).coerceIn(SidePhotoMin, SidePhotoMax)
+            val title = photoCompanionTitle(photo.people)
+            // The tallest the photo may be, as a width at its aspect: the figure above sets it (maxPhotoHeight).
+            val heightCap = if (maxPhotoHeight.isSpecified) maxPhotoHeight * photo.aspect else Dp.Infinity
+            val sideWidth = minOf(
+                if (compact) CompactSidePhoto else (maxWidth * SidePhotoShare).coerceIn(SidePhotoMin, SidePhotoMax),
+                heightCap,
+            )
             val textWidth = maxWidth - sideWidth - Space.l
-            val titleFits = remember(textWidth, density) {
-                val titleWidth = measurer.measure(PhotoCompanionTitle, PoseitType.bodyLarge, softWrap = false, maxLines = 1).size.width
+            val titleFits = remember(title, textWidth, density) {
+                val titleWidth = measurer.measure(title, PoseitType.bodyLarge, softWrap = false, maxLines = 1).size.width
                 titleWidth <= with(density) { textWidth.toPx() }
             }
             // Beside the words while the heading fits on one line next to it; under them for the landscape group
@@ -112,10 +135,10 @@ fun PhotoCompanionCard(
                 photo.isLandscape && compact -> CompactLandscapePhoto
                 photo.isLandscape -> (maxWidth * 0.72f).coerceAtMost(LandscapePhotoMax)
                 else -> sideWidth
-            }.coerceAtMost(maxWidth)
+            }.coerceAtMost(heightCap).coerceAtMost(maxWidth)
             if (stacked) {
                 Column(Modifier.fillMaxWidth()) {
-                    CompanionWords(photo, figureMirrored)
+                    CompanionWords(title, companionLine(photo, figureMirrored, compact))
                     Spacer(Modifier.height(Space.l))
                     CompanionPhoto(photo, Modifier.width(stackedWidth))
                     Spacer(Modifier.height(Space.xs))
@@ -129,7 +152,7 @@ fun PhotoCompanionCard(
                             .weight(1f)
                             .heightIn(min = photoHeight),
                     ) {
-                        CompanionWords(photo, figureMirrored)
+                        CompanionWords(title, companionLine(photo, figureMirrored, compact))
                         Spacer(Modifier.weight(1f).heightIn(min = Space.m))
                         // The credit closes the column at the foot of the photo, beside it like a side caption.
                         CompanionCredit(photo, Modifier.offset(y = Space.xs))
@@ -144,9 +167,9 @@ fun PhotoCompanionCard(
 
 /** The heading and the one line under it. */
 @Composable
-private fun CompanionWords(photo: PosePhoto, figureMirrored: Boolean) {
+private fun CompanionWords(title: String, line: String) {
     Text(
-        PhotoCompanionTitle,
+        title,
         style = PoseitType.bodyLarge,
         color = PoseitColors.textPrimaryInverted,
         modifier = Modifier.semantics {
@@ -156,7 +179,7 @@ private fun CompanionWords(photo: PosePhoto, figureMirrored: Boolean) {
     )
     Spacer(Modifier.height(Space.xs))
     Text(
-        companionLine(photo, figureMirrored),
+        line,
         style = PoseitType.supporting,
         color = PoseitColors.textSecondaryInverted,
         modifier = Modifier.semantics { traversalIndex = 1f },
@@ -165,12 +188,14 @@ private fun CompanionWords(photo: PosePhoto, figureMirrored: Boolean) {
 
 /**
  * What the line under the heading says. It speaks about the pose and the figure, never about the people in the
- * photo (docs/POSE_PHOTOS.md: no captions with words or feelings).
+ * photo (docs/POSE_PHOTOS.md: no captions with words or feelings). The figure is the subject: it is what the camera
+ * matches. [compact] is the camera's own tips sheet, where the user is already in the camera.
  */
-internal fun companionLine(photo: PosePhoto, figureMirrored: Boolean): String = when {
+internal fun companionLine(photo: PosePhoto, figureMirrored: Boolean, compact: Boolean = false): String = when {
     figureMirrored -> "The figure is mirrored. The photo shows the original side."
     photo.people >= 3 -> "A real photo of the pose. It works with more people too."
-    else -> "A real photo of the pose. In the camera you line up with the figure."
+    compact -> "A real photo of the pose. The guide you line up with is the figure."
+    else -> "A real photo of the pose. In the camera, you line up with the figure, not the photo."
 }
 
 @Composable
@@ -205,28 +230,37 @@ private val CompactLandscapePhoto = 176.dp
  * size. It is the whole photo at its own aspect (never a round crop, which would cut off heads or turn it into a
  * portrait of the model), on a thin mist edge, with the small info glyph of [PhotoCredit] on its corner.
  *
- * It is too small to carry its credit line, so the print is the credit button: one tap opens [PhotoCreditSheet]
- * (spoken "Photo credit: Mixkit", click label "Show the full photo credit"). Its touch target is at least
- * [PhotoBadgeSize] square, the print aligned to its bottom-end corner; the caption leaves [photoBadgeReserve] for it
- * ([PoseTile]'s `badgeReserve`).
+ * It is too small to carry its credit line, so the print is the credit button: one tap opens [PhotoCreditSheet],
+ * which starts with the photo at a readable size beside the figure. TalkBack says what the photo shows and whose
+ * it is ([photoBadgeLabel]: "Photo of a person in the Hand on hip pose. Photo credit: Mixkit", click label "Show the
+ * full photo credit"). Its touch target is at least [PhotoBadgeSize] square, the print aligned to its bottom-end
+ * corner; the caption leaves [photoBadgeReserve] for it ([PoseTile]'s `badgeReserve`).
  *
  * @param printSize the print's longer side; the shorter one follows the photo's aspect
+ * @param onShowCredit opens the credit sheet; a screen that shows many badges (the library grid) hoists the sheet
+ *   and passes this. Null: the badge opens its own sheet.
  */
 @Composable
-fun PhotoBadge(photo: PosePhoto, modifier: Modifier = Modifier, printSize: Dp = PhotoBadgePrint) {
+fun PhotoBadge(
+    photo: PosePhoto,
+    modifier: Modifier = Modifier,
+    printSize: Dp = PhotoBadgePrint,
+    onShowCredit: (() -> Unit)? = null,
+) {
     var open by rememberSaveable(photo.poseId) { mutableStateOf(false) }
+    val show = onShowCredit ?: { open = true }
     val width = if (photo.isLandscape) printSize else printSize * photo.aspect
     val height = if (photo.isLandscape) printSize / photo.aspect else printSize
     val source = remember { MutableInteractionSource() }
     Box(
         modifier
             .size(maxOf(PhotoBadgeSize, width), maxOf(PhotoBadgeSize, height))
-            .clickable(interactionSource = source, indication = null, onClickLabel = ShowCredit, role = Role.Button) { open = true }
+            .clickable(interactionSource = source, indication = null, onClickLabel = ShowCredit, role = Role.Button) { show() }
             .clearAndSetSemantics {
-                contentDescription = photoCreditLabel(photo)
+                contentDescription = photoBadgeLabel(photo)
                 role = Role.Button
                 onClick(label = ShowCredit) {
-                    open = true
+                    show()
                     true
                 }
             },
@@ -261,8 +295,14 @@ fun PhotoBadge(photo: PosePhoto, modifier: Modifier = Modifier, printSize: Dp = 
             }
         }
     }
-    if (open) PhotoCreditSheet(photo, onDismissRequest = { open = false })
+    if (open && onShowCredit == null) PhotoCreditSheet(photo, onDismissRequest = { open = false })
 }
+
+/**
+ * How a [PhotoBadge] is announced: what the photo shows, then whose it is ("Photo of a person in the Hand on hip
+ * pose. Photo credit: Mixkit").
+ */
+fun photoBadgeLabel(photo: PosePhoto): String = "${photo.contentDescription}. ${photoCreditLabel(photo)}"
 
 /** The longer side of a [PhotoBadge]'s print in a library tile (36 x 48dp for a portrait photo). */
 val PhotoBadgePrint: Dp = 48.dp

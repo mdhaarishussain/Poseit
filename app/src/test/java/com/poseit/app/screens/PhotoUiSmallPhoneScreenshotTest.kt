@@ -26,7 +26,8 @@ import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.poseit.app.appContainer
 import com.poseit.app.pose.library.BuiltInPoses
 import com.poseit.app.ui.camera.PoseTipsSheet
-import com.poseit.app.ui.components.PhotoCompanionTitle
+import com.poseit.app.ui.components.PhotoCompanionTitles
+import com.poseit.app.ui.components.photoCompanionTitle
 import com.poseit.app.ui.components.TopBarCard
 import com.poseit.app.ui.components.photoCreditLabel
 import com.poseit.app.ui.detail.PoseDetailScreen
@@ -102,20 +103,29 @@ abstract class PhotoUiSmallPhoneShots(private val prefix: String) {
         waitText("Try this pose")
     }
 
-    /** The detail page scrolled until the photo card's credit, its last line, is on screen. */
+    /**
+     * The detail page scrolled until the photo card's credit, its last line, is on screen. On this short phone the
+     * figure's card shrinks, and the photo shrinks with it: it is never as tall as the figure's preview.
+     */
     private fun detailPhotoCard(id: String, name: String) {
         detail(id)
         compose.onNode(credit(id)).performScrollTo()
         compose.waitForIdle()
         compose.onNode(credit(id)).assertIsDisplayed()
         compose.onNode(hasContentDescription("Photo of", substring = true)).assertIsDisplayed()
+        // Unclipped sizes: the preview may sit partly above the top edge once the card is scrolled into view.
+        val figure = compose.onNode(hasContentDescription("Mannequin showing", substring = true)).fetchSemanticsNode().size
+        val photo = compose.onNode(hasContentDescription("Photo of", substring = true)).fetchSemanticsNode().size
+        assertTrue("photo ${photo.height} px vs figure ${figure.height} px", photo.height < figure.height)
+        // At most half the preview card's height (40% of 640dp), as the detail screen asks of its companion.
+        assertTrue("photo ${photo.height / 2}dp tall", photo.height <= 0.5f * 256f * 2 + 1)
         capture(name)
     }
 
     @Test
     fun detail() {
         detail("stand_hand_on_hip")
-        compose.onNode(hasText(PhotoCompanionTitle)).assertExists()
+        compose.onNode(hasText(photoCompanionTitle(1))).assertExists()
         capture("detail")
     }
 
@@ -134,7 +144,7 @@ abstract class PhotoUiSmallPhoneShots(private val prefix: String) {
     @Test
     fun detailWithoutPhoto() {
         detail("stand_hands_in_pockets")
-        compose.onNode(hasText(PhotoCompanionTitle)).assertDoesNotExist()
+        PhotoCompanionTitles.forEach { compose.onNode(hasText(it)).assertDoesNotExist() }
         capture("detail-no-photo")
     }
 

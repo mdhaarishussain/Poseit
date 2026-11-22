@@ -4,7 +4,6 @@
   "source": "Mixkit",
   "title": "Woman modeling a short black dress",
   "pageUrl": "https://mixkit.co/free-stock-video/woman-modeling-a-short-black-dress-805/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/805/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -16,17 +15,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.8573,
-  "frameTimeS": 13.25,
-  "videoQuality": "1080p",
-  "note": "Kept: one hand on the hip, the other arm down, as drawn; a fashion shoot in a boutique. The legs stand wider than the figure's relaxed stance (it does not fit stand_power_pose, which needs both hands on the hips). The jumpsuit has a deep neckline; nothing is exposed."
+  "frameTimeS": 13.25
  },
  "stand_collar_touch": {
   "photo": "stand_collar_touch.webp",
   "source": "Mixkit",
   "title": "Female model posing captivatingly in a photoshoot",
   "pageUrl": "https://mixkit.co/free-stock-video/female-model-posing-captivatingly-in-a-photoshoot-41664/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/41664/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -38,17 +33,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.9175,
-  "frameTimeS": 9.259,
-  "videoQuality": "1080p",
-  "note": "Kept: full length, one hand at the neck and collarbone, the other arm down, as drawn (score 0.92); a walking pose with one arm bent to the chest (walk_coffee_run) ranks just above it."
+  "frameTimeS": 9.259
  },
  "stand_hand_in_hair": {
   "photo": "stand_hand_in_hair.webp",
   "source": "Wikimedia Commons",
   "title": "File:Los Angeles woman in white (Unsplash).jpg",
   "pageUrl": "https://commons.wikimedia.org/wiki/File:Los_Angeles_woman_in_white_(Unsplash).jpg",
-  "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/37/Los_Angeles_woman_in_white_%28Unsplash%29.jpg",
   "author": "Edwin Andrade theunsteady5",
   "licence": "CC0",
   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
@@ -59,17 +50,13 @@
    "mirrored horizontally",
    "resized to 675x900, WebP quality 72, metadata stripped"
   ],
-  "mirrored": true,
-  "appScore": 0.141,
-  "sourceCredit": "https://unsplash.com/photos/Oo5sKlgIOZQ archive copy at the Wayback Machine",
-  "note": "Kept: standing tall with one hand in the hair and the other arm down, as drawn. The long dress hides the legs from the detector (no leg segment scored, so coverage is low) and the raised elbow points forward rather than out (left arm 0.0)."
+  "mirrored": true
  },
  "sit_crossed_legs": {
   "photo": "sit_crossed_legs.webp",
   "source": "Mixkit",
   "title": "Girl posing for the camera in the middle of nowhere",
   "pageUrl": "https://mixkit.co/free-stock-video/girl-posing-for-the-camera-in-the-middle-of-nowhere-34407/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/34407/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -82,17 +69,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": true,
-  "appScore": 0.4027,
-  "frameTimeS": 8.117,
-  "videoQuality": "1080p",
-  "note": "Kept: seated upright with the legs crossed at the knee as drawn (legs 1.0 / 0.81); both hands are behind the head instead of on the knee (arms 0.0), and the raised arms dominate the photo."
+  "frameTimeS": 8.117
  },
  "sit_elbows_on_knees": {
   "photo": "sit_elbows_on_knees.webp",
   "source": "Wikimedia Commons",
   "title": "File:Young man in Brazil sitting on steps.jpg",
   "pageUrl": "https://commons.wikimedia.org/wiki/File:Young_man_in_Brazil_sitting_on_steps.jpg",
-  "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/49/Young_man_in_Brazil_sitting_on_steps.jpg",
   "author": "Ana Paula Lima",
   "licence": "CC0",
   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
@@ -102,17 +85,13 @@
    "cropped to [535, 221, 1287, 1223] px of the 1920x1280 source (3:4)",
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
-  "mirrored": false,
-  "appScore": 0.3304,
-  "sourceCredit": "https://www.pexels.com/photo/35mm-boy-boy-street-brazil-354555/",
-  "note": "Kept: sitting on steps with the forearms on the knees and the hands clasped. Seen from the front while the figure is drawn side-on, so the torso and thighs point differently in 2D (torso 0.28); the nearest pose by rank is the street squat, a similar folded shape. Licence: CC0 as copied from Pexels; the Commons copy is dated 2017-04-04, when Pexels still published under CC0 (it adopted its own licence later); the earliest archived Pexels page (2019) could not be read from here (HTTP 403). Nike marks on both shoes (incidental)."
+  "mirrored": false
  },
  "sit_one_knee_up": {
   "photo": "sit_one_knee_up.webp",
   "source": "Wikimedia Commons",
   "title": "File:Ladies Grey Loungewear Set (51618413959).jpg",
   "pageUrl": "https://commons.wikimedia.org/wiki/File:Ladies_Grey_Loungewear_Set_(51618413959).jpg",
-  "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Ladies_Grey_Loungewear_Set_%2851618413959%29.jpg",
   "author": "Rydale Clothing",
   "licence": "CC BY 2.0",
   "licenceUrl": "https://creativecommons.org/licenses/by/2.0/",
@@ -122,18 +101,13 @@
    "cropped to [0, 170, 1920, 2730] px of the 1920x2880 source (3:4)",
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
-  "mirrored": false,
-  "appScore": 0.484,
-  "sourceCredit": "https://www.flickr.com/photos/rydaleclothing/51618413959/",
-  "attributionRequest": "the file description asks for attribution as a link to www.rydale.com",
-  "note": "Kept: on stairs with one knee drawn up high and the other leg reaching down (legs 1.0 / 0.45, torso 1.0); one hand rests on her shoulder instead of the knee. Its own pose ranks third, within 0.03 of two other seated poses."
+  "mirrored": false
  },
  "lean_foot_on_wall": {
   "photo": "lean_foot_on_wall.webp",
   "source": "Mixkit",
   "title": "Young man snaps his fingers listening to music",
   "pageUrl": "https://mixkit.co/free-stock-video/young-man-snaps-his-fingers-listening-to-music-4842/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/4842/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -146,17 +120,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": true,
-  "appScore": 0.5355,
-  "frameTimeS": 2.202,
-  "videoQuality": "1080p",
-  "note": "Kept: leaning on a wall with one foot planted on it behind him (legs 0.77 / 1.0); a phone in both hands at the chest where the figure's arms hang (arms 0.55)."
+  "frameTimeS": 2.202
  },
  "lean_crossed_legs": {
   "photo": "lean_crossed_legs.webp",
   "source": "Mixkit",
   "title": "Woman leaning against luxury black car",
   "pageUrl": "https://mixkit.co/free-stock-video/woman-leaning-against-luxury-black-car-69/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/69/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -168,17 +138,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.3587,
-  "frameTimeS": 9.75,
-  "videoQuality": "1080p",
-  "note": "Kept: leaning back on a car with the ankles crossed. Dark clothes against the dark car hide an arm and a leg from the detector (not scored, so coverage is low)."
+  "frameTimeS": 9.75
  },
  "walk_toward_camera": {
   "photo": "walk_toward_camera.webp",
   "source": "Mixkit",
   "title": "Girl listens to music and dances happily",
   "pageUrl": "https://mixkit.co/free-stock-video/girl-listens-to-music-and-dances-happily-4856/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/4856/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -190,17 +156,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.6683,
-  "frameTimeS": 13.18,
-  "videoQuality": "1080p",
-  "note": "Kept: walking straight at the camera; at this angle the stride is short, so standing and kerb-step poses rank close."
+  "frameTimeS": 13.18
  },
  "walk_across": {
   "photo": "walk_across.webp",
   "source": "Mixkit",
   "title": "Young man walking listening to music from his headphones",
   "pageUrl": "https://mixkit.co/free-stock-video/young-man-walking-listening-to-music-from-his-headphones-4855/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/4855/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -212,16 +174,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.7964,
-  "frameTimeS": 8.376,
-  "videoQuality": "1080p"
+  "frameTimeS": 8.376
  },
  "walk_twirl": {
   "photo": "walk_twirl.webp",
   "source": "Mixkit",
   "title": "Skillful man practicing pirouettes in a park",
   "pageUrl": "https://mixkit.co/free-stock-video/skillful-man-practicing-pirouettes-in-a-park-41017/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/41017/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -234,16 +193,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": true,
-  "appScore": 0.6047,
-  "frameTimeS": 2.244,
-  "videoQuality": "1080p"
+  "frameTimeS": 2.244
  },
  "floor_street_squat": {
   "photo": "floor_street_squat.webp",
   "source": "Mixkit",
   "title": "Young woman getting into position for sprinting",
   "pageUrl": "https://mixkit.co/free-stock-video/young-woman-getting-into-position-for-sprinting-32800/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/32800/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -255,17 +211,13 @@
    "resized to 675x900, WebP quality 68, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.4899,
-  "frameTimeS": 10.242,
-  "videoQuality": "1080p",
-  "note": "Kept: a deep flat-footed squat with the forearms on the knees; its own pose is the nearest of all 82 single-person poses. The shipped frame shows the young man in the red shirt (the coach who checks his watch), not the woman named in the clip's title 'Young woman getting into position for sprinting'; Mixkit's description of clip 32800 mentions him ('a man telling her the time'). Page and file URLs are that clip's."
+  "frameTimeS": 10.242
  },
  "floor_cross_legged": {
   "photo": "floor_cross_legged.webp",
   "source": "Mixkit",
   "title": "Girl meditating in yoga pose in a park",
   "pageUrl": "https://mixkit.co/free-stock-video/girl-meditating-in-yoga-pose-in-a-park-4892/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/4892/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -278,17 +230,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": true,
-  "appScore": 0.5311,
-  "frameTimeS": 8.042,
-  "videoQuality": "1080p",
-  "note": "Kept: cross-legged on grass with the hands on the knees (three-quarter view); the crossed shins are hard for the detector (leg 0.45)."
+  "frameTimeS": 8.042
  },
  "floor_side_lie": {
   "photo": "floor_side_lie.webp",
   "source": "Mixkit",
   "title": "Indian Model in Full Body Pose",
   "pageUrl": "https://mixkit.co/free-stock-video/indian-model-in-full-body-pose-101457/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/101457/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -300,17 +248,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.2668,
-  "frameTimeS": 3.246,
-  "videoQuality": "1080p",
-  "note": "Kept: lying on her side propped on the elbow, head in hand, knees bent, head to the right as drawn. With the body horizontal the head and shin directions are very sensitive (head 0.07, lower leg 0.05); its own pose ranks second of 82."
+  "frameTimeS": 3.246
  },
  "floor_lean_back": {
   "photo": "floor_lean_back.webp",
   "source": "Wikimedia Commons",
   "title": "File:A Woman in a Red Sundress.jpg",
   "pageUrl": "https://commons.wikimedia.org/wiki/File:A_Woman_in_a_Red_Sundress.jpg",
-  "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7d/A_Woman_in_a_Red_Sundress.jpg",
   "author": "ZigmarsBerzins",
   "licence": "CC0",
   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
@@ -321,17 +265,13 @@
    "mirrored horizontally",
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
-  "mirrored": true,
-  "appScore": 0.8262,
-  "sourceCredit": "https://pixabay.com/photos/woman-jetty-lake-rest-leisure-1784755/ https://www.pexels.com/photo/beautiful-blur-daylight-dock-221342/",
-  "restrictions": "personality"
+  "mirrored": true
  },
  "port_chin_rest": {
   "photo": "port_chin_rest.webp",
   "source": "Mixkit",
   "title": "Model with Indian Influence",
   "pageUrl": "https://mixkit.co/free-stock-video/model-with-indian-influence-101458/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/101458/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -343,17 +283,13 @@
    "resized to 676x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.8745,
-  "frameTimeS": 0.0,
-  "videoQuality": "1080p",
-  "note": "Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on a waist-up photo; its own pose scores 0.87 and ranks 3 of 82."
+  "frameTimeS": 0.0
  },
  "port_face_frame": {
   "photo": "port_face_frame.webp",
   "source": "Mixkit",
   "title": "Young Model Posing in Editorial Style",
   "pageUrl": "https://mixkit.co/free-stock-video/young-model-posing-in-editorial-style-100676/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/100676/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -365,17 +301,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.8617,
-  "frameTimeS": 0.125,
-  "videoQuality": "1080p",
-  "note": "Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on a waist-up photo; its own pose scores 0.86 and ranks 2 of 82."
+  "frameTimeS": 0.125
  },
  "port_hand_in_hair": {
   "photo": "port_hand_in_hair.webp",
   "source": "Wikimedia Commons",
   "title": "File:Woman in a red dress.jpg",
   "pageUrl": "https://commons.wikimedia.org/wiki/File:Woman_in_a_red_dress.jpg",
-  "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/51/Woman_in_a_red_dress.jpg",
   "author": "Vladimir Pustovit",
   "licence": "CC BY 2.0",
   "licenceUrl": "https://creativecommons.org/licenses/by/2.0/",
@@ -386,17 +318,13 @@
    "cropped to [1690, 109, 2792, 1577] px of the 3840x2719 source (3:4)",
    "resized to 676x900, WebP quality 78, metadata stripped"
   ],
-  "mirrored": false,
-  "appScore": 0.6267,
-  "sourceCredit": "https://www.flickr.com/photos/pustovit/29055595412/",
-  "note": "Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on a waist-up photo; its own pose scores 0.63 and ranks 2 of 82."
+  "mirrored": false
  },
  "port_over_shoulder": {
   "photo": "port_over_shoulder.webp",
   "source": "Mixkit",
   "title": "Model in a fashion shoot poses under lights",
   "pageUrl": "https://mixkit.co/free-stock-video/model-in-a-fashion-shoot-poses-under-lights-50647/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/50647/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -408,16 +336,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.5455,
-  "frameTimeS": 5.373,
-  "videoQuality": "1080p"
+  "frameTimeS": 5.373
  },
  "port_arms_crossed_smile": {
   "photo": "port_arms_crossed_smile.webp",
   "source": "Mixkit",
   "title": "Portrait of a confident man smiling at the camera",
   "pageUrl": "https://mixkit.co/free-stock-video/portrait-of-a-confident-man-smiling-at-the-camera-43806/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/43806/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -430,17 +355,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": true,
-  "appScore": 0.9725,
-  "frameTimeS": 1.242,
-  "videoQuality": "1080p",
-  "note": "Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on a waist-up photo; its own pose scores 0.97 and ranks 2 of 82."
+  "frameTimeS": 1.242
  },
  "port_chin_on_hand": {
   "photo": "port_chin_on_hand.webp",
   "source": "Wikimedia Commons",
   "title": "File:Love is in the Air (Unsplash).jpg",
   "pageUrl": "https://commons.wikimedia.org/wiki/File:Love_is_in_the_Air_(Unsplash).jpg",
-  "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Love_is_in_the_Air_%28Unsplash%29.jpg",
   "author": "Yeshi Kangrang omgitsyeshi",
   "licence": "CC0",
   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
@@ -450,17 +371,13 @@
    "cropped to [83, 0, 1883, 2400] px of the 1920x2400 source (3:4)",
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
-  "mirrored": false,
-  "appScore": 0.9627,
-  "sourceCredit": "https://unsplash.com/photos/lrg2KrRiNbo Image at the Wayback Machine Gallery at the Wayback Machine",
-  "note": "Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on a waist-up photo; its own pose scores 0.96 and ranks 3 of 82."
+  "mirrored": false
  },
  "port_dreamy_gaze": {
   "photo": "port_dreamy_gaze.webp",
   "source": "Mixkit",
   "title": "Coffee and music in the morning",
   "pageUrl": "https://mixkit.co/free-stock-video/coffee-and-music-in-the-morning-43391/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/43391/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -472,16 +389,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.9822,
-  "frameTimeS": 0.743,
-  "videoQuality": "1080p"
+  "frameTimeS": 0.743
  },
  "port_collar_adjust": {
   "photo": "port_collar_adjust.webp",
   "source": "Mixkit",
   "title": "Woman poses on white wall",
   "pageUrl": "https://mixkit.co/free-stock-video/woman-poses-on-white-wall-435/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/435/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -493,17 +407,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.857,
-  "frameTimeS": 7.867,
-  "videoQuality": "1080p",
-  "note": "Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on a waist-up photo; its own pose scores 0.86 and ranks 2 of 82."
+  "frameTimeS": 7.867
  },
  "selfie_peace": {
   "photo": "selfie_peace.webp",
   "source": "Mixkit",
   "title": "A young stylish woman wearing white earbuds takes a selfie on the couch sharing her infectious smile",
   "pageUrl": "https://mixkit.co/free-stock-video/a-young-stylish-woman-wearing-white-earbuds-takes-a-selfie-51119/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/51119/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -515,38 +425,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.9195,
-  "frameTimeS": 7.992,
-  "videoQuality": "1080p",
-  "note": "Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on a waist-up photo; its own pose scores 0.92 and ranks 4 of 82."
- },
- "selfie_mirror": {
-  "photo": "selfie_mirror.webp",
-  "source": "Wikimedia Commons",
-  "title": "File:Selfie at a mirror of the hotel.jpg",
-  "pageUrl": "https://commons.wikimedia.org/wiki/File:Selfie_at_a_mirror_of_the_hotel.jpg",
-  "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Selfie_at_a_mirror_of_the_hotel.jpg",
-  "author": "ShiminUfesoj",
-  "licence": "CC0",
-  "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-  "licenceText": "licenses/CC0-1.0.txt",
-  "attribution": "Photo: ShiminUfesoj, CC0, Wikimedia Commons (cropped)",
-  "changes": [
-   "1920x2560 rendition of the original",
-   "cropped to [265, 441, 1854, 2560] px of the 1920x2560 source (3:4)",
-   "resized to 675x900, WebP quality 78, metadata stripped"
-  ],
-  "mirrored": false,
-  "appScore": 0.5228,
-  "sourceCredit": "Own work",
-  "note": "Kept: a full-length mirror selfie; the free hand holds a woven hat and a wallet at the side instead of resting on the hip (arm 0.49). Lettering on the jacket chest and a mirrored EXIT sign are part of the scene. A self-portrait by the uploader (category 'ShiminUfesoj photos'), CC0."
+  "frameTimeS": 7.992
  },
  "pro_headshot": {
   "photo": "pro_headshot.webp",
   "source": "Mixkit",
   "title": "Young teacher teaching complicated equations",
   "pageUrl": "https://mixkit.co/free-stock-video/young-teacher-teaching-complicated-equations-4623/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/4623/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -558,17 +443,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.0,
-  "frameTimeS": 12.0,
-  "videoQuality": "1080p",
-  "note": "Kept: a textbook headshot (suit, smile, eyes on the lens). The photo ends at the chest (the full height of the 16:9 source frame) while the drawn frame reaches the hips, so most segments the figure needs are outside the photo and the matcher's coverage rule gives 0; head and torso parts score 1.0."
+  "frameTimeS": 12.0
  },
  "fun_twirl": {
   "photo": "fun_twirl.webp",
   "source": "Mixkit",
   "title": "Ballerina spinning and dancing, full shot",
   "pageUrl": "https://mixkit.co/free-stock-video/ballerina-spinning-and-dancing-full-shot-43219/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/43219/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -581,17 +462,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": true,
-  "appScore": 0.3997,
-  "frameTimeS": 12.425,
-  "videoQuality": "1080p",
-  "note": "Kept: mid-turn with one arm thrown high and the other out to the side, as drawn; the long skirt hides the heel flick, so the legs score low."
+  "frameTimeS": 12.425
  },
  "fun_disco_point": {
   "photo": "fun_disco_point.webp",
   "source": "Mixkit",
   "title": "Happy woman dancing happily in a colorful spot",
   "pageUrl": "https://mixkit.co/free-stock-video/happy-woman-dancing-happily-in-a-colorful-spot-42306/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/42306/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -604,17 +481,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": true,
-  "appScore": 0.9531,
-  "frameTimeS": 2.036,
-  "videoQuality": "1080p",
-  "note": "Kept: one arm pointing high, the other hand on the hip, weight on one leg, as drawn (arms 1.0, score 0.95); the high-angle selfie and door-frame lean (one arm up) rank just above it."
+  "frameTimeS": 2.036
  },
  "couple_forehead_touch": {
   "photo": "couple_forehead_touch.webp",
   "source": "Mixkit",
   "title": "Mature Couple Laughing with Green Screen Backdrop",
   "pageUrl": "https://mixkit.co/free-stock-video/mature-couple-laughing-with-green-screen-backdrop-100759/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/100759/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -626,17 +499,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.3145,
-  "frameTimeS": 12.242,
-  "videoQuality": "1080p",
-  "note": "Kept: foreheads together, eyes closed, hands joined between them, as drawn; thigh-up. The two overlapping bodies confuse the detector (one head scores 0.0). A flat chroma-green studio background (as couple_hold_hands_facing, same couple and shoot)."
+  "frameTimeS": 12.242
  },
  "couple_back_hug": {
   "photo": "couple_back_hug.webp",
   "source": "Mixkit",
   "title": "Couple embracing on a green screen background",
   "pageUrl": "https://mixkit.co/free-stock-video/couple-embracing-on-a-green-screen-background-100758/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/100758/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -648,17 +517,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.4754,
-  "frameTimeS": 2.828,
-  "videoQuality": "1080p",
-  "note": "Kept: he hugs her from behind, both smiling at the camera; waist-up. The detector separates one person of two, so the score does not measure the photo."
+  "frameTimeS": 2.828
  },
  "couple_walk_hands": {
   "photo": "couple_walk_hands.webp",
   "source": "Mixkit",
   "title": "Lovers walking through a lavender field",
   "pageUrl": "https://mixkit.co/free-stock-video/lovers-walking-through-a-lavender-field-4530/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/4530/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -670,17 +535,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.3915,
-  "frameTimeS": 17.2,
-  "videoQuality": "1080p",
-  "note": "Kept: walking hand in hand, free arms swinging; seen from behind and hip-up instead of side-on full length."
+  "frameTimeS": 17.2
  },
  "couple_hold_hands_facing": {
   "photo": "couple_hold_hands_facing.webp",
   "source": "Mixkit",
   "title": "Mature Couple Laughing and Holding Hands",
   "pageUrl": "https://mixkit.co/free-stock-video/mature-couple-laughing-and-holding-hands-100733/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/100733/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -692,17 +553,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.7251,
-  "frameTimeS": 12.575,
-  "videoQuality": "1080p",
-  "note": "Kept: facing each other an arm's length apart holding both hands, as drawn; thigh-up rather than full length."
+  "frameTimeS": 12.575
  },
  "couple_sit_lean": {
   "photo": "couple_sit_lean.webp",
   "source": "Mixkit",
   "title": "A mature woman gently lean on her lovers shoulder and smiles with the gentle rustle of the trees in the background",
   "pageUrl": "https://mixkit.co/free-stock-video/a-mature-woman-gently-lean-on-her-lovers-shoulder-and-100799/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/100799/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -710,21 +567,17 @@
   "attribution": "Photo: Mixkit",
   "changes": [
    "still frame at 4.33 s of the 1080p download",
-   "cropped to [0, 480, 1080, 1920] px of the 1080x1920 source (3:4)",
+   "cropped to [0, 300, 1080, 1740] px of the 1080x1920 source (3:4)",
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.4587,
-  "frameTimeS": 4.33,
-  "videoQuality": "1080p",
-  "note": "Kept: on a bench she rests her head on his shoulder, the gesture the pose describes. A head-and-shoulders close-up (the seated legs are out of frame) where the detector separates one person of two, so the score does not measure the photo. Same actors and production as couple_forehead_touch and couple_hold_hands_facing (Mixkit 100733/100759/100799): one couple in 3 of the 6 couple photos."
+  "frameTimeS": 4.33
  },
  "couple_cheek_kiss": {
   "photo": "couple_cheek_kiss.webp",
   "source": "Mixkit",
   "title": "Girl surprises her boyfriend with a kiss on the cheek",
   "pageUrl": "https://mixkit.co/free-stock-video/girl-surprises-her-boyfriend-with-a-kiss-on-the-cheek-39962/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/39962/?context=sidebar&type=1080p",
   "author": "Mixkit (no author named on the clip page)",
   "licence": "Mixkit Stock Video Free License",
   "licenceUrl": "https://mixkit.co/license/#videoFree",
@@ -736,17 +589,13 @@
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
-  "appScore": 0.0106,
-  "frameTimeS": 6.742,
-  "videoQuality": "1080p",
-  "note": "Kept: she kisses his cheek, both smiling (he looks down, not at the camera). A tight close-up of the two faces: the detector separates one person of two, so the score (0.01) does not measure the photo."
+  "frameTimeS": 6.742
  },
  "group_arms_around": {
   "photo": "group_arms_around.webp",
   "source": "Wikimedia Commons",
   "title": "File:Pexels-mentatdgt-1206059.jpg",
   "pageUrl": "https://commons.wikimedia.org/wiki/File:Pexels-mentatdgt-1206059.jpg",
-  "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/Pexels-mentatdgt-1206059.jpg",
   "author": "mentatdgt",
   "licence": "CC0",
   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
@@ -756,9 +605,6 @@
    "cropped to [328, 273, 1672, 1281] px of the 1920x1281 source (4:3)",
    "resized to 900x675, WebP quality 78, metadata stripped"
   ],
-  "mirrored": false,
-  "appScore": 0.4391,
-  "sourceCredit": "https://web.archive.org/web/20180730204647/https://www.pexels.com/photo/woman-falling-in-line-holding-each-other-1206059/",
-  "note": "Kept: seven women in a line with their arms round each other's shoulders and waists (the pose says it fits any number of people); the detector returns four people, so the score covers three figures on four of seven."
+  "mirrored": false
  }
 }

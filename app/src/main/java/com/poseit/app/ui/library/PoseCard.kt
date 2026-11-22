@@ -32,6 +32,7 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.poseit.app.data.PosePhoto
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.IconSize
 import com.poseit.app.ui.components.PhotoBadge
@@ -53,6 +54,8 @@ import com.poseit.app.ui.theme.Space
  *
  * @param nameLines lines reserved for the name (1 or 2): the grid passes the most any tile of the row needs, so the
  *   dark cards of one row end on the same line
+ * @param onShowCredit opens the credit sheet of the tile's photo; the grid hoists one sheet for all its tiles, so a
+ *   sheet never lives (or reopens) with a recycled grid item. Null: the print opens its own sheet.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -65,6 +68,7 @@ internal fun PoseCard(
     onCustomise: () -> Unit,
     modifier: Modifier = Modifier,
     nameLines: Int = 1,
+    onShowCredit: ((PosePhoto) -> Unit)? = null,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val haptics = LocalHapticFeedback.current
@@ -84,7 +88,13 @@ internal fun PoseCard(
             // reaches: spotted at a glance, without changing the tile's size or covering the figure. The print is
             // also the photo's credit button.
             badge = if (photo != null) {
-                { PhotoBadge(photo, Modifier.align(Alignment.BottomEnd).padding(end = Space.m, bottom = Space.m)) }
+                {
+                    PhotoBadge(
+                        photo,
+                        Modifier.align(Alignment.BottomEnd).padding(end = Space.m, bottom = Space.m),
+                        onShowCredit = onShowCredit?.let { show -> { show(photo) } },
+                    )
+                }
             } else {
                 null
             },

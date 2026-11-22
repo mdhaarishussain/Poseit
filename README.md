@@ -49,6 +49,8 @@ known not to work.
 - 99 original poses in 11 categories, from standing, sitting and walking to selfies, couples and groups.
 - Filter by the number of people, category, place and mood, or search for words like "beach" or "confident".
 - Each pose has a short description and numbered steps, and the library suggests one pose to try each day.
+- Many poses also show a real sample photo of people in the pose next to the figure, always with its credit.
+  Every photo's author, source, licence and changes are in Settings, under Photo credits.
 - Keep favourites; recently used poses get their own tab.
 
 ### Line up
@@ -200,12 +202,17 @@ install yours.
 - Design system model: [Astryx](https://github.com/meta/astryx) by Meta Platforms, Inc. (MIT). Poseit ports its
   semantic token and component model to Compose; no Astryx code is bundled. Notice in
   `app/src/main/assets/licenses/MIT-Astryx.txt`.
+- Sample pose photos: 34 photos, 27 still frames of [Mixkit](https://mixkit.co) stock videos (Mixkit Stock Video
+  Free License) and 7 photos from [Wikimedia Commons](https://commons.wikimedia.org) (5 CC0, 2 CC BY 2.0). Each is
+  credited in `app/src/main/assets/pose_photos/credits.json`, with the licence texts in
+  `app/src/main/assets/licenses/`, and in the app under Settings, About, Photo credits. They keep their own
+  licences. Release builds include only the Commons photos for now (see [docs/POSE_PHOTOS.md](docs/POSE_PHOTOS.md)).
 - All pose figures are original. Poseit's own DSL generates them from joint angles; no images were copied from
   other apps.
 
-In the app, open Settings and choose Open-source notices, under About.
+In the app, open Settings and choose Open-source notices or Photo credits, under About.
 
 ## Licence
 
 No licence has been chosen yet, so the code is all rights reserved. You're welcome to read it, install the app
-and report issues. The third-party components listed above keep their own licences.
+and report issues. The third-party components and sample photos listed above keep their own licences.

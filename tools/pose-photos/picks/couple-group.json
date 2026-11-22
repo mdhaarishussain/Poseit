@@ -285,7 +285,7 @@
   "pose_name": "Sitting close",
   "category": "COUPLE",
   "photo": "app/src/main/assets/pose_photos/couple_sit_lean.webp",
-  "bytes": 35480,
+  "bytes": 34136,
   "source": "Mixkit",
   "title": "A mature woman gently lean on her lovers shoulder and smiles with the gentle rustle of the trees in the background",
   "page_url": "https://mixkit.co/free-stock-video/a-mature-woman-gently-lean-on-her-lovers-shoulder-and-100799/",
@@ -305,15 +305,15 @@
   "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-mature-woman-gently-lean-on-her-lovers-shoulder-and-100799/)",
   "changes": [
    "still frame at 4.33 s of the 1080p download",
-   "cropped to [0, 480, 1080, 1920] px of the 1080x1920 source (3:4)",
+   "cropped to [0, 300, 1080, 1740] px of the 1080x1920 source (3:4)",
    "resized to 675x900, WebP quality 78, metadata stripped"
   ],
   "mirrored": false,
   "crop_px": [
    0,
-   480,
+   300,
    1080,
-   1920
+   1740
   ],
   "source_size": [
    1080,

@@ -7,10 +7,13 @@ credits.py: merge the selection fragments (tools/pose-photos/picks/*.json) and t
     python3 tools/pose-photos/credits.py --check    # only report, write nothing
 
 Outputs
-  app/src/main/assets/pose_photos/credits.json   keyed by pose id, one entry per shipped photo:
-      photo, source, title, pageUrl, fileUrl, author, licence, licenceUrl, attribution (the short line to show under
-      the photo), changes, mirrored, appScore (PoseMatcher, the shipped photo against its own pose as drawn), note
-      (when the score does not measure the photo: e.g. the detector separates only one of two people)
+  app/src/main/assets/pose_photos/credits.json   keyed by pose id, one entry per shipped photo, only what the app
+      reads (APP_FIELDS): photo, source, title, pageUrl, author, licence, licenceUrl, licenceText, attribution (the
+      short line to show with the photo), changes, mirrored, frameTimeS (Mixkit). It ships inside the APK, so the
+      review notes (which describe the people), scores and download links stay out of it.
+  tools/pose-photos/credits-full.json             the same entries with everything: also fileUrl, appScore
+      (PoseMatcher, the shipped photo against its own pose as drawn), videoQuality, sourceCredit,
+      attributionRequest, shareAlike, restrictions and note (when the score does not measure the photo)
   tools/pose-photos/coverage.json                 all 99 poses: photo or not, source, licence, app score, nearest
       pose, the selection's reason, and the confirm stage's verdict
 
@@ -98,6 +101,13 @@ DROPPED: dict[str, str] = {
                       "Mixkit 40038 at 0.367 s), while the pose is a solo selfie with the arm extended, so the photo "
                       "misleads. The earlier frame was a close-up from beside the phone with no extended arm. No "
                       "other solo arm's-length selfie among the candidates.",
+    # Photo stage review (2026-11-22, when the photos went into the pose screens).
+    "selfie_mirror": "Removed at the photo stage review: a self-portrait of the Commons uploader ('Own work', in the "
+                     "uploader's own photo category), so the credit line under the photo named the person in it, "
+                     "a private individual rather than a stock model; the people rules never name the people shown "
+                     "(and skip files whose categories name a person). The review rejected self-portraits as "
+                     "replacements for selfie_high_angle for the same reason. No other full-length mirror selfie "
+                     "among the candidates.",
 }
 
 # Flagged photos kept after the second look: what the photo shows and why the score does not measure it. Shown in
@@ -154,10 +164,6 @@ NOTES: dict[str, str] = {
         "who checks his watch), not the woman named in the clip's title 'Young woman getting into "
         "position for sprinting'; Mixkit's description of clip 32800 mentions him ('a man telling her the"
         " time'). Page and file URLs are that clip's."),
-    "selfie_mirror": (
-        "Kept: a full-length mirror selfie; the free hand holds a woven hat and a wallet at the side "
-        "instead of resting on the hip (arm 0.49). Lettering on the jacket chest and a mirrored EXIT sign"
-        " are part of the scene. A self-portrait by the uploader (category 'ShiminUfesoj photos'), CC0."),
     "floor_cross_legged": "Kept: cross-legged on grass with the hands on the knees (three-quarter view); the crossed "
                           "shins are hard for the detector (leg 0.45).",
     "lean_foot_on_wall": "Kept: leaning on a wall with one foot planted on it behind him (legs 0.77 / 1.0); a phone in "
@@ -180,6 +186,10 @@ NOTES: dict[str, str] = {
 }
 PORTRAIT_NOTE = ("Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on "
                  "a waist-up photo; its own pose scores {score:.2f} and ranks {rank} of {n}.")
+
+# The fields of a credit the app parses (PhotoCreditRecord in app/src/main/java/com/poseit/app/data/PosePhotos.kt).
+APP_FIELDS = ["photo", "source", "title", "pageUrl", "author", "licence", "licenceUrl", "licenceText", "attribution",
+              "changes", "mirrored", "frameTimeS"]
 
 LICENCE_URLS = {  # canonical deed URLs (https, no deed.xx suffix)
     "CC0": "https://creativecommons.org/publicdomain/zero/1.0/",
@@ -320,7 +330,8 @@ def credit(r: dict, m: dict | None) -> dict:
 def short(text: str | None, limit: int = 110) -> str:
     """First clause of a reason, for the docs table (the whole text is in coverage.json)."""
     t = (text or "").replace("|", "/").strip()
-    t = re.sub(r"^(Kept|Dropped at the confirm stage|Removed at the review|Removed at the second look): ", "", t)
+    t = re.sub(r"^(Kept|Dropped at the confirm stage|Removed at the review|Removed at the second look|"
+               r"Removed at the photo stage review): ", "", t)
     depth, cut = 0, len(t)
     for i, ch in enumerate(t):  # the first ": ", "; " or ". " outside brackets, after 20 characters
         depth += (ch == "(") - (ch == ")")
@@ -348,6 +359,7 @@ def print_table():
             reason = r.get("reason") or ""
             tag = ("removed at the review: " if reason.startswith("Removed at the review")
                    else "removed at the second look: " if reason.startswith("Removed at the second look")
+                   else "removed at the photo stage review: " if reason.startswith("Removed at the photo stage review")
                    else "dropped: " if r.get("verdict", "").startswith("dropped") else "")
             print(f"| {name} | {cat} | **no** | | | | {tag}{short(r.get('reason'))} |")
 
@@ -400,7 +412,9 @@ def main():
           f"{len(DROPPED)} dropped), {size / 1024:.0f} KB")
     if args.check:
         return
-    (PHOTOS / "credits.json").write_text(json.dumps(credits, indent=1, ensure_ascii=False) + "\n")
+    app = {k: {f: c[f] for f in APP_FIELDS if c.get(f) is not None} for k, c in credits.items()}
+    (PHOTOS / "credits.json").write_text(json.dumps(app, indent=1, ensure_ascii=False) + "\n")
+    (TOOLS / "credits-full.json").write_text(json.dumps(credits, indent=1, ensure_ascii=False) + "\n")
     (TOOLS / "coverage.json").write_text(json.dumps({"photos": n, "poses": len(poses), "bytes": size,
                                                     "coverage": coverage}, indent=1, ensure_ascii=False) + "\n")
 

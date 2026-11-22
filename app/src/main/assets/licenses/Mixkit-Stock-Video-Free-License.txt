@@ -1,9 +1,9 @@
 Mixkit Stock Video Free License, and the parts of the Mixkit User Terms that limit it
-Source: https://mixkit.co/license/#videoFree (licence text of https://mixkit.co/license/modal/videoFree/) and
-https://mixkit.co/terms/ (User Terms, "Last revised: October 2, 2025"), both read 2026-11-21.
-Used by: the sample photos of the pose library whose source is Mixkit (still frames of Mixkit stock videos, see
-app/src/main/assets/pose_photos/credits.json). Each clip's own page was checked to say "Download this free stock video
-clip for commercial or personal use, under the Mixkit Stock Video Free License."
+Source: https://mixkit.co/license/#videoFree and https://mixkit.co/terms/ (User Terms, "Last revised: October 2,
+2025").
+Used by: sample photos in Poseit's pose guide whose source is Mixkit (still frames of Mixkit stock videos, each from a
+clip whose own page offers it under the Mixkit Stock Video Free License). Each photo's credit is in Settings, About,
+Photo credits.
 
 Mixkit is operated by Envato. The text below is quoted as published; Mixkit's own pages are the authoritative version.
 
@@ -69,12 +69,11 @@ to evaluate whether your use of these components require the permission of those
 that permission. To avoid doubt, the Mixkit License will apply to all other components of the Item.
 
 The User Terms also incorporate Envato's Acceptable Use Policy and Fair Use Policy
-(help.elements.envato.com/hc/en-us/articles/31035788503321 and .../360000621743), which could not be read from the
-environment that prepared these photos (see docs/POSE_PHOTOS.md).
+(help.elements.envato.com/hc/en-us/articles/31035788503321 and .../360000621743).
 
 
 HOW POSEIT USES MIXKIT ITEMS
 
 Still frames of Free License clips, cropped (and in some cases mirrored), shown only inside the pose guide next to the
-pose figure, never offered as downloadable or exportable files; Mixkit is credited under each photo ("Photo: Mixkit")
-and on the credits screen, although attribution is not required.
+pose figure, never offered as downloadable or exportable files. Mixkit is credited with each photo ("Photo: Mixkit"
+beside it; on a library tile, one tap away on its print) and in Photo credits, although attribution is not required.

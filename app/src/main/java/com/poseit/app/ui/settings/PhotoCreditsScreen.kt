@@ -57,6 +57,7 @@ import com.poseit.app.ui.components.ProvideSurfaceTone
 import com.poseit.app.ui.components.RowChevron
 import com.poseit.app.ui.components.SectionHeading
 import com.poseit.app.ui.components.TopBarContent
+import com.poseit.app.ui.components.photoSourcesPhrase
 import com.poseit.app.ui.components.rememberPosePhotos
 import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.theme.PoseitColors
@@ -74,7 +75,8 @@ import com.poseit.app.ui.theme.SurfaceTone
 @Composable
 fun PhotoCreditsScreen(onBack: () -> Unit) {
     val posePhotos = rememberPosePhotos()
-    val photos = remember(posePhotos) { posePhotos.all }
+    // Read on every composition (34 entries): it follows decode failures, which drop a photo from the list.
+    val photos = posePhotos.all
     val bySource = remember(photos) { photos.groupBy { it.source }.toList().sortedBy { (source, _) -> sourceOrder(source) } }
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     val count = if (photos.size == 1) "1 photo" else "${photos.size} photos"
@@ -114,8 +116,8 @@ fun PhotoCreditsScreen(onBack: () -> Unit) {
                             )
                             Spacer(Modifier.height(Space.s))
                             Text(
-                                "The photos come from Mixkit and Wikimedia Commons contributors and are used under " +
-                                    "the licences below. Tap a photo for its author, source, licence and the changes made.",
+                                "The photos come from ${photoSourcesPhrase(photos)} and are used under the licences " +
+                                    "below. Tap a photo for its author, source, licence and the changes made.",
                                 style = PoseitType.body,
                                 color = PoseitColors.textSecondaryInverted,
                             )
@@ -123,14 +125,24 @@ fun PhotoCreditsScreen(onBack: () -> Unit) {
                     }
                 }
                 bySource.forEach { (source, list) ->
+                    // A source whose photos share one licence (Mixkit) names it once under its heading, so the rows
+                    // don't repeat it; where it varies (Wikimedia Commons: CC0, CC BY 2.0) each row names its own.
+                    val shared = list.map { it.licence }.distinct().singleOrNull()
                     item(key = "heading-$source") {
-                        SectionHeading(
-                            source,
-                            Modifier.padding(start = Space.cardPadding, end = Space.cardPadding, top = Space.l, bottom = Space.xs),
-                        )
+                        Column(Modifier.padding(start = Space.cardPadding, end = Space.cardPadding, top = Space.l, bottom = Space.xs)) {
+                            SectionHeading(source)
+                            if (shared != null) {
+                                Text(
+                                    "Licence: $shared",
+                                    style = PoseitType.supporting,
+                                    color = PoseitColors.textSecondary,
+                                    modifier = Modifier.padding(top = Space.xs),
+                                )
+                            }
+                        }
                     }
                     items(list, key = { it.poseId }) { photo ->
-                        PhotoCreditRow(photo, onClick = { selected = photo.poseId })
+                        PhotoCreditRow(photo, onClick = { selected = photo.poseId }, showLicence = shared == null)
                     }
                 }
             }
@@ -154,10 +166,11 @@ private fun sourceOrder(source: String) = if (source == PosePhoto.SOURCE_MIXKIT)
 
 /**
  * One photo in the list: an outlined cream row (one button) with the photo and the pose's figure side by side, the
- * pose name, the credit line and the licence, and a chevron.
+ * pose name, the credit line and (when its section doesn't name one licence for all, [showLicence]) the licence, and
+ * a chevron. The photo keeps its own aspect: 42 x 56dp portrait, 56 x 42dp for the landscape group photo.
  */
 @Composable
-internal fun PhotoCreditRow(photo: PosePhoto, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun PhotoCreditRow(photo: PosePhoto, onClick: () -> Unit, modifier: Modifier = Modifier, showLicence: Boolean = true) {
     val pose = remember(photo.poseId) { BuiltInPoses.byId(photo.poseId) }
     ProvideSurfaceTone(SurfaceTone.Light) {
         Row(
@@ -171,9 +184,11 @@ internal fun PhotoCreditRow(photo: PosePhoto, onClick: () -> Unit, modifier: Mod
                 .padding(start = Space.m, end = Space.l, top = Space.m, bottom = Space.m),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(Space.xs)) {
-                // The row's own words name the pose, so the thumbnail adds no second label.
-                PosePhoto(photo, Modifier.size(ThumbWidth, ThumbHeight), shape = PoseitShapes.Inner, contentDescription = null)
+            Row(horizontalArrangement = Arrangement.spacedBy(Space.xs), verticalAlignment = Alignment.CenterVertically) {
+                // The row's own words name the pose, so the thumbnail adds no second label. Never cropped: a
+                // landscape photo lies on its side of the same box.
+                val thumb = if (photo.isLandscape) Modifier.size(ThumbHeight, ThumbHeight / photo.aspect) else Modifier.size(ThumbHeight * photo.aspect, ThumbHeight)
+                PosePhoto(photo, thumb, shape = PoseitShapes.Inner, contentDescription = null)
                 if (pose != null) {
                     PoseThumbnail(pose, Modifier.size(ThumbWidth, ThumbHeight).clip(PoseitShapes.Inner).background(PoseitColors.backgroundStage))
                 }
@@ -182,7 +197,7 @@ internal fun PhotoCreditRow(photo: PosePhoto, onClick: () -> Unit, modifier: Mod
             Column(Modifier.weight(1f)) {
                 Text(photo.poseName, style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
                 Text(photo.attribution, style = PoseitType.supporting, color = PoseitColors.textSecondary)
-                Text("Licence: ${photo.licence}", style = PoseitType.supporting, color = PoseitColors.textSecondary)
+                if (showLicence) Text("Licence: ${photo.licence}", style = PoseitType.supporting, color = PoseitColors.textSecondary)
             }
             Spacer(Modifier.width(Space.s))
             RowChevron()

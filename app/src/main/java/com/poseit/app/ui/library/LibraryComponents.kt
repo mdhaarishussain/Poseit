@@ -48,7 +48,9 @@ import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.ButtonForm
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.FilterPill
+import com.poseit.app.ui.components.PhotoBadge
 import com.poseit.app.ui.components.PhotoCredit
+import com.poseit.app.ui.components.creditGlyphRoom
 import com.poseit.app.ui.components.PosePhoto
 import com.poseit.app.ui.components.rememberPosePhoto
 import com.poseit.app.data.PosePhoto
@@ -278,11 +280,13 @@ internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () ->
                 .heightIn(min = TodaysPoseMinHeight),
         ) {
             Box(Modifier.matchParentSize()) {
+                // The figure takes the card's other share exactly, so it never reaches under the words (or the
+                // credit line beside the print).
                 PoseThumbnail(
                     template = pose,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .fillMaxWidth(1f - textShare + 0.04f)
+                        .fillMaxWidth(1f - textShare)
                         .fillMaxHeight()
                         .padding(top = Space.l, end = Space.m, bottom = Space.m),
                     background = null,
@@ -292,7 +296,7 @@ internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () ->
                 Modifier
                     .fillMaxWidth(textShare)
                     .heightIn(min = TodaysPoseMinHeight)
-                    .padding(start = Space.cardPadding, top = Space.cardPadding - Space.xs, bottom = Space.cardPadding),
+                    .padding(start = Space.cardPadding, end = Space.s, top = Space.cardPadding - Space.xs, bottom = Space.cardPadding),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column {
@@ -324,48 +328,41 @@ internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () ->
 }
 
 /**
- * Today's pose's sample photo: a small print (the whole photo, never cropped) with its credit line beside its foot,
- * or under it when the credit is a long one (a Wikimedia Commons author and licence) that would need more than two
- * lines beside the print. The card around it already names the pose, so the print has no spoken label of its own;
- * the credit is a button.
+ * Today's pose's sample photo: a small print (the whole photo, never cropped) with its credit line beside its foot.
+ * A long credit (a Wikimedia Commons author and licence) that would need more than two lines there would turn into
+ * a grey block that grows the hero card, so then the print itself is the credit button, as on a library tile
+ * ([PhotoBadge]: the info glyph on its corner, one tap to the full credit). The print says what it shows ("Photo of a
+ * person in the Peace sign pose"), which joins the card's spoken label.
  */
 @Composable
 private fun TodaysPhoto(photo: PosePhoto) {
     val printWidth = if (photo.isLandscape) TodaysPhotoWidth * 4f / 3f else TodaysPhotoWidth
-    val print = @Composable {
-        PosePhoto(
-            photo,
-            Modifier
-                .width(printWidth)
-                .aspectRatio(photo.aspect),
-            shape = PoseitShapes.Inner,
-            contentDescription = null,
-        )
-    }
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val measurer = rememberTextMeasurer()
         val density = LocalDensity.current
-        val besidePx = with(density) { (maxWidth - printWidth - Space.s - CreditGlyphRoom).roundToPx() }.coerceAtLeast(1)
+        // The same glyph room PhotoCredit draws, which grows with the font size.
+        val glyphRoom = creditGlyphRoom()
+        val besidePx = with(density) { (maxWidth - printWidth - Space.s - glyphRoom).roundToPx() }.coerceAtLeast(1)
         val besideLines = remember(photo.attribution, besidePx, density) {
             measurer.measure(photo.attribution, PoseitType.supporting, constraints = Constraints(maxWidth = besidePx)).lineCount
         }
         if (besideLines <= 2) {
             Row(verticalAlignment = Alignment.Bottom) {
-                print()
+                PosePhoto(
+                    photo,
+                    Modifier
+                        .width(printWidth)
+                        .aspectRatio(photo.aspect),
+                    shape = PoseitShapes.Inner,
+                )
                 Spacer(Modifier.width(Space.s))
                 PhotoCredit(photo, Modifier.weight(1f, fill = false))
             }
         } else {
-            Column {
-                print()
-                PhotoCredit(photo)
-            }
+            PhotoBadge(photo, printSize = if (photo.isLandscape) printWidth else printWidth / photo.aspect)
         }
     }
 }
 
 /** Width of the portrait print on the Today's pose card (a landscape one is a third wider). */
 private val TodaysPhotoWidth = 60.dp
-
-/** The credit line's info glyph and the gap after it. */
-private val CreditGlyphRoom = 22.dp

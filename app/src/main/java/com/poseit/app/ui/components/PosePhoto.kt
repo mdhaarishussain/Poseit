@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -56,11 +57,13 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.poseit.app.appContainer
 import com.poseit.app.data.PosePhoto
 import com.poseit.app.data.PosePhotos
 import com.poseit.app.pose.PoseTemplate
+import com.poseit.app.pose.library.BuiltInPoses
 import com.poseit.app.ui.theme.LocalSurfaceTone
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitShapes
@@ -83,18 +86,25 @@ fun rememberPosePhotos(): PosePhotos {
     return remember(context) { context.appContainer.posePhotos }
 }
 
-/** The sample photo of the built-in pose [poseId], or null when it has none (decide your layout from this). */
+/**
+ * The sample photo of the built-in pose [poseId], or null when it has none (decide your layout from this). It also
+ * turns null if the photo's file fails to decode, so the pose falls back to its figure-only layout instead of showing
+ * an empty frame.
+ */
 @Composable
 fun rememberPosePhoto(poseId: String?): PosePhoto? {
     val photos = rememberPosePhotos()
-    return remember(photos, poseId) { poseId?.let(photos::photoFor) }
+    val photo = remember(photos, poseId) { poseId?.let(photos::recordFor) }
+    // Read outside remember: isBroken is snapshot state, so a decode failure recomposes this caller without the photo.
+    return photo?.takeUnless { photos.isBroken(it.poseId) }
 }
 
-/** The sample photo of [pose], or null: poses people make never have one. */
+/** The sample photo of [pose], or null: poses people make never have one (and see the other overload). */
 @Composable
 fun rememberPosePhoto(pose: PoseTemplate?): PosePhoto? {
     val photos = rememberPosePhotos()
-    return remember(photos, pose) { pose?.let(photos::photoFor) }
+    val photo = remember(photos, pose) { pose?.let(photos::photoFor) }
+    return photo?.takeUnless { photos.isBroken(it.poseId) }
 }
 
 /**
@@ -215,26 +225,52 @@ fun PhotoCredit(
         val glyph = line * (CreditGlyph / CreditLine)
         Row(verticalAlignment = Alignment.Top) {
             Icon(PoseitIcons.info, contentDescription = null, tint = fg, modifier = Modifier.padding(top = (line - glyph) / 2).size(glyph))
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(CreditGlyphGap))
             Text(photo.attribution, style = PoseitType.supporting, color = fg, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
         }
     }
     if (open) PhotoCreditSheet(photo, onDismissRequest = { open = false })
 }
 
+/**
+ * Where the shown photos come from, for the About card and the credits screen: "Mixkit and Wikimedia Commons
+ * contributors", or only the sources this build shows (a release build without the Mixkit stills).
+ */
+fun photoSourcesPhrase(photos: List<PosePhoto>): String {
+    val sources = photos.map { it.source }.distinct().sortedBy { if (it == PosePhoto.SOURCE_MIXKIT) 0 else 1 }
+    val names = sources.map { if (it == PosePhoto.SOURCE_MIXKIT) it else "$it contributors" }
+    return when (names.size) {
+        0 -> "free stock sources"
+        1 -> names[0]
+        else -> names.dropLast(1).joinToString(", ") + " and " + names.last()
+    }
+}
+
 /** How a [PhotoCredit] is announced: "Photo credit: Mixkit". */
 fun photoCreditLabel(photo: PosePhoto): String = "Photo credit: " + photo.attribution.removePrefix("Photo: ")
 
+/**
+ * The width a [PhotoCredit] line spends before its words: the info glyph, which grows with the font size, and the gap
+ * after it. Measure the room for a credit's words with this, so the measurement and the line cannot drift apart.
+ */
+@Composable
+fun creditGlyphRoom(): Dp {
+    val line = with(LocalDensity.current) { PoseitType.supporting.lineHeight.toDp() }
+    return line * (CreditGlyph / CreditLine) + CreditGlyphGap
+}
+
 private const val SHOW_CREDIT = "Show the full photo credit"
 private val CreditGlyph = 16.dp
+private val CreditGlyphGap = 6.dp
 
 /** The credit text's line height at 100% (`PoseitType.supporting`), which [CreditGlyph] is drawn in. */
 private val CreditLine = 18.dp
 
 /**
- * The full credit of a sample photo in a [PoseitBottomSheet]: the credit line, the author, the source with "View
- * source" (the clip or file page in the browser), the licence with "View licence" and "Read the licence" (the
- * bundled text, in the same sheet), and the changes made in plain words.
+ * The full credit of a sample photo in a [PoseitBottomSheet]: the photo at a readable size beside the pose's figure,
+ * the credit line, the work's original title where its licence asks for it, the author, the source with "Source
+ * page" (the clip or file page, in the browser), the licence with "Licence page" (in the browser) and "Read the
+ * licence text" (the bundled text, in the same sheet), and the changes made in plain words.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -249,7 +285,7 @@ fun PhotoCreditSheet(photo: PosePhoto, onDismissRequest: () -> Unit) {
 
 /**
  * The inside of a [PhotoCreditSheet], also usable inline (the component gallery, tests). Two pages: the credit, and
- * the licence text after "Read the licence" ([showLicence] opens on it).
+ * the licence text after "Read the licence text" ([showLicence] opens on it).
  */
 @Composable
 fun PhotoCreditContent(photo: PosePhoto, modifier: Modifier = Modifier, showLicence: Boolean = false) {
@@ -279,15 +315,21 @@ fun PhotoCreditContent(photo: PosePhoto, modifier: Modifier = Modifier, showLice
                     modifier = Modifier.padding(horizontal = Space.textInset),
                 )
                 Spacer(Modifier.height(Space.l))
+                CreditPictures(photo, Modifier.padding(horizontal = Space.textInset))
+                Spacer(Modifier.height(Space.l))
                 RowGroup(Modifier.padding(horizontal = Space.edge)) {
                     CreditItem("Credit", photo.attribution)
+                    // CC BY 2.x / 3.0 ask for the work's title when it has one; labelled as the source's title, it is
+                    // part of the attribution, not a caption.
+                    val title = photo.titleForDisplay
+                    if (photo.titleRequired && title != null) CreditItem("Original title", title)
                     CreditItem("Author", photo.authorForDisplay)
                     CreditItem("Source", photo.source) {
-                        SecondaryButton("View source", onClick = { open(photo.pageUrl) })
+                        BrowserButton("Source page", onClick = { open(photo.pageUrl) })
                     }
                     CreditItem("Licence", photo.licence) {
-                        SecondaryButton("View licence", onClick = { open(photo.licenceUrl) })
-                        SecondaryButton("Read the licence", onClick = { licencePage = true })
+                        BrowserButton("Licence page", onClick = { open(photo.licenceUrl) })
+                        SecondaryButton("Read the licence text", onClick = { licencePage = true })
                     }
                     CreditItem("Changes", photo.changesSentence)
                 }
@@ -301,6 +343,50 @@ fun PhotoCreditContent(photo: PosePhoto, modifier: Modifier = Modifier, showLice
                 }
             }
         }
+    }
+}
+
+/**
+ * The photo the credit is for, at a size where the pose can be seen (about 120dp wide), beside the pose's figure on
+ * a stage tile of the same height: the print in a library tile is too small to show the pose, so the tap that opens
+ * this sheet pays off with the photo, still next to its figure and its credit.
+ */
+@Composable
+private fun CreditPictures(photo: PosePhoto, modifier: Modifier = Modifier) {
+    val pose = remember(photo.poseId) { BuiltInPoses.byId(photo.poseId) }
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        val figureAspect = 0.75f
+        // 160dp tall (120dp wide for a portrait photo), smaller when the sheet is narrow (the landscape group photo).
+        val height = minOf(CreditPictureHeight, (maxWidth - Space.s) / (photo.aspect + if (pose != null) figureAspect else 0f))
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+            PosePhoto(photo, Modifier.height(height).aspectRatio(photo.aspect), shape = PoseitShapes.Inner)
+            if (pose != null) {
+                PoseThumbnail(
+                    pose,
+                    Modifier
+                        .height(height)
+                        .aspectRatio(figureAspect)
+                        .clip(PoseitShapes.Inner)
+                        .background(PoseitColors.backgroundStage),
+                    background = null,
+                )
+            }
+        }
+    }
+}
+
+private val CreditPictureHeight = 160.dp
+
+/**
+ * A [SecondaryButton] for a link that leaves the app: its label says where it goes ("Source page"), the open-in-new
+ * glyph after it says it opens in the browser, and TalkBack hears "opens in your browser".
+ */
+@Composable
+private fun BrowserButton(text: String, onClick: () -> Unit) {
+    SecondaryButton(onClick = onClick) {
+        CapsLabel(text, maxLines = 2, style = PoseitType.capsButton)
+        Spacer(Modifier.width(Space.s))
+        Icon(PoseitIcons.openExternal, contentDescription = "opens in your browser", modifier = Modifier.size(IconSize.inline))
     }
 }
 

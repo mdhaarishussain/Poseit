@@ -87,7 +87,9 @@ import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.EmptyPictureCard
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.PinnedTopBar
+import com.poseit.app.ui.components.PhotoCreditSheet
 import com.poseit.app.ui.components.photoBadgeReserve
+import com.poseit.app.ui.components.rememberPosePhoto
 import com.poseit.app.ui.components.rememberPosePhotos
 import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.theme.PoseitColors
@@ -163,6 +165,8 @@ private fun LibraryContent(
 ) {
     val gridState = rememberLazyGridState()
     var showCreateSheet by rememberSaveable { mutableStateOf(false) }
+    // The tiles' photo credit sheet, hoisted: one sheet for the whole grid, which survives a tile scrolling away.
+    var creditFor by rememberSaveable { mutableStateOf<String?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val messageScope = rememberCoroutineScope()
     LaunchedEffect(message) {
@@ -298,6 +302,7 @@ private fun LibraryContent(
                         onTry = { onOpenCamera(pose.id) },
                         onCustomise = { onOpenEditor(pose.id) },
                         modifier = Modifier.animateItem(),
+                        onShowCredit = { creditFor = it.poseId },
                     )
                 }
                 if (state.poses.isEmpty()) {
@@ -345,6 +350,10 @@ private fun LibraryContent(
             onFromPhoto = onCreateFromPhoto,
             onDraw = { onOpenEditor(null) },
         )
+    }
+    creditFor?.let { id ->
+        val photo = rememberPosePhoto(id)
+        if (photo != null) PhotoCreditSheet(photo, onDismissRequest = { creditFor = null })
     }
 }
 

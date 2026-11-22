@@ -602,6 +602,9 @@ internal fun PoseTipsSheet(
 /** Height of the tips card: the heart's target above the figure, plus the card padding. */
 private val TipsCardHeight = 208.dp
 
+/** Height of the tips card's figure box: the card less the heart's target, the top padding and the bottom inset. */
+private val TipsFigureHeight = TipsCardHeight - 48.dp - Space.cardPadding + IconGlyphInset - Space.l
+
 /**
  * The pose as a dark card, like the mockups' headline card: the name in Headline and the facts at the top left, two
  * small label and value pairs (camera height, framing) at its foot, and the figure on the stage at the right under
@@ -657,11 +660,13 @@ private fun TipsPoseCard(pose: PoseTemplate, favorite: Boolean, onToggleFavorite
                     mirrored = mirrored,
                     modifier = Modifier
                         .padding(end = Space.l, bottom = Space.l)
-                        .size(width = 112.dp, height = TipsCardHeight - 48.dp - Space.cardPadding + IconGlyphInset - Space.l),
+                        .size(width = 112.dp, height = TipsFigureHeight),
                 )
             }
         }
-        if (photo != null) PhotoCompanionCard(photo, figureMirrored = mirrored, compact = true)
+        // The compact companion: its photo at most three quarters of the figure box's height, so it never outgrows
+        // the figure drawn small in this card.
+        if (photo != null) PhotoCompanionCard(photo, figureMirrored = mirrored, compact = true, maxPhotoHeight = TipsFigureHeight * 0.75f)
     }
 }
 

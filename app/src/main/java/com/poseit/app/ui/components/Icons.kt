@@ -3,6 +3,7 @@ package com.poseit.app.ui.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CameraAlt
@@ -64,6 +65,9 @@ object PoseitIcons {
 
     /** info */
     val info: ImageVector get() = Icons.Outlined.Info
+
+    /** A link that leaves the app for the browser (material symbol: open_in_new). */
+    val openExternal: ImageVector get() = Icons.AutoMirrored.Outlined.OpenInNew
 
     /** more_horiz (Astryx "moreHorizontal"): the overflow circle of the floating pill bar. */
     val moreHorizontal: ImageVector get() = Icons.Outlined.MoreHoriz

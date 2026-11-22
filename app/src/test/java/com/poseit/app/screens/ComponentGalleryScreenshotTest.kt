@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.SnackbarDuration
@@ -75,6 +76,7 @@ import com.poseit.app.ui.components.PhotoCreditContent
 import com.poseit.app.ui.components.PhotoBadge
 import com.poseit.app.ui.components.photoBadgeReserve
 import com.poseit.app.ui.components.PhotoCompanionCard
+import com.poseit.app.ui.library.TodaysPoseCard
 import com.poseit.app.ui.components.PosePhoto
 import com.poseit.app.ui.components.PoseThumbnail
 import com.poseit.app.ui.components.rememberPosePhotos
@@ -515,45 +517,28 @@ private fun ColumnScope.CompositionColumn() {
         }
     }
     Gallery("Sample photos") {
-        // In a dark card: the figure (still the guide) beside the photo, the credit line under them.
-        val hip = samplePhoto("stand_hand_on_hip")
-        PoseitCard(Modifier.fillMaxWidth()) {
-            Text(hip.poseName, style = PoseitType.bodyLarge)
-            Spacer(Modifier.height(Space.m))
-            Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-                PoseThumbnail(
-                    BuiltInPoses.byId(hip.poseId)!!,
-                    Modifier
-                        .weight(1f)
-                        .aspectRatio(0.75f)
-                        .background(PoseitColors.backgroundCardRaised, PoseitShapes.Inner)
-                        .frameMarks(),
-                    background = null,
-                )
-                PosePhoto(hip, Modifier.weight(1f).aspectRatio(hip.aspect), shape = PoseitShapes.Inner)
-            }
-            Spacer(Modifier.height(Space.xs))
-            PhotoCredit(hip)
+        // Today's pose: the figure keeps the stage, a 60dp print with its credit beside it above the button.
+        ConnectedCardStack(Modifier.fillMaxWidth()) {
+            TodaysPoseCard(BuiltInPoses.byId("selfie_peace")!!, onOpen = {}, onTry = {})
         }
-        // On cream: a grid-size photo with a long Commons credit, and the quiet placeholder shown while decoding.
-        val knee = samplePhoto("sit_one_knee_up")
-        Row(horizontalArrangement = Arrangement.spacedBy(Space.m), verticalAlignment = Alignment.Top) {
-            PosePhoto(knee, Modifier.width(84.dp).aspectRatio(knee.aspect), shape = PoseitShapes.Tile)
-            Box(Modifier.width(84.dp).aspectRatio(0.75f).background(PoseitColors.backgroundMuted, PoseitShapes.Tile), contentAlignment = Alignment.Center) {
-                Text("Decoding", style = PoseitType.supporting, color = PoseitColors.textSecondary)
+        // The camera's pose tips: a small figure, then the compact companion, whose photo stays smaller than it.
+        val hair = samplePhoto("port_hand_in_hair")
+        val hairPose = BuiltInPoses.byId(hair.poseId)!!
+        ConnectedCardStack(Modifier.fillMaxWidth()) {
+            CardSegment {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(hairPose.name, style = PoseitType.headline)
+                        Text("Portrait, easy", style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
+                    }
+                    PoseThumbnail(hairPose, Modifier.size(112.dp, 132.dp), background = null)
+                }
             }
-            Column(Modifier.weight(1f)) {
-                Text(knee.poseName, style = PoseitType.bodyStrong)
-                PhotoCredit(knee)
-            }
+            PhotoCompanionCard(hair, compact = true, maxPhotoHeight = 99.dp)
         }
-        // The one landscape photo (a group), cropped to a wide card slot.
-        val group = samplePhoto("group_arms_around")
-        ProvideSurfaceTone(SurfaceTone.Dark) {
-            Column(Modifier.fillMaxWidth().background(PoseitColors.backgroundCard, PoseitShapes.Card).padding(Space.l)) {
-                PosePhoto(group, Modifier.fillMaxWidth().aspectRatio(group.aspect), shape = PoseitShapes.Inner)
-                PhotoCredit(group, maxLines = 1)
-            }
+        // A long Commons credit on Today's pose: the print itself is the credit button (PhotoBadge), as on a tile.
+        ConnectedCardStack(Modifier.fillMaxWidth()) {
+            TodaysPoseCard(BuiltInPoses.byId("group_arms_around")!!, onOpen = {}, onTry = {})
         }
     }
 }

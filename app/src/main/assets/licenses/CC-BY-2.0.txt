@@ -1,6 +1,6 @@
-Creative Commons Attribution 2.0 Generic (CC BY 2.0), legal code (converted from the HTML page to plain text; list labels restored)
-Source: https://creativecommons.org/licenses/by/2.0/legalcode (read 2026-11-21)
-Used by: the sample photos of the pose library (app/src/main/assets/pose_photos/, credits.json).
+Creative Commons Attribution 2.0 Generic (CC BY 2.0), legal code
+Source: https://creativecommons.org/licenses/by/2.0/legalcode
+Used by: sample photos in Poseit's pose guide. Each photo's credit is in Settings, About, Photo credits.
 
 Attribution 2.0 Generic
 

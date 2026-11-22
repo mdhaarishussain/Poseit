@@ -1,6 +1,6 @@
 Creative Commons Attribution 4.0 International (CC BY 4.0), legal code
-Source: https://creativecommons.org/licenses/by/4.0/legalcode.txt (read 2026-11-21)
-Used by: the sample photos of the pose library (app/src/main/assets/pose_photos/, credits.json).
+Source: https://creativecommons.org/licenses/by/4.0/legalcode
+Used by: sample photos in Poseit's pose guide. Each photo's credit is in Settings, About, Photo credits.
 
 Attribution 4.0 International
 

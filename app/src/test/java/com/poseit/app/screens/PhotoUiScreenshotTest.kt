@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
@@ -24,7 +25,6 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -35,8 +35,11 @@ import com.poseit.app.appContainer
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.library.BuiltInPoses
 import com.poseit.app.ui.camera.PoseTipsSheet
-import com.poseit.app.ui.components.PhotoCompanionTitle
+import com.poseit.app.ui.components.PhotoCompanionCard
+import com.poseit.app.ui.components.PhotoCompanionTitles
 import com.poseit.app.ui.components.TopBarCard
+import com.poseit.app.ui.components.photoBadgeLabel
+import com.poseit.app.ui.components.photoCompanionTitle
 import com.poseit.app.ui.components.photoCreditLabel
 import com.poseit.app.ui.components.rememberPosePhoto
 import com.poseit.app.ui.detail.PoseDetailScreen
@@ -108,8 +111,14 @@ class PhotoUiScreenshotTest {
         compose.waitForIdle()
     }
 
-    private val companion = hasText(PhotoCompanionTitle)
+    /** The companion card's heading for a solo pose: "See it on a person". */
+    private val companion = hasText(photoCompanionTitle(1))
     private fun credit(id: String) = hasContentDescription(photoCreditLabel(posePhotos.photoFor(id)!!)) and hasClickAction()
+
+    /** A library tile's print, the photo's credit button: it says what the photo shows and whose it is. */
+    private fun badge(id: String) = hasContentDescription(photoBadgeLabel(posePhotos.photoFor(id)!!)) and hasClickAction()
+
+    private fun assertNoCompanion() = PhotoCompanionTitles.forEach { compose.onNode(hasText(it)).assertDoesNotExist() }
 
     @Test
     fun detailWithPhoto() {
@@ -124,10 +133,14 @@ class PhotoUiScreenshotTest {
         val figure = compose.onNode(hasContentDescription("Mannequin showing the Hand on hip pose")).fetchSemanticsNode().boundsInRoot
         val photo = compose.onNode(hasContentDescription("Photo of a person in the Hand on hip pose")).fetchSemanticsNode().boundsInRoot
         assertTrue("figure ${figure.height} vs photo ${photo.height}", figure.height > photo.height)
-        // TalkBack: heading, the line, the photo, then its credit.
-        val order = listOf(companion, hasText("A real photo", substring = true), hasContentDescription("Photo of a person", substring = true), credit("stand_hand_on_hip"))
-            .map { compose.onNode(it).fetchSemanticsNode().config.getOrElse(SemanticsProperties.TraversalIndex) { Float.NaN } }
+        // TalkBack: heading, the line, the photo, then its credit. traversalIndex only orders siblings inside one
+        // traversal group, so the four nodes must share one parent, and that parent must be the group.
+        val nodes: List<SemanticsNode> = listOf(companion, hasText("A real photo", substring = true), hasContentDescription("Photo of a person", substring = true), credit("stand_hand_on_hip"))
+            .map { compose.onNode(it).fetchSemanticsNode() }
+        val order = nodes.map { it.config.getOrElse(SemanticsProperties.TraversalIndex) { Float.NaN } }
         assertEquals(listOf(0f, 1f, 2f, 3f), order)
+        assertEquals("the four nodes share one semantics parent", 1, nodes.map { it.parent?.id }.toSet().size)
+        assertTrue("their parent is the traversal group", nodes[0].parent!!.config.getOrElse(SemanticsProperties.IsTraversalGroup) { false })
         capture("detail-photo")
     }
 
@@ -143,8 +156,8 @@ class PhotoUiScreenshotTest {
         val id = "stand_hands_in_pockets"
         assertNull(posePhotos.photoFor(id))
         detail(id)
-        // Figure only: no companion card, no credit, no empty frame.
-        compose.onNode(companion).assertDoesNotExist()
+        // Figure only: no companion card (under any of its headings), no credit, no empty frame.
+        assertNoCompanion()
         compose.onNode(hasContentDescription("Photo credit", substring = true)).assertDoesNotExist()
         compose.onNode(hasContentDescription("Mannequin showing", substring = true)).assertIsDisplayed()
         capture("detail-no-photo")
@@ -153,6 +166,9 @@ class PhotoUiScreenshotTest {
     @Test
     fun detailCouple() {
         detail("couple_forehead_touch")
+        // The heading says who is in the picture: two people, not "a person".
+        compose.onNode(hasText(photoCompanionTitle(2)) and isHeading()).assertIsDisplayed()
+        compose.onNode(companion).assertDoesNotExist()
         compose.onNode(hasContentDescription("Photo of two people in the Forehead touch pose")).assertIsDisplayed()
         capture("detail-couple")
     }
@@ -164,6 +180,7 @@ class PhotoUiScreenshotTest {
         detail("group_arms_around")
         scrollTo(credit("group_arms_around"))
         compose.onNode(hasText("It works with more people too", substring = true)).assertExists()
+        compose.onNode(hasText("See it on a group") and isHeading()).assertExists()
         compose.onNode(hasContentDescription("Photo of a group of people in the Shoulder line-up pose")).assertIsDisplayed()
         capture("detail-group")
     }
@@ -199,8 +216,8 @@ class PhotoUiScreenshotTest {
         detail("stand_hand_on_hip")
         compose.onNode(credit("stand_hand_on_hip")).performClick()
         compose.waitForIdle()
-        compose.onNode(hasText("View source")).assertExists()
-        compose.onNode(hasText("Read the licence")).assertExists()
+        compose.onNode(hasText("Source page")).assertExists()
+        compose.onNode(hasText("Read the licence text")).assertExists()
         captureScreenRoboImage("build/screenshots/photo-ui-detail-credit-sheet.png")
     }
 
@@ -209,11 +226,23 @@ class PhotoUiScreenshotTest {
     fun library() {
         set { LibraryScreen({}, {}, {}, {}, {}, {}) }
         waitText("Today's pose")
-        // Tiles of poses with a photo carry the print, a 48dp credit button; tiles without one don't.
-        val badge = compose.onAllNodes(credit("stand_hand_on_hip")).onFirst().fetchSemanticsNode()
-        assertEquals(Role.Button, badge.config[SemanticsProperties.Role])
-        assertTrue(badge.boundsInRoot.width >= 48f * 3 - 1 && badge.boundsInRoot.height >= 48f * 3 - 1)
+        // Tiles of poses with a photo carry the print, a 48dp credit button. Its label names the pose's photo, so
+        // the match can only be the Hand on hip tile's print: never Today's pose credit line, whatever the date.
+        val badges = compose.onAllNodes(badge("stand_hand_on_hip")).fetchSemanticsNodes()
+        assertEquals(1, badges.size)
+        val print = badges.single()
+        assertEquals(Role.Button, print.config[SemanticsProperties.Role])
+        assertTrue(print.boundsInRoot.width >= 48f * 3 - 1 && print.boundsInRoot.height >= 48f * 3 - 1)
+        // Tiles without a photo have no print: Hands in pockets is on screen, with no photo of it anywhere.
+        assertNull(posePhotos.photoFor("stand_hands_in_pockets"))
+        compose.onNode(hasText("Hands in pockets")).assertExists()
+        compose.onNode(hasContentDescription("in the Hands in pockets pose", substring = true)).assertDoesNotExist()
         capture("library")
+        // The grid hoists one credit sheet for every tile; the print opens it with the photo at a readable size.
+        compose.onNode(badge("stand_hand_on_hip")).performClick()
+        compose.waitForIdle()
+        compose.onNode(hasText("Sample photo for Hand on hip")).assertExists()
+        compose.onNode(hasContentDescription("Photo of a person in the Hand on hip pose")).assertExists()
     }
 
     @Test
@@ -227,9 +256,17 @@ class PhotoUiScreenshotTest {
             }
         }
         assertEquals(1, compose.onAllNodes(hasContentDescription("Photo credit", substring = true)).fetchSemanticsNodes().size)
-        compose.onNode(credit("stand_hand_on_hip")).performClick()
+        // The print is a button with a 48dp target, and TalkBack hears what the photo shows before whose it is.
+        val print = compose.onNode(badge("stand_hand_on_hip")).fetchSemanticsNode()
+        assertEquals(Role.Button, print.config[SemanticsProperties.Role])
+        assertTrue(print.boundsInRoot.width >= 48f * 3 - 1 && print.boundsInRoot.height >= 48f * 3 - 1)
+        assertEquals("Photo of a person in the Hand on hip pose. Photo credit: Mixkit", photoBadgeLabel(posePhotos.photoFor("stand_hand_on_hip")!!))
+        compose.onNode(badge("stand_hand_on_hip")).performClick()
         compose.waitForIdle()
         compose.onNode(hasText("Sample photo for Hand on hip")).assertExists()
+        // The sheet starts with the photo itself, big enough to see the pose, beside the pose's figure.
+        val photo = compose.onNode(hasContentDescription("Photo of a person in the Hand on hip pose")).fetchSemanticsNode()
+        assertTrue("photo ${photo.boundsInRoot.width / 3}dp wide", photo.boundsInRoot.width >= 100f * 3)
         captureScreenRoboImage("build/screenshots/photo-ui-library-credit-sheet.png")
     }
 
@@ -276,6 +313,10 @@ class PhotoUiScreenshotTest {
         }
         assertNull(posePhotos.photoFor("selfie_classic"))
         assertEquals(2, compose.onAllNodes(hasContentDescription("Photo credit", substring = true) and hasClickAction()).fetchSemanticsNodes().size)
+        // The print says what it shows (it joins the card's label); the long Commons credit of the group photo
+        // makes its print the credit button instead of a three-line block of text.
+        compose.onNode(hasContentDescription("Photo of a person in the Peace sign pose", substring = true), useUnmergedTree = true).assertExists()
+        compose.onNode(badge("group_arms_around")).assertExists()
         capture("today")
     }
 
@@ -285,6 +326,10 @@ class PhotoUiScreenshotTest {
         compose.waitForIdle()
         compose.onNode(companion).assertExists()
         compose.onNode(credit("stand_hand_on_hip")).assertExists()
+        // The compact companion's photo stays smaller than the card's figure (drawn in a 112 x 132dp box): at most
+        // three quarters of the box's height.
+        val photo = compose.onNode(hasContentDescription("Photo of a person in the Hand on hip pose")).fetchSemanticsNode().boundsInRoot
+        assertTrue("photo ${photo.height / 3}dp tall", photo.height <= 99f * 3 + 1)
         captureScreenRoboImage("build/screenshots/photo-ui-camera-tips.png")
     }
 
@@ -300,8 +345,35 @@ class PhotoUiScreenshotTest {
     fun cameraTipsSheetWithoutPhoto() {
         set { PoseTipsSheet(pose = BuiltInPoses.byId("selfie_classic")!!, favorite = false, onToggleFavorite = {}, onDismiss = {}) }
         compose.waitForIdle()
-        compose.onNode(companion).assertDoesNotExist()
+        assertNoCompanion()
         captureScreenRoboImage("build/screenshots/photo-ui-camera-tips-no-photo.png")
+    }
+
+    /**
+     * A photo whose file can't be decoded must not leave an empty frame with a credit under it: the pose loses its
+     * photo and falls back to the figure-only layout.
+     */
+    @Test
+    fun aPhotoThatFailsToDecodeFallsBackToTheFigure() {
+        val id = "port_chin_on_hand"
+        val real = posePhotos.photoFor(id)!!
+        posePhotos.clear()
+        try {
+            set {
+                // The pose's companion card, its photo pointed at a file that is not there, as a damaged asset is.
+                val photo = rememberPosePhoto(id)
+                if (photo != null) PhotoCompanionCard(photo.copy(assetPath = "pose_photos/missing.webp"))
+            }
+            compose.waitUntil(5_000) { posePhotos.isBroken(id) }
+            compose.waitForIdle()
+            assertNull(posePhotos.photoFor(id))
+            assertNoCompanion()
+            compose.onNode(hasContentDescription("Photo credit", substring = true)).assertDoesNotExist()
+            compose.onNode(hasContentDescription("Photo of a person", substring = true)).assertDoesNotExist()
+        } finally {
+            posePhotos.forgetFailures()
+        }
+        assertNotNull(posePhotos.photoFor(real.poseId))
     }
 
     @Test

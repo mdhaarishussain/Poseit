@@ -1,5 +1,6 @@
 package com.poseit.app.data
 
+import android.content.ComponentCallbacks2
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -7,6 +8,8 @@ import android.util.Log
 import android.util.LruCache
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.mutableStateMapOf
+import com.poseit.app.BuildConfig
 import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.pose.library.BuiltInPoses
@@ -25,6 +28,9 @@ import kotlinx.serialization.json.Json
  * credit each in pose_photos/credits.json, written by tools/pose-photos/credits.py. Only built-in poses have photos;
  * poses people make never do. The photos are shown only in the pose guide, beside the pose's figure, always with
  * their credit; the app never offers them to share, save or export.
+ *
+ * Mixkit stills are left out of release builds until the owner settles the two open questions in docs/POSE_PHOTOS.md
+ * ("Mixkit in release builds"): BuildConfig.MIXKIT_PHOTOS, set from the Gradle property poseit.releaseMixkitPhotos.
  */
 
 /**
@@ -33,7 +39,9 @@ import kotlinx.serialization.json.Json
  * @property attribution the credit line to show with the photo ("Photo: Mixkit", "Photo: <author>, CC0, Wikimedia
  *   Commons (cropped)")
  * @property source "Mixkit" or "Wikimedia Commons"
- * @property title the clip's or file's title as published (not shown in the app: it can describe the people)
+ * @property title the clip's or file's title as published. Shown only where the licence requires it ([titleRequired]:
+ *   CC BY and BY-SA 2.x and 3.0), as "Original title" in the full credit; elsewhere it is not shown, because a stock
+ *   title can describe the people
  * @property author as the source states it
  * @property pageUrl the clip page or the Commons file page
  * @property licenceTextPath the full licence text in the assets ("licenses/CC0-1.0.txt")
@@ -81,6 +89,18 @@ data class PosePhoto(
     val authorForDisplay: String
         get() = if (source == SOURCE_MIXKIT && author.startsWith("Mixkit (")) "Not named on the Mixkit clip page" else author
 
+    /**
+     * The work's title as its source publishes it, for the full credit: Commons' "File:" prefix, the file extension
+     * and the Flickr photo id that Commons' upload tool appends are left out ("Woman in a red dress"). Null if none.
+     */
+    val titleForDisplay: String? get() = title?.let(PhotoCredits::displayTitle)?.takeIf { it.isNotBlank() }
+
+    /**
+     * True when the photo's licence requires the work's title in its credit if the licensor supplies one: CC BY and
+     * CC BY-SA 2.0, 2.5 and 3.0 ("the title of the Work if supplied"). CC BY 4.0, CC0 and the Mixkit licence do not.
+     */
+    val titleRequired: Boolean get() = PhotoCredits.licenceRequiresTitle(licence)
+
     /** The changes in plain words: "A still frame from a video", "Cropped", "Flipped left to right", "Resized". */
     val plainChanges: List<String>
         get() = buildList {
@@ -107,14 +127,17 @@ data class PosePhoto(
     }
 }
 
-/** One entry of pose_photos/credits.json, as tools/pose-photos/credits.py writes it. */
+/**
+ * One entry of pose_photos/credits.json, as tools/pose-photos/credits.py writes it: only what the app reads (the
+ * review notes, scores and download links stay in tools/pose-photos/credits-full.json). R8 keeps the generated
+ * serializer (proguard-rules.pro, "kotlinx.serialization").
+ */
 @Serializable
 internal data class PhotoCreditRecord(
     val photo: String,
     val source: String,
     val title: String? = null,
     val pageUrl: String,
-    val fileUrl: String? = null,
     val author: String,
     val licence: String,
     val licenceUrl: String,
@@ -163,6 +186,25 @@ internal object PhotoCredits {
     /** Pose id to credit, in file order. */
     fun parse(text: String): Map<String, PhotoCreditRecord> = json.decodeFromString(text)
 
+    /**
+     * The credits a build shows: every one, or without the Mixkit stills when [includeMixkit] is false (release
+     * builds until the owner settles the open Mixkit questions; docs/POSE_PHOTOS.md).
+     */
+    fun shown(records: Map<String, PhotoCreditRecord>, includeMixkit: Boolean): Map<String, PhotoCreditRecord> =
+        if (includeMixkit) records else records.filterValues { it.source != PosePhoto.SOURCE_MIXKIT }
+
+    private val fileExtension = Regex("""\.(jpe?g|png|webp|tiff?|gif)$""", RegexOption.IGNORE_CASE)
+    private val flickrId = Regex("""\s*\(\d{6,}\)$""")
+
+    /** "File:Ladies Grey Loungewear Set (51618413959).jpg" -> "Ladies Grey Loungewear Set". */
+    fun displayTitle(title: String): String =
+        title.trim().removePrefix("File:").replace(fileExtension, "").replace(flickrId, "").replace('_', ' ').trim()
+
+    private val titleLicence = Regex("""^CC BY(-SA)? [23](\.\d)?$""")
+
+    /** CC BY and BY-SA 2.x and 3.0 ask for the title of the work in the credit, if one is supplied. */
+    fun licenceRequiresTitle(licence: String): Boolean = titleLicence.matches(licence.trim())
+
     /** The shipped photo's size from its "resized to WxH" change, or null when the credit does not record it. */
     fun recordedSize(record: PhotoCreditRecord): Pair<Int, Int>? =
         record.changes.firstNotNullOfOrNull { resized.find(it) }?.let { it.groupValues[1].toInt() to it.groupValues[2].toInt() }
@@ -196,26 +238,58 @@ internal object PhotoCredits {
  * main thread at the size they are shown, kept in a small memory cache). Get it from `context.appContainer.posePhotos`
  * or, in a composable, `rememberPosePhotos()`.
  */
-class PosePhotos(context: Context) {
+class PosePhotos(context: Context, private val includeMixkit: Boolean = BuildConfig.MIXKIT_PHOTOS) {
 
     private val assets = context.applicationContext.assets
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val photos: Map<String, PosePhoto> by lazy { load() }
 
+    /**
+     * Poses whose photo could not be decoded (a missing or damaged file). Compose state, so a screen that showed the
+     * photo's card recomposes without it: [photoFor] gives null for them and the pose falls back to its figure-only
+     * layout, never an empty frame.
+     */
+    private val broken = mutableStateMapOf<String, Boolean>()
+
     /** Decoded bitmaps keyed by pose id and sample size, sized in KB. */
     private val cache = object : LruCache<String, Bitmap>(cacheSizeKb()) {
         override fun sizeOf(key: String, value: Bitmap): Int = (value.allocationByteCount / 1024).coerceAtLeast(1)
     }
 
-    /** Every pose that has a photo, in library order. */
-    val all: List<PosePhoto> get() = photos.values.toList()
+    /** Every pose that has a photo, in library order (read in a composable, it follows [isBroken]). */
+    val all: List<PosePhoto> get() = photos.values.filterNot { isBroken(it.poseId) }
 
-    /** The photo of the built-in pose [poseId], or null (no photo yet, or not a built-in pose). */
-    fun photoFor(poseId: String): PosePhoto? = photos[poseId]
+    /** The photo of the built-in pose [poseId], or null (no photo yet, not a built-in pose, or it failed to decode). */
+    fun photoFor(poseId: String): PosePhoto? = photos[poseId]?.takeUnless { isBroken(poseId) }
 
     /** The photo of [pose], or null: poses people make never have one, even when copied from a built-in pose. */
-    fun photoFor(pose: PoseTemplate): PosePhoto? = if (pose.source == PoseSource.BUILT_IN) photos[pose.id] else null
+    fun photoFor(pose: PoseTemplate): PosePhoto? = if (pose.source == PoseSource.BUILT_IN) photoFor(pose.id) else null
+
+    /** The credit of [poseId] whether or not its pixels decode; for `rememberPosePhoto`, which checks [isBroken]. */
+    internal fun recordFor(poseId: String): PosePhoto? = photos[poseId]
+
+    /** True once [poseId]'s photo has failed to decode. Snapshot state: a composable that reads it recomposes. */
+    fun isBroken(poseId: String): Boolean = broken[poseId] == true
+
+    /** Forgets decode failures (tests). */
+    @VisibleForTesting
+    fun forgetFailures() = broken.clear()
+
+    /**
+     * Frees decoded photos when the system asks ([ComponentCallbacks2.onTrimMemory], from PoseitApp): half the cache
+     * once the app's screens are hidden or memory runs low, all of it once the app is in the background list.
+     */
+    fun trim(level: Int) {
+        @Suppress("DEPRECATION")
+        when {
+            level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND -> cache.evictAll()
+            level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW -> cache.trimToSize(cache.maxSize() / 2)
+        }
+    }
+
+    /** Frees every decoded photo (onLowMemory). */
+    fun clear() = cache.evictAll()
 
     /** Parses the credits on a background thread now, so the first [photoFor] on the main thread finds them ready. */
     fun warmUp() {
@@ -229,15 +303,17 @@ class PosePhotos(context: Context) {
     /**
      * The photo decoded for a box of [widthPx] x [heightPx] (filled and cropped, so it is never smaller than the box
      * where the source allows): downsampled by a power of two with inSampleSize, decoded on [ioDispatcher] and
-     * cached. Null if the file cannot be read.
+     * cached. Null if the file cannot be read; the pose is then marked [isBroken] and loses its photo.
      */
     suspend fun bitmap(photo: PosePhoto, widthPx: Int, heightPx: Int): Bitmap? {
         val sample = sampleSizeFor(photo.width, photo.height, widthPx, heightPx)
         val key = key(photo, sample)
         cache.get(key)?.let { return it }
-        return withContext(ioDispatcher) {
+        val bitmap = withContext(ioDispatcher) {
             cache.get(key) ?: decode(photo, sample)?.also { cache.put(key, it) }
         }
+        if (bitmap == null) broken[photo.poseId] = true
+        return bitmap
     }
 
     /**
@@ -254,6 +330,7 @@ class PosePhotos(context: Context) {
             inPreferredConfig = Bitmap.Config.ARGB_8888
         }
         assets.open(photo.assetPath).use { BitmapFactory.decodeStream(it, null, options) }
+            .also { if (it == null) Log.w(TAG, "Could not decode ${photo.assetPath}") }
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
@@ -263,7 +340,7 @@ class PosePhotos(context: Context) {
 
     private fun load(): Map<String, PosePhoto> {
         val records = try {
-            PhotoCredits.parse(assets.open(PhotoCredits.CREDITS_ASSET).bufferedReader().use { it.readText() })
+            PhotoCredits.shown(PhotoCredits.parse(assets.open(PhotoCredits.CREDITS_ASSET).bufferedReader().use { it.readText() }), includeMixkit)
         } catch (e: Exception) {
             Log.e(TAG, "Could not read ${PhotoCredits.CREDITS_ASSET}", e)
             return emptyMap()

@@ -112,6 +112,46 @@ class PosePhotosTest {
         assertTrue(photos.licenceText(p.licenceTextPath).contains("Attribution 2.0"))
     }
 
+    /**
+     * Release builds leave the Mixkit stills out until the owner settles the open Mixkit questions
+     * (docs/POSE_PHOTOS.md): a PosePhotos built that way lists only the Wikimedia Commons photos, and the poses
+     * whose photo was a Mixkit still have none (their figure-only layout).
+     */
+    @Test
+    fun withoutMixkitOnlyTheCommonsPhotosAreShown() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val release = PosePhotos(context, includeMixkit = false)
+        assertTrue(release.all.isNotEmpty())
+        assertTrue(release.all.all { it.source == PosePhoto.SOURCE_COMMONS })
+        assertEquals(photos.all.count { it.source == PosePhoto.SOURCE_COMMONS }, release.all.size)
+        assertNull(release.photoFor("stand_hand_on_hip"))
+        assertNotNull(release.photoFor("sit_one_knee_up"))
+        // Debug builds (and these tests) show every photo.
+        assertEquals(34, PosePhotos(context, includeMixkit = true).all.size)
+    }
+
+    @Test
+    fun trimmingFreesDecodedPhotos() = runBlocking {
+        val p = photos.photoFor("port_dreamy_gaze")!!
+        need(photos.bitmap(p, 100, 133))
+        photos.trim(android.content.ComponentCallbacks2.TRIM_MEMORY_BACKGROUND)
+        assertNull(photos.cachedBitmap(p, 100, 133))
+        // Still decodes again on demand.
+        need(photos.bitmap(p, 100, 133))
+        Unit
+    }
+
+    @Test
+    fun aMissingFileMarksThePoseBrokenAndDropsItsPhoto() = runBlocking {
+        val p = photos.photoFor("port_dreamy_gaze")!!
+        assertNull(photos.bitmap(p.copy(assetPath = "pose_photos/missing.webp"), 100, 133))
+        assertTrue(photos.isBroken(p.poseId))
+        assertNull(photos.photoFor(p.poseId))
+        assertTrue(photos.all.none { it.poseId == p.poseId })
+        photos.forgetFailures()
+        assertNotNull(photos.photoFor(p.poseId))
+    }
+
     private fun <T> need(value: T?): T {
         assertNotNull(value)
         return value!!

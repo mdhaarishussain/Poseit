@@ -17,6 +17,18 @@ class PoseitApp : Application() {
         // The sample photos' credits are read once; do it off the main thread before a screen asks for them.
         container.posePhotos.warmUp()
     }
+
+    // Decoded sample photos are a cache: give the memory back when the system asks, so a backgrounded Poseit is a
+    // less likely target for the low-memory killer (and keeps the camera or editor state the user returns to).
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (::container.isInitialized) container.posePhotos.trim(level)
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        if (::container.isInitialized) container.posePhotos.clear()
+    }
 }
 
 /** Manual dependency container (no DI framework needed for an app this size). */

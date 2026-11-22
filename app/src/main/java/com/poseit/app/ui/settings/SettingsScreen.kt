@@ -75,6 +75,7 @@ import com.poseit.app.ui.components.SwitchRow
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.TopBarContent
 import com.poseit.app.ui.components.PinnedTopBar
+import com.poseit.app.ui.components.photoSourcesPhrase
 import com.poseit.app.ui.components.rememberPosePhotos
 import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.components.ValueSlider
@@ -210,7 +211,14 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit, onOpenPhotoCredi
         }
     }
 
-    if (showLicenses) LicensesDialog(photoNotices = remember(posePhotos) { photoNotices(posePhotos.all) }, onDismiss = { showLicenses = false })
+    if (showLicenses) {
+        val shown = posePhotos.all
+        LicensesDialog(
+            photoNotices = remember(shown) { photoNotices(shown) },
+            mixkit = shown.any { it.source == PosePhoto.SOURCE_MIXKIT },
+            onDismiss = { showLicenses = false },
+        )
+    }
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -417,6 +425,7 @@ private fun YourPosesGroup(customCount: Int, busy: Boolean, onExport: () -> Unit
  */
 @Composable
 private fun AboutStack(onShowLicenses: () -> Unit, onOpenPhotoCredits: () -> Unit, onShowIntro: () -> Unit) {
+    val photos = rememberPosePhotos()
     Column(Modifier.fillMaxWidth()) {
         SectionHeading("About", Modifier.padding(horizontal = Space.cardPadding))
         Spacer(Modifier.height(Space.s))
@@ -442,7 +451,7 @@ private fun AboutStack(onShowLicenses: () -> Unit, onOpenPhotoCredits: () -> Uni
                 Spacer(Modifier.height(Space.l))
                 Text(
                     "Pose detection uses MediaPipe (Apache License 2.0). The typeface is Hanken Grotesk (SIL Open Font " +
-                        "License 1.1). The sample photos of the poses come from Mixkit and Wikimedia Commons contributors.",
+                        "License 1.1). The sample photos of the poses come from ${photoSourcesPhrase(photos.all)}.",
                     style = PoseitType.supporting,
                     color = PoseitColors.textSecondaryInverted,
                 )
@@ -492,7 +501,7 @@ private val notices = listOf(
 )
 
 @Composable
-private fun LicensesDialog(photoNotices: List<Notice>, onDismiss: () -> Unit) {
+private fun LicensesDialog(photoNotices: List<Notice>, mixkit: Boolean, onDismiss: () -> Unit) {
     PoseitAlertDialog(
         onDismissRequest = onDismiss,
         title = "Open-source notices",
@@ -518,9 +527,11 @@ private fun LicensesDialog(photoNotices: List<Notice>, onDismiss: () -> Unit) {
                     color = PoseitColors.textSecondary,
                 )
                 Text(
-                    "The sample photos are used under the Mixkit Stock Video Free License (mixkit.co/license) and " +
-                        "Creative Commons licences (creativecommons.org/licenses). Each photo's author, source, licence " +
-                        "text and the changes made are in Photo credits.",
+                    "The sample photos are used under " +
+                        (if (mixkit) "the Mixkit Stock Video Free License (mixkit.co/license), " else "") +
+                        "Creative Commons licences (creativecommons.org/licenses) and the CC0 public domain dedication " +
+                        "(creativecommons.org/publicdomain/zero/1.0). Each photo's author, source, licence text and " +
+                        "the changes made are in Photo credits.",
                     style = PoseitType.supporting,
                     color = PoseitColors.textSecondary,
                 )

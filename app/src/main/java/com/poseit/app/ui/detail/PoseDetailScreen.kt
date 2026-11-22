@@ -251,10 +251,12 @@ private fun ReadyContent(
         bottomBar = { DetailActions(isCustom = pose.isCustom, onEdit = onEdit, onTry = onTry) },
         joined = {
             NameCard(pose)
-            PreviewCard(details, height = previewHeight(withPhoto = photo != null), mirrored = mirrored, onMirroredChange = onMirroredChange)
+            val preview = previewHeight(withPhoto = photo != null)
+            PreviewCard(details, height = preview, mirrored = mirrored, onMirroredChange = onMirroredChange)
             // The figure stays the hero (it is what the camera matches); a built-in pose's sample photo follows it
-            // as a smaller companion card, fused under the preview. Without a photo the stack ends at the figure.
-            if (photo != null) PhotoCompanionCard(photo, figureMirrored = mirrored)
+            // as a smaller companion card, fused under the preview, never taller than half the preview, so it
+            // shrinks with the figure on a short phone. Without a photo the stack ends at the figure.
+            if (photo != null) PhotoCompanionCard(photo, figureMirrored = mirrored, maxPhotoHeight = preview * CompanionPhotoShare)
         },
     ) {
         PoseFacts(pose, Modifier.padding(start = Space.edge, end = Space.edge, top = Space.edge))
@@ -297,9 +299,13 @@ private fun ReadyContent(
 }
 
 /**
- * The preview card's height: 44% of the screen, or 40% when the photo card follows it, so the figure and its
- * companion photo both fit the first screen of a phone while the figure stays clearly the larger of the two.
+ * The preview card's height: 44% of the screen, or 40% when the photo card follows it, so on a phone about 800dp
+ * tall or more the figure and its companion photo both fit the first screen; the photo is at most
+ * [CompanionPhotoShare] of this height, so the figure stays clearly the larger of the two on any phone.
  */
+/** The companion photo's largest height, as a share of the preview card's (the figure's) height. */
+internal const val CompanionPhotoShare = 0.5f
+
 @Composable
 private fun previewHeight(withPhoto: Boolean) = LocalConfiguration.current.screenHeightDp.let { h ->
     (h * if (withPhoto) 0.40f else 0.44f).coerceIn(240f, 480f).dp

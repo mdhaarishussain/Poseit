@@ -79,7 +79,9 @@ PICKS = [
      "reason": "She rides on his back with her arms wrapped around his shoulders and her head beside and above his, "
                "both laughing at the camera: the rider half of the drawn piggyback. Waist-up on a pink backdrop, so "
                "the carrier's legs and hands holding her legs are out of frame."},
-    {"pose": "couple_sit_lean", "src": "mixkit", "clip": 100799, "hold": 4.338,
+    # crop_px (2026-11-22): the automatic frame started at y=480 and cut the top of his head; this one starts at
+    # y=300 and keeps both heads whole.
+    {"pose": "couple_sit_lean", "src": "mixkit", "clip": 100799, "hold": 4.338, "crop_px": [0, 300, 1080, 1740],
      "reason": "On a park bench she rests her head on his shoulder, eyes closed and smiling, while he smiles down: "
                "the defining gesture of 'sitting close'. Head-and-shoulders close-up (vertical clip), so the seated "
                "legs of the drawn figure are not shown."},

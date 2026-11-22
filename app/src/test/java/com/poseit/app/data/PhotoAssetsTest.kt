@@ -3,6 +3,7 @@ package com.poseit.app.data
 import com.poseit.app.pose.library.BuiltInPoses
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -113,6 +114,55 @@ class PhotoAssetsTest {
             val text = f.readText()
             assertEquals(f.name, text.split(words).filter { it.isNotEmpty() }, LicenceText.reflow(text).split(words).filter { it.isNotEmpty() })
         }
+    }
+
+    /**
+     * CC BY and BY-SA 2.x and 3.0 require the title of the work in the credit, if the licensor supplies one: every
+     * such credit carries it, and the app shows it as "Original title" in the full credit.
+     */
+    @Test
+    fun creditsUnderLicencesThatAskForATitleHaveOne() {
+        val needTitle = credits.filterValues { PhotoCredits.licenceRequiresTitle(it.licence) }
+        assertTrue("no shipped photo is under CC BY 2.0? the check would test nothing", needTitle.isNotEmpty())
+        needTitle.forEach { (id, c) ->
+            val title = c.title?.let(PhotoCredits::displayTitle)
+            assertTrue("$id (${c.licence}) needs a title", !title.isNullOrBlank())
+        }
+        assertEquals("Ladies Grey Loungewear Set", PhotoCredits.displayTitle("File:Ladies Grey Loungewear Set (51618413959).jpg"))
+        assertEquals("Woman in a red dress", PhotoCredits.displayTitle("File:Woman in a red dress.jpg"))
+        assertTrue(PhotoCredits.licenceRequiresTitle("CC BY 2.0"))
+        assertTrue(PhotoCredits.licenceRequiresTitle("CC BY-SA 3.0"))
+        assertTrue(PhotoCredits.licenceRequiresTitle("CC BY 2.5"))
+        assertTrue(!PhotoCredits.licenceRequiresTitle("CC BY 4.0"))
+        assertTrue(!PhotoCredits.licenceRequiresTitle("CC0"))
+        assertTrue(!PhotoCredits.licenceRequiresTitle("Mixkit Stock Video Free License"))
+    }
+
+    /**
+     * credits.json ships inside the APK, so it holds only what the app reads: the review notes (which describe the
+     * people), scores and download links stay in tools/pose-photos/credits-full.json.
+     */
+    @Test
+    fun theShippedCreditsHoldOnlyWhatTheAppReads() {
+        val appFields = setOf("photo", "source", "title", "pageUrl", "author", "licence", "licenceUrl", "licenceText", "attribution", "changes", "mirrored", "frameTimeS")
+        val raw = Json.parseToJsonElement(File(photos, "credits.json").readText()).jsonObject
+        raw.forEach { (id, entry) ->
+            val extra = entry.jsonObject.keys - appFields
+            assertTrue("$id carries fields the app does not read: $extra", extra.isEmpty())
+        }
+        // The parser the release build runs (R8 keeps its generated serializer) reads every entry.
+        assertEquals(raw.keys, credits.keys)
+    }
+
+    /** The licence texts are shown in the app: their headers speak to the reader, not to the people who prepared them. */
+    @Test
+    fun licenceTextsShownInTheAppHaveNoMaintainerNotes() {
+        credits.values.map { it.licenceText }.toSet().forEach { path ->
+            val head = File(assets, path).readText().substringBefore("\n\n")
+            assertTrue("$path header names a repository path", "app/src" !in head && "docs/" !in head && "credits.json" !in head)
+        }
+        val mixkit = File(licenses, "Mixkit-Stock-Video-Free-License.txt").readText()
+        assertTrue("could not be read" !in mixkit)
     }
 
     /** Width and height from a WebP header (lossy VP8, lossless VP8L or extended VP8X). */

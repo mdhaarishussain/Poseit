@@ -7,6 +7,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+// Mixkit stills in release builds (docs/POSE_PHOTOS.md, "Mixkit in release builds"): off until the owner has settled
+// the two open questions recorded there (scripted downloads under the Mixkit User Terms, and the unread Envato
+// policies), then set poseit.releaseMixkitPhotos=true in gradle.properties. Debug builds and the screenshot tests
+// always include them, so the design can be reviewed with every photo.
+val releaseMixkitPhotos = providers.gradleProperty("poseit.releaseMixkitPhotos").orNull?.toBoolean() ?: false
+
 android {
     namespace = "com.poseit.app"
     compileSdk = 36
@@ -15,7 +21,7 @@ android {
         applicationId = "com.poseit.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
+        versionCode = 4
         versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -48,8 +54,10 @@ android {
     buildTypes {
         debug {
             signingConfig = signingConfigs.getByName("sideload")
+            buildConfigField("boolean", "MIXKIT_PHOTOS", "true")
         }
         release {
+            buildConfigField("boolean", "MIXKIT_PHOTOS", releaseMixkitPhotos.toString())
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -91,6 +99,23 @@ android {
                 test.systemProperty("robolectric.dependency.repo.url", it)
                 test.systemProperty("robolectric.dependency.repo.id", "mirror")
             }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Without poseit.releaseMixkitPhotos the release APK leaves the Mixkit stills out entirely (not just unshown): their
+// files are removed from the merged assets. Which files they are comes from pose_photos/credits.json.
+// ---------------------------------------------------------------------------
+if (!releaseMixkitPhotos) {
+    val creditsFile = layout.projectDirectory.file("src/main/assets/pose_photos/credits.json").asFile
+    tasks.matching { it.name == "mergeReleaseAssets" }.configureEach {
+        doLast {
+            @Suppress("UNCHECKED_CAST")
+            val credits = groovy.json.JsonSlurper().parse(creditsFile) as Map<String, Map<String, Any?>>
+            val mixkit = credits.values.filter { it["source"] == "Mixkit" }.map { "pose_photos/${it["photo"]}" }
+            outputs.files.files.forEach { dir -> mixkit.forEach { File(dir, it).delete() } }
+            logger.lifecycle("Release assets: ${mixkit.size} Mixkit stills left out (poseit.releaseMixkitPhotos is not set)")
         }
     }
 }

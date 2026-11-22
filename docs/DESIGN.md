@@ -208,7 +208,8 @@ At most one connected stack per screen region; two or three cards per stack, fou
 Material Symbols Outlined names, as Astryx maps its icons on Android, drawn with the Outlined Material Icons from
 androidx (the same outlined family, already bundled). Use the `PoseitIcons` vocabulary (`close`, `chevronRight`,
 `chevronDown`, `check`, `success`, `error`, `warning`, `info`, `moreHorizontal`, `search`, `back`, `camera`,
-`photos`, `settings`, `add`, `favouriteOff`, `favouriteOn`, `edit`, `delete`, `share`, `person`).
+`photos`, `settings`, `add`, `favouriteOff`, `favouriteOn`, `edit`, `delete`, `share`, `person`, `openExternal`
+(open_in_new, after the label of a button that opens the browser)).
 
 Sizes (`IconSize`): 24dp standalone in a 48dp target, 18dp inline with a label. Outlined only; the one filled glyph
 is the favourite heart when on. Few icons: one per control, none as decoration, no icon tiles in rows.
@@ -316,29 +317,43 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   `textPrimary` on cream.
 - **Icons** (`Icons.kt`): `PoseitIcons`, `IconSize`, `IconGlyphInset`.
 - **Sample photos** (`PosePhoto.kt`; rules in "Sample photos" below): `PosePhoto(photo, modifier, shape,
-  alignment, placeholderColor, contentDescription)` draws a pose's photo filled and cropped into its bounds, clipped to
-  `shape`, on a quiet placeholder (raised card colour on dark, muted fill on cream) while it decodes; `PosePhoto(pose,
-  ...)` draws nothing at all when the pose has no photo. `PhotoCredit(photo, modifier, maxLines, color)`: the credit
-  line in `supporting` after an info glyph (16dp at 100%, growing with the text and centred on its first line), cream
-  on a dark card and secondary ink on cream, one 48dp button
-  (spoken "Photo credit: Mixkit") that opens `PhotoCreditSheet(photo, onDismissRequest)`: a `PoseitBottomSheet` with
-  "Photo credit" on `textInset` and a `RowGroup` on `edge` of Credit, Author, Source ("View source"), Licence ("View
-  licence", "Read the licence": the bundled text, scrollable, in the same sheet) and Changes in plain words.
-  `PhotoCreditContent(photo)` is the sheet's inside for inline use. `rememberPosePhoto(poseId | pose)` gives the
-  `PosePhoto` data or null.
+  alignment, placeholderColor, contentDescription)` draws a pose's photo filled into its bounds (give it the photo's
+  aspect, so nothing is cut), clipped to `shape`, on a quiet placeholder with no text (raised card colour on dark,
+  muted fill on cream) while it decodes; `PosePhoto(pose, ...)` draws nothing at all when the pose has no photo.
+  `PhotoCredit(photo, modifier, maxLines, color)`: the credit line in `supporting` after an info glyph (16dp at 100%,
+  growing with the text and centred on its first line; `creditGlyphRoom()` is the width it takes, for measuring the
+  words' room), cream on a dark card and secondary ink on cream, one 48dp button (spoken "Photo credit: Mixkit") that
+  opens `PhotoCreditSheet(photo, onDismissRequest)`: a `PoseitBottomSheet` with "Photo credit" and "Sample photo for
+  <pose>" on `textInset`, then the photo at a readable size (160dp tall, 120dp wide for a portrait photo, `Inner`
+  corners) beside the pose's figure on a stage tile of the same height, then a `RowGroup` on `edge` of Credit,
+  Original title (only where the licence asks for the work's title: CC BY and BY-SA 2.x and 3.0, without "File:", the
+  extension and the Flickr id), Author, Source ("Source page"), Licence ("Licence page"; "Read the licence text": the
+  bundled text, scrollable, in the same sheet) and Changes in plain words. The buttons that leave for the browser
+  carry the `openExternal` glyph after their label, spoken "opens in your browser". `PhotoCreditContent(photo)` is the
+  sheet's inside for inline use. `rememberPosePhoto(poseId | pose)` gives the `PosePhoto` data or null, and turns
+  null if the photo fails to decode. `photoSourcesPhrase(photos)` names the sources a build shows ("Mixkit and
+  Wikimedia Commons contributors").
 - **Photo companion** (`PhotoCompanion.kt`; "figure first, photo as companion"): `PhotoCompanionCard(photo,
-  figureMirrored, compact)` is "See it on a person", one card of a `ConnectedCardStack` fused under the card that
-  shows the figure: the heading in `bodyLarge` cream, one `supporting` mist line about the pose (never about the
-  people), the photo at its own aspect with `Inner` corners and its `PhotoCredit`. A portrait photo stands at the
-  right of the words, about 42% of the card's inner width (112 to 176dp, 88dp when `compact`), the credit at the foot
-  of the words beside it; the landscape group photo runs under the words at 72% of the width, and so does a portrait
-  photo when the heading no longer fits on one line beside it or the font is 150% or more (at the same modest size).
-  TalkBack reads heading, line, photo, credit (traversal indices in one traversal group). `PhotoBadge(photo)` is the
-  photo as a 36x48dp print (48x36 for the group photo) with a mist hairline and the credit's info glyph on a stage
-  disc at its corner, for a pose tile; the print is a 48dp credit button ("Photo credit: Mixkit") that opens
-  `PhotoCreditSheet`. `PoseTile(badge, badgeReserve)` puts it in the card's bottom-end corner beside the caption,
-  where no figure ever stands, and keeps `badgeReserve` of the caption free: `photoBadgeReserve(photo)`, the 48dp
-  target or the print plus an 8dp gap if wider (56dp for the group photo).
+  figureMirrored, compact, maxPhotoHeight)` is one card of a `ConnectedCardStack` fused under the card that shows the
+  figure. Its heading in `bodyLarge` cream says who is in the picture, `photoCompanionTitle(people)`: "See it on a
+  person", "See it on two people", "See it on a group" (`PhotoCompanionTitles` lists them). Then one `supporting`
+  mist line about the pose and the figure, never about the people ("A real photo of the pose. In the camera, you line
+  up with the figure, not the photo."; compact: "... The guide you line up with is the figure."; three or more
+  people: "... It works with more people too."), the photo at its own aspect with `Inner` corners and its
+  `PhotoCredit`. A portrait photo stands at the right of the words, about 42% of the card's inner width (112 to 176dp,
+  88dp when `compact`), the credit at the foot of the words beside it; the landscape group photo runs under the words
+  at 72% of the width, and so does a portrait photo when the heading no longer fits on one line beside it or the font
+  is 150% or more (at the same modest size). `maxPhotoHeight` caps the photo by the figure: the detail screen passes
+  half its preview card's height, the tips card three quarters of its figure box (99dp), so on a short phone the photo
+  shrinks with the figure. TalkBack reads heading, line, photo, credit (traversal indices in one traversal group).
+  `PhotoBadge(photo, printSize, onShowCredit)` is the photo as a small print (36x48dp in a tile, 48x36 for the group
+  photo) with a mist hairline and the credit's info glyph on a stage disc at its corner; the print is a 48dp credit
+  button that says what the photo shows and whose it is (`photoBadgeLabel`: "Photo of a person in the Hand on hip
+  pose. Photo credit: Mixkit") and opens `PhotoCreditSheet` (its own, or the screen's hoisted one through
+  `onShowCredit`: the library grid keeps one sheet for all its tiles). `PoseTile(badge, badgeReserve)` puts it in the
+  card's bottom-end corner beside the caption, where no figure ever stands, and keeps `badgeReserve` of the caption
+  free: `photoBadgeReserve(photo)`, the 48dp target or the print plus an 8dp gap if wider (56dp for the group
+  photo).
 - **System bars:** dark icons on cream screens (the app default); call `LightSystemBarIconsEffect()` on a screen
   whose top and bottom edges are dark (the camera, the photo viewer). It only counts the screen in and out; the
   outermost `PoseitTheme` owns the window's icon colour and sets light icons while any such screen is composed, so
@@ -347,24 +362,32 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
 
 ## Sample photos
 
-35 of the 99 built-in poses have a real photo of a person in the pose (`app/src/main/assets/pose_photos/`; sources,
-licences and the people rules in `docs/POSE_PHOTOS.md`). Poses people make never have one. Data:
+34 of the 99 built-in poses have a real photo of a person in the pose (`app/src/main/assets/pose_photos/`; sources,
+licences and the people rules in `docs/POSE_PHOTOS.md`). Poses people make never have one. Release builds leave the
+27 Mixkit stills out until the owner settles the open Mixkit questions (`docs/POSE_PHOTOS.md`, "Mixkit in release
+builds"), so they show the 7 Wikimedia Commons photos; debug builds and the screenshot tests show all 34. Data:
 `context.appContainer.posePhotos` (`PosePhotos`): `photoFor(poseId)` / `photoFor(pose)` return a `PosePhoto`
-(attribution, source, author, pageUrl, licence, licenceUrl, licenceTextPath, changes, mirrored, width, height, aspect,
-isLandscape, contentDescription) or null; pixels are decoded off the main thread at the drawn size into a small cache.
+(attribution, source, title, author, pageUrl, licence, licenceUrl, licenceTextPath, changes, mirrored, width, height,
+aspect, isLandscape, contentDescription, titleForDisplay, titleRequired) or null; pixels are decoded off the main
+thread at the drawn size into a small cache, which `PoseitApp.onTrimMemory` trims. A photo whose file fails to decode
+is marked broken (`isBroken`, Compose state): `photoFor` and `rememberPosePhoto` then give null and the pose falls
+back to its figure-only layout.
 
 - **Only in the pose guide, with the figure.** A photo sits next to or with the pose's figure (the detail screen, a
   pose's card, the tips sheet). The white figure stays the guide the camera matches against; the photo shows what
   the pose looks like on a real person. Never in the camera preview as a target, never in "Pose from a photo".
 - **Never handed out.** No share, save, export, set as wallpaper, open in the gallery or viewer, no long-press menu.
-- **Always credited.** `PhotoCredit` under or beside every photo shown; for a tiny thumbnail (a grid tile, the camera
-  strip) a visible credit affordance one tap away on the same screen. The full credit is in the sheet and in
-  Settings, About, Photo credits.
+- **Always credited.** `PhotoCredit` under or beside every photo shown; for a small print (a grid tile, Today's
+  pose when its credit is a long Commons one) the print itself is the credit button, with the info glyph on its
+  corner (`PhotoBadge`). The full credit is in the sheet and in Settings, About, Photo credits.
 - **The people are stock models.** Never name them, never caption them with words or feelings, nothing that implies
   they use or endorse Poseit. The content description says what the photo shows: "Photo of a person in the Hand on
-  hip pose" (`PosePhoto.contentDescription`).
+  hip pose" (`PosePhoto.contentDescription`), everywhere a photo is shown: a print that is a credit button says it
+  before the credit (`photoBadgeLabel`), and Today's print joins its card's label. Headings say who is in the picture
+  ("See it on two people"), nothing about them.
 - **No photo, no slot.** A pose without a photo keeps its figure-only layout, complete on its own: never an empty
-  frame, a "no photo" placeholder or a broken image. Decide the layout from `rememberPosePhoto(...) != null`.
+  frame, a "no photo" placeholder or a broken image. Decide the layout from `rememberPosePhoto(...) != null`, which
+  also turns null when the file fails to decode.
 - **Shape and size.** Clip to the concentric radius of where it sits (`PoseitShapes.Inner` inside a card, `Tile` in a
   grid); give it a size or `aspectRatio(photo.aspect)`: 3:4 portrait, except `group_arms_around` (4:3). The photos are
   675x900, so they look sharp up to about 340dp wide on a 2x screen and 225dp on a 3x one.
@@ -373,8 +396,10 @@ isLandscape, contentDescription) or null; pixels are decoded off the main thread
 - **Figure first, photo as companion.** The figure is what the camera matches, so it stays the larger, first
   picture everywhere a photo appears: the detail screen's preview card, then "See it on a person" fused under it;
   the pose tips card in the camera, then a compact companion; Today's pose's figure, with a 60dp print beside the
-  words; the library tile's figure, with a 36dp print beside the caption. Photos are never cropped (no round
-  thumbnails), so no head is ever cut off.
+  words; the library tile's figure, with a 36dp print beside the caption. The app never crops a photo at runtime:
+  every photo is shown whole at its own aspect (no round thumbnails, no portrait box for the landscape group photo).
+  The framing of each file was chosen when it was made (`docs/POSE_PHOTOS.md`); a tight close-up such as
+  `couple_cheek_kiss` keeps its source's framing.
 - **Mirror.** The detail screen's Mirror toggle (and the camera's flip, in the tips sheet) flips the figure only. The
   photo is a real photograph whose credit lists every change made to it, so it is never flipped at runtime; while
   the figure is mirrored, the companion's line says "The figure is mirrored. The photo shows the original side."
@@ -391,8 +416,11 @@ they are; where a label changes, its tests change with it.
   "Settings") })`, **joined** to the Today's pose card: label "Today's pose" (`supporting`, mist), the pose name in
   `headline`, the detail line ("Walking, easy") in `supporting`, an `AccentButton("Try this pose", form = Block)` at the foot,
   and the white figure on the stage filling the right side of the card. When the pose has a sample photo, a 60dp
-  print of it sits above the button with its `PhotoCredit` beside its foot (under it, when a long Commons credit
-  would need more than two lines there); without one the card is the words and the figure alone. The whole card can
+  print of it sits above the button with its `PhotoCredit` beside its foot; when a long Commons credit would need
+  more than two lines there, the print itself is the credit button (`PhotoBadge`, the info glyph on its corner)
+  instead of a block of grey text. The figure takes exactly the card's other share, so it never reaches under the
+  words or the credit. The print says what it shows, which joins the card's spoken label. Without a photo the card is
+  the words and the figure alone. The whole card can
   open the pose (`CardSegment(onClick, onClickLabel)`); the button opens the camera, the credit opens its sheet.
 - Below, on the canvas: the search field (cream surface, 16dp corners, 1dp `border`), then `PillTabs` (All /
   Favourites / Recent / My poses) and one scrolling row of `FilterPill`s (people, category, place, mood groups
@@ -403,7 +431,8 @@ they are; where a label changes, its tests change with it.
   the name lines its longest name needs (measured), so the dark cards of a row end on one line. A pose with a
   sample photo carries its `PhotoBadge` print in the bottom-end corner beside the caption (the caption leaves
   `photoBadgeReserve` for it, and the name measurement counts that), so photo poses are spotted at a glance and the tile keeps its
-  size and its figure.
+  size and its figure. The print opens the photo's credit sheet, which the screen hoists (one sheet for the grid,
+  `PoseCard(onShowCredit)`), starting with the photo at a readable size beside the figure.
 - "My poses" starts with a "Create a pose" tile: an outlined cream card with the footprint of a pose tile.
 - `FloatingPillBar`: left `CircleIconButton(camera, "Pose camera")`, middle `PillBarSegments(["Poses", "Photos"])`
   with Poses selected (Photos calls `onOpenGallery`; returning shows Poses again), right
@@ -419,8 +448,10 @@ they are; where a label changes, its tests change with it.
   source as a lavender `Badge`, the favourite heart) **joined** to the name card (the pose name alone in `display`
   Light), **joined** to the preview card (the figure on the stage inside cream `frameMarks`, the Mirror `IconToggle` in its corner),
   and, for a built-in pose with a sample photo, **joined** to `PhotoCompanionCard` ("See it on a person"). With a
-  photo the preview takes 40% of the screen's height instead of 44%, so the figure and the whole photo card fit a
-  phone's first screen and the figure stays the larger picture. Once the
+  photo the preview takes 40% of the screen's height instead of 44%, and the photo is at most half the preview's
+  height (`maxPhotoHeight`), so the figure stays the larger picture on any phone. On a phone about 800dp tall or more
+  the figure and the whole photo card fit the first screen; on a shorter one (360x640) the photo card starts above
+  the action band and its credit is a short scroll away, and the landscape group card never fits whole. Once the
   stack's bar scrolls away, a plain `TopBarCard` titled with the pose name fades in; only one of the two bars is in
   the semantics tree at a time.
 - Under the stack, the mockups' stat pair (`ConnectedCardRow`): "Level" (the word in light numerals over a
@@ -459,7 +490,8 @@ they are; where a label changes, its tests change with it.
   spoken as "2 seconds"); the guide style is three small stage tiles drawing the pose in each style;
   zoom presets and the photoshoot choices ("3 / 5 / 10 / Until I stop", "2 s / 3 s / 5 s / 10 s") are `FilterPill`s. The tips sheet opens with the pose as a dark card
   (name, facts, camera height and framing as label/value pairs, the figure, mirrored with the guide), fused to a
-  compact `PhotoCompanionCard` when the pose has a sample photo. Dialogs as `PoseitAlertDialog`.
+  compact `PhotoCompanionCard` when the pose has a sample photo (its photo at most 99dp tall, three quarters of the
+  card's 132dp figure box). Dialogs as `PoseitAlertDialog`.
 - Permission screen: the top bar card joined to a headline card ("Let Poseit use the camera") and, when there is
   room, a picture card with a figure in viewfinder marks; `AccentButton("Allow camera")` and
   an outlined `SecondaryButton("Not now")` beside it (a `ButtonPair`).
@@ -475,13 +507,18 @@ they are; where a label changes, its tests change with it.
   selected one takes a lavender ring 4dp inside its edge and a medium-weight label.
 - Your poses: Export and Import as two `OutlinedRow`s; a spinner beside the heading while one runs.
 - About: a connected stack of an info card (wordmark, version, "Works offline, with no ads and no account." in
-  `headline`, and a supporting line naming MediaPipe, Hanken Grotesk and the sample photos' sources, Mixkit and
-  Wikimedia Commons contributors) and three dark link rows, "Open-source notices" (a `PoseitAlertDialog` listing
-  every notice, Astryx's MIT notice and the photo licences included), "Photo credits" and "Show intro again".
+  `headline`, and a supporting line naming MediaPipe, Hanken Grotesk and the sample photos' sources, as the build
+  shows them: "Mixkit and Wikimedia Commons contributors") and three dark link rows, "Open-source notices" (a
+  `PoseitAlertDialog` listing every notice, Astryx's MIT notice and the photo licences included, with the Mixkit
+  licence, Creative Commons and CC0 links), "Photo credits" and "Show intro again".
 - Photo credits (`settings/PhotoCreditsScreen`, route `settings/photo-credits`): the top bar card ("Photo credits",
-  back, `Badge("35 photos")`) joined to a dark explainer card, then a `SectionHeading` per source (Mixkit, Wikimedia
-  Commons) and one outlined cream row per photo: the photo and the pose's figure as two 42x56dp inset tiles side by
-  side, the pose name, the credit line and the licence, a chevron; the row opens `PhotoCreditSheet`.
+  back, `Badge("34 photos")`) joined to a dark explainer card, then a `SectionHeading` per source (Mixkit, Wikimedia
+  Commons); a source whose photos share one licence names it once in a `supporting` line under its heading
+  ("Licence: Mixkit Stock Video Free License"). One outlined cream row per photo: the photo (42x56dp, 56x42 for the
+  landscape group photo, never cropped) and the pose's figure (42x56dp) as inset tiles side by side, the pose name,
+  the credit line and, where its section doesn't name one licence for all (Wikimedia Commons: CC0 or CC BY 2.0), the
+  licence, a chevron; the row opens `PhotoCreditSheet`. "Read the licence text" shows the bundled text under a short
+  header written for the reader (the licence, its source address, "Used by: sample photos in Poseit's pose guide").
 
 **Gallery and photo viewer** (`gallery/`)
 - The top bar card ("Your photos", back, `Badge("<n> photos")`) **joined** to a dark card, "Keep the good ones", with
