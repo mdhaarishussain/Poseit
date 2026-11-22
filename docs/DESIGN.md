@@ -315,11 +315,47 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
 - **Frame marks** (`FrameMarks.kt`): 1.5dp, 12dp brackets in cream by default (they sit on the dark stage); pass
   `textPrimary` on cream.
 - **Icons** (`Icons.kt`): `PoseitIcons`, `IconSize`, `IconGlyphInset`.
+- **Sample photos** (`PosePhoto.kt`; rules in "Sample photos" below): `PosePhoto(photo, modifier, shape,
+  alignment, placeholderColor, contentDescription)` draws a pose's photo filled and cropped into its bounds, clipped to
+  `shape`, on a quiet placeholder (raised card colour on dark, muted fill on cream) while it decodes; `PosePhoto(pose,
+  ...)` draws nothing at all when the pose has no photo. `PhotoCredit(photo, modifier, maxLines, color)`: the credit
+  line in `supporting` after a 16dp info glyph, cream on a dark card and secondary ink on cream, one 48dp button
+  (spoken "Photo credit: Mixkit") that opens `PhotoCreditSheet(photo, onDismissRequest)`: a `PoseitBottomSheet` with
+  "Photo credit" on `textInset` and a `RowGroup` on `edge` of Credit, Author, Source ("View source"), Licence ("View
+  licence", "Read the licence": the bundled text, scrollable, in the same sheet) and Changes in plain words.
+  `PhotoCreditContent(photo)` is the sheet's inside for inline use. `rememberPosePhoto(poseId | pose)` gives the
+  `PosePhoto` data or null.
 - **System bars:** dark icons on cream screens (the app default); call `LightSystemBarIconsEffect()` on a screen
   whose top and bottom edges are dark (the camera, the photo viewer). It only counts the screen in and out; the
   outermost `PoseitTheme` owns the window's icon colour and sets light icons while any such screen is composed, so
   overlapping screens in a cross-fade can't restore each other's state in the wrong order. `LightSystemBarIcons { }`
   is for sheets opened over the camera.
+
+## Sample photos
+
+35 of the 99 built-in poses have a real photo of a person in the pose (`app/src/main/assets/pose_photos/`; sources,
+licences and the people rules in `docs/POSE_PHOTOS.md`). Poses people make never have one. Data:
+`context.appContainer.posePhotos` (`PosePhotos`): `photoFor(poseId)` / `photoFor(pose)` return a `PosePhoto`
+(attribution, source, author, pageUrl, licence, licenceUrl, licenceTextPath, changes, mirrored, width, height, aspect,
+isLandscape, contentDescription) or null; pixels are decoded off the main thread at the drawn size into a small cache.
+
+- **Only in the pose guide, with the figure.** A photo sits next to or with the pose's figure (the detail screen, a
+  pose's card, the tips sheet). The white figure stays the guide the camera matches against; the photo shows what
+  the pose looks like on a real person. Never in the camera preview as a target, never in "Pose from a photo".
+- **Never handed out.** No share, save, export, set as wallpaper, open in the gallery or viewer, no long-press menu.
+- **Always credited.** `PhotoCredit` under or beside every photo shown; for a tiny thumbnail (a grid tile, the camera
+  strip) a visible credit affordance one tap away on the same screen. The full credit is in the sheet and in
+  Settings, About, Photo credits.
+- **The people are stock models.** Never name them, never caption them with words or feelings, nothing that implies
+  they use or endorse Poseit. The content description says what the photo shows: "Photo of a person in the Hand on
+  hip pose" (`PosePhoto.contentDescription`).
+- **No photo, no slot.** A pose without a photo keeps its figure-only layout, complete on its own: never an empty
+  frame, a "no photo" placeholder or a broken image. Decide the layout from `rememberPosePhoto(...) != null`.
+- **Shape and size.** Clip to the concentric radius of where it sits (`PoseitShapes.Inner` inside a card, `Tile` in a
+  grid); give it a size or `aspectRatio(photo.aspect)`: 3:4 portrait, except `group_arms_around` (4:3). The photos are
+  675x900, so they look sharp up to about 340dp wide on a 2x screen and 225dp on a 3x one.
+- **Screenshot tests** add `@get:Rule val photos = InlinePosePhotos()` so photos decode inside the frame and the
+  capture shows them (production decodes on Dispatchers.IO).
 
 ## Screen map
 
@@ -406,8 +442,13 @@ they are; where a label changes, its tests change with it.
   selected one takes a lavender ring 4dp inside its edge and a medium-weight label.
 - Your poses: Export and Import as two `OutlinedRow`s; a spinner beside the heading while one runs.
 - About: a connected stack of an info card (wordmark, version, "Works offline, with no ads and no account." in
-  `headline`) and two dark link rows, "Open-source notices" (a `PoseitAlertDialog` listing every notice, Astryx's
-  MIT notice included) and "Show intro again".
+  `headline`, and a supporting line naming MediaPipe, Hanken Grotesk and the sample photos' sources, Mixkit and
+  Wikimedia Commons contributors) and three dark link rows, "Open-source notices" (a `PoseitAlertDialog` listing
+  every notice, Astryx's MIT notice and the photo licences included), "Photo credits" and "Show intro again".
+- Photo credits (`settings/PhotoCreditsScreen`, route `settings/photo-credits`): the top bar card ("Photo credits",
+  back, `Badge("35 photos")`) joined to a dark explainer card, then a `SectionHeading` per source (Mixkit, Wikimedia
+  Commons) and one outlined cream row per photo: the photo and the pose's figure as two 42x56dp inset tiles side by
+  side, the pose name, the credit line and the licence, a chevron; the row opens `PhotoCreditSheet`.
 
 **Gallery and photo viewer** (`gallery/`)
 - The top bar card ("Your photos", back, `Badge("<n> photos")`) **joined** to a dark card, "Keep the good ones", with

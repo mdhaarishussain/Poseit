@@ -61,6 +61,7 @@ import com.poseit.app.appContainer
 import com.poseit.app.data.AppSettings
 import com.poseit.app.data.GridType
 import com.poseit.app.data.OverlayStyle
+import com.poseit.app.data.PosePhoto
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.ConnectedCardStack
 import com.poseit.app.ui.components.OutlinedRow
@@ -74,6 +75,7 @@ import com.poseit.app.ui.components.SwitchRow
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.TopBarContent
 import com.poseit.app.ui.components.PinnedTopBar
+import com.poseit.app.ui.components.rememberPosePhotos
 import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.components.ValueSlider
 import com.poseit.app.ui.onboarding.DemoPoses
@@ -91,7 +93,7 @@ import kotlin.math.roundToInt
  */
 
 @Composable
-fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
+fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit, onOpenPhotoCredits: () -> Unit) {
     val appContext = LocalContext.current.applicationContext
     val vm: SettingsViewModel = viewModel(
         factory = viewModelFactory {
@@ -104,6 +106,7 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
     val settings by vm.settings.collectAsStateWithLifecycle()
     val customCount by vm.customPoseCount.collectAsStateWithLifecycle()
     val busy by vm.busy.collectAsStateWithLifecycle()
+    val posePhotos = rememberPosePhotos()
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var showLicenses by rememberSaveable { mutableStateOf(false) }
@@ -189,6 +192,7 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
                     item(key = "about") {
                         AboutStack(
                             onShowLicenses = { showLicenses = true },
+                            onOpenPhotoCredits = onOpenPhotoCredits,
                             // Plays it right away; the stored "intro seen" flag stays set (the intro sets it again on finish).
                             onShowIntro = onShowIntro,
                         )
@@ -206,7 +210,7 @@ fun SettingsScreen(onBack: () -> Unit, onShowIntro: () -> Unit) {
         }
     }
 
-    if (showLicenses) LicensesDialog(onDismiss = { showLicenses = false })
+    if (showLicenses) LicensesDialog(photoNotices = remember(posePhotos) { photoNotices(posePhotos.all) }, onDismiss = { showLicenses = false })
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -409,10 +413,10 @@ private fun YourPosesGroup(customCount: Int, busy: Boolean, onExport: () -> Unit
 
 /**
  * About, at the foot: a dark card with the wordmark, the version and Poseit's promise in the card headline, fused to
- * two dark rows that open the notices and replay the intro.
+ * dark rows that open the notices and the photo credits and replay the intro.
  */
 @Composable
-private fun AboutStack(onShowLicenses: () -> Unit, onShowIntro: () -> Unit) {
+private fun AboutStack(onShowLicenses: () -> Unit, onOpenPhotoCredits: () -> Unit, onShowIntro: () -> Unit) {
     Column(Modifier.fillMaxWidth()) {
         SectionHeading("About", Modifier.padding(horizontal = Space.cardPadding))
         Spacer(Modifier.height(Space.s))
@@ -437,12 +441,14 @@ private fun AboutStack(onShowLicenses: () -> Unit, onShowIntro: () -> Unit) {
                 )
                 Spacer(Modifier.height(Space.l))
                 Text(
-                    "Pose detection uses MediaPipe (Apache License 2.0). The typeface is Hanken Grotesk (SIL Open Font License 1.1).",
+                    "Pose detection uses MediaPipe (Apache License 2.0). The typeface is Hanken Grotesk (SIL Open Font " +
+                        "License 1.1). The sample photos of the poses come from Mixkit and Wikimedia Commons contributors.",
                     style = PoseitType.supporting,
                     color = PoseitColors.textSecondaryInverted,
                 )
             }
             LinkSegment("Open-source notices", onShowLicenses)
+            LinkSegment("Photo credits", onOpenPhotoCredits)
             LinkSegment("Show intro again", onShowIntro)
         }
     }
@@ -465,6 +471,14 @@ private fun LinkSegment(title: String, onClick: () -> Unit) {
 
 private data class Notice(val name: String, val owner: String, val license: String)
 
+/** The sample photos as notices, one per source and licence: "Sample pose photos (27)", "Mixkit", its licence. */
+private fun photoNotices(photos: List<PosePhoto>): List<Notice> =
+    photos.groupBy { it.source to it.licence }.map { (key, list) ->
+        val (source, licence) = key
+        val owner = if (source == PosePhoto.SOURCE_MIXKIT) "Mixkit" else "$source contributors"
+        Notice("Sample pose photos (${list.size})", owner, licence)
+    }
+
 private val notices = listOf(
     Notice("MediaPipe Tasks Vision", "Google LLC", "Apache License 2.0"),
     Notice("MediaPipe Pose Landmarker models (lite and full)", "Google LLC", "Apache License 2.0"),
@@ -478,7 +492,7 @@ private val notices = listOf(
 )
 
 @Composable
-private fun LicensesDialog(onDismiss: () -> Unit) {
+private fun LicensesDialog(photoNotices: List<Notice>, onDismiss: () -> Unit) {
     PoseitAlertDialog(
         onDismissRequest = onDismiss,
         title = "Open-source notices",
@@ -489,7 +503,7 @@ private fun LicensesDialog(onDismiss: () -> Unit) {
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(Space.m),
             ) {
-                notices.forEach { n ->
+                (notices + photoNotices).forEach { n ->
                     Column(Modifier.semantics(mergeDescendants = true) {}) {
                         Text(n.name, style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
                         Text("${n.owner}, ${n.license}", style = PoseitType.supporting, color = PoseitColors.textSecondary)
@@ -500,6 +514,13 @@ private fun LicensesDialog(onDismiss: () -> Unit) {
                         "at openfontlicense.org and the MIT License at opensource.org/license/mit. Software and fonts " +
                         "under these licences are distributed \"as is\", " +
                         "without warranties or conditions of any kind.",
+                    style = PoseitType.supporting,
+                    color = PoseitColors.textSecondary,
+                )
+                Text(
+                    "The sample photos are used under the Mixkit Stock Video Free License (mixkit.co/license) and " +
+                        "Creative Commons licences (creativecommons.org/licenses). Each photo's author, source, licence " +
+                        "text and the changes made are in Photo credits.",
                     style = PoseitType.supporting,
                     color = PoseitColors.textSecondary,
                 )

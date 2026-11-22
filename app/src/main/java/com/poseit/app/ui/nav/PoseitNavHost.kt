@@ -23,6 +23,7 @@ import com.poseit.app.ui.editor.PoseEditorScreen
 import com.poseit.app.ui.gallery.GalleryScreen
 import com.poseit.app.ui.library.LibraryScreen
 import com.poseit.app.ui.onboarding.OnboardingScreen
+import com.poseit.app.ui.settings.PhotoCreditsScreen
 import com.poseit.app.ui.settings.SettingsScreen
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitMotion
@@ -39,6 +40,7 @@ object Routes {
     const val CREATE = "create"
     const val EDITOR = "editor?poseId={poseId}"
     const val SETTINGS = "settings"
+    const val PHOTO_CREDITS = "settings/photo-credits"
 
     fun detail(id: String) = "pose/${Uri.encode(id)}"
     fun camera(id: String?, mirrored: Boolean = false) = when {
@@ -174,7 +176,11 @@ fun PoseitNavHost(startOnboarding: Boolean) {
             SettingsScreen(
                 onBack = { nav.ifCurrent(entry) { popBackStack() } },
                 onShowIntro = { nav.ifCurrent(entry) { navigate(Routes.ONBOARDING) } },
+                onOpenPhotoCredits = { nav.ifCurrent(entry) { navigate(Routes.PHOTO_CREDITS) } },
             )
+        }
+        composable(Routes.PHOTO_CREDITS) { entry ->
+            PhotoCreditsScreen(onBack = { nav.ifCurrent(entry) { popBackStack() } })
         }
     }
 }

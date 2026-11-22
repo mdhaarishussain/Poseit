@@ -110,6 +110,10 @@ class RepoAssetsTest {
     @get:Rule
     val compose = createComposeRule()
 
+    /** Sample photos decode inside the frame, so captures show them (not their placeholders). */
+    @get:Rule
+    val photos = InlinePosePhotos()
+
     /**
      * Renders [content] into build/repo-assets/[name].png. With [ready], waits (up to 15 s) until that text is on
      * screen first, for screens whose view model loads the pose in the background.
@@ -183,7 +187,7 @@ class RepoAssetsTest {
     fun screenCreate() = screen("5-create", ready = "Choose a photo") { CreateFromPhotoScreen(onBack = {}, onSaved = {}) }
 
     @Test
-    fun screenSettings() = screen("6-settings", ready = "Match strictness") { SettingsScreen(onBack = {}, onShowIntro = {}) }
+    fun screenSettings() = screen("6-settings", ready = "Match strictness") { SettingsScreen(onBack = {}, onShowIntro = {}, onOpenPhotoCredits = {}) }
 
     /** The matcher's verdict for the camera still is a real one: the PERFECT hint at a score in the 90s. */
     @Test

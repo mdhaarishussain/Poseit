@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.poseit.app.data.PosePhoto
 import com.poseit.app.pose.library.BuiltInPoses
 import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.Badge
@@ -69,7 +70,11 @@ import com.poseit.app.ui.components.PillBarItemSize
 import com.poseit.app.ui.components.PillBarSegments
 import com.poseit.app.ui.components.PillTabs
 import com.poseit.app.ui.components.PlainIconButton
+import com.poseit.app.ui.components.PhotoCredit
+import com.poseit.app.ui.components.PhotoCreditContent
+import com.poseit.app.ui.components.PosePhoto
 import com.poseit.app.ui.components.PoseThumbnail
+import com.poseit.app.ui.components.rememberPosePhotos
 import com.poseit.app.ui.components.PoseTile
 import com.poseit.app.ui.components.PoseTileSize
 import com.poseit.app.ui.components.PoseitCard
@@ -112,15 +117,20 @@ import java.util.Locale
 /**
  * Renders design system v2 into app/build/screenshots/components.png for design review: every colour role with its
  * contrast on the surface it is meant for, the type scale, every shared component in its states (on cream and on a
- * dark card), and a mock home screen built only from the shared components. Three phone-width columns.
+ * dark card), the sample photo components with real photos, and a mock home screen built only from the shared
+ * components. Three phone-width columns.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35], qualifiers = "w1300dp-h2600dp-xhdpi")
+@Config(sdk = [35], qualifiers = "w1300dp-h3200dp-xhdpi")
 class ComponentGalleryScreenshotTest {
 
     @get:Rule
     val compose = createComposeRule()
+
+    /** Sample photos decode inside the frame, so captures show them (not their placeholders). */
+    @get:Rule
+    val photos = InlinePosePhotos()
 
     @Test
     fun components() {
@@ -372,6 +382,20 @@ private fun ColumnScope.ComponentColumn() {
             Spacer(Modifier.height(Space.l))
         }
     }
+    Gallery("Photo credit sheet") {
+        // PhotoCreditSheet's content, drawn inline: what "Photo: ..." opens.
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(PoseitColors.backgroundSurface, PoseitShapes.SheetTop)
+                .border(1.dp, PoseitColors.border, PoseitShapes.SheetTop)
+                .padding(bottom = Space.l),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            SheetHandle()
+            PhotoCreditContent(samplePhoto("sit_one_knee_up"))
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------- compositions
@@ -448,7 +472,53 @@ private fun ColumnScope.CompositionColumn() {
             }
         }
     }
+    Gallery("Sample photos") {
+        // In a dark card: the figure (still the guide) beside the photo, the credit line under them.
+        val hip = samplePhoto("stand_hand_on_hip")
+        PoseitCard(Modifier.fillMaxWidth()) {
+            Text(hip.poseName, style = PoseitType.bodyLarge)
+            Spacer(Modifier.height(Space.m))
+            Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+                PoseThumbnail(
+                    BuiltInPoses.byId(hip.poseId)!!,
+                    Modifier
+                        .weight(1f)
+                        .aspectRatio(0.75f)
+                        .background(PoseitColors.backgroundCardRaised, PoseitShapes.Inner)
+                        .frameMarks(),
+                    background = null,
+                )
+                PosePhoto(hip, Modifier.weight(1f).aspectRatio(hip.aspect), shape = PoseitShapes.Inner)
+            }
+            Spacer(Modifier.height(Space.xs))
+            PhotoCredit(hip)
+        }
+        // On cream: a grid-size photo with a long Commons credit, and the quiet placeholder shown while decoding.
+        val knee = samplePhoto("sit_one_knee_up")
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.m), verticalAlignment = Alignment.Top) {
+            PosePhoto(knee, Modifier.width(84.dp).aspectRatio(knee.aspect), shape = PoseitShapes.Tile)
+            Box(Modifier.width(84.dp).aspectRatio(0.75f).background(PoseitColors.backgroundMuted, PoseitShapes.Tile), contentAlignment = Alignment.Center) {
+                Text("Decoding", style = PoseitType.supporting, color = PoseitColors.textSecondary)
+            }
+            Column(Modifier.weight(1f)) {
+                Text(knee.poseName, style = PoseitType.bodyStrong)
+                PhotoCredit(knee)
+            }
+        }
+        // The one landscape photo (a group), cropped to a wide card slot.
+        val group = samplePhoto("group_arms_around")
+        ProvideSurfaceTone(SurfaceTone.Dark) {
+            Column(Modifier.fillMaxWidth().background(PoseitColors.backgroundCard, PoseitShapes.Card).padding(Space.l)) {
+                PosePhoto(group, Modifier.fillMaxWidth().aspectRatio(group.aspect), shape = PoseitShapes.Inner)
+                PhotoCredit(group, maxLines = 1)
+            }
+        }
+    }
 }
+
+/** A shipped sample photo by pose id (the app's PosePhotos, as screens get it). */
+@Composable
+private fun samplePhoto(poseId: String): PosePhoto = rememberPosePhotos().photoFor(poseId)!!
 
 /** The home screen as the screen map describes it, built only from shared components. */
 @Composable

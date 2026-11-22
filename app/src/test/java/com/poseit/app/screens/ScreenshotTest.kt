@@ -37,6 +37,10 @@ class ScreenshotTest {
     @get:Rule
     val compose = createComposeRule()
 
+    /** Sample photos decode inside the frame, so captures show them (not their placeholders). */
+    @get:Rule
+    val photos = InlinePosePhotos()
+
     private fun shot(name: String, content: @Composable () -> Unit) {
         compose.setContent {
             PoseitTheme {
@@ -64,7 +68,7 @@ class ScreenshotTest {
     }
 
     @Test
-    fun settings() = shot("settings") { SettingsScreen(onBack = {}, onShowIntro = {}) }
+    fun settings() = shot("settings") { SettingsScreen(onBack = {}, onShowIntro = {}, onOpenPhotoCredits = {}) }
 
     @Test
     fun onboarding() = shot("onboarding") { OnboardingScreen(onDone = {}) }

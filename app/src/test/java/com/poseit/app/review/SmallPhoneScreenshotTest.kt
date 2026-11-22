@@ -16,6 +16,7 @@ import androidx.compose.ui.test.performClick
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.poseit.app.pose.library.BuiltInPoses
+import com.poseit.app.screens.InlinePosePhotos
 import com.poseit.app.ui.create.CreateFromPhotoScreen
 import com.poseit.app.ui.detail.PoseDetailScreen
 import com.poseit.app.ui.editor.PoseEditorScreen
@@ -56,6 +57,10 @@ abstract class SmallPhoneShots(private val prefix: String) {
 
     @get:Rule
     val compose = createComposeRule()
+
+    /** Sample photos decode inside the frame, so captures show them (not their placeholders). */
+    @get:Rule
+    val photos = InlinePosePhotos()
 
     private fun set(content: @Composable () -> Unit) {
         compose.setContent {
@@ -103,7 +108,7 @@ abstract class SmallPhoneShots(private val prefix: String) {
 
     @Test
     fun settings() {
-        set { SettingsScreen(onBack = {}, onShowIntro = {}) }
+        set { SettingsScreen(onBack = {}, onShowIntro = {}, onOpenPhotoCredits = {}) }
         waitText("Voice guidance")
         capture("settings")
     }

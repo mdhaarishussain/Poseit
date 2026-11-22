@@ -4,6 +4,10 @@ Finds photos of adult stock models demonstrating each library pose, from sources
 app (Mixkit Free License videos, Wikimedia Commons CC0 / PD / CC BY / CC BY-SA), and ranks them with the app's own
 matcher. Licences, rules and open questions: [docs/POSE_PHOTOS.md](../../docs/POSE_PHOTOS.md).
 
+Shipped now: **35 of 99 poses have a photo**, 27 Mixkit stills from 27 clips and 8 Wikimedia Commons photos (6 CC0, 2
+CC BY 2.0); 64 have none. 13 photos were dropped along the way (2 at the confirm stage, 10 at the review, 1 at the
+second look); each keeps its reason in `credits.py`'s `DROPPED`.
+
 Everything downloaded or generated goes to a work folder outside git, `/home/user/poseit-photos-work` (override with
 `POSE_PHOTOS_WORK`). The pose models are read from `app/src/main/assets/models/` (or the main checkout's, or
 `POSE_MODELS`). Python: the promo venv (`promo/.venv`: mediapipe, opencv-python-headless, numpy, Pillow).

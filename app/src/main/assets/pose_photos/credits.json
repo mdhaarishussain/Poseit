@@ -498,29 +498,6 @@
   "videoQuality": "1080p",
   "note": "Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on a waist-up photo; its own pose scores 0.86 and ranks 2 of 82."
  },
- "selfie_classic": {
-  "photo": "selfie_classic.webp",
-  "source": "Mixkit",
-  "title": "Man and woman taking selfies during a road trip",
-  "pageUrl": "https://mixkit.co/free-stock-video/man-and-woman-taking-selfies-during-a-road-trip-40038/",
-  "fileUrl": "https://mixkit.co/free-stock-video/download/40038/?context=sidebar&type=1080p",
-  "author": "Mixkit (no author named on the clip page)",
-  "licence": "Mixkit Stock Video Free License",
-  "licenceUrl": "https://mixkit.co/license/#videoFree",
-  "licenceText": "licenses/Mixkit-Stock-Video-Free-License.txt",
-  "attribution": "Photo: Mixkit",
-  "changes": [
-   "still frame at 0.367 s of the 1080p download",
-   "cropped to [550, 0, 1360, 1080] px of the 1920x1080 source (3:4)",
-   "mirrored horizontally",
-   "resized to 675x900, WebP quality 78, metadata stripped"
-  ],
-  "mirrored": true,
-  "appScore": 0.1053,
-  "frameTimeS": 0.367,
-  "videoQuality": "1080p",
-  "note": "Kept: phone held out at arm's length above eye level, face and phone in frame (Mixkit 40038, mirrored). A two-person selfie (a woman leans in beside him) seen from the side, while the figure is drawn from the phone's camera, so the matcher scores it low."
- },
  "selfie_peace": {
   "photo": "selfie_peace.webp",
   "source": "Mixkit",

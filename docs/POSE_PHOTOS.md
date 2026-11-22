@@ -6,16 +6,20 @@ the photos are stills and photos from free sources whose terms allow use inside 
 sources, what their terms say (quoted, read on 2026-11-21), the people rules, how the photos were found and checked
 with the app's own matcher, which poses have a photo, and what the remaining gaps need.
 
-**Status (2026-11-22, after the review): 36 of 99 poses have a photo** (28 Mixkit video stills from 28 clips, 8
-Wikimedia Commons photos: 6 CC0, 2 CC BY 2.0). 63 poses have none yet. The photos are not wired into the app's screens
-yet; that is a separate UI step. A review of the shipped set on 2026-11-22 removed 10 photos and replaced 3 (see
-[Review, 2026-11-22](#review-2026-11-22)); before it, 46 poses had a photo.
+**Status (2026-11-22, after the review and a second look): 35 of 99 poses have a photo** (27 Mixkit video stills
+from 27 clips, 8 Wikimedia Commons photos: 6 CC0, 2 CC BY 2.0). 64 poses have none yet, and poses people make
+themselves never have one. The app reads the credits (`PosePhotos`), has the photo and credit components
+(`PosePhoto`, `PhotoCredit`, `PhotoCreditSheet`) and lists every photo with its full credit in Settings, About, Photo
+credits; showing the photos on the pose screens is the next UI step. A review of the shipped set on 2026-11-22 removed
+10 photos and replaced 3 (see [Review, 2026-11-22](#review-2026-11-22)); a second look before the photos went into the
+app removed one of the replacements, `selfie_classic` (see [Second look](#second-look-2026-11-22)). Before the review,
+46 poses had a photo.
 
 | Where | What |
 | --- | --- |
-| `app/src/main/assets/pose_photos/<poseId>.webp` | the photos: 675x900 (900x675 for the landscape group pose), WebP quality 72-78, no metadata; 36 files, 1,512,984 bytes (1.44 MiB, about 42 KB each) |
-| `app/src/main/assets/pose_photos/credits.json` | one credit per photo, keyed by pose id (39 KB) |
-| `app/src/main/assets/licenses/` | full licence texts (CC0 1.0, CC BY 2.0 / 3.0 / 4.0, CC BY-SA 3.0, the Mixkit licence and the User Terms that limit it) and `index.json` |
+| `app/src/main/assets/pose_photos/<poseId>.webp` | the photos: 675x900 (676x900 for two, 900x675 for the landscape group pose), WebP quality 68-78, no metadata; 35 files, 1,486,296 bytes (1.42 MiB, about 42 KB each) |
+| `app/src/main/assets/pose_photos/credits.json` | one credit per photo, keyed by pose id (38 KB) |
+| `app/src/main/assets/licenses/` | full licence texts (CC0 1.0, CC BY 2.0 / 3.0 / 4.0, CC BY-SA 3.0, the Mixkit licence and the User Terms that limit it; also the app's font licence and the Astryx notice) and `index.json`, which lists every file in the folder |
 | `tools/pose-photos/` | the harvest, ranking, selection and credit tools (see its README) |
 | `tools/pose-photos/landmarks/<poseId>.json` | the app's pose model on each shipped photo |
 | `tools/pose-photos/app-match.json` | the app's PoseMatcher on each shipped photo (pose-core `PosePhotoMatch`) |
@@ -43,12 +47,14 @@ yet; that is a separate UI step. A review of the shipped set on 2026-11-22 remov
 5. **Review** (2026-11-22, `picks/review_rescore.py`, `picks/review_finalize.py`): every shipped photo looked at again
    against the people rules, its figure and its source record; 10 removed, 3 replaced from the existing candidates,
    the matcher and credits re-run. Details in [Review, 2026-11-22](#review-2026-11-22).
+6. **Second look** (2026-11-22, before the photos went into the app's screens): `selfie_classic` removed, the matcher
+   and credits re-run (35 photos). See [Second look](#second-look-2026-11-22).
 
 ## Sources at a glance
 
 | Source | Used? | Why |
 | --- | --- | --- |
-| Mixkit stock videos (mixkit.co), **Free License clips only** | Yes, still frames (28 photos from 28 clips) | Licence allows modifying and distributing the items in commercial and non-commercial projects; no attribution required. See the limits and the open questions below. |
+| Mixkit stock videos (mixkit.co), **Free License clips only** | Yes, still frames (27 photos from 27 clips) | Licence allows modifying and distributing the items in commercial and non-commercial projects; no attribution required. See the limits and the open questions below. |
 | Wikimedia Commons | Yes, photos (8) | Only CC0, Public Domain / PDM, CC BY (any version), CC BY-SA (any version), checked per file from its own metadata. Used: CC0 (6, mostly Pexels / Unsplash / Pixabay uploads copied to Commons), CC BY 2.0 (2). |
 | Picjumbo | No | Its terms allow commercial use and templates but say nothing about apps, forbid redistributing "the pictures as a file", and warn that some photos have no model release. Not clearly allowed inside an app, so left out. |
 | Pexels, Pixabay, Unsplash (their own APIs) | No | Need API keys this environment does not have. (CC0 photos that their users uploaded before those sites changed their licences, and that were copied to Commons, are used through Commons under CC0.) |
@@ -132,9 +138,10 @@ and description suggest a person holding a pose (about 700 previews over the fir
 release frames were then cut from each chosen clip's licensed 1080p (else 720p) file, fetched from the clip's own
 download page by the selection scripts, one clip at a time, and the video was deleted once its frames were saved: 31
 clips for the 33 stills shipped before the review. The review fetched 4 more licensed files the same way (40038,
-41181, 43219, 43806; 41181 is not used) and removed 8 Mixkit stills, so 28 clips give the 28 stills shipped now. That
+41181, 43219, 43806; 41181 is not used) and removed 8 Mixkit stills, and the second look removed the 40038 still, so
+27 clips give the 27 stills shipped now. That
 is far from "the entire library", but it is scripted. Before the app ships the Mixkit stills, the owner should decide
-whether that is acceptable, or download those 28 clips by hand from the pages listed in `credits.json` (`pageUrl`,
+whether that is acceptable, or download those 27 clips by hand from the pages listed in `credits.json` (`pageUrl`,
 frame time in `frameTimeS`) and re-cut the frames, or ask Mixkit.
 
 Licence re-checks on 2026-11-22: the reviewer read five clip pages again (52257, 51119, 32800, 51645, 101458) and the
@@ -253,7 +260,10 @@ photo as Poseit's own, never caption the people, never suggest they use or endor
 `app/src/main/assets/licenses/index.json` lists the licence texts: `CC0-1.0.txt`, `CC-BY-2.0.txt` (converted from
 the HTML legal code; CC publishes no plain-text file for 2.0), `CC-BY-3.0.txt`, `CC-BY-4.0.txt`, `CC-BY-SA-3.0.txt`
 (the CC legal code files, fetched 2026-11-21), `Mixkit-Stock-Video-Free-License.txt` (the licence and the clauses of the
-User Terms that limit it), and the existing `OFL-Archivo.txt`. CC BY 3.0, CC BY 4.0 and CC BY-SA 3.0 are not used by
+User Terms that limit it), and, for the app itself, `OFL-HankenGrotesk.txt` (the typeface) and `MIT-Astryx.txt` (the
+design system's notice). `index.json` lists exactly the files in the folder; the app unit test `PhotoAssetsTest` fails
+when a file is not indexed, an indexed file is missing, a credit has no photo or no licence text, a photo has no
+credit, or a credit's `attribution` is empty. CC BY 3.0, CC BY 4.0 and CC BY-SA 3.0 are not used by
 any shipped photo (CC BY-SA 3.0 was, until the review); they stay for replacements. A photo under any other licence (e.g. CC BY-SA 4.0) needs its text added first;
 `credits.py` refuses a credit whose licence text is missing.
 
@@ -274,7 +284,7 @@ export ANDROID_HOME=/opt/android-sdk
   `PoseMatcher.match` (back camera, not mirrored, photographer audience).
 - **appScore** = the shipped photo against its own pose **as drawn**. A mirrored photo was flipped before it was saved
   and its landmarks come from the saved file, so it is not flipped a second time; the score with the flipped figure is
-  reported too (`flipped`). For 4 of the 36 photos the flipped figure scores higher, by 0.01 or less except
+  reported too (`flipped`). For 3 of the 35 photos the flipped figure scores higher, by 0.01 or less except
   `selfie_peace` (0.92 / 0.98); looked at, it reads the same way round as the figure.
 - **Nearest pose**: every library pose whose people count fits the photo, as drawn and flipped, ranked by score minus
   penalties for poor framing fit, people-count mismatch, the pose's frame leaving the photo, the pose's own segments
@@ -286,8 +296,8 @@ export ANDROID_HOME=/opt/android-sdk
 
 Results for the 46 photos shipped at this stage (2026-11-21): app score >= 0.8 for 17, 0.5-0.8 for 11, below 0.5 for
 17, none for 1 (the detector found nobody in the old `selfie_classic` close-up). The own pose was the nearest for 14.
-After the review (36 photos): >= 0.8 for 11, 0.5-0.8 for 9, below 0.5 for 16, none for 0; the own pose is the nearest
-for 8; 30 are flagged. The notes below describe the confirm stage; several of the photos they name were removed or
+After the review and the second look (35 photos): >= 0.8 for 11, 0.5-0.8 for 9, below 0.5 for 15, none for 0; the own
+pose is the nearest for 8; 29 are flagged. The notes below describe the confirm stage; several of the photos they name were removed or
 replaced by the review.
 
 **Flag rule**: app score below 0.5 (or none), or another pose nearer by rank, or fewer people detected than the pose
@@ -332,7 +342,7 @@ mirror, kneel, crossed arms, couple walking, ...). Replacements went through the
 | `selfie_high_angle` | same uploader; soft face; score 0.08 | confirmed | removed; no other usable raised-phone selfie |
 | `pro_blazer_pocket` | no hand in a pocket; second frame of the `stand_crossed_ankles` clip; veil like blood spatter | confirmed | removed; no hand-in-pocket candidate |
 | `stand_crossed_ankles` | ankles not crossed; one model in 3 photos; veil | confirmed | removed; no crossed-ankle candidate |
-| `selfie_classic` | close-up from beside the phone, no extended arm; same model as `selfie_peace` | confirmed | **replaced**: Mixkit 40038 at 0.367 s, mirrored: phone at arm's length, face and phone in frame (a two-person selfie; app score 0.11, side view) |
+| `selfie_classic` | close-up from beside the phone, no extended arm; same model as `selfie_peace` | confirmed | **replaced**: Mixkit 40038 at 0.367 s, mirrored: phone at arm's length, face and phone in frame (a two-person selfie; app score 0.11, side view); removed at the second look |
 | `floor_one_knee` | a marriage proposal, not a pose demonstration | confirmed | removed; the other kneelers are a photographer in front of a model and a gardener behind plants |
 | `port_arms_crossed_smile` | veil hides the smile; soft; third photo of the same model | confirmed | **replaced**: Mixkit 43806 at 1.242 s, mirrored: arms folded, closed-mouth smile, plain mint backdrop (app score 0.97) |
 | `pro_arms_crossed` | categories name the model ('Alisa (photo model)') | confirmed | removed under the named-person rule, no exception made; it is in 'Full consent', so the owner could decide to allow consenting named models and restore it (record in `picks/gaps-r2.json`) |
@@ -352,6 +362,14 @@ mirror, kneel, crossed arms, couple walking, ...). Replacements went through the
 
 Net effect: 46 -> 36 photos (10 removed, 3 replaced). The removed records stay in `credits.py`'s `DROPPED` with the
 reason; their selection records stay in the earlier fragments, so a photo could be rebuilt if a decision changes.
+
+### Second look, 2026-11-22
+
+Before the photos went into the app's screens, the replacement for `selfie_classic` was looked at again: the frame
+shows three people taking a selfie in a car (a third person's arm and knees at the edge), while the pose is a solo
+selfie with the arm extended, so it misleads as a guide. It was removed (`DROPPED` in `credits.py`, its photo and
+landmarks file deleted, `PosePhotoMatch` and `credits.py` re-run): 36 -> 35 photos, 27 of them Mixkit stills. No other
+solo arm's-length selfie is among the candidates, so the pose has no photo for now.
 
 ## Replacing a photo or adding one
 
@@ -383,7 +401,7 @@ reason; their selection records stay in the earlier fragments, so a photo could 
 
 ## Coverage, all 99 poses
 
-36 with a photo, 63 without (after the review). App score = the app's PoseMatcher on the shipped photo against its own pose as drawn
+35 with a photo, 64 without (after the review and the second look). App score = the app's PoseMatcher on the shipped photo against its own pose as drawn
 (1 = perfect; "-" = the detector finds nobody). "Flagged" = score below 0.5, fewer people detected than the pose has,
 or another pose nearer by the matcher's rank; every flagged photo was looked at again (the note says what it shows).
 For poses without a photo the note is the selection's last reason, or why the confirm stage or the review removed the photo (in full in `coverage.json`).
@@ -396,12 +414,12 @@ For poses without a photo the note is the selection's last reason, or why the co
 | Walking | 10 | 3 |
 | On the ground | 9 | 4 |
 | Portrait | 9 | 8 |
-| Selfie | 8 | 3 |
+| Selfie | 8 | 2 |
 | Professional | 8 | 1 |
 | Fun & jumping | 9 | 2 |
 | Couple | 10 | 6 |
 | Group | 7 | 1 |
-| **All** | **99** | **36** |
+| **All** | **99** | **35** |
 
 | Pose | Category | Photo | Source | Licence | App score | Note |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -462,7 +480,7 @@ For poses without a photo the note is the selection's last reason, or why the co
 | Dreamy gaze (`port_dreamy_gaze`) | Portrait | yes | Mixkit | Mixkit Free | 0.98 |  |
 | Collar adjust (`port_collar_adjust`) | Portrait | yes | Mixkit | Mixkit Free | 0.86 | flagged (nearest: pro_headshot), kept: portrait and selfie templates need few segments (no legs), so several of ... |
 | Shoulder touch (`port_shoulder_touch`) | Portrait | **no** | | | | removed at the review: the Commons file is in the category 'Seduction (facial expression)' |
-| Classic arm selfie (`selfie_classic`) | Selfie | yes | Mixkit | Mixkit Free | 0.11 | flagged (low score, nearest: port_over_shoulder), kept: phone held out at arm's length above eye level, face and phone in frame ... |
+| Classic arm selfie (`selfie_classic`) | Selfie | **no** | | | | removed at the second look: three people taking a selfie in a car (the review's replacement, Mixkit 40038 at 0.367 s), while the pose ... |
 | Peace sign (`selfie_peace`) | Selfie | yes | Mixkit | Mixkit Free | 0.92 | flagged (nearest: pro_headshot), kept: portrait and selfie templates need few segments (no legs), so several of ... |
 | High-angle selfie (`selfie_high_angle`) | Selfie | **no** | | | | removed at the review: same uploader and licence doubt as couple_walk_toward (Shixart1985, 'Own work', CC BY 2.0, ... |
 | Cheek rest selfie (`selfie_hand_on_cheek`) | Selfie | **no** | | | | 'Woman in Eyeglasses (5)' (PxHere, CC0) rests her cheek on a hand, but its categories name the model ... |
@@ -505,13 +523,13 @@ For poses without a photo the note is the selection's last reason, or why the co
 | Stacked levels (`group_levels`) | Group, 3 people | **no** | | | | No three head heights in any group candidate. |
 | Back to back (`group_back_to_back`) | Group, 3 people | **no** | | | | No three-person back-to-back |
 
-## The 63 gaps and what they need
+## The 64 gaps and what they need
 
 The free sources reachable here are exhausted for these poses: across the first run and two gap rounds every pose
 was searched by name and category, and what is left is either missing (nobody does the pose: pole swing, kerb step,
 star jump, group levels), Mixkit Restricted (most walking, office, couple and group clips), or ruled out by the people
-rules (named people, events, possible minors, glamour series). The 10 poses emptied by the review are in the same
-state: their remaining candidates were searched again (see the review table). Options, best first:
+rules (named people, events, possible minors, glamour series). The 10 poses emptied by the review and the one emptied
+by the second look are in the same state: their remaining candidates were searched again (see the review table). Options, best first:
 
 1. **A Pexels or Unsplash API key** (Pixabay too). These sites hold far more stock-model photos than the old CC0
    copies on Commons, searchable by pose words ("hands in pockets", "leaning on wall", "jumping friends"), and their
@@ -535,8 +553,7 @@ Envato policies; check the Shixart1985 uploads by hand (uploader talk page, dele
 EXIF, a reverse image search): if they prove genuine own work, `couple_walk_toward` could return (its records are in
 `picks/couple-group.json`); decide whether consenting named models ('Full consent' category) may be shown, which would
 bring back `pro_arms_crossed`; replace the weakest kept photos (app score below 0.3: `pro_headshot`,
-`couple_cheek_kiss`, `selfie_classic`, `stand_hand_in_hair`, `floor_side_lie`) when one of the options above produces
-better ones.
+`couple_cheek_kiss`, `stand_hand_in_hair`, `floor_side_lie`) when one of the options above produces better ones.
 
 ## Appendix: how candidates were found and ranked (first run)
 

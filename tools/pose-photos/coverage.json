@@ -1,7 +1,7 @@
 {
- "photos": 36,
+ "photos": 35,
  "poses": 99,
- "bytes": 1512984,
+ "bytes": 1486296,
  "coverage": [
   {
    "id": "stand_hand_on_hip",
@@ -797,21 +797,9 @@
    "name": "Classic arm selfie",
    "category": "SELFIE",
    "people": 1,
-   "photo": true,
-   "source": "Mixkit",
-   "licence": "Mixkit Stock Video Free License",
-   "attribution": "Photo: Mixkit",
-   "appScore": 0.1053,
-   "flippedScore": 0.1059,
-   "nearestPose": "port_over_shoulder",
-   "ownRank": 28,
-   "posesRanked": 82,
-   "peopleDetected": 1,
-   "bytes": 26688,
-   "flag": "app score 0.11 < 0.5; nearest pose by rank is port_over_shoulder (own pose ranks 28 of 82)",
-   "verdict": "kept after a second look",
-   "reason": "Replaces the close-up from beside the phone (Mixkit 51119), which showed neither the extended arm nor the whole face. A man in the passenger seat of an open jeep holds his phone out at arm's length above eye level and smiles into it: the classic arm selfie, phone, arm and face all in frame. A smiling woman leans in beside him (a two-person selfie; the pose itself is drawn for one). Mirrored so the phone arm is on the same side as the figure's. Single-person candidates were looked at and fail the 3:4 frame: in Mixkit 41181 ('Woman taking a selfie in the morning', 16:9) the phone and her face are 1,450 px apart, so any 810x1080 crop loses the phone or the face.",
-   "note": "Kept: phone held out at arm's length above eye level, face and phone in frame (Mixkit 40038, mirrored). A two-person selfie (a woman leans in beside him) seen from the side, while the figure is drawn from the phone's camera, so the matcher scores it low."
+   "photo": false,
+   "reason": "Removed at the second look: three people taking a selfie in a car (the review's replacement, Mixkit 40038 at 0.367 s), while the pose is a solo selfie with the arm extended, so the photo misleads. The earlier frame was a close-up from beside the phone with no extended arm. No other solo arm's-length selfie among the candidates.",
+   "verdict": "dropped at the confirm stage"
   },
   {
    "id": "selfie_peace",

@@ -93,6 +93,11 @@ DROPPED: dict[str, str] = {
     "fun_victory": "Removed at the review: motion blur on the face and hands, and a low-cut top with visible cleavage "
                    "at the centre of the frame (the rules exclude cleavage). The other arms-up frames are a performer "
                    "on a stage ('Jump for joy', an event) and dancing clips with one arm up.",
+    # Second look before the photos went into the app's screens (2026-11-22).
+    "selfie_classic": "Removed at the second look: three people taking a selfie in a car (the review's replacement, "
+                      "Mixkit 40038 at 0.367 s), while the pose is a solo selfie with the arm extended, so the photo "
+                      "misleads. The earlier frame was a close-up from beside the phone with no extended arm. No "
+                      "other solo arm's-length selfie among the candidates.",
 }
 
 # Flagged photos kept after the second look: what the photo shows and why the score does not measure it. Shown in
@@ -169,10 +174,6 @@ NOTES: dict[str, str] = {
         "Kept: one hand on the hip, the other arm down, as drawn; a fashion shoot in a boutique. The legs"
         " stand wider than the figure's relaxed stance (it does not fit stand_power_pose, which needs "
         "both hands on the hips). The jumpsuit has a deep neckline; nothing is exposed."),
-    "selfie_classic": (
-        "Kept: phone held out at arm's length above eye level, face and phone in frame (Mixkit 40038, "
-        "mirrored). A two-person selfie (a woman leans in beside him) seen from the side, while the "
-        "figure is drawn from the phone's camera, so the matcher scores it low."),
     "fun_twirl": (
         "Kept: mid-turn with one arm thrown high and the other out to the side, as drawn; the long skirt "
         "hides the heel flick, so the legs score low."),
@@ -319,7 +320,7 @@ def credit(r: dict, m: dict | None) -> dict:
 def short(text: str | None, limit: int = 110) -> str:
     """First clause of a reason, for the docs table (the whole text is in coverage.json)."""
     t = (text or "").replace("|", "/").strip()
-    t = re.sub(r"^(Kept|Dropped at the confirm stage|Removed at the review): ", "", t)
+    t = re.sub(r"^(Kept|Dropped at the confirm stage|Removed at the review|Removed at the second look): ", "", t)
     depth, cut = 0, len(t)
     for i, ch in enumerate(t):  # the first ": ", "; " or ". " outside brackets, after 20 characters
         depth += (ch == "(") - (ch == ")")
@@ -344,7 +345,9 @@ def print_table():
             note = f"flagged ({flag_short(r)}), kept: {short(r.get('note'), 80)}" if r.get("flag") else ""
             print(f"| {name} | {cat} | yes | {src} | {lic} | {score} | {note} |")
         else:
-            tag = ("removed at the review: " if (r.get("reason") or "").startswith("Removed at the review")
+            reason = r.get("reason") or ""
+            tag = ("removed at the review: " if reason.startswith("Removed at the review")
+                   else "removed at the second look: " if reason.startswith("Removed at the second look")
                    else "dropped: " if r.get("verdict", "").startswith("dropped") else "")
             print(f"| {name} | {cat} | **no** | | | | {tag}{short(r.get('reason'))} |")
 
