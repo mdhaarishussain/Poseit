@@ -85,7 +85,7 @@ class ProcessDeathTest {
         runBlocking { app.container.settingsRepository.update { AppSettings(onboardingDone = true) } }
         var controller = Robolectric.buildActivity(MainActivity::class.java).setup()
         try {
-            waitText("Pose camera")
+            waitDesc("Pose camera")
             byDesc("Create a pose").performClick()
             waitText("Draw a pose")
             byText("Draw a pose").performClick()

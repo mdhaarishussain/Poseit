@@ -1,0 +1,271 @@
+# Poseit promo: sound plan
+
+**v3** (STORYBOARD.md v3, clarity first, 816 f): the plan is the next section. **v2:** the deltas for the
+real-people film follow it (the plan, then the build); the rest of this file is v1 as built and stays the reference
+for the timbres.
+
+Film (v1 and v2): 664 frames at 30 fps (22.13 s); v3 is 816 frames (27.2 s), see `STORYBOARD.md` v3. All audio is synthesized in Node by our own scripts
+(deterministic, seeded, 48 kHz 16-bit WAV), because there is no ElevenLabs key in this session. The voice-over is
+written (`vo.txt`) but not voiced: no fake or placeholder voice goes into the mix. When a key arrives, the VO drops
+into the windows below and the music is ducked under it; the picture does not move.
+
+## v3 deltas (STORYBOARD.md v3: captions, a phone, the app's own screens)
+
+Film: **816 f, 27.2 s**. Same grid (112.5 BPM, beat 16 f, bar lines f16 + 64n: 16, 80, 144, ... 784), same kit, same
+mix targets (-14 LUFS integrated, true peak at or under -1 dBTP), same rule: every cue is placed from `src/events.ts`,
+which the v3 build rewrites from `src/beats.ts` (BEATS_V3, CAPTIONS, LIVE_V3) and `src/scenes/timing.ts` (the `_V3`
+objects). The live act's cues keep v2's spacing, 40 f earlier (LIVE_OFFSET). Owner: BUILDER STORY.
+
+**The film must work muted; the sound is a second channel, never the explanation.** Captions carry every meaning, so
+no cue may be the only thing that says something.
+
+| v3 section | Frames | Sound |
+|---|---|---|
+| The problem | 0-96 | Room tone; a soft, unresolved pad from about f40 swelling into f96. No hook fidget ticks (there is no stick figure). |
+| Poseit | 96-160 | **Hit 1 on f96: the icon lands** (a warm two-note chime, then the groove's first kick). Groove A, light: kick, bass, shutter-click hats. |
+| Pick a pose | 160-272 | Groove A continues under the UI; a soft paper scroll texture under the fling (f176-214, -24 dB); a dry tap on each touch (f220, f260); a soft whoosh on the D1 push (f228-240). |
+| Match, fix | 272-382 | The coaching bed 6 dB down (no kick or clap) from the camera opening (f272); card tick on f308 ("Bend your right elbow more"); **hit 2 on the lock, f361**; "Perfect. Hold it" (f373) gets no tick, as in v2; a short soft whoosh on the push in (f312-330). |
+| Hold, shoot | 382-472 | The countdown beeps on f382, 412, 442 (the app's TONE_PROP_BEEP at D6); the build follows the digits; the pull back on f382 gets no whoosh (the beep owns it); music out on f464; 8 f of silence; **hit 3, the shutter, on f472** (the loudest SFX). |
+| The photo | 472-560 | The shutter's tail; the warm Am(add9) **blooms when the photo opens in colour (f488)** and rings under "Here's your photo." |
+| 99 poses | 560-656 | Groove B returns on the f560 cut (the lift after the payoff); one shutter-click per figure landing on f560, 576, 592, 608, 624 (rising a semitone each, as v2's chorus family); the drop under c9 (f624-656): music out, the reversed swell. |
+| The name | 656-816 | A soft low A re-strike on the f656 cut (bass A1 and an A-E fifth, to the last frame); wooden joint ticks on twos for the relax (f672-684); one soft paper set-down as the icon's disc lands (f700, -20 dB); no sound on the wordmark or the end lines; room tone to the end. |
+
+**Hits stay three:** the icon (f96, the name arrives), the lock (f361), the shutter (f472). The colour is the chord,
+not a fourth hit. **Silences:** f464-472 before the shutter; f624-656 the drop under c9.
+
+**Goes (from v2):** the hook's push whoosh into f80, the first-person groove entry at f80, the unison hit at f272 and
+its frame-mark pop and 4 dB dip, the push whoosh into f336, the chorus snaps at f144-240 (the chorus moved to
+f560-624), the colour chord at f520 (now f488), the low A re-strike at f600 (now f656).
+
+**Voice-over windows = the caption windows** (`vo.txt` line N = `CAPTIONS[N-1]` in `src/beats.ts`; `src/audio/voiceover.ts`
+follows it): the narrator, never the people. Each line starts 2 f after its caption begins to rise and ends before the
+caption leaves; the music ducks 9 dB under each line (6 dB under line 9, the chorus, which is the music's moment).
+
+| Line | Text | Window (frames) |
+|---|---|---|
+| 1 | Never know how to pose for photos? | 2-94 |
+| 2 | Poseit shows you how. | 102-154 |
+| 3 | Pick a pose to copy. | 166-226 |
+| 4 | Match the outline. | 280-312 |
+| 5 | It tells you what to fix. | 324-392 |
+| 6 | Hold still. | 400-432 |
+| 7 | It takes the photo for you. | 438-506, with a pause f464-476 ("It takes the photo" ... shutter ... "for you.") |
+| 8 | Here's your photo. | 518-558 |
+| 9 | 99 poses for every kind of photo. | 564-652 |
+| 10 | Free for Android. | 726-760 |
+| 11 | Works offline. | 762-784 |
+| 12 | No account, no ads. | 786-814 |
+
+Line 7 is the tight one: six words need about 2.2 s, and the 8 f of stillness and the shutter (f464-476) must
+stay free of speech, so the line is split around them: "It takes the photo" f438-462, the stillness, the shutter on
+f472, "for you." from f478 (split the take at the word boundary with voice.py's word timings). Lines 10-12 are
+spoken in sequence after the lines appear, slower and warm.
+
+## v2 deltas (STORYBOARD.md v2: real people, the app's graphics on top)
+
+Same film length (664 f), same grid (112.5 BPM, bar lines f16 + 64n), same kit, same mix targets. The sound is still
+placed from `src/events.ts`, so most cues move by themselves once the scenes and `match.json` change; this list says
+what moves, what goes and what is new. Everything from "v1 as built" down is v1 and stays the reference for the timbres.
+
+**Unchanged:** room tone from f0; the hook's silence and fidget (f0-62); the f80 cut with the groove's first kick and
+the whoosh peaking on it; the drop f248-272 (music out, the reversed swell); hit 1 on the f272 unison; the frame-mark
+pop at f288 and the 4 dB dip while the pose name is read (f288-310); the push whoosh into f336; the coaching bed 6 dB
+down; the card tick; the countdown beep (the app's TONE_PROP_BEEP at D6); the 8 f of stillness before the capture;
+hit 3, the shutter, as the loudest SFX; the relax's wooden joint ticks on twos (f576-588); no sound on the wordmark.
+
+**Moves:**
+- The hook's push whoosh now has a picture under it: the camera rushes into the stiff body f70-80. Its peak stays on
+  the f80 cut. The words leave silently at f62-70.
+- Chorus snaps (one shutter-click family): v1 f112, 128, 144, 160 (beats), 176, 184, 192, 200, 208 (eighths), 224
+  (couple), 240 (group) become v2 **f144, 160, 176, 192** (beats), **208, 216, 224, 232** (eighths) and **240** (the
+  couple: a double click). There is no f112 or f128 snap: f80-144 is the first real person, carried by the groove
+  alone. The clap still joins on f144 (now with the first guide) and the 16th tick layer with the eighth snaps
+  (f208-240); the bass climb follows the snaps.
+- Act IV cues come from the new `match.json` on the footage: the card tick on each displayed card, **hit 2** on the
+  app's hold frame (planned f402, v1 f443), the beeps on the digits (planned f423, 453, 483, v1 f464, 494, 524), the
+  stillness on capture - 8 and **hit 3** on the capture (planned f513, v1 f554; it must land in f505-531). The
+  countdown build keeps following the digits, so it starts about 40 f earlier.
+- **The final chord moves to the colour.** v1 struck it at f600 with the pull back. In v2 the first colour frame of the
+  film arrives as the capture flash decays (capture + 8, planned f521), so the Am(add9) blooms there, over the photo,
+  and rings through the f555 cut to paper. A soft low A re-strike under the pull back (f600) keeps the name off a dying
+  tail. The music stays muted from capture - 8 until the chord.
+- Voice-over windows (`vo.txt`, five lines; `src/audio/voiceover.ts`): line 1 f150-222 (chorus), line 2 f292-310,
+  line 3 f344-400 (coaching), line 4 f426-505 (countdown, silent by capture - 8), line 5 f590-650.
+
+**Goes:**
+- The chorus ripple ticks (the lattice's three-rows-per-frame ripple): the chorus is now one person per shot.
+- The "Group" triple click (no group shot; if the couple falls back to a single, f240 is a single click).
+
+**New:**
+- **Footage is muted.** Mixkit clips can carry an audio track; every plate is prepared without audio and every
+  OffthreadVideo is muted. The film's sound is still entirely our own synthesis.
+- An optional dry fabric swish under her arm move in B2 (f88-144, peak about f116), at -20 dB or lower, only if the
+  groove leaves room. No sound for the guides landing beyond the shutter-click family.
+- **Hits stay three:** the unison (f272), the lock (the app's hold frame) and the shutter (the capture). The colour
+  bloom is the chord, not a fourth hit.
+
+**Silences that move:** the stillness before the shutter moves with the capture (planned f505-513). The drop does not
+move (f248-272).
+
+| v2 section | Frames | Music |
+|---|---|---|
+| Hook | 0-80 | Room tone; the whoosh into f80 |
+| The first person | 80-144 | Groove A from the f80 kick: kick, bass, shutter-click hats |
+| Chorus | 144-248 | Clap joins f144; snaps on every cut; 16th ticks and the bass climb on f208-240 |
+| Drop | 248-272 | Music out, the reversed swell |
+| Unison, pick, push | 272-336 | Groove B; dip under the name; whoosh into f336 |
+| Coaching | 336-hold | Bed 6 dB down, no kick or clap |
+| Hold and countdown | hold-capture | Build on the app's clock; out at capture - 8 |
+| Shutter and colour | capture-555 | The shutter, then the chord blooming with the colour |
+| The name | 555-664 | The chord rings; low A re-strike at f600; room tone to the end |
+
+## v2 as built (integrated)
+
+`npm run audio` places every cue from `src/events.ts`, which now reads the v2 picture: the chorus shots from
+`chorus.json` and act IV from the app's verdicts on the footage (`public/footage/b5-live.match.json`). The frames:
+
+| Cue | v2 frame | Note |
+|---|---|---|
+| Whoosh into the cut, groove's first kick | f80 | the hook's rush peaks on the cut |
+| Chorus landings (shutter-click family) | f144, 160, 176, 192 (beats), 208, 216, 224, 232, 240 (eighths, rising a semitone each) | f240 is c9, one figure on the couple clip, so a single click (the fifth eighth-family click, +4) |
+| The drop, reversed swell | f248-272 | unchanged |
+| Hit 1, the unison | f272 | "Hands in pockets" |
+| Frame-mark pop, the 4 dB dip under the name | f288 | unchanged |
+| Push whoosh into the match cut | f336 | unchanged |
+| Card tick | f348 | "Ask them to bend their right elbow more"; "Perfect. Hold it" (f413, 12 f after the lock) gets none, as in v1 |
+| Hit 2, the lock | f401 | the app's hold frame (score 75 at strictness 0.75); every limb is green from f404 |
+| Countdown beeps | f422, 452, 482 | the app's 1 s digits |
+| Stillness | f504-512 | music out |
+| Hit 3, the shutter | f512 | the app's capture |
+| The final chord, Am(add9) | f520 | capture + 8: the flash has decayed off the colour photo; it rings through the f555 cut |
+| Low A re-strike (bass A1 and a soft A-E fifth) | f600 | under the pull back, to the last frame |
+| Relax ticks on twos | f578-588 | unchanged |
+
+Changes in `scripts/gen-audio.mjs` for v2: the final chord moved from the pull back to `CUES.colour` and the music
+automation un-mutes there (not at f597); the low A re-strike is new; the bass climb now starts on bar 3 (f208, the
+first eighth cut), so the octave A figure waits until after it (the two overlapped on f208-240); the v1 labels (Disco
+point, score 90, "black -> studio") are gone. The B2 fabric swish was optional and is left out: the groove leaves no
+room for it. Measured on the integrated draft: -14.0 LUFS, true peak -1.1 dBTP after the AAC encode; unison f272
+-10.3 LUFS momentary, lock f401 -15.0, shutter f512 -14.5 (-1.8 dBFS peak, the loudest SFX); colour chord, photo and
+relax f520-600 -18.1 LUFS mean; the name f600-664 -20.8.
+
+Voice-over windows as built (`src/audio/voiceover.ts`; lines 3 and 4 are derived from the app's verdicts): line 1
+f150-222, line 2 f292-310, line 3 f344-401 (from 4 f before the first card to the lock), line 4 f426-504 (from 4 f
+after the "3" to the stillness), line 5 f590-650.
+
+## v1 as built
+
+`src/events.ts` is the source of truth for every picture frame (print it with `npm run events`, which writes
+`out/events.json`): the cuts, every chorus snap including the ripple, the three hits and the two silences. The act III
+frames come from the app's own PoseMatcher, HintStabilizer and CaptureCoach (`public/match.json`), so they changed from
+the plan: the cards land at f355, f400 and f455, the lock at f443, the digits every 30 f from f464, the shutter at f554.
+The tables below are updated to the build. The wordmark lands at f620 (no sound, as planned).
+
+The sound is built (`scripts/gen-audio.mjs`; measurements in `NOTE.md`, "Sound"). Where the build differs from this
+plan, the plan below says "as built". In short:
+- The coaching bed is 6 dB down, not 8: at -8 dB the kickless bed measured -25 LUFS, too close to silence on a phone.
+- The countdown build is the shutter-click hats speeding up like a motor drive winding up (eighths, then 16ths) over
+  a kick every 15 f and a filter-opening A pedal, not a snare roll.
+- The countdown beep is the app's own tone at one pitch (tuned to D6), not a rising tick.
+- "Perfect. Hold it" gets no tick: the lock 12 f before it already speaks for it.
+- The final chord sounds at f600, with the pull-back, not on the f592 downbeat.
+- An air crash joins the unison.
+
+## Music
+
+**Character.** A dry, playful studio-disco groove: four-on-the-floor kick (soft and round, not club-heavy), offbeat
+hats made from camera shutter-click transients, a handclap on 2 and 4, a muted plucked bass, one bright chord stab.
+Small room, no big reverb, no swells over the result. It should sound like a photo studio with the radio on, and it
+nods at the hero pose, Disco point. Key: A minor with a dorian sixth (F#) so it stays cheeky rather than dark.
+
+**Tempo and grid.** 112.5 BPM: one beat is exactly 16 frames, an eighth 8 f, a bar 64 f. Bar lines sit at f16 + 64n,
+so the downbeats are f80, 144, 208, 272, 336, 400, 464, 528, 592 and 656. The picture uses the same grid: every cut
+and pose snap is on a multiple of 8 f. Half notes (32 f, 1.07 s) carry the countdown at almost the app's real speed.
+
+**Sections.**
+
+| Frames | Time (s) | Picture | Music |
+|---|---|---|---|
+| 0-80 | 0.00-2.67 | The freeze | No music. Room tone only (soft pink noise around -42 dBFS). The awkward silence is the joke. |
+| 80-248 | 2.67-8.27 | Studio reveal, chorus | Groove A enters on the cut: kick, bass, shutter-click hats. Clap joins at f144. On the eighth-note snaps (f176-208) a 16th-note tick layer joins and the bass climbs. |
+| 248-272 | 8.27-9.07 | The drop | Everything cuts out except a reverse noise swell rising into f272 (music 15 dB down). |
+| 272-336 | 9.07-11.20 | Unison, pick, push-in | Groove B, full: the unison hit, then the groove with the stab on the downbeat; a whoosh into the cut. |
+| 336-464 | 11.20-15.47 | Coaching | Groove thinned to bass, soft hats and two warm chords, no kick, 6 dB down (as built; 8 dB measured too quiet), so the cue cards can be read. |
+| 464-546 | 15.47-18.20 | Countdown | Build: the kick returns as a pulse every 15 f, the shutter-click hats speed up like a motor drive (eighths, then 16ths; as built, instead of a snare), a rising filter on the bass pedal, a riser. The digits come every 30 f (the app's real 1 s), not every 32 f, so let the build follow the ticks (464, 494, 524) rather than the 112.5 BPM grid: an accelerando into the shutter. |
+| 546-554 | 18.20-18.47 | Half a beat of stillness | Silence: every music layer off, room tone only. |
+| 554-600 | 18.47-20.00 | Shutter, flash, relax | The shutter alone, then its tail. |
+| 600-664 | 20.00-22.13 | Pull-back, name, hold | One final chord (Am add9 over a low A) at f600, when the pull-back starts (as built; the plan said the f592 downbeat), left to ring and decay naturally to the last frame, with room tone under it. No fade, no silent tail. |
+
+## The sound events
+
+Three hand-placed hits (unison, lock, shutter), each with something cleared before it. Everything else is the
+groove or a quiet tick.
+
+| # | Frame | Time (s) | Picture event | Sound | Level |
+|---|---|---|---|---|---|
+| 1 | 74-80, then 80 | 2.47-2.67 | Hard cut from the frozen skeleton to the studio of 99 frozen figures | A short air whoosh (6 f) peaking on the cut, then the groove's first kick with a shutter click on top: the first big sound, tied to the cut | kick -8 dB, whoosh -14 dB |
+| 2 | 112, 128, 144, 160, 176, 184, 192, 200, 208, 224, 240 | 3.73-8.00 | Each pose change of the chorus (11 snaps) | One shutter click per snap, one sound family. On-beat snaps sit on the kick; the eighth-note snaps rise a semitone each; Couple and Group get a double click | -14 to -10 dB |
+| 3 | 248-272, then 272 | 8.27-9.07 | Silence, then all 99 figures snap into Disco point | **Hit 1.** Music drops for 0.8 s with a reverse swell; on f272 kick, clap, chord stab and a shutter click together | -6 dB |
+| 4 | 288 | 9.60 | Frame marks close around one figure | A tiny dry pop | -16 dB |
+| 5 | 324-336 | 10.80-11.20 | Push-in and hard cut into the viewfinder | Airy whoosh starting 3-4 f before peak speed so its peak meets the cut | -12 dB |
+| 6 | 355, 400 | 11.83, 13.33 | The first two cue cards arrive (the app's HintStabilizer timing) | A soft UI tick (one sound for both). As built, "Perfect. Hold it" (f455) gets none: it lands 12 f after the lock, which already says it | -17 dB |
+| 7 | 443 | 14.77 | The lock: the score reaches the match threshold (every limb green, the ring turns green, its hold arc starts running round); "Perfect. Hold it" follows at 455 | **Hit 2, soft.** A two-note rising chime (two sine partials, a fifth apart), short and clean; music stays down | -12 dB |
+| 8 | 464, 494, 524 | 15.47, 16.47, 17.47 | Countdown "3", "2", "1" | The app's own countdown beep per digit (VoiceCoach: ToneGenerator TONE_PROP_BEEP, 1200 Hz, 120 ms), tuned to D6 and at one pitch as in the app (as built), over the build | -14 dB |
+| 9 | 546-554, then 554 | 18.20-18.47 | Half a beat of stillness, then the capture flash | **Hit 3, the loudest sound.** Silence for 8 f, then a two-part mechanical shutter (open click, close clack about 40 ms apart) with a low thump and a short room tail | -4 dB (loudest SFX) |
+| 10 | 600 | 20.00 | The camera pulls back from the relaxed figure | The final chord (part of the music), resolving | -10 dB |
+
+The wordmark (f608) and the end line get no sound: the chord is already ringing and the ending is quieter than the
+climax.
+
+## SFX kit (our own synthesis, as built)
+
+Four families reused as a system, plus two one-offs. Each file in `public/audio/sfx/` is peak-normalised to -3 dBFS.
+
+| File | Recipe |
+|---|---|
+| `snap.wav`, `snap_up1-4.wav` | The chorus snap: a shutter-click transient (two micro-strikes 7 ms apart through four body modes, 0.9-5.6 kHz). Pitched up a semitone each for the eighth-note snaps and their ripple. |
+| `pop.wav` | The frame marks: the same click family, pitched up a fifth. |
+| `wood.wav` | The relax on twos: the click family pitched down, with more body, as a lay figure's friction joint giving. |
+| `shutter.wav` | Hit 3: the mirror and first curtain (a hard double strike through five modes plus a 180-470 Hz thunk), then the second curtain and the mirror slap 68 ms later, a 95 -> 48 Hz thump, a faint spring ting, a small room (RT60 0.42 s). |
+| `lock.wav` | Hit 2: a latch seating (two ticks 16 ms apart), then E5 and B5 bell tones 55 ms apart with a 200 ms decay. |
+| `tick.wav` | A card arrives: a 1.6 kHz blip on a 520 Hz "tok", 50 ms. |
+| `beep.wav` | The countdown: the app's TONE_PROP_BEEP (1200 Hz, 120 ms), tuned to D6 (1174.7 Hz), with softened edges. |
+| `whoosh_cut.wav`, `whoosh_push.wav` | Pink noise through a band-pass sweeping up to a peak (0.2 s / 0.42 s in), then dying. Placed so the peak meets the f80 cut / the f336 match cut. |
+| `swell.wav` | The unison chord's own room tail (RT60 1.4 s) played backwards, plus rising filtered noise, 0.8 s, cut dead on f272. |
+| `hit.wav` | The hero landing: a 72 -> 40 Hz sub, driven for harmonics a phone can play, an air transient and a room. |
+| `fabric_flick.wav`, `fabric_flop.wav` | The hook's fidget: band-passed noise with a grainy, uneven envelope. |
+
+The score (kick, clap, shutter-click hats, plucked bass, FM keys, an air crash, a riser, room tone) is synthesized by
+the same script straight to the film's length, 22.133 s, so it covers the whole cut.
+
+## Voice-over windows (v1; the v2 windows are in "v2 as built")
+
+The slot is `src/audio/voiceover.ts` (`VO_LINES`, read by `npm run audio`); `README.md` has the steps to voice it.
+
+| Line (`vo.txt`) | Beat | Window (frames) | Words | Notes |
+|---|---|---|---|---|
+| Poseit has ninety-nine poses to copy. | B3 chorus | 116-188 | 6 | The only time the name is spoken. Duck music 6 dB, not 9: the chorus is the music's moment. |
+| Pick one. | B4 pick | 292-310 | 2 | After the unison hit, on the frame marks. |
+| Line up with it. | B5 step back | 340-392 | 4 | Over the cut into the viewfinder's first second. |
+| It tells you what to change. | B6 raise arm | 402-460 | 6 | Ends before "Perfect. Hold it" settles. |
+| Hold the pose, and it takes the photo. | B7 countdown | 466-546 | 8 | Must end before the f546 stillness (as built: the silence moved with the app's capture frame). Tight: 3 words a second. |
+| No account and no ads. | B8 name | 596-656 | 5 | Slower, warm, over the chord. |
+
+Delivery: about 2.5 words a second, plain, friendly, not salesy, British English. B1 and B2 have no voice: the
+question is read on screen in silence. On-screen words land 0-2 f before they are heard; the voice never reads the
+screen. With real word timings, re-check that each line fits its window and move only the line, not the picture.
+
+## Mix
+
+- About -14 LUFS integrated, true peak at or under -1 dBTP, small loudness range.
+- Music 6 dB down for reading in the coaching act (f336-464) and 4 dB down while "Disco point" is read (f288-310);
+  out in the drop (f248-272) except the reverse swell; off from f546 until just before the final chord (as built).
+- The shutter (event 9) is the loudest SFX and the only one allowed above the music's peak.
+- With VO: duck the music 9 dB under speech (6 dB in the chorus), 80 ms in and 300 ms out.
+- No silent tail: the final chord and room tone run to f664. Check with `look.py --expect 22.13 --expect-audio`
+  (integrated LUFS, true peak, silent tail, hit count against picture), and scrub each hit frame once.
+
+## Licences
+
+The synthesis scripts are written from scratch for this repo. The remotion skill's example scripts (MIT) and
+motionmaxxing's (Apache-2.0) were read for approach only; nothing is copied.

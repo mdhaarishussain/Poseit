@@ -1,19 +1,12 @@
 package com.poseit.app.ui.settings
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.poseit.app.data.COUNTDOWN_CHOICES
 import com.poseit.app.data.countdownChoiceFor
-import com.poseit.app.ui.components.StudioChip
-import com.poseit.app.ui.theme.Space
+import com.poseit.app.ui.components.SegmentedPill
 import kotlin.math.roundToInt
 
 /**
@@ -61,8 +54,11 @@ internal object SettingCopy {
     /** Snaps a strictness to 5% steps before it is stored. */
     fun snapStrictness(threshold: Float): Float = (threshold * 20f).roundToInt() / 20f
 
-    /** "Off", "2s", "10s": the countdown's chip label, the same short form as the shutter and the photoshoot. */
-    fun countdownLabel(seconds: Int): String = if (seconds == 0) "Off" else "${seconds}s"
+    /**
+     * "Off", "2 s", "10 s": the countdown's option label. The unit stays lower case when the segmented pill draws its
+     * labels in capitals ("OFF", "2 s").
+     */
+    fun countdownLabel(seconds: Int): String = if (seconds == 0) "Off" else "$seconds s"
 
     /** The spoken form of [countdownLabel]. */
     fun countdownDescription(seconds: Int): String = if (seconds == 0) "No countdown" else "$seconds seconds"
@@ -75,28 +71,20 @@ internal fun strictnessLabel(threshold: Float): String = when {
 }
 
 /**
- * The countdown choices ([COUNTDOWN_CHOICES]) as one row of Studio chips, used by Settings and Quick settings. Each
- * chip is at least 48dp wide, so "2s" fills its own touch target and the row keeps even gaps; it wraps when the
- * font is large.
+ * The countdown choices ([COUNTDOWN_CHOICES]) as one segmented pill across the width it is given, used by Settings
+ * (inside a dark card) and by the camera's Quick settings (on the cream sheet). The selected option is lavender;
+ * screen readers hear "No countdown", "3 seconds" for each option. Each option fills the 48dp track (a full touch
+ * target in the accessibility tree too); 6dp option padding lets all five fit a 360dp phone at 130% text.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun CountdownChips(seconds: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
     val selected = countdownChoiceFor(seconds)
-    FlowRow(
-        modifier.selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(Space.s),
-        verticalArrangement = Arrangement.spacedBy(Space.s),
-    ) {
-        COUNTDOWN_CHOICES.forEach { s ->
-            StudioChip(
-                label = SettingCopy.countdownLabel(s),
-                selected = s == selected,
-                onClick = { onSelect(s) },
-                modifier = Modifier
-                    .widthIn(min = 48.dp)
-                    .semantics { contentDescription = SettingCopy.countdownDescription(s) },
-            )
-        }
-    }
+    SegmentedPill(
+        options = COUNTDOWN_CHOICES.map(SettingCopy::countdownLabel),
+        descriptions = COUNTDOWN_CHOICES.map(SettingCopy::countdownDescription),
+        selectedIndex = COUNTDOWN_CHOICES.indexOf(selected),
+        onSelect = { onSelect(COUNTDOWN_CHOICES[it]) },
+        modifier = modifier.fillMaxWidth(),
+        optionPadding = 6.dp,
+    )
 }

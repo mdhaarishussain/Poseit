@@ -12,11 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import com.poseit.app.pose.CameraAdvice
 import com.poseit.app.pose.ShotType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioType
+import com.poseit.app.ui.theme.PoseitType
+import com.poseit.app.ui.theme.toneColors
 
 /*
  * How to do a pose, shown the same way on the detail screen and in the camera's pose tips sheet: the numbered steps
@@ -24,23 +25,27 @@ import com.poseit.app.ui.theme.StudioType
  */
 
 /**
- * A real sequence (the steps of a pose, the steps of making a pose from a photo): small Ink numerals in a 28dp
- * column, on the text's baseline.
+ * A real sequence (the steps of a pose, the steps of making a pose from a photo), set like the mockups' list rows:
+ * each step a row with its number in light numerals in the secondary colour, in a fixed 40dp column so the text
+ * lines up, and hairlines between the rows. Colours follow the surface (inside a dark card, on a cream sheet, or
+ * in an outlined cream card on the canvas).
  */
 @Composable
 fun NumberedSteps(items: List<String>, modifier: Modifier = Modifier) {
+    val colors = toneColors()
     Column(modifier) {
         items.forEachIndexed { index, item ->
-            Row(Modifier.padding(vertical = Space.s)) {
+            if (index > 0) HairlineDivider()
+            Row(Modifier.padding(vertical = Space.m)) {
                 Text(
                     "${index + 1}",
-                    style = StudioType.numeral(15.sp),
-                    color = Studio.Ink,
+                    style = PoseitType.numeral(22.sp, FontWeight.Light),
+                    color = colors.textSecondary,
                     modifier = Modifier
-                        .width(28.dp)
+                        .width(40.dp)
                         .alignByBaseline(),
                 )
-                Text(item, style = StudioType.body, color = Studio.Ink, modifier = Modifier.alignByBaseline())
+                Text(item, style = PoseitType.body, color = colors.textPrimary, modifier = Modifier.alignByBaseline())
             }
         }
     }

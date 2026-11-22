@@ -29,7 +29,6 @@ import com.poseit.app.data.SavedPhoto
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTag
 import com.poseit.app.pose.library.BuiltInPoses
-import com.poseit.app.ui.components.StudioTopBar
 import com.poseit.app.ui.create.CreateStep
 import com.poseit.app.ui.create.CreateUiState
 import com.poseit.app.ui.create.OutlineStatus
@@ -37,10 +36,12 @@ import com.poseit.app.ui.create.ProblemContent
 import com.poseit.app.ui.create.ReviewBottomBar
 import com.poseit.app.ui.create.ReviewContent
 import com.poseit.app.ui.create.WorkingContent
+import com.poseit.app.ui.gallery.GalleryHeader
 import com.poseit.app.ui.gallery.PhotoGrid
 import com.poseit.app.ui.gallery.PhotoViewer
+import com.poseit.app.ui.gallery.ReviewCard
 import com.poseit.app.ui.theme.PoseitTheme
-import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.PoseitColors
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -104,7 +105,7 @@ class PhotoScreensScreenshotTest {
     private fun show(content: @Composable ColumnScope.() -> Unit) {
         compose.setContent {
             PoseitTheme {
-                Column(Modifier.fillMaxSize().background(Studio.Paper)) { content() }
+                Column(Modifier.fillMaxSize().background(PoseitColors.backgroundBody)) { content() }
             }
         }
         compose.waitForIdle()
@@ -117,7 +118,7 @@ class PhotoScreensScreenshotTest {
         var name by remember { mutableStateOf("My pose 1") }
         var category by remember { mutableStateOf(PoseCategory.CUSTOM) }
         var tags by remember { mutableStateOf(setOf(PoseTag.CASUAL)) }
-        StudioTopBar("Your new pose", onBack = {})
+        // The review draws its own top bar card ("Your new pose"), fused to the traced photo.
         Column(Modifier.weight(1f)) {
             ReviewContent(
                 state = state,
@@ -129,9 +130,9 @@ class PhotoScreensScreenshotTest {
                 onTagsChange = { tags = it },
                 onTogglePerson = {},
                 onPickAnother = {},
+                bottomBar = { ReviewBottomBar(saving = false, canSave = true, onSave = {}) },
             )
         }
-        ReviewBottomBar(saving = false, canSave = true, onSave = {})
     }
 
     @Test
@@ -181,8 +182,13 @@ class PhotoScreensScreenshotTest {
     fun galleryGrid() {
         val photos = List(5) { photo(it, 0) } + List(4) { photo(10 + it, 1) } + List(3) { photo(20 + it, 9) }
         show {
-            StudioTopBar("Your photos", onBack = {})
-            PhotoGrid(photos = photos, permissionMissing = true, onGrantPermission = {}, onOpen = {})
+            PhotoGrid(
+                photos = photos,
+                permissionMissing = true,
+                onGrantPermission = {},
+                onOpen = {},
+                header = { GalleryHeader(photoCount = photos.size, onBack = {}) { ReviewCard(onReview = {}) } },
+            )
         }
         capture("gallery-grid")
     }

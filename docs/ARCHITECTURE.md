@@ -32,8 +32,8 @@ coaches you by voice and on screen, and can shoot hands-free.
 - `voice/VoiceCoach`: TextToSpeech + beeps + haptics
 - `input/HardwareKeys`: volume-button shutter
 - `ui/components/PoseFigure.kt`: **shared** Compose mannequin renderer (`drawPoseFigure`, `PoseThumbnail`, `fitFrameRect`)
-- `ui/components/Studio*.kt`, `PoseTile`, `FrameMarks`, `EmptyState`, `Sections`: the shared Studio components (buttons, tabs, chips, rows, switch/slider, top bars, pose tile, viewfinder frame marks, empty state). `screens/ComponentGalleryScreenshotTest` renders them all to `app/build/screenshots/components.png`
-- `ui/theme`: the Studio design system in code (`docs/DESIGN.md`): `Color.kt` (`Studio` tokens), `Type.kt` (Archivo, `StudioType`), `Shape.kt` (`StudioShapes`, `Space`), `Theme.kt` (`PoseitTheme`)
+- `ui/components`: the shared v2 components (`ConnectedCards`, `Surfaces` (cards, `CapsLabel`), `Buttons`, `IconButtons`, `SegmentedPill` (+ `PillTabs`), `Badge`, `Chips` (`FilterPill`), `TopBar` (`TopBarCard`), `PillBar` (`FloatingPillBar`), `Stats`, `Progress`, `Rows`, `Slider`, `Feedback` (snackbar, dialog, bottom sheet, banner), `Menu`, `PoseTile`, `FrameMarks`, `EmptyState`, `Sections`, `Icons`); every screen builds from these
+- `ui/theme`: design system v2 in code (`docs/DESIGN.md`): `Color.kt` (`PoseitPalette`, the semantic `PoseitColors` roles, `LocalSurfaceTone`), `Type.kt` (Hanken Grotesk, `PoseitType`), `Shape.kt` (`PoseitRadius`, `PoseitShapes`, `Space`), `Motion.kt` (`PoseitMotion`), `Theme.kt` (`PoseitTheme`); the v1 `Studio*` objects remain as deprecated aliases
 - `ui/nav/PoseitNavHost` (routes), and one package per screen: `library`, `detail`, `camera`, `gallery`, `create`, `editor`, `settings`, `onboarding`
 
 ## Coordinate spaces (important)

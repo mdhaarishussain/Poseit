@@ -1,0 +1,444 @@
+[
+ {
+  "pose_id": "couple_side_hug",
+  "pose_name": "Side hug",
+  "category": "COUPLE",
+  "photo": null,
+  "reason": "No standing side by side with arms around each other in any candidate: the two-person frames are couples walking hand in hand, facing each other or hugging front-on; the closest (Commons 'Beautful women and handsome man': her elbow propped on his shoulder, his hands in pockets) is a lean, not a hug, and the green-screen pairs (Mixkit 100744, 4847) stand side by side with no arms in frame."
+ },
+ {
+  "pose_id": "couple_forehead_touch",
+  "pose_name": "Forehead touch",
+  "category": "COUPLE",
+  "photo": "app/src/main/assets/pose_photos/couple_forehead_touch.webp",
+  "bytes": 21364,
+  "source": "Mixkit",
+  "title": "Mature Couple Laughing with Green Screen Backdrop",
+  "page_url": "https://mixkit.co/free-stock-video/mature-couple-laughing-with-green-screen-backdrop-100759/",
+  "file_url": "https://mixkit.co/free-stock-video/download/100759/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/wiwr7jeuyow0b6wh5d08xe9l6mvw",
+  "video_quality": "1080p",
+  "frame_time_s": 12.242,
+  "hold_time_s_in_preview": 12.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/couple-group/clips/100759.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/mature-couple-laughing-with-green-screen-backdrop-100759/)",
+  "changes": [
+   "still frame at 12.242 s of the 1080p download",
+   "cropped to [40, 627, 1010, 1920] px of the 1080x1920 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   40,
+   627,
+   1010,
+   1920
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.3145,
+  "score_detail": {
+   "score_source_frame": null,
+   "score_shipped_file": 0.3145,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.446,
+   "people_detected_source": 1,
+   "people_detected_shipped": 2,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Foreheads together, eyes closed, holding hands between them, the man leaning his head down: the drawn forehead touch. Plain green studio backdrop; thigh-up."
+ },
+ {
+  "pose_id": "couple_back_hug",
+  "pose_name": "Back hug",
+  "category": "COUPLE",
+  "photo": "app/src/main/assets/pose_photos/couple_back_hug.webp",
+  "bytes": 22260,
+  "source": "Mixkit",
+  "title": "Couple embracing on a green screen background",
+  "page_url": "https://mixkit.co/free-stock-video/couple-embracing-on-a-green-screen-background-100758/",
+  "file_url": "https://mixkit.co/free-stock-video/download/100758/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/9vazhei99xzzogjxc3ts6lub3cul",
+  "video_quality": "1080p",
+  "frame_time_s": 2.828,
+  "hold_time_s_in_preview": 2.669,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/mixkit/clips/100758.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/couple-embracing-on-a-green-screen-background-100758/)",
+  "changes": [
+   "still frame at 2.828 s of the 1080p download",
+   "cropped to [500, 0, 1310, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   500,
+   0,
+   1310,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": null,
+  "score_detail": {
+   "score_source_frame": null,
+   "score_shipped_file": null,
+   "shipped_matches_flipped_pose": null,
+   "fit": null,
+   "tcov": null,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": null,
+   "note": "not scorable: the detector finds 1 separate person(s) in the shipped photo and the pose needs 2",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "He hugs her from behind with both arms wrapped around her front, his head beside hers, her hands resting on his forearms, both smiling at the camera: the tips exactly. Waist-up on a plain green studio backdrop (the drawn figure is full length)."
+ },
+ {
+  "pose_id": "couple_walk_hands",
+  "pose_name": "Hand-in-hand walk",
+  "category": "COUPLE",
+  "photo": "app/src/main/assets/pose_photos/couple_walk_hands.webp",
+  "bytes": 29800,
+  "source": "Mixkit",
+  "title": "Lovers walking through a lavender field",
+  "page_url": "https://mixkit.co/free-stock-video/lovers-walking-through-a-lavender-field-4530/",
+  "file_url": "https://mixkit.co/free-stock-video/download/4530/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/4530/4530-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 17.2,
+  "hold_time_s_in_preview": 17.5,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/couple-group/clips/4530.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/lovers-walking-through-a-lavender-field-4530/)",
+  "changes": [
+   "still frame at 17.2 s of the 1080p download",
+   "cropped to [580, 0, 1390, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   580,
+   0,
+   1390,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.396,
+  "score_detail": {
+   "score_source_frame": 0.5063,
+   "score_shipped_file": 0.396,
+   "shipped_matches_flipped_pose": true,
+   "fit": 1.0,
+   "tcov": 0.554,
+   "people_detected_source": 2,
+   "people_detected_shipped": 2,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "A couple walking away hand in hand along a lavender-field path, free arms swinging, his head turned to the side; seen from behind and hip-up rather than side-on full length, but the hand-in-hand walk reads at once. Chosen over a full-length Commons back view whose Unsplash CC0 status is still 'review needed' on Commons."
+ },
+ {
+  "pose_id": "couple_piggyback",
+  "pose_name": "Piggyback",
+  "category": "COUPLE",
+  "photo": "app/src/main/assets/pose_photos/couple_piggyback.webp",
+  "bytes": 24674,
+  "source": "Mixkit",
+  "title": "Portrait of a happy couple on a pink background",
+  "page_url": "https://mixkit.co/free-stock-video/portrait-of-a-happy-couple-on-a-pink-background-43817/",
+  "file_url": "https://mixkit.co/free-stock-video/download/43817/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/43817/43817-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 12.983,
+  "hold_time_s_in_preview": 13.2,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/mixkit/clips/43817.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/portrait-of-a-happy-couple-on-a-pink-background-43817/)",
+  "changes": [
+   "still frame at 12.983 s of the 1080p download",
+   "cropped to [603, 0, 1413, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   603,
+   0,
+   1413,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": null,
+  "score_detail": {
+   "score_source_frame": null,
+   "score_shipped_file": null,
+   "shipped_matches_flipped_pose": null,
+   "fit": null,
+   "tcov": null,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": null,
+   "note": "not scorable: the detector finds 1 separate person(s) in the shipped photo and the pose needs 2",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "She rides on his back with her arms wrapped around his shoulders and her head beside and above his, both laughing at the camera: the rider half of the drawn piggyback. Waist-up on a pink backdrop, so the carrier's legs and hands holding her legs are out of frame."
+ },
+ {
+  "pose_id": "couple_dip",
+  "pose_name": "Romantic dip",
+  "category": "COUPLE",
+  "photo": null,
+  "reason": "No dance dip anywhere in the harvest or the Mixkit titles crawled (3,146 cards); top-ranked frames are people sitting on park benches."
+ },
+ {
+  "pose_id": "couple_hold_hands_facing",
+  "pose_name": "Face to face",
+  "category": "COUPLE",
+  "photo": "app/src/main/assets/pose_photos/couple_hold_hands_facing.webp",
+  "bytes": 19416,
+  "source": "Mixkit",
+  "title": "Mature Couple Laughing and Holding Hands",
+  "page_url": "https://mixkit.co/free-stock-video/mature-couple-laughing-and-holding-hands-100733/",
+  "file_url": "https://mixkit.co/free-stock-video/download/100733/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/h4ayi16hqaf9s6ilb4md36ptj7ar",
+  "video_quality": "1080p",
+  "frame_time_s": 12.575,
+  "hold_time_s_in_preview": 12.5,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/couple-group/clips/100733.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/mature-couple-laughing-and-holding-hands-100733/)",
+  "changes": [
+   "still frame at 12.575 s of the 1080p download",
+   "cropped to [542, 0, 1352, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   542,
+   0,
+   1352,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.725,
+  "score_detail": {
+   "score_source_frame": 0.569,
+   "score_shipped_file": 0.725,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.701,
+   "tcov": 0.446,
+   "people_detected_source": 2,
+   "people_detected_shipped": 2,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Standing side-on facing each other about an arm's length apart, holding both hands at waist height, elbows soft, looking at each other and laughing: the tips word for word. Plain green studio backdrop; thigh-up (the clip never shows the feet)."
+ },
+ {
+  "pose_id": "couple_sit_lean",
+  "pose_name": "Sitting close",
+  "category": "COUPLE",
+  "photo": "app/src/main/assets/pose_photos/couple_sit_lean.webp",
+  "bytes": 34136,
+  "source": "Mixkit",
+  "title": "A mature woman gently lean on her lovers shoulder and smiles with the gentle rustle of the trees in the background",
+  "page_url": "https://mixkit.co/free-stock-video/a-mature-woman-gently-lean-on-her-lovers-shoulder-and-100799/",
+  "file_url": "https://mixkit.co/free-stock-video/download/100799/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/weo7mh8kljaqlhqzba2630hnxfv8",
+  "video_quality": "1080p",
+  "frame_time_s": 4.33,
+  "hold_time_s_in_preview": 4.338,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21",
+   "evidence": "WORK/mixkit/clips/100799.json"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-mature-woman-gently-lean-on-her-lovers-shoulder-and-100799/)",
+  "changes": [
+   "still frame at 4.33 s of the 1080p download",
+   "cropped to [0, 300, 1080, 1740] px of the 1080x1920 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   0,
+   300,
+   1080,
+   1740
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": null,
+  "score_detail": {
+   "score_source_frame": null,
+   "score_shipped_file": null,
+   "shipped_matches_flipped_pose": null,
+   "fit": null,
+   "tcov": null,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": null,
+   "note": "not scorable: the detector finds 1 separate person(s) in the shipped photo and the pose needs 2",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "On a park bench she rests her head on his shoulder, eyes closed and smiling, while he smiles down: the defining gesture of 'sitting close'. Head-and-shoulders close-up (vertical clip), so the seated legs of the drawn figure are not shown."
+ },
+ {
+  "pose_id": "couple_walk_toward",
+  "pose_name": "Walk and chat",
+  "category": "COUPLE",
+  "photo": "app/src/main/assets/pose_photos/couple_walk_toward.webp",
+  "bytes": 73820,
+  "source": "Wikimedia Commons",
+  "title": "File:Couple holding hands while walking along a city sidewalk.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Couple_holding_hands_while_walking_along_a_city_sidewalk.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Couple_holding_hands_while_walking_along_a_city_sidewalk.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Couple_holding_hands_while_walking_along_a_city_sidewalk.jpg/1920px-Couple_holding_hands_while_walking_along_a_city_sidewalk.jpg",
+  "author": "Shixart1985",
+  "credit_line": "Own work",
+  "licence": {
+   "name": "CC BY 2.0",
+   "url": "https://creativecommons.org/licenses/by/2.0",
+   "attribution_required": "true",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Shixart1985, CC BY 2.0 (https://creativecommons.org/licenses/by/2.0), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Couple_holding_hands_while_walking_along_a_city_sidewalk.jpg)",
+  "changes": [
+   "cropped to [400, 0, 1360, 1280] px of the 1920x1280 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   400,
+   0,
+   1360,
+   1280
+  ],
+  "source_size": [
+   1920,
+   1280
+  ],
+  "app_matcher_score": 0.9246,
+  "score_detail": {
+   "score_source_frame": 0.8886,
+   "score_shipped_file": 0.9246,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.835,
+   "tcov": 0.835,
+   "people_detected_source": 2,
+   "people_detected_shipped": 2,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "A couple walking straight toward the camera hand in hand on a city pavement, mid-stride, she laughing as if mid-conversation: exactly the drawn 'walk and chat' (hand in hand, toward the camera)."
+ },
+ {
+  "pose_id": "couple_cheek_kiss",
+  "pose_name": "Cheek kiss",
+  "category": "COUPLE",
+  "photo": null,
+  "reason": "No kiss on the cheek: the one clip that looked like it (Mixkit 4738, senior couple on a bench, 5.0 s) is a kiss on the lips at full resolution; Mixkit 100789 at 9.6 s is her face pressed laughing against his cheek, blurred, not a kiss; the green-screen kiss (100753) is on the forehead; 'Couple kissing on the cheek' (930) is two people lying in bed, close-up; 'Boy hugging and kissing his girlfriend on the cheek' (39960) fails the minors rule."
+ },
+ {
+  "pose_id": "group_arms_around",
+  "pose_name": "Shoulder line-up",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No three or more people standing shoulder to shoulder with arms around each other. The 18 group frames are party or New Year scenes with champagne, a cinema audience, an office desk shot and fans on a sofa (beer bottles, team logos); the group hug (Mixkit 4709) is seen from behind. Of the extra clips tried, 'Group of five friends laughing...' (51977) and 'Five female friends joking with poses' (51975) fail the people rules (underwear in the description), 'Girls stop for a group photo' (6674) the minors rule, 'Team holding hands' (25398) is Mixkit Restricted."
+ },
+ {
+  "pose_id": "group_v_formation",
+  "pose_name": "V-formation",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No group with one person stepped forward and the others behind on either side; the top frames are the same party/New Year/cinema scenes, and 'Three models posing...on board a bus' (42575) fails the minors rule (boy, girls)."
+ },
+ {
+  "pose_id": "group_jump",
+  "pose_name": "Jump together",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No group jumping together: the jump clips crawled are concerts, pools, children or single athletes, and the 'friends running' clips (23582, 36913, 21237) are Mixkit Restricted."
+ },
+ {
+  "pose_id": "group_walk_line",
+  "pose_name": "Walking line",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No four friends walking toward the camera: no harvested frame shows it, and the two matching titles (8900 'Group of friends walk on street with coffee', 23212 'Friends walking together in the sunset') are Mixkit Restricted."
+ },
+ {
+  "pose_id": "group_sitting_row",
+  "pose_name": "Sitting row",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No friends sitting side by side with relaxed legs: the best frames are a New Year sofa scene with champagne glasses (51538), a cinema row (100279) and football fans on a sofa (44601: beer bottles, team-kit logos, face paint, legs out of frame); 'Group of exhausted friends sitting during a party' (46878) fails the people rules (smoking)."
+ },
+ {
+  "pose_id": "group_levels",
+  "pose_name": "Stacked levels",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No group with heads at three heights (sitting, crouching, standing); the nearest (Mixkit 100320, two seated at a desk with two standing behind) is an office video-call shot with two levels."
+ },
+ {
+  "pose_id": "group_back_to_back",
+  "pose_name": "Back to back",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No middle person facing the camera with two others back to back against them in any candidate."
+ }
+]

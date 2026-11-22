@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -25,7 +24,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -44,18 +42,18 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -65,11 +63,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.poseit.app.input.HardwareKeys
 import com.poseit.app.pose.PoseCategory
 import com.poseit.app.pose.PoseTemplate
+import com.poseit.app.ui.components.PoseitSnackbarHost
+import com.poseit.app.ui.components.ProvideSurfaceTone
 import com.poseit.app.ui.theme.LightSystemBarIcons
-import com.poseit.app.ui.components.StudioSnackbarHost
+import com.poseit.app.ui.theme.LightSystemBarIconsEffect
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitMotion
+import com.poseit.app.ui.theme.PoseitShapes
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
+import com.poseit.app.ui.theme.SurfaceTone
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -91,7 +93,7 @@ private fun CameraScreenContent(initialPoseId: String?, onBack: () -> Unit, onOp
     Box(
         Modifier
             .fillMaxSize()
-            .background(Studio.LiveView),
+            .background(PoseitColors.backgroundCamera),
     ) {
         CameraPermissionGate(onBack = onBack) {
             // Only once the black camera UI shows: the permission rationale is on light paper and keeps dark icons.
@@ -108,38 +110,14 @@ private fun CameraScreenContent(initialPoseId: String?, onBack: () -> Unit, onOp
 /** Light system-bar icons on the black camera UI, and keep the screen on (hands-free shooting). */
 @Composable
 private fun CameraWindowEffects() {
+    LightSystemBarIconsEffect()
     val view = LocalView.current
     DisposableEffect(view) {
-        val window = view.context.findActivity()?.window
-        val controller = window?.let { WindowCompat.getInsetsController(it, view) }
-        val lightStatus = controller?.isAppearanceLightStatusBars
-        val lightNav = controller?.isAppearanceLightNavigationBars
-        controller?.isAppearanceLightStatusBars = false
-        controller?.isAppearanceLightNavigationBars = false
-        // API 26-28 draw the app's own translucent Paper nav-bar scrim (API 29+ use the system's contrast scrim,
-        // which follows the icon colour; API 24-25 already use a dark one): swap in a dark scrim for white icons.
-        val navColor = if (Build.VERSION.SDK_INT in 26..28) window?.navigationBarColorCompat else null
-        if (navColor != null) window?.navigationBarColorCompat = Studio.LiveView.copy(alpha = 0.5f).toArgb()
         val keepOn = view.keepScreenOn
         view.keepScreenOn = true
-        onDispose {
-            controller?.let { c ->
-                if (lightStatus != null) c.isAppearanceLightStatusBars = lightStatus
-                if (lightNav != null) c.isAppearanceLightNavigationBars = lightNav
-            }
-            if (navColor != null) window?.navigationBarColorCompat = navColor
-            view.keepScreenOn = keepOn
-        }
+        onDispose { view.keepScreenOn = keepOn }
     }
 }
-
-/** Window.navigationBarColor, which is deprecated (and ignored) on API 35+; only used on API 26-28 here. */
-@Suppress("DEPRECATION")
-private var Window.navigationBarColorCompat: Int
-    get() = navigationBarColor
-    set(value) {
-        navigationBarColor = value
-    }
 
 @Composable
 private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery: () -> Unit) {
@@ -289,12 +267,18 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
             val density = LocalDensity.current
             var controlsHeightPx by remember { mutableIntStateOf(0) }
             val controlsHeight = with(density) { controlsHeightPx.toDp() }
+            // The viewfinder is a card like the bars around it: 8dp from the sides and below the top bar card.
+            val edge = Space.edge
             val ratio = ui.aspect.ratio
-            val previewWidth = min(maxWidth, maxHeight * ratio)
+            val previewWidth = min(maxWidth - edge * 2, (maxHeight - edge) * ratio)
             val previewHeight = previewWidth / ratio
-            val free = maxHeight - controlsHeight
-            // Centre the preview above the controls when it fits; otherwise top-align it and let the controls overlap.
-            val previewTop = if (previewHeight <= free) (free - previewHeight) / 2 else 0.dp
+            val free = maxHeight - edge - controlsHeight
+            // Centre the preview above the dock when it fits; otherwise top-align it and let the dock overlap it.
+            val previewTop = edge + if (previewHeight <= free) (free - previewHeight) / 2 else 0.dp
+            val dockTop = maxHeight - controlsHeight + edge
+            // A short screen gets the compact dock (smaller tiles and shutter), so more of the preview stays clear.
+            val compactDock = maxHeight < CompactDockBelow
+            val dockOverPreview = controlsHeightPx > 0 && previewTop + previewHeight > dockTop + 1.dp
 
             Box(
                 Modifier
@@ -302,7 +286,8 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                     .offset(y = previewTop)
                     .width(previewWidth)
                     .aspectRatio(ratio)
-                    .clipToBounds(),
+                    .clip(PoseitShapes.Card)
+                    .background(PoseitColors.backgroundCamera),
             ) {
                 AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
                 PoseOverlay(
@@ -319,12 +304,14 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                     storageBlocked = storageBlocked,
                     onOpenTips = { showTips = true },
                     onAllowStorage = { askStorage(thenShoot = false) },
+                    // Where the dock covers the bottom of the preview, the rail and notices centre above it.
+                    bottomInset = if (dockOverPreview) previewTop + previewHeight - dockTop else 0.dp,
                 )
                 Box(
                     Modifier
                         .fillMaxSize()
                         .graphicsLayer { alpha = flashAlpha.value }
-                        .background(Studio.Mannequin),
+                        .background(PoseitColors.cameraContent),
                 )
             }
 
@@ -333,34 +320,36 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .onSizeChanged { controlsHeightPx = it.height }
-                    // Makes the whole panel a hit target (without consuming anything), so touches in its gaps and
-                    // padding don't fall through to the preview below (tap-to-focus, dragging the guide).
+                    // Makes the whole dock area a hit target (without consuming anything), so touches in its gaps and
+                    // margins don't fall through to the preview below (tap-to-focus, dragging the guide).
                     .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }
-                    // Flat black at 45%: black over the surround, a translucent control bar where it overlaps the
-                    // preview on short screens.
-                    .background(Studio.ControlScrim)
                     .navigationBarsPadding()
-                    .padding(top = Space.m),
+                    .padding(start = edge, end = edge, top = edge, bottom = edge),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                PoseStrip(
-                    poses = stripPoses,
-                    selectedId = ui.pose?.id,
-                    favorites = favorites,
-                    onSelect = vm::selectPose,
-                    onOpenAll = { showAllPoses = true },
-                )
-                ShutterRow(
-                    lastPhoto = ui.lastPhoto,
-                    sessionActive = session != null,
-                    timer = ui.timer,
-                    capturing = ui.capturing,
-                    onGallery = onOpenGallery,
-                    onShutter = onShutter,
-                    onFlip = vm::flipLens,
-                )
+                CameraDock(overPreview = dockOverPreview) {
+                    PoseStrip(
+                        poses = stripPoses,
+                        selectedId = ui.pose?.id,
+                        favorites = favorites,
+                        onSelect = vm::selectPose,
+                        onOpenAll = { showAllPoses = true },
+                        compact = compactDock,
+                    )
+                    ShutterRow(
+                        lastPhoto = ui.lastPhoto,
+                        sessionActive = session != null,
+                        timer = ui.timer,
+                        capturing = ui.capturing,
+                        onGallery = onOpenGallery,
+                        onShutter = onShutter,
+                        onFlip = vm::flipLens,
+                        compact = compactDock,
+                    )
+                }
             }
 
-            StudioSnackbarHost(
+            PoseitSnackbarHost(
                 snackbar,
                 Modifier
                     .align(Alignment.BottomCenter)
@@ -405,6 +394,7 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
             favorite = tipsPose.id in favorites,
             onToggleFavorite = { vm.toggleFavorite(tipsPose.id) },
             onDismiss = { showTips = false },
+            mirrored = ui.poseMirrored,
         )
     }
     if (showPhotoshoot) {
@@ -429,72 +419,104 @@ private fun PreviewHud(
     storageBlocked: Boolean,
     onOpenTips: () -> Unit,
     onAllowStorage: () -> Unit,
+    bottomInset: Dp = 0.dp,
 ) {
     // Collected here so hint / countdown changes only recompose the HUD.
     val coaching by vm.coaching.collectAsStateWithLifecycle()
     val countdown by vm.countdown.collectAsStateWithLifecycle()
-    Box(
-        Modifier
-            .fillMaxSize()
-            .padding(Space.m),
-    ) {
-        // The pose card and the top-left notices share the top edge, so they take turns: the photoshoot counter wins,
-        // then the pose card (for a few seconds after a pose change), then the detector notice.
-        val photoshoot = session != null && session.isPhotoshoot
-        val showPill = pillVisible && !photoshoot
-        when {
-            photoshoot -> ShotCounter(session!!, vm::stopSession, Modifier.align(Alignment.TopStart))
-            // In the corner, clear of the guide figure; the score badge shows a warning glyph too.
-            ui.detectorError != null && ui.hasPose -> AnimatedVisibility(
-                visible = !showPill,
-                enter = fadeIn(tween(180)),
-                exit = fadeOut(tween(150)),
-                modifier = Modifier.align(Alignment.TopStart),
-            ) { DetectorNotice() }
-        }
-        if (ui.hasPose) {
-            ScoreBadge(vm, ui.detectorReady, ui.detectorError, Modifier.align(Alignment.TopEnd))
-        }
-        PosePill(
-            pose = ui.pose,
-            visible = showPill,
-            onClick = onOpenTips,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(horizontal = ScoreBadgeSize + Space.s),
-        )
-        Column(
+    // The HUD is a dark area: shared components inside pick their on-dark colours.
+    ProvideSurfaceTone(SurfaceTone.Dark) {
+        Box(
             Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = ScoreBadgeSize + Space.l),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Space.s),
+                .fillMaxSize()
+                .padding(bottom = bottomInset)
+                .padding(Space.m),
         ) {
-            if (ui.hasPose && countdown == null) HintBanner(coaching.hint)
-            LightingChip(hint = coaching.lighting.takeIf { countdown == null })
-            if (storageBlocked) {
-                // Persistent, so kept clear of the ToolRail on the right edge (the hint banner above may overlap
-                // it briefly; this notice stays up for as long as storage is denied).
-                CameraErrorNotice(
-                    STORAGE_BLOCKED_NOTICE,
-                    Modifier
-                        .padding(horizontal = RoundControlSize + Space.s)
-                        .clip(StudioShapes.Medium)
-                        .clickable(onClickLabel = "Allow storage access", onClick = onAllowStorage),
+            // The pose card and the top-left notices share the top edge, so they take turns: the photoshoot counter wins,
+            // then the pose card (for a few seconds after a pose change), then the detector notice.
+            val photoshoot = session != null && session.isPhotoshoot
+            val showPill = pillVisible && !photoshoot
+            when {
+                photoshoot -> ShotCounter(session!!, vm::stopSession, Modifier.align(Alignment.TopStart))
+                // In the corner, clear of the guide figure; the score badge shows a warning glyph too.
+                ui.detectorError != null && ui.hasPose -> AnimatedVisibility(
+                    visible = !showPill,
+                    enter = fadeIn(PoseitMotion.standard(PoseitMotion.MEDIUM)),
+                    exit = fadeOut(tween(PoseitMotion.FAST, easing = PoseitMotion.EaseExit)),
+                    modifier = Modifier.align(Alignment.TopStart),
+                ) { DetectorNotice() }
+            }
+            if (ui.hasPose) {
+                ScoreBadge(vm, ui.detectorReady, ui.detectorError, Modifier.align(Alignment.TopEnd))
+            }
+            PosePill(
+                pose = ui.pose,
+                visible = showPill,
+                onClick = onOpenTips,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = ScoreBadgeSize + Space.s),
+            )
+            Column(
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = ScoreBadgeSize + Space.l),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Space.s),
+            ) {
+                if (ui.hasPose && countdown == null) HintBanner(coaching.hint)
+                LightingChip(hint = coaching.lighting.takeIf { countdown == null })
+                if (storageBlocked) {
+                    // Persistent, so kept clear of the ToolRail on the right edge (the hint banner above may overlap
+                    // it briefly; this notice stays up for as long as storage is denied).
+                    CameraErrorNotice(
+                        STORAGE_BLOCKED_NOTICE,
+                        Modifier
+                            .padding(horizontal = CameraControlSize + Space.s)
+                            .clip(PoseitShapes.Control)
+                            .clickable(onClickLabel = "Allow storage access", onClick = onAllowStorage),
+                    )
+                }
+            }
+            RailSlot(clearTop = if (ui.hasPose) ScoreBadgeSize + Space.s else 0.dp) {
+                ToolRail(
+                    ui = ui,
+                    onTips = onOpenTips,
+                    onToggleLock = vm::toggleOverlayLock,
+                    onToggleMirror = vm::togglePoseMirror,
+                    onOverlayMode = vm::setOverlayMode,
+                    onToggleSceneLock = vm::toggleSceneLock,
                 )
             }
+            // Kept clear of the tool rail on the right edge.
+            ui.cameraError?.let {
+                CameraErrorNotice(it, Modifier.align(Alignment.Center).padding(horizontal = CameraControlSize + Space.s))
+            }
+            CountdownNumber(countdown, Modifier.align(Alignment.Center))
         }
-        ToolRail(
-            ui = ui,
-            onTips = onOpenTips,
-            onToggleLock = vm::toggleOverlayLock,
-            onToggleMirror = vm::togglePoseMirror,
-            onOverlayMode = vm::setOverlayMode,
-            onToggleSceneLock = vm::toggleSceneLock,
-            modifier = Modifier.align(Alignment.CenterEnd),
-        )
-        ui.cameraError?.let { CameraErrorNotice(it, Modifier.align(Alignment.Center)) }
-        CountdownNumber(countdown, Modifier.align(Alignment.Center))
+    }
+}
+
+/**
+ * Places the tool rail on the right edge: centred on the HUD while that keeps it below the score badge
+ * ([clearTop]), else centred in the space under the badge, else (a short screen) right under the badge.
+ */
+@Composable
+private fun RailSlot(clearTop: Dp, content: @Composable () -> Unit) {
+    Layout(content, Modifier.fillMaxSize()) { measurables, constraints ->
+        val top = clearTop.roundToPx()
+        val rail = measurables.first().measure(Constraints(maxWidth = constraints.maxWidth))
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            val height = constraints.maxHeight
+            val centred = (height - rail.height) / 2
+            val below = height - top
+            val y = when {
+                centred >= top -> centred
+                rail.height <= below -> top + (below - rail.height) / 2
+                else -> top
+            }
+            rail.place(constraints.maxWidth - rail.width, y)
+        }
     }
 }
 
@@ -548,6 +570,9 @@ internal fun buildStripPoses(
 }
 
 private const val POSE_PILL_MILLIS = 4000L
+
+/** Below this height under the top bar, the dock goes compact. */
+private val CompactDockBelow = 600.dp
 private const val REAPPLY_DELAY_MILLIS = 600L
 internal const val STORAGE_BLOCKED_NOTICE =
     "Allow storage access to save photos. Auto-capture and hand-raise are paused until then."

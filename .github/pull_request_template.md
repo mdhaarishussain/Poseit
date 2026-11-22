@@ -15,7 +15,7 @@
 
 Tick what applies. See [docs/DESIGN.md](https://github.com/mdhaarishussain/Poseit/blob/main/docs/DESIGN.md).
 
-- [ ] Colours come from the Studio tokens; signal colours appear only for match feedback and destructive actions.
-- [ ] Type uses the Archivo roles from the type table, and the Expanded cut only where DESIGN.md allows it.
-- [ ] Sentence case, plain verbs and British spelling; no emoji, ALL-CAPS labels, middle dots or arrows in labels.
+- [ ] Colours come from the PoseitColors roles: two colours plus the one lavender accent (always with dark text on it); signal colours appear only for match feedback and destructive actions.
+- [ ] Type uses the Hanken Grotesk roles from the type table; capitals (`caps`) only on pill buttons, badges, segmented options and tabs.
+- [ ] Sentence case in code and copy, plain verbs and British spelling; no emoji, middle dots or arrows in labels.
 - [ ] New pose art is generated with the pose DSL, never copied from photos or other apps.

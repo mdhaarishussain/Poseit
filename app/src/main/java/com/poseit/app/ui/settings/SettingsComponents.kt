@@ -1,10 +1,8 @@
 package com.poseit.app.ui.settings
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -12,20 +10,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -33,7 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -46,63 +44,76 @@ import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.FigurePaint
 import com.poseit.app.ui.components.FigureStyle
 import com.poseit.app.ui.components.HairlineDivider
+import com.poseit.app.ui.components.RowGroup
 import com.poseit.app.ui.components.SectionHeading
-import com.poseit.app.ui.components.StudioIconSize
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.components.fitFrameRect
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitMotion
+import com.poseit.app.ui.theme.PoseitRadius
+import com.poseit.app.ui.theme.PoseitShapes
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
-import com.poseit.app.ui.theme.StudioType
 
 /*
- * Pieces of the settings screen that the shared Studio rows don't cover: the group frame, the picture tiles for
- * the guide style and the grid.
+ * Pieces of the settings screen that the shared rows don't cover: the group frame, and the small dark stage tiles
+ * that preview the guide style and the grid.
  */
 
-/** A settings group: a heading on the gutter, then its rows. The list puts 32dp between groups. */
+/**
+ * A settings group: a [SectionHeading] in line with the text inside cards, then its rows in one outlined cream
+ * [RowGroup] (which draws the hairlines between rows). Each direct child of [content] is one row. Expects to sit
+ * [Space.edge] in from the screen sides, like every card.
+ */
 @Composable
-internal fun SettingsGroup(title: String, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+internal fun SettingsGroup(
+    title: String,
+    modifier: Modifier = Modifier,
+    action: (@Composable () -> Unit)? = null,
+    content: @Composable () -> Unit,
+) {
     Column(modifier.fillMaxWidth()) {
-        SectionHeading(title, Modifier.padding(horizontal = Space.gutter))
-        Spacer(Modifier.height(Space.xs))
+        SectionHeading(title, Modifier.padding(horizontal = Space.cardPadding), action = action)
+        Spacer(Modifier.height(Space.s))
+        RowGroup(content = content)
+    }
+}
+
+/** A hairline between two rows that are not in a RowGroup (the camera's Quick settings sheet), on the row padding. */
+@Composable
+internal fun RowDivider() = HairlineDivider(Modifier.padding(horizontal = Space.cardPadding))
+
+/** A row title and subtitle above content of its own (picture tiles), padded like the other rows of a group. */
+@Composable
+internal fun TitledRow(title: String, subtitle: String?, content: @Composable ColumnScope.() -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(TitledRowPadding)) {
+        Text(title, style = PoseitType.bodyStrong, color = PoseitColors.textPrimary)
+        if (subtitle != null) Text(subtitle, style = PoseitType.supporting, color = PoseitColors.textSecondary)
+        Spacer(Modifier.height(Space.m))
         content()
     }
 }
 
-/** A Hairline between two rows of one group, on the gutters. */
-@Composable
-internal fun RowDivider() = HairlineDivider(Modifier.padding(horizontal = Space.gutter))
+private val TitledRowPadding = PaddingValues(start = Space.cardPadding, end = Space.cardPadding, top = Space.m, bottom = Space.l)
 
-/** The end of a row that opens something else (a file picker, a dialog, the intro). */
-@Composable
-internal fun RowChevron() {
-    Icon(
-        Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-        contentDescription = null,
-        tint = Studio.Graphite,
-        // The glyph has ~8dp of air on its right; move it out so it ends on the gutter, in line with the switches.
-        modifier = Modifier
-            .offset(x = 7.dp)
-            .size(StudioIconSize),
-    )
-}
-
-/** Equally wide picture tiles under a row title, on the gutters, as one radio group. */
+/** Equally wide picture tiles as one radio group. */
 @Composable
 internal fun TileRow(content: @Composable (Modifier) -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
-            .selectableGroup()
-            .padding(start = Space.gutter, end = Space.gutter, bottom = Space.m),
+            .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(Space.s),
     ) { content(Modifier.weight(1f)) }
 }
 
+private val RingInset = 4.dp
+private val RingWidth = 2.dp
+
 /**
- * A choice drawn as a small pose-tile-like picture: a Set patch with the Medium radius and the label below it.
- * The selected tile takes a 2dp Ink outline and an Ink label; the others have Graphite labels.
+ * A choice drawn as a small dark stage tile (3:4, 12dp corners) with its label below (two lines at most, for large
+ * font sizes). The selected tile takes a 2dp lavender ring 4dp inside its edge and a primary, medium-weight label; the others have no ring and secondary
+ * labels, so the choice never rests on colour alone.
  * @param description the radio button's accessible name
  */
 @Composable
@@ -115,7 +126,11 @@ internal fun ChoiceTile(
     preview: @Composable BoxScope.() -> Unit,
 ) {
     val source = remember { MutableInteractionSource() }
-    val outline by animateColorAsState(if (selected) Studio.Ink else Color.Transparent, tween(150), label = "tileOutline")
+    val ring by animateColorAsState(
+        if (selected) PoseitColors.accent else Color.Transparent,
+        PoseitMotion.standard(PoseitMotion.FAST),
+        label = "tileRing",
+    )
     Column(
         modifier
             .selectable(selected = selected, interactionSource = source, indication = null, role = Role.RadioButton, onClick = onClick)
@@ -125,26 +140,38 @@ internal fun ChoiceTile(
             Modifier
                 .fillMaxWidth()
                 .aspectRatio(3f / 4f)
-                .clip(StudioShapes.Medium)
-                .background(Studio.Set)
-                .indication(source, ripple())
-                .border(2.dp, outline, StudioShapes.Medium),
+                .clip(PoseitShapes.Control)
+                .background(PoseitColors.backgroundStage)
+                .indication(source, ripple(color = PoseitColors.textPrimaryInverted))
+                .drawWithContent {
+                    drawContent()
+                    // The ring sits 4dp inside the edge, on the dark stage, where lavender has strong contrast.
+                    val inset = RingInset.toPx()
+                    val stroke = RingWidth.toPx()
+                    val corner = (PoseitRadius.control - RingInset).toPx()
+                    drawRoundRect(
+                        ring,
+                        topLeft = Offset(inset + stroke / 2, inset + stroke / 2),
+                        size = Size(size.width - 2 * inset - stroke, size.height - 2 * inset - stroke),
+                        cornerRadius = CornerRadius(corner),
+                        style = Stroke(stroke),
+                    )
+                },
             content = preview,
         )
         Spacer(Modifier.height(Space.s))
         Text(
             label,
-            style = StudioType.label,
-            color = if (selected) Studio.Ink else Studio.Graphite,
-            maxLines = 1,
+            style = if (selected) PoseitType.bodyStrong else PoseitType.body,
+            color = if (selected) PoseitColors.textPrimary else PoseitColors.textSecondary,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
     }
 }
 
 /**
- * The guide as each style draws it. On the light tile the outline and stick styles are drawn in Ink (the camera
- * draws them in Mannequin white, which would vanish on Set) and the silhouette is the lay figure. The tiles follow
+ * The guide as each style draws it over the camera: cream on the dark stage, like the live view. The tiles follow
  * the opacity slider, but never fade below 45% so the three styles stay legible.
  */
 @Composable
@@ -157,21 +184,21 @@ internal fun OverlayPreview(template: PoseTemplate, style: OverlayStyle, opacity
         val rect = fitFrameRect(size, template.frameAspect)
         template.figures.forEachIndexed { i, figure ->
             val paint = when (style) {
-                OverlayStyle.SILHOUETTE -> FigurePaint(fill = Studio.FigureTones[i % Studio.FigureTones.size])
-                OverlayStyle.OUTLINE -> FigurePaint(style = FigureStyle.OUTLINE, fill = Studio.Ink)
-                OverlayStyle.STICK -> FigurePaint(style = FigureStyle.STICK, fill = Studio.Ink, showFaceMarker = false)
+                OverlayStyle.SILHOUETTE -> FigurePaint(fill = PoseitColors.figureTones[i % PoseitColors.figureTones.size])
+                OverlayStyle.OUTLINE -> FigurePaint(style = FigureStyle.OUTLINE, fill = PoseitColors.figureFill)
+                OverlayStyle.STICK -> FigurePaint(style = FigureStyle.STICK, fill = PoseitColors.figureFill, showFaceMarker = false)
             }
-            drawPoseFigure(figure, template.frameAspect, rect, paint.copy(alpha = 0.35f + 0.65f * opacity.coerceIn(0f, 1f)))
+            drawPoseFigure(figure, template.frameAspect, rect, paint.copy(alpha = 0.45f + 0.55f * opacity.coerceIn(0f, 1f)))
         }
     }
 }
 
-/** The lines of a composition grid across the tile. "Off" is the bare tile. */
+/** The lines of a composition grid across the dark tile, in viewfinder cream. "Off" is the bare stage. */
 @Composable
 internal fun GridPreview(grid: GridType) {
     Canvas(Modifier.fillMaxSize()) {
         val stroke = 1.dp.toPx()
-        val color = Studio.Ink.copy(alpha = 0.5f)
+        val color = PoseitColors.textPrimaryInverted.copy(alpha = 0.6f)
         val w = size.width
         val h = size.height
         fun verticalAt(f: Float) = drawLine(color, Offset(w * f, 0f), Offset(w * f, h), stroke)

@@ -1,9 +1,14 @@
 package com.poseit.app.ui.nav
 
 import android.net.Uri
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -18,7 +23,10 @@ import com.poseit.app.ui.editor.PoseEditorScreen
 import com.poseit.app.ui.gallery.GalleryScreen
 import com.poseit.app.ui.library.LibraryScreen
 import com.poseit.app.ui.onboarding.OnboardingScreen
+import com.poseit.app.ui.settings.PhotoCreditsScreen
 import com.poseit.app.ui.settings.SettingsScreen
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitMotion
 
 /** Key of a one-off confirmation ("Pose saved", "Pose deleted") handed to the screen below or above. */
 private const val MESSAGE = "message"
@@ -32,6 +40,7 @@ object Routes {
     const val CREATE = "create"
     const val EDITOR = "editor?poseId={poseId}"
     const val SETTINGS = "settings"
+    const val PHOTO_CREDITS = "settings/photo-credits"
 
     fun detail(id: String) = "pose/${Uri.encode(id)}"
     fun camera(id: String?, mirrored: Boolean = false) = when {
@@ -59,10 +68,26 @@ private fun NavHostController.openSaved(id: String, message: String) {
     currentBackStackEntry?.savedStateHandle?.set(MESSAGE, message)
 }
 
+/*
+ * Screen changes are a short cross-fade on the Astryx curves (docs/DESIGN.md, "Motion"): the arriving screen fades
+ * in over 250ms on the standard curve while the leaving one fades out over 200ms on the exit curve, over the cream
+ * canvas, instead of Navigation's default 700ms linear fade.
+ */
+private val EnterScreen = fadeIn(tween(PoseitMotion.SLOW, easing = PoseitMotion.EaseStandard))
+private val ExitScreen = fadeOut(tween(PoseitMotion.MEDIUM, easing = PoseitMotion.EaseExit))
+
 @Composable
 fun PoseitNavHost(startOnboarding: Boolean) {
     val nav = rememberNavController()
-    NavHost(navController = nav, startDestination = if (startOnboarding) Routes.ONBOARDING else Routes.LIBRARY) {
+    NavHost(
+        navController = nav,
+        startDestination = if (startOnboarding) Routes.ONBOARDING else Routes.LIBRARY,
+        modifier = Modifier.background(PoseitColors.backgroundBody),
+        enterTransition = { EnterScreen },
+        exitTransition = { ExitScreen },
+        popEnterTransition = { EnterScreen },
+        popExitTransition = { ExitScreen },
+    ) {
         composable(Routes.ONBOARDING) { entry ->
             OnboardingScreen(onDone = {
                 nav.ifCurrent(entry) {
@@ -151,7 +176,11 @@ fun PoseitNavHost(startOnboarding: Boolean) {
             SettingsScreen(
                 onBack = { nav.ifCurrent(entry) { popBackStack() } },
                 onShowIntro = { nav.ifCurrent(entry) { navigate(Routes.ONBOARDING) } },
+                onOpenPhotoCredits = { nav.ifCurrent(entry) { navigate(Routes.PHOTO_CREDITS) } },
             )
+        }
+        composable(Routes.PHOTO_CREDITS) { entry ->
+            PhotoCreditsScreen(onBack = { nav.ifCurrent(entry) { popBackStack() } })
         }
     }
 }

@@ -1,9 +1,7 @@
 package com.poseit.app.ui.camera
 
 import android.net.Uri
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,19 +24,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.BurstMode
 import androidx.compose.material.icons.outlined.Cameraswitch
 import androidx.compose.material.icons.outlined.CenterFocusStrong
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.FlashAuto
 import androidx.compose.material.icons.outlined.FlashOff
 import androidx.compose.material.icons.outlined.FlashOn
@@ -46,11 +42,9 @@ import androidx.compose.material.icons.outlined.Grid3x3
 import androidx.compose.material.icons.outlined.GridGoldenratio
 import androidx.compose.material.icons.outlined.GridOff
 import androidx.compose.material.icons.outlined.GridView
-import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.TimerOff
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -72,23 +66,54 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.poseit.app.camera.FlashMode
 import com.poseit.app.camera.SceneAspect
 import com.poseit.app.data.GridType
 import com.poseit.app.pose.PoseTemplate
+import com.poseit.app.ui.components.CapsLabel
+import com.poseit.app.ui.components.CircleIconButton
+import com.poseit.app.ui.components.CircleVariant
+import com.poseit.app.ui.components.ConnectedCardStack
+import com.poseit.app.ui.components.IconGlyphInset
+import com.poseit.app.ui.components.IconSize
+import com.poseit.app.ui.components.PillBarItemSize
+import com.poseit.app.ui.components.PlainIconButton
 import com.poseit.app.ui.components.PoseTile
 import com.poseit.app.ui.components.PoseTileSize
-import com.poseit.app.ui.components.StudioIconSize
-import com.poseit.app.ui.components.StudioMenu
-import com.poseit.app.ui.components.StudioMenuDivider
-import com.poseit.app.ui.components.StudioMenuItem
+import com.poseit.app.ui.components.PoseitIcons
+import com.poseit.app.ui.components.PoseitMenu
+import com.poseit.app.ui.components.PoseitMenuDivider
+import com.poseit.app.ui.components.PoseitMenuItem
+import com.poseit.app.ui.components.ProvideSurfaceTone
+import com.poseit.app.ui.components.VerticalHairline
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitMotion
+import com.poseit.app.ui.theme.PoseitShapes
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioShapes
-import com.poseit.app.ui.theme.StudioType
+import com.poseit.app.ui.theme.SurfaceTone
+
+/*
+ * The camera's chrome cards (docs/DESIGN.md, "Screen map", Camera): the top bar card and, at the bottom, the dock,
+ * a connected pair of cards (the pose strip fused to the shutter row by the concave necks). On the black surround
+ * the cards take the raised card colour, one step up from black, so they read as cards; the pose tiles and the
+ * round side controls inside them take the stage colour and sit in them like inset tiles.
+ */
+
+/** The camera's card colour: one step up from the black surround (1.4:1), so the cards separate from it. */
+internal val CameraCardColor = PoseitColors.backgroundCardRaised
+
+/** Height of the camera's top bar card: shorter than the app's 64dp bar, the viewfinder needs the room. */
+internal val CameraBarHeight = 56.dp
+
+/** The dock never stretches wider than this on a tablet; it centres under the preview. */
+internal val DockMaxWidth = 600.dp
 
 private fun FlashMode.icon(): ImageVector = when (this) {
     FlashMode.OFF -> Icons.Outlined.FlashOff
@@ -114,9 +139,13 @@ internal fun SceneAspect.next(): SceneAspect = SceneAspect.entries[(ordinal + 1)
 /** Width of a tile in the pose strip (the tile is 3:4). */
 private val StripTileWidth = 56.dp
 
+/** Width of a strip tile in the compact dock of a short screen. */
+private val CompactStripTileWidth = 48.dp
+
 /**
- * Back, flash, grid, aspect ratio, timer menu and quick settings, as round controls on the black surround. Flash and
- * grid cycle through their states and show the current one in their glyph; the timer inverts while one is set.
+ * The camera's top bar card: back, then flash, grid, aspect ratio, the timer menu and quick settings as cream glyphs
+ * on a dark card 8dp below the status bar and from the sides. Flash and grid cycle through their states and show the
+ * current one in their glyph; the timer becomes a cream disc while one is set.
  */
 @Composable
 internal fun CameraTopBar(
@@ -134,50 +163,57 @@ internal fun CameraTopBar(
     onQuickSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Box(
         modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-            .height(56.dp)
-            // Discs land 14dp from the edge, in line with the tool rail over the preview.
-            .padding(horizontal = Space.m),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Space.xs),
+            .padding(start = Space.edge, end = Space.edge, top = Space.edge),
     ) {
-        RoundControl(Icons.AutoMirrored.Outlined.ArrowBack, "Back", onClick = onBack)
-        Spacer(Modifier.weight(1f))
-        if (hasFlash) {
-            RoundControl(flash.icon(), "Flash ${flash.label()}", onClick = onFlash)
+        ProvideSurfaceTone(SurfaceTone.Dark) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(CameraBarHeight)
+                    .background(CameraCardColor, PoseitShapes.Card)
+                    // The first and last glyphs land on the card padding, as in the app's top bar card.
+                    .padding(horizontal = Space.cardPadding - IconGlyphInset),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                PlainIconButton(PoseitIcons.back, "Back", onClick = onBack)
+                Spacer(Modifier.weight(1f))
+                if (hasFlash) {
+                    PlainIconButton(flash.icon(), "Flash ${flash.label()}", onClick = onFlash)
+                }
+                PlainIconButton(grid.icon(), "Grid: ${grid.label}", onClick = onGrid)
+                AspectToggle(aspect, onAspect)
+                TimerMenuButton(timer, onTimer, onPhotoshoot)
+                PlainIconButton(Icons.Outlined.Tune, "Quick settings", onClick = onQuickSettings)
+            }
         }
-        RoundControl(grid.icon(), "Grid: ${grid.label}", onClick = onGrid)
-        AspectToggle(aspect, onAspect)
-        TimerMenuButton(timer, onTimer, onPhotoshoot)
-        RoundControl(Icons.Outlined.Tune, "Quick settings", onClick = onQuickSettings)
     }
 }
 
-/** The aspect ratio as an outlined label ("3:4"), engraved-numeral style. Tapping cycles the ratios. */
+/** The aspect ratio as a small outlined pill ("3:4") in numerals. Tapping cycles the ratios. */
 @Composable
 private fun AspectToggle(aspect: SceneAspect, onClick: () -> Unit) {
     Box(
         Modifier
             .heightIn(min = 48.dp)
-            .clip(StudioShapes.Small)
+            .clip(PoseitShapes.Pill)
             .clickable(role = Role.Button, onClickLabel = "Change aspect ratio", onClick = onClick)
             .semantics { contentDescription = "Aspect ratio ${aspect.label}" }
             .padding(horizontal = Space.xs),
         contentAlignment = Alignment.Center,
     ) {
-        // A fixed graphic: sized in dp so it keeps its proportions in the bar at any font scale.
-        val size = with(LocalDensity.current) { 13.dp.toSp() }
+        // In sp, so it grows with the user's text size like every other label.
         Text(
             aspect.label,
-            style = StudioType.numeral(size),
-            color = Studio.Mannequin,
+            style = PoseitType.numeral(13.sp, FontWeight.Medium),
+            color = PoseitColors.textPrimaryInverted,
             maxLines = 1,
             modifier = Modifier
-                .border(1.5.dp, Studio.Mannequin, StudioShapes.Small)
-                .padding(horizontal = Space.s, vertical = Space.xs),
+                .border(1.dp, PoseitColors.borderEmphasizedInverted, PoseitShapes.Pill)
+                .padding(horizontal = Space.s + Space.xs / 2, vertical = Space.xs),
         )
     }
 }
@@ -196,19 +232,23 @@ private fun TimerMenuButton(timer: TimerOption, onTimer: (TimerOption) -> Unit, 
         is TimerOption.Photoshoot -> Icons.Outlined.BurstMode
     }
     Box {
-        // The delay itself is shown on the shutter; the inverted disc says a timer is set.
-        RoundControl(icon, description, onClick = { open = true }, active = timer != TimerOption.Off)
-        StudioMenu(expanded = open, onDismissRequest = { open = false }) {
+        // The delay itself is shown on the shutter; the cream disc says a timer is set.
+        if (timer == TimerOption.Off) {
+            PlainIconButton(icon, description, onClick = { open = true })
+        } else {
+            CircleIconButton(icon, description, onClick = { open = true }, variant = CircleVariant.Light, size = 40.dp)
+        }
+        PoseitMenu(expanded = open, onDismissRequest = { open = false }) {
             @Composable
             fun item(text: String, option: TimerOption, icon: ImageVector) =
-                StudioMenuItem(text, leadingIcon = icon, selected = timer == option) {
+                PoseitMenuItem(text, leadingIcon = icon, selected = timer == option) {
                     open = false
                     onTimer(option)
                 }
             item("Off", TimerOption.Off, Icons.Outlined.TimerOff)
             TimerOption.DELAYS.forEach { s -> item("$s seconds", TimerOption.Delay(s), Icons.Outlined.Timer) }
-            StudioMenuDivider()
-            StudioMenuItem("Photoshoot…", leadingIcon = Icons.Outlined.BurstMode, selected = timer is TimerOption.Photoshoot) {
+            PoseitMenuDivider()
+            PoseitMenuItem("Photoshoot…", leadingIcon = Icons.Outlined.BurstMode, selected = timer is TimerOption.Photoshoot) {
                 open = false
                 onPhotoshoot()
             }
@@ -217,8 +257,24 @@ private fun TimerMenuButton(timer: TimerOption, onTimer: (TimerOption) -> Unit, 
 }
 
 /**
+ * The dock: the camera's bottom cards, fused into one body by the connected-card necks (pass the pose strip and the
+ * shutter row as its two children). Over the black surround it is the camera card colour; [overPreview] makes it
+ * translucent where a short screen pushes it over the bottom of the preview, so feet stay visible under it.
+ */
+@Composable
+internal fun CameraDock(overPreview: Boolean, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    ConnectedCardStack(
+        modifier
+            .widthIn(max = DockMaxWidth)
+            .fillMaxWidth(),
+        color = if (overPreview) CameraCardColor.copy(alpha = 0.62f) else CameraCardColor,
+        content = content,
+    )
+}
+
+/**
  * Horizontal strip: "All poses", a "None" tile (plain camera), then favourites and the current category, as compact
- * pose tiles. The selected tile gets a white outline and is scrolled into view.
+ * pose tiles inset in the dock's first card. The selected tile gets the lavender outline and is scrolled into view.
  */
 @Composable
 internal fun PoseStrip(
@@ -228,56 +284,75 @@ internal fun PoseStrip(
     onSelect: (PoseTemplate?) -> Unit,
     onOpenAll: () -> Unit,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
+    val tileWidth = if (compact) CompactStripTileWidth else StripTileWidth
     val listState = rememberLazyListState()
     LaunchedEffect(selectedId, poses) {
         val index = if (selectedId == null) 0 else poses.indexOfFirst { it.id == selectedId } + 1
         if (index >= 0) listState.animateScrollToItem((index - 1).coerceAtLeast(0))
     }
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        StripActionTile(
-            icon = Icons.Outlined.GridView,
-            label = "All",
-            description = "All poses",
-            selected = false,
-            onClick = onOpenAll,
-            modifier = Modifier.padding(start = Space.m),
-        )
-        LazyRow(
-            state = listState,
-            contentPadding = PaddingValues(horizontal = Space.s),
-            horizontalArrangement = Arrangement.spacedBy(Space.s),
-            modifier = Modifier.weight(1f),
+    ProvideSurfaceTone(SurfaceTone.Dark) {
+        Row(
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = if (compact) Space.s else Space.s + Space.xs / 2),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            item(key = "none") {
-                StripActionTile(
-                    icon = Icons.Outlined.Block,
-                    label = "None",
-                    description = "No pose, plain camera",
-                    selected = selectedId == null,
-                    onClick = { onSelect(null) },
-                )
-            }
-            items(poses, key = { it.id }) { pose ->
-                val selected = pose.id == selectedId
-                val source = remember { MutableInteractionSource() }
-                PoseTile(
-                    pose = pose,
-                    size = PoseTileSize.Compact,
-                    selected = selected,
-                    onDark = true,
-                    interactionSource = source,
-                    modifier = Modifier
-                        .width(StripTileWidth)
-                        .selectable(selected = selected, interactionSource = source, indication = null, role = Role.Button) { onSelect(pose) }
-                        .semantics { contentDescription = pose.name },
-                )
+            StripActionTile(
+                icon = Icons.Outlined.GridView,
+                label = "All",
+                description = "All poses",
+                selected = false,
+                onClick = onOpenAll,
+                width = tileWidth,
+                modifier = Modifier.padding(start = Space.m),
+            )
+            Spacer(Modifier.width(Space.s))
+            VerticalHairline(Modifier.height(tileWidth))
+            LazyRow(
+                state = listState,
+                contentPadding = PaddingValues(horizontal = Space.s),
+                horizontalArrangement = Arrangement.spacedBy(Space.s),
+                // A hard margin, not content padding: scrolled tiles clip just inside the card's round corners.
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = Space.xs),
+            ) {
+                item(key = "none") {
+                    StripActionTile(
+                        icon = Icons.Outlined.Block,
+                        label = "None",
+                        description = "No pose, plain camera",
+                        selected = selectedId == null,
+                        onClick = { onSelect(null) },
+                        width = tileWidth,
+                    )
+                }
+                items(poses, key = { it.id }) { pose ->
+                    val selected = pose.id == selectedId
+                    val source = remember { MutableInteractionSource() }
+                    PoseTile(
+                        pose = pose,
+                        size = PoseTileSize.Compact,
+                        selected = selected,
+                        onDark = true,
+                        interactionSource = source,
+                        modifier = Modifier
+                            .width(tileWidth)
+                            .selectable(selected = selected, interactionSource = source, indication = null, role = Role.Button) { onSelect(pose) }
+                            .semantics { contentDescription = pose.name },
+                    )
+                }
             }
         }
     }
 }
 
-/** A strip tile that isn't a pose ("All", "None"): the same Set tile, with an outlined icon and a short label. */
+/**
+ * A strip tile that isn't a pose ("All", "None"): the same inset stage tile, with a cream glyph and a tiny capitals
+ * label; the lavender outline when selected.
+ */
 @Composable
 private fun StripActionTile(
     icon: ImageVector,
@@ -286,13 +361,14 @@ private fun StripActionTile(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    width: Dp = StripTileWidth,
 ) {
     Box(
         modifier
-            .size(width = StripTileWidth, height = StripTileWidth * 4 / 3)
-            .clip(StudioShapes.Medium)
-            .background(Studio.Set)
-            .then(if (selected) Modifier.border(2.dp, Studio.Mannequin, StudioShapes.Medium) else Modifier)
+            .size(width = width, height = width * 4 / 3)
+            .clip(PoseitShapes.Control)
+            .background(PoseitColors.backgroundStage)
+            .then(if (selected) Modifier.border(2.dp, PoseitColors.accent, PoseitShapes.Control) else Modifier)
             .clickable(role = Role.Button, onClick = onClick)
             .semantics {
                 contentDescription = description
@@ -301,14 +377,21 @@ private fun StripActionTile(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, contentDescription = null, tint = Studio.Ink, modifier = Modifier.size(StudioIconSize))
-            Spacer(Modifier.height(Space.xs))
-            Text(label, color = Studio.Ink, style = StudioType.label, maxLines = 1)
+            Icon(icon, contentDescription = null, tint = PoseitColors.textPrimaryInverted, modifier = Modifier.size(IconSize.standalone))
+            Spacer(Modifier.height(Space.s))
+            // In sp, so it grows with the user's text size; at the very largest sizes it ends in an ellipsis, and the
+            // glyph and the tile's description still say what it does.
+            CapsLabel(
+                label,
+                color = PoseitColors.textSecondaryInverted,
+                style = PoseitType.caps.copy(letterSpacing = PoseitType.caps.letterSpacing * 0.5f),
+                modifier = Modifier.padding(horizontal = 2.dp),
+            )
         }
     }
 }
 
-/** Last photo (opens the gallery), the shutter and the lens switch. */
+/** Last photo (opens the gallery), the shutter and the lens switch: the dock's second card. */
 @Composable
 internal fun ShutterRow(
     lastPhoto: Uri?,
@@ -319,31 +402,41 @@ internal fun ShutterRow(
     onShutter: () -> Unit,
     onFlip: () -> Unit,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .padding(horizontal = Space.section, vertical = Space.m),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        GalleryThumb(lastPhoto, onGallery)
-        ShutterButton(sessionActive, timer, capturing, onShutter)
-        FlipLensButton(onFlip)
+    ProvideSurfaceTone(SurfaceTone.Dark) {
+        Row(
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = Space.l, vertical = if (compact) Space.xs + Space.xs / 2 else Space.s),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val side = if (compact) 48.dp else ShutterSideSize
+            GalleryThumb(lastPhoto, onGallery, side)
+            ShutterButton(sessionActive, timer, capturing, onShutter, if (compact) CompactShutterSize else ShutterSize)
+            FlipLensButton(onFlip, side)
+        }
     }
 }
 
-/** Diameter of the round controls beside the shutter. */
-private val ShutterSideSize = 52.dp
+/** Diameter of the round controls beside the shutter: the floating pill bar's circles. */
+private val ShutterSideSize: Dp = PillBarItemSize
+
+/** Diameter of the shutter. */
+private val ShutterSize: Dp = 72.dp
+
+/** Diameter of the shutter in the compact dock of a short screen. */
+private val CompactShutterSize: Dp = 64.dp
 
 @Composable
-private fun GalleryThumb(lastPhoto: Uri?, onClick: () -> Unit) {
+private fun GalleryThumb(lastPhoto: Uri?, onClick: () -> Unit, size: Dp) {
     Box(
         Modifier
-            .size(ShutterSideSize)
-            .clip(CircleShape)
-            .background(Studio.ControlScrim)
-            .then(if (lastPhoto != null) Modifier.border(1.5.dp, Studio.Mannequin, CircleShape) else Modifier)
+            .size(size)
+            .clip(PoseitShapes.Circle)
+            .background(PoseitColors.backgroundCard)
+            .then(if (lastPhoto != null) Modifier.border(1.5.dp, PoseitColors.cameraContent, PoseitShapes.Circle) else Modifier)
             .clickable(role = Role.Button, onClickLabel = "Open gallery", onClick = onClick)
             .semantics { contentDescription = "Open gallery" },
         contentAlignment = Alignment.Center,
@@ -355,26 +448,26 @@ private fun GalleryThumb(lastPhoto: Uri?, onClick: () -> Unit) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(1.5.dp)
-                    .clip(CircleShape),
+                    .padding(3.dp)
+                    .clip(PoseitShapes.Circle),
             )
         } else {
-            Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, tint = Studio.Mannequin, modifier = Modifier.size(StudioIconSize))
+            Icon(PoseitIcons.photos, contentDescription = null, tint = PoseitColors.textPrimaryInverted, modifier = Modifier.size(IconSize.standalone))
         }
     }
 }
 
 /**
- * The shutter: a white ring around a white disc. It shows the self-timer delay (or the photoshoot count) as a
- * numeral, and an Ink stop square while a timer or photoshoot runs.
+ * The shutter: a cream ring around a cream disc. It shows the self-timer delay (or the photoshoot count) as a
+ * numeral, and an ink stop square while a timer or photoshoot runs.
  */
 @Composable
-private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing: Boolean, onClick: () -> Unit) {
+private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing: Boolean, onClick: () -> Unit, size: Dp) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
         if (pressed || capturing) 0.88f else 1f,
-        tween(durationMillis = 150, easing = FastOutSlowInEasing),
+        PoseitMotion.standard(PoseitMotion.FAST),
         label = "shutterScale",
     )
     val description = when {
@@ -384,18 +477,18 @@ private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing:
     }
     Box(
         Modifier
-            .size(80.dp)
-            .border(4.dp, Studio.Mannequin, CircleShape)
-            .padding(Space.s)
+            .size(size)
+            .border(3.dp, PoseitColors.cameraContent, PoseitShapes.Circle)
+            .padding(6.dp)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
-            .clip(CircleShape)
-            .background(Studio.Mannequin)
+            .clip(PoseitShapes.Circle)
+            .background(PoseitColors.cameraContent)
             .clickable(
                 interactionSource = interaction,
-                indication = ripple(color = Studio.Ink),
+                indication = ripple(color = PoseitColors.textPrimary),
                 role = Role.Button,
                 onClickLabel = description,
                 onClick = onClick,
@@ -406,16 +499,16 @@ private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing:
         when {
             sessionActive -> Box(
                 Modifier
-                    .size(24.dp)
-                    .background(Studio.Ink, StudioShapes.Small),
+                    .size(22.dp)
+                    .background(PoseitColors.textPrimary, PoseitShapes.Inner),
             )
             timer.shortLabel != null -> {
                 // Inside the fixed shutter graphic: sized in dp so it always fits the disc.
                 val size = with(LocalDensity.current) { 18.dp.toSp() }
                 Text(
                     timer.shortLabel.orEmpty(),
-                    color = Studio.Ink,
-                    style = StudioType.numeral(size),
+                    color = PoseitColors.textPrimary,
+                    style = PoseitType.numeral(size),
                     maxLines = 1,
                     overflow = TextOverflow.Clip,
                 )
@@ -425,18 +518,19 @@ private fun ShutterButton(sessionActive: Boolean, timer: TimerOption, capturing:
 }
 
 @Composable
-private fun FlipLensButton(onClick: () -> Unit) {
+private fun FlipLensButton(onClick: () -> Unit, size: Dp) {
     var turns by remember { mutableFloatStateOf(0f) }
     val rotation by animateFloatAsState(
         turns * 180f,
-        tween(durationMillis = 220, easing = FastOutSlowInEasing),
+        PoseitMotion.standard(PoseitMotion.SLOW),
         label = "flipRotation",
     )
+    // An inset stage disc like the gallery button; only the glyph turns.
     Box(
         Modifier
-            .size(ShutterSideSize)
-            .clip(CircleShape)
-            .background(Studio.ControlScrim)
+            .size(size)
+            .clip(PoseitShapes.Circle)
+            .background(PoseitColors.backgroundCard)
             .clickable(role = Role.Button, onClickLabel = "Switch camera") {
                 turns += 1f
                 onClick()
@@ -447,9 +541,9 @@ private fun FlipLensButton(onClick: () -> Unit) {
         Icon(
             Icons.Outlined.Cameraswitch,
             contentDescription = null,
-            tint = Studio.Mannequin,
+            tint = PoseitColors.textPrimaryInverted,
             modifier = Modifier
-                .size(StudioIconSize)
+                .size(IconSize.standalone)
                 .graphicsLayer { rotationY = rotation },
         )
     }

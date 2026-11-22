@@ -22,20 +22,21 @@ import androidx.compose.ui.graphics.toArgb
 import com.poseit.app.input.HardwareKeys
 import com.poseit.app.ui.nav.PoseitNavHost
 import com.poseit.app.ui.theme.PoseitTheme
-import com.poseit.app.ui.theme.Studio
+import com.poseit.app.ui.theme.PoseitColors
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // The app is always light (Studio paper), so the bars must not follow the system light/dark setting: dark
+        // The app is always light (the cream canvas), so the bars must not follow the system light/dark setting: dark
         // icons on a transparent status bar. The nav bar uses auto() forced to light rather than light(): light()
         // turns off the system's contrast scrim behind 3-button navigation (API 29+), which on API 35+ is a
-        // translucent Paper strip matching the window background; auto() keeps it and leaves gesture navigation
-        // transparent. API 26-28 get the Paper scrim below, API 24-25 (no dark nav icons) the Ink one.
-        val paperScrim = Studio.Paper.copy(alpha = 0.8f).toArgb()
-        val inkScrim = Studio.Ink.copy(alpha = 0.5f).toArgb()
+        // translucent canvas strip matching the window background; auto() keeps it and leaves gesture navigation
+        // transparent. API 26-28 get the canvas scrim below, API 24-25 (no dark nav icons) the dark one. Dark screens
+        // (camera, photo viewer) switch to light icons while they show (LightSystemBarIconsEffect).
+        val paperScrim = PoseitColors.backgroundBody.copy(alpha = 0.8f).toArgb()
+        val inkScrim = PoseitColors.backgroundCard.copy(alpha = 0.5f).toArgb()
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.auto(paperScrim, inkScrim) { false },

@@ -12,10 +12,15 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,11 +36,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -43,12 +52,20 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import com.poseit.app.ui.components.PrimaryButton
-import com.poseit.app.ui.components.StudioTopBar
-import com.poseit.app.ui.components.TertiaryButton
+import com.poseit.app.pose.library.BuiltInPoses
+import com.poseit.app.ui.components.AccentButton
+import com.poseit.app.ui.components.CardSegment
+import com.poseit.app.ui.components.ConnectedCardDefaults
+import com.poseit.app.ui.components.PoseThumbnail
+import com.poseit.app.ui.components.ButtonPair
+import com.poseit.app.ui.components.SecondaryButton
+import com.poseit.app.ui.components.TopBarCard
+import com.poseit.app.ui.components.TopBarHeight
+import com.poseit.app.ui.components.TopBarInsets
+import com.poseit.app.ui.components.frameMarks
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitType
 import com.poseit.app.ui.theme.Space
-import com.poseit.app.ui.theme.Studio
-import com.poseit.app.ui.theme.StudioType
 
 private const val PREFS = "poseit_camera_permissions"
 
@@ -154,9 +171,12 @@ internal fun CameraPermissionGate(onBack: () -> Unit, content: @Composable () ->
     }
 }
 
+
 /**
- * Why Poseit needs the camera, on the light Studio paper: a left-aligned Display heading, one paragraph, and the
- * one action at the bottom within thumb reach ("Allow camera", or "Open settings" after a permanent denial).
+ * Why Poseit needs the camera, in the mockups' connected stack on the canvas: the top bar card fused to a headline
+ * card (a Display headline and one paragraph) and, when the screen has room, a picture card where a figure stands
+ * in viewfinder marks. The one action sits at the bottom within thumb reach ("Allow camera", or "Open settings"
+ * after a permanent denial), with an outlined "Not now" beside it.
  */
 @Composable
 private fun PermissionRationale(
@@ -168,56 +188,99 @@ private fun PermissionRationale(
     Column(
         Modifier
             .fillMaxSize()
-            .background(Studio.Paper)
+            .background(PoseitColors.backgroundBody)
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)),
     ) {
-        StudioTopBar(title = "", onBack = onBack)
-        Column(
+        BoxWithConstraints(
             Modifier
                 .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = Space.gutter)
-                .padding(top = Space.xl),
+                .fillMaxWidth(),
         ) {
-            Text(
-                "Let Poseit use the camera",
-                style = StudioType.display,
-                color = Studio.Ink,
-                modifier = Modifier
-                    .widthIn(max = 560.dp)
-                    .semantics { heading() },
-            )
-            Spacer(Modifier.height(Space.l))
-            Text(
-                "The camera shows the pose guide over the live picture and checks your pose on your phone. " +
-                    "The picture never leaves your phone, and Poseit works offline.",
-                style = StudioType.body,
-                color = Studio.Ink,
-                modifier = Modifier.widthIn(max = 560.dp),
-            )
-            if (permanentlyDenied) {
-                Spacer(Modifier.height(Space.l))
-                Text(
-                    "Camera access is turned off for Poseit. Turn it on in the app settings under Permissions.",
-                    style = StudioType.bodyStrong,
-                    color = Studio.Ink,
-                    modifier = Modifier.widthIn(max = 560.dp),
+            val density = LocalDensity.current
+            var headlinePx by remember { mutableIntStateOf(0) }
+            val topInset = TopBarInsets.asPaddingValues().calculateTopPadding()
+            // The picture card takes what the bar and the headline card leave, down to the buttons.
+            val headline = with(density) { headlinePx.toDp() }
+            val pictureHeight = maxHeight - topInset - Space.edge - TopBarHeight - headline - ConnectedCardDefaults.Gap * 2
+            val showPicture = headlinePx > 0 && pictureHeight >= MinPictureHeight
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                TopBarCard(
+                    title = "Camera",
+                    onBack = onBack,
+                    joined = {
+                        CardSegment(Modifier.onSizeChanged { headlinePx = it.height }) {
+                            Text(
+                                "Let Poseit use the camera",
+                                style = PoseitType.display,
+                                color = PoseitColors.textPrimaryInverted,
+                                modifier = Modifier
+                                    .widthIn(max = 560.dp)
+                                    .semantics { heading() },
+                            )
+                            Spacer(Modifier.height(Space.l))
+                            Text(
+                                "The camera shows the pose guide over the live picture and checks your pose on your phone. " +
+                                    "The picture never leaves your phone, and Poseit works offline.",
+                                style = PoseitType.body,
+                                color = PoseitColors.textSecondaryInverted,
+                                modifier = Modifier.widthIn(max = 560.dp),
+                            )
+                            if (permanentlyDenied) {
+                                Spacer(Modifier.height(Space.l))
+                                Text(
+                                    "Camera access is turned off for Poseit. Turn it on in the app settings under Permissions.",
+                                    style = PoseitType.bodyStrong,
+                                    color = PoseitColors.textPrimaryInverted,
+                                    modifier = Modifier.widthIn(max = 560.dp),
+                                )
+                            }
+                        }
+                        if (showPicture) ViewfinderPicture(Modifier.height(pictureHeight))
+                    },
                 )
             }
         }
-        Column(
-            Modifier
+        // An outlined "Not now" beside the one action, like the mockups' pill pairs; stacked under it at large text.
+        ButtonPair(
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Space.gutter, vertical = Space.l),
-        ) {
-            if (permanentlyDenied) {
-                PrimaryButton("Open settings", onClick = onOpenSettings, modifier = Modifier.fillMaxWidth())
-            } else {
-                PrimaryButton("Allow camera", onClick = onAllow, modifier = Modifier.fillMaxWidth())
-            }
-            Spacer(Modifier.height(Space.s))
-            TertiaryButton("Not now", onClick = onBack, modifier = Modifier.fillMaxWidth())
-        }
+                .padding(start = Space.edge, end = Space.edge, top = Space.l, bottom = Space.s),
+            first = { SecondaryButton("Not now", onClick = onBack) },
+            second = {
+                if (permanentlyDenied) {
+                    AccentButton("Open settings", onClick = onOpenSettings)
+                } else {
+                    AccentButton("Allow camera", onClick = onAllow)
+                }
+            },
+        )
+    }
+}
+
+/** Shorter than this, the picture card is left out (small phones, large text) and the words get the room. */
+private val MinPictureHeight = 168.dp
+
+/** A white lay figure in cream viewfinder marks on the stage: what the camera will show. Decorative. */
+@Composable
+private fun ViewfinderPicture(modifier: Modifier = Modifier) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .padding(vertical = Space.xl),
+        contentAlignment = Alignment.Center,
+    ) {
+        PoseThumbnail(
+            template = remember { BuiltInPoses.all.first() },
+            background = null,
+            modifier = Modifier
+                .fillMaxHeight()
+                .aspectRatio(3f / 4f)
+                .frameMarks(inset = Space.xs)
+                .padding(Space.l),
+        )
     }
 }

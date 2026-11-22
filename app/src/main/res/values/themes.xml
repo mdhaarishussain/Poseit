@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Light, like the Studio UI, with Paper behind the window so there is no dark flash at launch. -->
+    <!-- Light, like the v2 UI, with the cream canvas behind the window so there is no dark flash at launch. -->
     <style name="Base.Theme.Poseit" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowBackground">@color/studio_paper</item>
+        <item name="android:windowBackground">@color/canvas</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 

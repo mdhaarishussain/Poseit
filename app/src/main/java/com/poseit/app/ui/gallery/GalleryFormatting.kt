@@ -48,12 +48,24 @@ private fun startOfDay(cal: Calendar, millis: Long): Long {
     return cal.timeInMillis
 }
 
-/** Compact date + time ("20 Nov 2026, 21:30") in the user's locale and 12/24 h preference. */
-internal fun formatPhotoDateTime(millis: Long, context: Context? = null): String {
+/**
+ * Compact date + time ("20 Nov 2026, 21:30") in the user's locale and 12/24 h preference. With [omitCurrentYear] a
+ * photo from this year drops the year ("20 Nov, 21:30"), for the viewer's narrow position pill.
+ */
+internal fun formatPhotoDateTime(
+    millis: Long,
+    context: Context? = null,
+    omitCurrentYear: Boolean = false,
+    now: Long = System.currentTimeMillis(),
+): String {
     if (millis <= 0L) return ""
     val locale = Locale.getDefault()
     val use24h = context?.let { DateFormat.is24HourFormat(it) } ?: true
-    val pattern = DateFormat.getBestDateTimePattern(locale, if (use24h) "yMMMdHHmm" else "yMMMdhmma")
+    val cal = Calendar.getInstance()
+    val thisYear = cal.apply { timeInMillis = now }.get(Calendar.YEAR)
+    val sameYear = cal.apply { timeInMillis = millis }.get(Calendar.YEAR) == thisYear
+    val year = if (omitCurrentYear && sameYear) "" else "y"
+    val pattern = DateFormat.getBestDateTimePattern(locale, year + if (use24h) "MMMdHHmm" else "MMMdhmma")
     return SimpleDateFormat(pattern, locale).format(Date(millis))
 }
 

@@ -95,8 +95,8 @@ class AppFlowTest {
     private fun launchToLibrary(): ActivityScenario<MainActivity> {
         resetSettings(onboardingDone = true)
         val scenario = ActivityScenario.launch(MainActivity::class.java)
-        compose.waitForText("Pose camera")
-        // The floating "Pose camera" button can appear a frame before the pose grid is scrollable.
+        compose.waitForDesc("Pose camera")
+        // The pill bar's "Pose camera" button can appear a frame before the pose grid is scrollable.
         compose.waitUntil(10_000) { compose.onAllNodes(hasScrollToNodeAction()).fetchSemanticsNodes().isNotEmpty() }
         return scenario
     }
@@ -126,7 +126,7 @@ class AppFlowTest {
                     IntArray(req.requestedPermissions.size) { PackageManager.PERMISSION_DENIED },
                 )
             }
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
             compose.waitGone("Pick a pose to copy")
             shot("library-after-onboarding")
             assertTrue(runBlocking { app.container.settingsRepository.settings.first().onboardingDone })
@@ -173,7 +173,7 @@ class AppFlowTest {
             shot("after-save")
 
             systemBack(scenario)
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
             clickable("My poses").performClick()
             compose.waitForIdle()
             compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(newName))
@@ -193,7 +193,7 @@ class AppFlowTest {
             back.performClick()
             runCatching { back.performClick() }
             compose.waitForIdle()
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
             shot("after-double-back-arrow")
         }
     }
@@ -218,7 +218,7 @@ class AppFlowTest {
             compose.waitForIdle()
             shot("after-double-system-back")
             // Either the library is shown or the app was closed by the second Back; never an empty NavHost.
-            val libraryShown = compose.onAllNodesWithText("Pose camera", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+            val libraryShown = compose.onAllNodesWithContentDescription("Pose camera", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
             assertTrue("Screen is blank after two Back presses (library shown=$libraryShown, finishing=$finishing)", libraryShown || finishing)
         }
     }
@@ -260,22 +260,22 @@ class AppFlowTest {
             compose.waitForText("Show intro again")
             assertTrue(runBlocking { app.container.settingsRepository.settings.first() }.onboardingDone)
             systemBack(scenario)
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
         }
         // The intro was seen, so a fresh launch goes straight to the library.
         ActivityScenario.launch(MainActivity::class.java).use {
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
         }
     }
 
     @Test
     fun gallery_showsEmptyState() {
         launchToLibrary().use { scenario ->
-            compose.onNodeWithContentDescription("Your photos").performClick()
+            compose.onNodeWithText("Photos").performClick()
             compose.waitForText("No photos yet")
             shot("gallery-empty")
             systemBack(scenario)
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
         }
     }
 
@@ -284,12 +284,14 @@ class AppFlowTest {
         launchToLibrary().use { scenario ->
             compose.onNodeWithContentDescription("Create a pose").performClick()
             compose.waitForText("Pose from a photo")
+            compose.waitForIdle()
+            shot("create-sheet")
             clickable("Pose from a photo").performClick()
             compose.waitForText("Recreate any photo")
             compose.waitForText("Choose a photo")
             shot("create-intro")
             systemBack(scenario)
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
         }
     }
 
@@ -313,7 +315,7 @@ class AppFlowTest {
     @Test
     fun camera_permissionDenied_showsRationale_thenGranted_composes() {
         launchToLibrary().use { scenario ->
-            compose.onNodeWithText("Pose camera", useUnmergedTree = true).performClick()
+            compose.onNodeWithContentDescription("Pose camera", useUnmergedTree = true).performClick()
             compose.waitForText("Let Poseit use the camera")
             shot("camera-rationale")
             compose.onNodeWithText("Allow camera").assertExistsCompat()
@@ -339,7 +341,7 @@ class AppFlowTest {
             compose.waitForIdle()
             shot("camera-granted")
             systemBack(scenario)
-            compose.waitForText("Pose camera")
+            compose.waitForDesc("Pose camera")
         }
     }
 

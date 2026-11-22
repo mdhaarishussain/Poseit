@@ -1,0 +1,79 @@
+Mixkit Stock Video Free License, and the parts of the Mixkit User Terms that limit it
+Source: https://mixkit.co/license/#videoFree and https://mixkit.co/terms/ (User Terms, "Last revised: October 2,
+2025").
+Used by: sample photos in Poseit's pose guide whose source is Mixkit (still frames of Mixkit stock videos, each from a
+clip whose own page offers it under the Mixkit Stock Video Free License). Each photo's credit is in Settings, About,
+Photo credits.
+
+Mixkit is operated by Envato. The text below is quoted as published; Mixkit's own pages are the authoritative version.
+
+
+STOCK VIDEO FREE LICENSE
+
+Videos under the Free license can be used in
+  YouTube videos
+  Social Media video posts
+  Online marketing ads
+  Educational purposes
+  Music videos
+  Commercial projects
+  Filmmaking
+
+Items under the Mixkit Stock Video Free License can be used in your commercial and non-commercial projects, for free.
+You're permitted to download, copy, modify, distribute, publicly perform and broadcast the Items. Your rights are
+non-exclusive, worldwide, sub-licensable and ongoing. Attribution is not required, however, we would appreciate it if
+you credit Mixkit where reasonably possible.
+There are some important limits to these rights, described in our User Terms.
+
+
+MIXKIT USER TERMS (EXTRACT)
+
+7. Age: You must be 18 years of age or over to access and use Mixkit.
+
+9. Restrictions: You must not (either in your own right or through any third party), and you must not permit any third
+party to:
+  - use an Item in any way that breaches our Acceptable Use Policy;
+  - sell physical or digital copies of Items without first altering them by applying human skill and effort, and
+    incorporating other elements (merely printing an Item on an object such as a mug or shirt is not sufficient
+    alteration);
+  - interfere with or disrupt the integrity or performance of Mixkit (for example through sending mass unsolicited
+    messages, "flooding" servers, or introducing a virus, time bomb, trojan horse, worm, cancelbot or other computer
+    routine);
+  - rent, license, sublicense, sell, resell or otherwise commercially exploit or make Mixkit or any Item available to
+    any third party (except as expressly contemplated by these User Terms) including aggregate or collate an Item(s)
+    and make available on a stock or inventory basis;
+  - use Mixkit or its related systems and networks, or any Item, to build a similar or competitive product or service;
+  - copy, republish, frame, link to, download, transmit, modify, adapt, create derivative works based on, rent, lease,
+    loan, sell, assign, distribute, display, perform, license, sublicense, reverse engineer, reverse assemble,
+    disassemble, or decompile any part of Mixkit (including any component of the website), any Mixkit Intellectual
+    Property;
+  - use Envato or Mixkit as a trademark or trade name, without our prior written consent;
+  - [use] a virtual private network (VPN) or any other means to avoid compliance with these User Terms, or for any
+    fraudulent or illegal reasons;
+  - remove any watermarking, copyright notices or other protective measures from any Item, including preview files;
+  - use scripts or bots to mass download Items (this includes using any means whatsoever to scrape/download the entire
+    library and/or database of Items) and/or
+  - access or use Mixkit in any way not expressly permitted by these User Terms.
+
+10. Mixkit License: Your use of our Items is subject to the applicable Mixkit License. Subject to Clause 10, the
+provisions of the Mixkit License applies to all use of the licensed Item, even if you sub-license or transfer use of
+the Item to a third party.
+
+11. Termination: In addition to any other legal rights we have, we can terminate your rights under the Mixkit License
+(and require that you cease all use of Items) if you breach the Mixkit License or these User Terms.
+
+13. Third party rights: For some Items, a component of the Item (such as a trade mark or brand) may be sourced from a
+third party and different license terms may apply to the component, such as someone else's license or an open source
+or creative commons license. These components may not have been cleared for use by you, and it is your responsibility
+to evaluate whether your use of these components require the permission of those third parties and if so, to obtain
+that permission. To avoid doubt, the Mixkit License will apply to all other components of the Item.
+
+The User Terms also incorporate Envato's Acceptable Use Policy and Fair Use Policy
+(help.elements.envato.com/hc/en-us/articles/31035788503321 and .../360000621743).
+
+
+HOW POSEIT USES MIXKIT ITEMS
+
+Still frames of Free License clips, cropped (and in some cases mirrored), shown only inside the pose guide next to the
+pose figure, never offered as downloadable or exportable files. Mixkit is credited with each photo ("Photo: Mixkit"
+beside it; on a library tile, one tap away on its print) and in Photo credits, although attribution is not required.

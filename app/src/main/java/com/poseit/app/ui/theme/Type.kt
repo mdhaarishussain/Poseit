@@ -8,109 +8,145 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.poseit.app.R
 
-/** Archivo at normal width (OFL, bundled in res/font): body text, labels, row titles. */
-val Archivo = FontFamily(
-    Font(R.font.archivo_regular, FontWeight.Normal),
-    Font(R.font.archivo_medium, FontWeight.Medium),
-    Font(R.font.archivo_semibold, FontWeight.SemiBold),
-)
-
 /**
- * The expanded cut of Archivo, which recalls the lettering engraved on camera bodies: display, titles, numerals.
- * Medium, SemiBold and Bold only.
+ * Hanken Grotesk (OFL, bundled in res/font as static Latin subsets): Light, Regular, Medium, SemiBold. A friendly
+ * neo-grotesk with a real Light weight for big numbers and headlines, and tabular figures by default.
  */
-val ArchivoExpanded = FontFamily(
-    Font(R.font.archivo_expanded_medium, FontWeight.Medium),
-    Font(R.font.archivo_expanded_semibold, FontWeight.SemiBold),
-    Font(R.font.archivo_expanded_bold, FontWeight.Bold),
+val HankenGrotesk = FontFamily(
+    Font(R.font.hanken_grotesk_light, FontWeight.Light),
+    Font(R.font.hanken_grotesk_regular, FontWeight.Normal),
+    Font(R.font.hanken_grotesk_medium, FontWeight.Medium),
+    Font(R.font.hanken_grotesk_semibold, FontWeight.SemiBold),
 )
 
 private val Base = TextStyle(
-    fontFamily = Archivo,
+    fontFamily = HankenGrotesk,
     lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None),
 )
 
 /**
- * The Studio type roles (docs/DESIGN.md). Prefer these names in new code; the M3 [Typography] slots are mapped onto
- * the same styles (see [StudioTypography]) so stock components pick them up.
+ * The v2 type roles (docs/DESIGN.md, "Type"), named after Astryx's text roles (display, heading, body, label,
+ * supporting) plus Poseit's numerals and the tiny uppercase [caps] label.
  *
- * Rules: sentence case everywhere (no caps, so no tracking either); never accent one word of a headline; keep
- * lines under about 60 characters. The wide cut (Archivo Expanded) is the one loud element: use it for the
- * wordmark, display text, the one title of a screen, sheet or dialog, and numerals. Headings inside a screen use
- * [heading], at normal width. Headlines balance their lines ([LineBreak.Heading]) so no word is left alone.
+ * The voice comes from weight and tracking, as in the mockups: big text is LIGHT or Regular and tracked tight;
+ * small controls are SemiBold capitals tracked open. Sentence case everywhere except [caps], which only pill
+ * buttons, badges and segmented options use (use the CapsLabel component, which keeps the sentence-case words for
+ * screen readers). Headlines balance their lines ([LineBreak.Heading]).
  */
-object StudioType {
-    /** Expanded SemiBold 28/32: pose name on the detail screen, onboarding and full-screen explainer headlines. */
+object PoseitType {
+    /** Light 34/38, -0.8sp: onboarding and explainer headlines ("Pick a pose to copy."), the pose name on detail. */
     val display = Base.copy(
-        fontFamily = ArchivoExpanded,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 28.sp,
-        lineHeight = 32.sp,
-        letterSpacing = (-0.2).sp,
+        fontWeight = FontWeight.Light,
+        fontSize = 34.sp,
+        lineHeight = 38.sp,
+        letterSpacing = (-0.8).sp,
         lineBreak = LineBreak.Heading,
     )
 
-    /** Expanded SemiBold 22/28: the "Poseit" wordmark in the library's top bar. */
-    val wordmark = display.copy(fontSize = 22.sp, lineHeight = 28.sp)
+    /** Regular 26/32, -0.5sp: the headline of a card ("Jacket over shoulder" on Today's pose), large page titles. */
+    val headline = Base.copy(
+        fontWeight = FontWeight.Normal,
+        fontSize = 26.sp,
+        lineHeight = 32.sp,
+        letterSpacing = (-0.5).sp,
+        lineBreak = LineBreak.Heading,
+    )
 
-    /** Expanded Medium 20/26: sheet and dialog titles, the featured pose name in the library. */
+    /** Regular 20/26, -0.3sp: screen titles in the top bar card, sheet and dialog titles, card titles. */
     val title = Base.copy(
-        fontFamily = ArchivoExpanded,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 20.sp,
         lineHeight = 26.sp,
+        letterSpacing = (-0.3).sp,
         lineBreak = LineBreak.Heading,
     )
 
-    /** Expanded Medium 18/24: screen titles in top bars. */
-    val barTitle = title.copy(fontSize = 18.sp, lineHeight = 24.sp)
+    /** Regular 22/28, -0.6sp: the "Poseit" wordmark in the top bar card. */
+    val wordmark = Base.copy(
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = (-0.6).sp,
+    )
 
-    /** SemiBold 17/24 at normal width: section and group headings inside a screen or sheet, empty-state titles. */
-    val heading = Base.copy(fontWeight = FontWeight.SemiBold, fontSize = 17.sp, lineHeight = 24.sp, lineBreak = LineBreak.Heading)
+    /** Medium 16/22, -0.1sp: section and group headings on the canvas or in a sheet, empty-state titles. */
+    val heading = Base.copy(
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
+        letterSpacing = (-0.1).sp,
+        lineBreak = LineBreak.Heading,
+    )
+
+    /** Regular 17/24: a card's label ("Today's pose", "Best match"), row titles in outlined rows. */
+    val bodyLarge = Base.copy(fontWeight = FontWeight.Normal, fontSize = 17.sp, lineHeight = 24.sp, letterSpacing = (-0.1).sp)
 
     /** Regular 15/22: paragraphs, descriptions, tips. */
     val body = Base.copy(fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 22.sp)
 
-    /** Medium 15/22: row titles, the name under a pose tile. */
+    /** Medium 15/22: setting row titles, the pose name on a tile. */
     val bodyStrong = body.copy(fontWeight = FontWeight.Medium)
 
-    /** Medium 14/20: buttons, tabs, menu items. */
-    val labelLarge = Base.copy(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp)
+    /** Regular 13/18: secondary lines ("Standing, easy"), helper text, row subtitles, captions. */
+    val supporting = Base.copy(fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 18.sp)
 
-    /** Medium 13/18: chips, captions, helper text, row subtitles. */
-    val label = Base.copy(fontWeight = FontWeight.Medium, fontSize = 13.sp, lineHeight = 18.sp)
+    /** Medium 14/20: sentence-case controls (text buttons, menu items, filter pills, tabs). */
+    val label = Base.copy(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp)
 
     /**
-     * Expanded Bold with tabular figures, for the match score, countdown and counts. Not monospace.
-     * @param size 15.sp to 96.sp; must be in sp
+     * SemiBold 12/16 capitals, +0.8sp: pill buttons ("TRY THIS POSE"), badges ("99 POSES"), segmented options.
+     * Never type the capitals into strings: pass sentence case to CapsLabel, which uppercases for display only.
      */
-    fun numeral(size: TextUnit): TextStyle = Base.copy(
-        fontFamily = ArchivoExpanded,
-        fontWeight = FontWeight.Bold,
+    val caps = Base.copy(fontWeight = FontWeight.SemiBold, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.8.sp)
+
+    /**
+     * The capitals of a pill button's label: [caps] a step up (13sp), because a button label is read, not glanced at
+     * like a badge. Keep button labels to one to three words.
+     */
+    val capsButton = caps.copy(fontSize = 13.sp, lineHeight = 18.sp)
+
+    /** Light 72/72 numerals: the capture countdown, a timer. */
+    val numeralDisplay = numeral(72.sp)
+
+    /** Light 44/48 numerals: a headline number ("87%" match). */
+    val numeralLarge = numeral(44.sp)
+
+    /** Regular 26/30 numerals: a stat value in a StatPair ("12", "3 s"). */
+    val numeralMedium = numeral(26.sp, FontWeight.Normal)
+
+    /**
+     * Numerals: tabular figures (Hanken Grotesk's default; `tnum` is set for any fallback font), tracked 2% tight.
+     * @param size in sp; 15.sp to 120.sp
+     * @param weight Light for 28sp and up, Regular below
+     */
+    fun numeral(size: TextUnit, weight: FontWeight = if (size.value >= 28f) FontWeight.Light else FontWeight.Normal): TextStyle = Base.copy(
+        fontWeight = weight,
         fontSize = size,
-        lineHeight = size * 1.1f,
+        lineHeight = size * 1.08f,
+        letterSpacing = (-0.02).em,
         fontFeatureSettings = "tnum",
     )
 }
 
-/** M3 slots mapped onto the Studio roles. */
-internal val StudioTypography = Typography(
-    displayLarge = StudioType.display.copy(fontSize = 44.sp, lineHeight = 48.sp),
-    displayMedium = StudioType.display.copy(fontSize = 36.sp, lineHeight = 40.sp),
-    displaySmall = StudioType.display,
-    headlineLarge = StudioType.display.copy(fontSize = 32.sp, lineHeight = 36.sp),
-    headlineMedium = StudioType.display,
-    headlineSmall = StudioType.title,
-    titleLarge = StudioType.title,
-    titleMedium = StudioType.barTitle,
-    titleSmall = StudioType.bodyStrong,
-    bodyLarge = StudioType.body,
-    bodyMedium = StudioType.body.copy(fontSize = 14.sp, lineHeight = 20.sp),
-    bodySmall = StudioType.body.copy(fontSize = 13.sp, lineHeight = 18.sp),
-    labelLarge = StudioType.labelLarge,
-    labelMedium = StudioType.label,
-    labelSmall = StudioType.label.copy(fontSize = 12.sp, lineHeight = 16.sp),
+/** M3 slots mapped onto the v2 roles, so stock components (text fields, dialogs, menus) pick them up. */
+internal val PoseitTypography = Typography(
+    displayLarge = PoseitType.numeralLarge,
+    displayMedium = PoseitType.display.copy(fontSize = 40.sp, lineHeight = 44.sp),
+    displaySmall = PoseitType.display,
+    headlineLarge = PoseitType.display.copy(fontSize = 30.sp, lineHeight = 36.sp),
+    headlineMedium = PoseitType.headline,
+    headlineSmall = PoseitType.title.copy(fontSize = 22.sp, lineHeight = 28.sp),
+    titleLarge = PoseitType.title,
+    titleMedium = PoseitType.heading,
+    titleSmall = PoseitType.bodyStrong,
+    bodyLarge = PoseitType.body,
+    bodyMedium = PoseitType.body.copy(fontSize = 14.sp, lineHeight = 20.sp),
+    bodySmall = PoseitType.supporting,
+    labelLarge = PoseitType.label,
+    labelMedium = PoseitType.supporting.copy(fontWeight = FontWeight.Medium),
+    labelSmall = PoseitType.supporting.copy(fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.Medium),
 )

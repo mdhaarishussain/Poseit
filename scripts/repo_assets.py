@@ -7,12 +7,16 @@
 Needs Pillow and qrcode (pip install pillow qrcode). If OpenCV is installed (opencv-python-headless), the QR code
 is decoded again to check it.
 
-- banner-light.png, banner-dark.png (1600x560) and social-preview.png (1280x640) are copied as rendered.
-- screens/*.png: the phone renders (1200x2580) scaled to 560 px wide, with the Studio Medium radius (12dp, 17 px at
-  this scale) on the corners.
+- banner-light.png and banner-dark.png (1600x560): the renders with their corners rounded to 40dp (80 px), the cards'
+  24dp radius plus the 16dp of canvas around them, so the canvas reads as one more card on the page (white on
+  GitHub's light theme, #0d1117 on its dark one).
+- social-preview.png (1280x640) is copied as rendered (square corners: sites that show it round or crop it themselves).
+- screens/*.png: the phone renders (1200x2580) scaled to 560 px wide, with the 12dp control radius (17 px at this
+  scale) on the corners.
 - icon.png: the adaptive launcher icon, flat, 256x256, cut to the disc the app ships for launchers without
   adaptive icons (res/mipmap/ic_launcher.xml).
-- qr-latest-release.png: the latest release page as a QR code, Ink on Paper, 4-module quiet zone.
+- qr-latest-release.png: the latest release page as a QR code, Teal950 on Cream100 (the cards' teal on the canvas
+  cream, 15:1), 4-module quiet zone.
 
 Each image is saved as a palette PNG when that keeps every pixel within a small colour distance of the original
 (no visible banding), otherwise as an optimised full-colour PNG.
@@ -30,8 +34,12 @@ RENDERS = ROOT / "app" / "build" / "repo-assets"
 OUT = ROOT / "docs" / "images"
 
 RELEASE_URL = "https://github.com/mdhaarishussain/Poseit/releases/latest"
-INK = (0x17, 0x18, 0x1A)
-PAPER = (0xE4, 0xE5, 0xE1)
+# docs/DESIGN.md palette: Teal950 (the dark cards, textPrimary) on Cream100 (the canvas).
+INK = (0x0A, 0x21, 0x25)
+PAPER = (0xF4, 0xF3, 0xEF)
+
+# The banners are 800dp wide at 2 px per dp: 40dp is 80 px.
+BANNER_RADIUS = 80
 
 SCREEN_WIDTH = 560
 # The phone renders are 400dp wide, so 560 px is 1.4 px per dp: Medium (12dp) is 17 px.
@@ -121,8 +129,9 @@ def check_qr(path: Path) -> None:
 
 
 def main() -> None:
-    for name in ("banner-light", "banner-dark", "social-preview"):
-        save(render(name), OUT / f"{name}.png")
+    for name in ("banner-light", "banner-dark"):
+        save(rounded(render(name), BANNER_RADIUS), OUT / f"{name}.png")
+    save(render("social-preview"), OUT / "social-preview.png")
 
     for src, dst in SCREENS.items():
         im = render(src).convert("RGB")
