@@ -6,14 +6,15 @@ the photos are stills and photos from free sources whose terms allow use inside 
 sources, what their terms say (quoted, read on 2026-11-21), the people rules, how the photos were found and checked
 with the app's own matcher, which poses have a photo, and what the remaining gaps need.
 
-**Status (2026-11-21): 46 of 99 poses have a photo** (33 Mixkit video stills, 13 Wikimedia Commons photos: 8 CC0,
-4 CC BY 2.0, 1 CC BY-SA 3.0). 53 poses have none yet. The photos are not wired into the app's screens yet; that is a
-separate UI step.
+**Status (2026-11-22, after the review): 36 of 99 poses have a photo** (28 Mixkit video stills from 28 clips, 8
+Wikimedia Commons photos: 6 CC0, 2 CC BY 2.0). 63 poses have none yet. The photos are not wired into the app's screens
+yet; that is a separate UI step. A review of the shipped set on 2026-11-22 removed 10 photos and replaced 3 (see
+[Review, 2026-11-22](#review-2026-11-22)); before it, 46 poses had a photo.
 
 | Where | What |
 | --- | --- |
-| `app/src/main/assets/pose_photos/<poseId>.webp` | the photos: 675x900 (900x675 for the landscape group pose), WebP quality 72-78, no metadata; 46 files, 1,932,946 bytes (1.84 MiB, about 42 KB each) |
-| `app/src/main/assets/pose_photos/credits.json` | one credit per photo, keyed by pose id (49 KB) |
+| `app/src/main/assets/pose_photos/<poseId>.webp` | the photos: 675x900 (900x675 for the landscape group pose), WebP quality 72-78, no metadata; 36 files, 1,512,984 bytes (1.44 MiB, about 42 KB each) |
+| `app/src/main/assets/pose_photos/credits.json` | one credit per photo, keyed by pose id (39 KB) |
 | `app/src/main/assets/licenses/` | full licence texts (CC0 1.0, CC BY 2.0 / 3.0 / 4.0, CC BY-SA 3.0, the Mixkit licence and the User Terms that limit it) and `index.json` |
 | `tools/pose-photos/` | the harvest, ranking, selection and credit tools (see its README) |
 | `tools/pose-photos/landmarks/<poseId>.json` | the app's pose model on each shipped photo |
@@ -39,13 +40,16 @@ separate UI step.
 4. **Confirm** (this stage, `PosePhotoMatch`, `credits.py`, `allpicks.py`): the app's own Kotlin PoseMatcher on every
    shipped photo; every photo with a low score or nearer to another pose looked at again; 2 dropped, 46 kept;
    credits merged into `credits.json`; licence texts added; `all-picks.jpg` drawn for review.
+5. **Review** (2026-11-22, `picks/review_rescore.py`, `picks/review_finalize.py`): every shipped photo looked at again
+   against the people rules, its figure and its source record; 10 removed, 3 replaced from the existing candidates,
+   the matcher and credits re-run. Details in [Review, 2026-11-22](#review-2026-11-22).
 
 ## Sources at a glance
 
 | Source | Used? | Why |
 | --- | --- | --- |
-| Mixkit stock videos (mixkit.co), **Free License clips only** | Yes, still frames (33 photos from 31 clips) | Licence allows modifying and distributing the items in commercial and non-commercial projects; no attribution required. See the limits and the open questions below. |
-| Wikimedia Commons | Yes, photos (13) | Only CC0, Public Domain / PDM, CC BY (any version), CC BY-SA (any version), checked per file from its own metadata. Used: CC0 (8, mostly Pexels / Unsplash / Pixabay uploads copied to Commons), CC BY 2.0 (4), CC BY-SA 3.0 (1). |
+| Mixkit stock videos (mixkit.co), **Free License clips only** | Yes, still frames (28 photos from 28 clips) | Licence allows modifying and distributing the items in commercial and non-commercial projects; no attribution required. See the limits and the open questions below. |
+| Wikimedia Commons | Yes, photos (8) | Only CC0, Public Domain / PDM, CC BY (any version), CC BY-SA (any version), checked per file from its own metadata. Used: CC0 (6, mostly Pexels / Unsplash / Pixabay uploads copied to Commons), CC BY 2.0 (2). |
 | Picjumbo | No | Its terms allow commercial use and templates but say nothing about apps, forbid redistributing "the pictures as a file", and warn that some photos have no model release. Not clearly allowed inside an app, so left out. |
 | Pexels, Pixabay, Unsplash (their own APIs) | No | Need API keys this environment does not have. (CC0 photos that their users uploaded before those sites changed their licences, and that were copied to Commons, are used through Commons under CC0.) |
 | Openverse | No | Blocked from this environment. |
@@ -127,9 +131,16 @@ and description suggest a person holding a pose (about 700 previews over the fir
 970 clip pages checked for the licence; several thousand clips were listed on the grid and search pages read). The
 release frames were then cut from each chosen clip's licensed 1080p (else 720p) file, fetched from the clip's own
 download page by the selection scripts, one clip at a time, and the video was deleted once its frames were saved: 31
-clips for the 33 shipped stills. That is far from "the entire library", but it is scripted. Before the app ships the
-Mixkit stills, the owner should decide whether that is acceptable, or download those 31 clips by hand from the pages
-listed in `credits.json` (`pageUrl`, frame time in `frameTimeS`) and re-cut the frames, or ask Mixkit.
+clips for the 33 stills shipped before the review. The review fetched 4 more licensed files the same way (40038,
+41181, 43219, 43806; 41181 is not used) and removed 8 Mixkit stills, so 28 clips give the 28 stills shipped now. That
+is far from "the entire library", but it is scripted. Before the app ships the Mixkit stills, the owner should decide
+whether that is acceptable, or download those 28 clips by hand from the pages listed in `credits.json` (`pageUrl`,
+frame time in `frameTimeS`) and re-cut the frames, or ask Mixkit.
+
+Licence re-checks on 2026-11-22: the reviewer read five clip pages again (52257, 51119, 32800, 51645, 101458) and the
+review read the four new ones before fetching them; every page still says "Mixkit Stock Video Free License"
+(`data-license="videoFree"`), with no "Restricted" or "Premium" wording. The Envato Acceptable Use and Fair Use
+Policies are still unread (HTTP 403).
 
 The Envato Acceptable Use Policy also needs a human read (see above): the shipped stills are ordinary lifestyle and
 studio shots (no sensitive topics), and the app never names the people or suggests they endorse it.
@@ -182,22 +193,35 @@ contact sheets before anything is chosen:
 
 - **Adults only.** Anything that could show a minor is skipped (child, kid, boy, teen, school, student, family,
   daughter, little, ...). "girl" and "young" are flagged for an age check, because stock captions use them for adults.
-- **Appropriate only.** No nudity, lingerie, swimwear, sexualised or "sensual" framing, beds and bathrooms, alcohol,
-  smoking, drugs, injury, hospitals, police, protest, war, weapons, religion, crying or sadness, costumes and
-  Halloween.
+  The reviewer also skips a photo whose person could look under 18, whatever the caption says (the review removed
+  `lean_railing_back` for this).
+- **Appropriate only.** No nudity, lingerie or clothing that reads as underwear, swimwear, cleavage as the centre
+  of the frame, sexualised, "sensual" or "seductive" framing (Commons categories such as 'Seduction (facial
+  expression)' included), beds and bathrooms, alcohol, smoking, drugs, injury, hospitals, police, protest, war,
+  weapons, religion, crying or sadness, costumes and Halloween.
 - **No public figures.** Skip files from events, red carpets, politics, sport, concerts, conferences, fashion shows
-  (Commons), and files whose categories look like a person's name; Commons titles in scripts the rules cannot read are
-  skipped too.
+  (Commons), and files whose title, description or categories name a person, models included ('Alisa (photo model)',
+  'Isabela Salvador'; since the review the text rules also catch a name with a role in brackets and hyphenated or
+  accented names such as 'Marie-Béatrice Levaux'); Commons titles in scripts the rules cannot read are skipped too.
 - **Photographs only** (Commons): no paintings, drawings, sculpture, prints, historical or archival photos, renders or
   AI-generated images, mannequins or dolls.
 - **No watermarks, logos or overlaid text**; reviewer checks the frame.
-- **Never in a bad light**: the model is shown as a capable person demonstrating a pose.
+- **Never in a bad light**: the model is shown as a capable person demonstrating a pose (not, for example, a file
+  titled as showing someone "looking strangely").
+- **One photo per model where possible.** The review found one model in three photos and removed them. Still shared,
+  for want of alternatives: one couple in 3 of the 6 couple photos (`couple_forehead_touch`,
+  `couple_hold_hands_facing`, `couple_sit_lean`: Mixkit 100759/100733/100799, one production) and one set, probably
+  one model, in `port_chin_rest` and `floor_side_lie` (Mixkit 101458/101457).
 
 Allowed changes: **crop** and **horizontal mirror** (when the photo matches the flipped pose). Both are recorded in the
 credit. Nothing else (no retouching, no compositing).
 
-Incidental brand marks on clothing and shoes (a shoe stripe or swoosh, a small chest logo) and signs that are part of
-the scene (an exit sign in a hotel corridor) are not treated as overlaid logos or text.
+Incidental brand marks on clothing, shoes and devices (a shoe stripe or swoosh, a small chest logo) and signs that are
+part of the scene (an exit sign in a hotel corridor) are not treated as overlaid logos or text. In the shipped set:
+Nike marks on the shoes in `sit_elbows_on_knees`, faint lettering on a headphone earcup in `port_dreamy_gaze`, a chest
+mark on a T-shirt in `walk_twirl`, a bandana printed with lettering in `port_collar_adjust`, jacket lettering and an
+EXIT sign in `selfie_mirror`. A prominent product logo held toward the camera (the Apple logo on the phone in the
+removed `selfie_mirror_two_hands`; the gold phone in Mixkit 41181) counts against a candidate.
 
 ## Credits and licence files
 
@@ -213,7 +237,7 @@ the scene (an exit sign in a hotel corridor) are not treated as overlaid logos o
 | `fileUrl` | Mixkit: the clip's 1080p download link; Commons: the original file |
 | `author` | as stated (Commons `Artist`; Mixkit names no author: "Mixkit (no author named on the clip page)") |
 | `licence`, `licenceUrl`, `licenceText` | licence name, its deed URL, and the full text shipped in `assets/licenses/` |
-| `attribution` | **the short line to show under the photo**: `Photo: Mixkit`; `Photo: <author>, CC0, Wikimedia Commons`; for CC BY / BY-SA `Photo: <author>, <licence>, Wikimedia Commons (cropped[ and mirrored])` (the licences ask for changes to be indicated); the Rydale photo adds the link its author asks for (`www.rydale.com`) |
+| `attribution` | **the short line to show under the photo**: `Photo: Mixkit`; for every Commons photo `Photo: <author>, <licence>, Wikimedia Commons (cropped[ and mirrored])` (CC BY / BY-SA ask for changes to be indicated; CC0 does not, but since the review every Commons credit says it the same way); the Rydale photo adds the link its author asks for (`www.rydale.com`) |
 | `changes` | exactly what was done: frame time and source size, crop box in source pixels, mirrored or not, resize, WebP quality, metadata stripped |
 | `mirrored` | true when the file was flipped horizontally so the person matches the figure as drawn |
 | `appScore` | the app's PoseMatcher score of the shipped photo against its own pose as drawn (see below); null when the detector finds nobody |
@@ -222,15 +246,15 @@ the scene (an exit sign in a hotel corridor) are not treated as overlaid logos o
 What the app should show: the `attribution` line under (or on) the photo, and a credits screen listing every entry
 with its title, author, licence name linking to `licenceUrl` or opening `licenceText`, the source page, and the
 changes. CC BY 2.0 asks for the licence's URI or a copy to go with the work: `licenceUrl` plus the shipped text covers
-that. CC BY-SA 3.0 (`pro_arms_crossed`): the cropped and mirrored file is an adaptation and is offered under CC BY-SA
-3.0 too; the app around it is not affected. Never present a photo as Poseit's own, never caption the people, never
-suggest they use or endorse Poseit.
+that. No shipped photo is under CC BY-SA since the review removed `pro_arms_crossed`; a CC BY-SA photo added later is
+an adaptation once cropped and is offered under the same licence (the app around it is not affected). Never present a
+photo as Poseit's own, never caption the people, never suggest they use or endorse Poseit.
 
 `app/src/main/assets/licenses/index.json` lists the licence texts: `CC0-1.0.txt`, `CC-BY-2.0.txt` (converted from
 the HTML legal code; CC publishes no plain-text file for 2.0), `CC-BY-3.0.txt`, `CC-BY-4.0.txt`, `CC-BY-SA-3.0.txt`
 (the CC legal code files, fetched 2026-11-21), `Mixkit-Stock-Video-Free-License.txt` (the licence and the clauses of the
-User Terms that limit it), and the existing `OFL-Archivo.txt`. CC BY 3.0 and 4.0 are not used by any photo yet; they
-are there for replacements. A photo under any other licence (e.g. CC BY-SA 4.0) needs its text added first;
+User Terms that limit it), and the existing `OFL-Archivo.txt`. CC BY 3.0, CC BY 4.0 and CC BY-SA 3.0 are not used by
+any shipped photo (CC BY-SA 3.0 was, until the review); they stay for replacements. A photo under any other licence (e.g. CC BY-SA 4.0) needs its text added first;
 `credits.py` refuses a credit whose licence text is missing.
 
 ## Confirm stage: the app's matcher on every shipped photo
@@ -250,8 +274,8 @@ export ANDROID_HOME=/opt/android-sdk
   `PoseMatcher.match` (back camera, not mirrored, photographer audience).
 - **appScore** = the shipped photo against its own pose **as drawn**. A mirrored photo was flipped before it was saved
   and its landmarks come from the saved file, so it is not flipped a second time; the score with the flipped figure is
-  reported too (`flipped`). For 7 photos the flipped figure scores higher, by 0.03 or less except `selfie_peace`
-  (0.92 / 0.98) and `selfie_high_angle` (0.08 / 0.18); looked at, both read the same way round as the figure.
+  reported too (`flipped`). For 4 of the 36 photos the flipped figure scores higher, by 0.01 or less except
+  `selfie_peace` (0.92 / 0.98); looked at, it reads the same way round as the figure.
 - **Nearest pose**: every library pose whose people count fits the photo, as drawn and flipped, ranked by score minus
   penalties for poor framing fit, people-count mismatch, the pose's frame leaving the photo, the pose's own segments
   not seen (`tcov`) and the person reaching outside the pose's frame (`inFrame`; without it a headshot template pinched
@@ -260,8 +284,11 @@ export ANDROID_HOME=/opt/android-sdk
 - The Kotlin scores agree with the Python port used for ranking (`posematch.py`) to 0.0001 on all 42 photos where both
   scored the same orientation.
 
-Results for the 46 shipped photos: app score >= 0.8 for 17, 0.5-0.8 for 11, below 0.5 for 17, none for 1 (the
-detector finds nobody in the `selfie_classic` close-up). The own pose is the nearest for 14.
+Results for the 46 photos shipped at this stage (2026-11-21): app score >= 0.8 for 17, 0.5-0.8 for 11, below 0.5 for
+17, none for 1 (the detector found nobody in the old `selfie_classic` close-up). The own pose was the nearest for 14.
+After the review (36 photos): >= 0.8 for 11, 0.5-0.8 for 9, below 0.5 for 16, none for 0; the own pose is the nearest
+for 8; 30 are flagged. The notes below describe the confirm stage; several of the photos they name were removed or
+replaced by the review.
 
 **Flag rule**: app score below 0.5 (or none), or another pose nearer by rank, or fewer people detected than the pose
 has. 35 of the 48 selected photos were flagged and every one was looked at again beside its figure (sheets in
@@ -287,6 +314,44 @@ Low app scores therefore mostly measure the matcher's limits (2D limb directions
 required segments outside a tight photo), not wrong photos; but they also mean these photos are poor references for
 the app's live score. If the UI ever uses a photo as a target for the live matcher, use only those with appScore
 >= 0.8.
+
+## Review, 2026-11-22
+
+A reviewer went through every shipped photo against the people and licence rules and its figure and raised 24
+findings. Each was checked by looking at the shipped file, the full-resolution source frame where there was one, and
+the cached licence record. To look for replacements, `picks/review_rescore.py` ranked all ~8,100 frames and photos
+already detected by the earlier rounds against the affected poses (contact sheets in
+`/home/user/poseit-photos-work/review/`), and every cached Mixkit and Commons record was searched by title (selfie,
+mirror, kneel, crossed arms, couple walking, ...). Replacements went through the same steps as before
+(`picks/review_finalize.py`: licensed 1080p frame, 3:4 crop, mirror, WebP, landmarks, `PosePhotoMatch`).
+
+| Pose | Finding | Checked | Action |
+| --- | --- | --- | --- |
+| `selfie_mirror_two_hands` | shorts that read as boxer briefs, unflattering title, Apple logo | confirmed | removed; no other full-length two-hand mirror selfie |
+| `couple_walk_toward` | Shixart1985 "own work" CC BY 2.0: licence cannot be verified | Commons answered HTTP 429 again (uploader talk page) | removed; the Mixkit couples walking toward the camera are 16:9 thigh-up shots too wide for 3:4, 'Coney Island couple' has brand signs and children behind |
+| `selfie_high_angle` | same uploader; soft face; score 0.08 | confirmed | removed; no other usable raised-phone selfie |
+| `pro_blazer_pocket` | no hand in a pocket; second frame of the `stand_crossed_ankles` clip; veil like blood spatter | confirmed | removed; no hand-in-pocket candidate |
+| `stand_crossed_ankles` | ankles not crossed; one model in 3 photos; veil | confirmed | removed; no crossed-ankle candidate |
+| `selfie_classic` | close-up from beside the phone, no extended arm; same model as `selfie_peace` | confirmed | **replaced**: Mixkit 40038 at 0.367 s, mirrored: phone at arm's length, face and phone in frame (a two-person selfie; app score 0.11, side view) |
+| `floor_one_knee` | a marriage proposal, not a pose demonstration | confirmed | removed; the other kneelers are a photographer in front of a model and a gardener behind plants |
+| `port_arms_crossed_smile` | veil hides the smile; soft; third photo of the same model | confirmed | **replaced**: Mixkit 43806 at 1.242 s, mirrored: arms folded, closed-mouth smile, plain mint backdrop (app score 0.97) |
+| `pro_arms_crossed` | categories name the model ('Alisa (photo model)') | confirmed | removed under the named-person rule, no exception made; it is in 'Full consent', so the owner could decide to allow consenting named models and restore it (record in `picks/gaps-r2.json`) |
+| `floor_street_squat` | credit title names a woman, the frame shows the man (coach) in clip 32800 | confirmed | note added to the credit |
+| `fun_twirl` | not a spin: a flannel shirt swung overhead while walking | confirmed | **replaced**: Mixkit 43219 at 12.425 s, mirrored: a dancer mid-turn, one arm high and one out (app score 0.40, its own pose the nearest of 82) |
+| `fun_victory` | motion blur; low-cut top at the centre | confirmed | removed |
+| `lean_railing_back` | could be under 18 | looked at the 1080p face: cannot rule it out | removed |
+| `port_shoulder_touch` | category 'Seduction (facial expression)' | confirmed | removed; `rules.py` now rejects 'seduction' |
+| `stand_hand_on_hip` | deep neckline; fits the power pose better? | fashion jumpsuit, nothing exposed; only one hand on the hip | kept, note added |
+| `couple_sit_lean`, `couple_forehead_touch` | one couple in 3 couple photos; chroma-green background | confirmed | kept (no alternatives), noted |
+| `sit_elbows_on_knees` | Pexels CC0 not verified; Nike marks | Commons copy dated 2017-04-04, in Pexels' CC0 period; earliest archived Pexels page (2019) HTTP 403 | kept, note added |
+| `sit_crossed_legs`, `selfie_mirror` | hands differ from the figure; jacket text, EXIT sign, uploader self-portrait | confirmed | kept, notes updated |
+| `port_dreamy_gaze` and others | small third-party marks | confirmed | kept; listed under the people rules |
+| `floor_side_lie` | same set as `port_chin_rest` | confirmed | kept, noted |
+| CC0 attributions | "(cropped)" / "(mirrored)" missing for CC0 | confirmed | `credits.py` now adds them for every Commons photo |
+| all Mixkit stills | scripted downloads vs. User Terms clause 9 | still open | numbers updated above; five clip pages re-read by the reviewer, four new ones by the review |
+
+Net effect: 46 -> 36 photos (10 removed, 3 replaced). The removed records stay in `credits.py`'s `DROPPED` with the
+reason; their selection records stay in the earlier fragments, so a photo could be rebuilt if a decision changes.
 
 ## Replacing a photo or adding one
 
@@ -318,31 +383,31 @@ the app's live score. If the UI ever uses a photo as a target for the live match
 
 ## Coverage, all 99 poses
 
-46 with a photo, 53 without. App score = the app's PoseMatcher on the shipped photo against its own pose as drawn
+36 with a photo, 63 without (after the review). App score = the app's PoseMatcher on the shipped photo against its own pose as drawn
 (1 = perfect; "-" = the detector finds nobody). "Flagged" = score below 0.5, fewer people detected than the pose has,
 or another pose nearer by the matcher's rank; every flagged photo was looked at again (the note says what it shows).
-For poses without a photo the note is the selection's last reason (in full in `coverage.json`).
+For poses without a photo the note is the selection's last reason, or why the confirm stage or the review removed the photo (in full in `coverage.json`).
 
 | Category | Poses | With a photo |
 | --- | --- | --- |
-| Standing | 10 | 4 |
+| Standing | 10 | 3 |
 | Sitting | 10 | 3 |
-| Leaning | 9 | 3 |
+| Leaning | 9 | 2 |
 | Walking | 10 | 3 |
-| On the ground | 9 | 5 |
-| Portrait | 9 | 9 |
-| Selfie | 8 | 5 |
-| Professional | 8 | 3 |
-| Fun & jumping | 9 | 3 |
-| Couple | 10 | 7 |
+| On the ground | 9 | 4 |
+| Portrait | 9 | 8 |
+| Selfie | 8 | 3 |
+| Professional | 8 | 1 |
+| Fun & jumping | 9 | 2 |
+| Couple | 10 | 6 |
 | Group | 7 | 1 |
-| **All** | **99** | **46** |
+| **All** | **99** | **36** |
 
 | Pose | Category | Photo | Source | Licence | App score | Note |
 | --- | --- | --- | --- | --- | --- | --- |
 | Hand on hip (`stand_hand_on_hip`) | Standing | yes | Mixkit | Mixkit Free | 0.86 |  |
 | Hands in pockets (`stand_hands_in_pockets`) | Standing | **no** | | | | Round 2's best full-body hands-in-pockets photo ('Italian style 2013', CC0: both hands in her front jeans ... |
-| Crossed ankles (`stand_crossed_ankles`) | Standing | yes | Mixkit | Mixkit Free | 0.85 | flagged (nearest: pro_folder_hold), kept: standing with the ankles crossed (legs 1.0) |
+| Crossed ankles (`stand_crossed_ankles`) | Standing | **no** | | | | removed at the review: the ankles are not crossed (the boots stand side by side, one half a step ahead), the model also filled ... |
 | Collar touch (`stand_collar_touch`) | Standing | yes | Mixkit | Mixkit Free | 0.92 | flagged (nearest: walk_coffee_run), kept: full length, one hand at the neck and collarbone, the other arm down, as ... |
 | Candid look away (`stand_look_away`) | Standing | **no** | | | | No full-body relaxed stance with the head turned away |
 | Relaxed arms crossed (`stand_arms_crossed`) | Standing | **no** | | | | The full-body crossed-arms photos found name the person ('Wena Opena, 2021', 'Danielagalliano', ... |
@@ -368,7 +433,7 @@ For poses without a photo the note is the selection's last reason (in full in `c
 | Doorway lean (`lean_door_frame`) | Leaning | **no** | | | | The doorway phrases (213 files) and the leaning categories gave nobody with an arm up on a door frame. |
 | Pole swing (`lean_pole_swing`) | Leaning | **no** | | | | Nobody swinging round a pole or lamp post (24 lamp-post files, the jumping and leaning categories). |
 | Table-edge perch (`lean_table_edge`) | Leaning | **no** | | | | 'People sitting on desks' and 'People sitting on tables' (24 files) and the desk-perch phrases (27) gave ... |
-| Elbows on the rail (`lean_railing_back`) | Leaning | yes | Mixkit | Mixkit Free | 0.95 |  |
+| Elbows on the rail (`lean_railing_back`) | Leaning | **no** | | | | removed at the review: the clip calls her a woman, but in the full-resolution frame she could be under 18, and the rules skip ... |
 | Walk toward the camera (`walk_toward_camera`) | Walking | yes | Mixkit | Mixkit Free | 0.67 | flagged (nearest: walk_kerb_step), kept: walking straight at the camera |
 | Walk across (`walk_across`) | Walking | yes | Mixkit | Mixkit Free | 0.80 |  |
 | Walk away, look back (`walk_look_back`) | Walking | **no** | | | | Nobody walking away and turning back |
@@ -381,7 +446,7 @@ For poses without a photo the note is the selection's last reason (in full in `c
 | Jacket over shoulder (`walk_jacket_shoulder`) | Walking | **no** | | | | 'Black woman with women's suit 8' holds her jacket over her shoulder but stands still and is cut at the thighs |
 | Street squat (`floor_street_squat`) | Floor | yes | Mixkit | Mixkit Free | 0.49 | flagged (low score), kept: a deep flat-footed squat with the forearms on the knees |
 | Low crouch (`floor_low_crouch`) | Floor | **no** | | | | Women/Men/People crouching (592 files) give named people ('TamaraAnnaPawlak', 'WikiTamara'), sport and ... |
-| One knee down (`floor_one_knee`) | Floor | yes | Mixkit | Mixkit Free | 0.15 | flagged (low score, nearest: selfie_high_angle), kept: kneeling on one knee side-on with the front knee up and a hand on it, facing ... |
+| One knee down (`floor_one_knee`) | Floor | **no** | | | | removed at the review: a marriage proposal (ring box held out, partner cropped away, mouth open mid-speech), not a pose ... |
 | Cross-legged (`floor_cross_legged`) | Floor | yes | Mixkit | Mixkit Free | 0.53 | flagged (nearest: selfie_lean_in), kept: cross-legged on grass with the hands on the knees (three-quarter view) |
 | Side lie on elbow (`floor_side_lie`) | Floor | yes | Mixkit | Mixkit Free | 0.27 | flagged (low score, nearest: floor_one_knee), kept: lying on her side propped on the elbow, head in hand, knees bent, head to ... |
 | Feet in the air (`floor_feet_up`) | Floor | **no** | | | | Nobody lying on the stomach with the feet up |
@@ -392,22 +457,22 @@ For poses without a photo the note is the selection's last reason (in full in `c
 | Face frame (`port_face_frame`) | Portrait | yes | Mixkit | Mixkit Free | 0.86 | flagged (nearest: pro_headshot), kept: portrait and selfie templates need few segments (no legs), so several of ... |
 | Fingers through hair (`port_hand_in_hair`) | Portrait | yes | Commons | CC BY 2.0 | 0.63 | flagged (nearest: pro_headshot), kept: portrait and selfie templates need few segments (no legs), so several of ... |
 | Shoulder glance (`port_over_shoulder`) | Portrait | yes | Mixkit | Mixkit Free | 0.55 |  |
-| Crossed-arm smile (`port_arms_crossed_smile`) | Portrait | yes | Mixkit | Mixkit Free | 0.98 |  |
+| Crossed-arm smile (`port_arms_crossed_smile`) | Portrait | yes | Mixkit | Mixkit Free | 0.97 | flagged (nearest: pro_headshot), kept: portrait and selfie templates need few segments (no legs), so several of ... |
 | Café chin rest (`port_chin_on_hand`) | Portrait | yes | Commons | CC0 | 0.96 | flagged (nearest: pro_headshot), kept: portrait and selfie templates need few segments (no legs), so several of ... |
 | Dreamy gaze (`port_dreamy_gaze`) | Portrait | yes | Mixkit | Mixkit Free | 0.98 |  |
 | Collar adjust (`port_collar_adjust`) | Portrait | yes | Mixkit | Mixkit Free | 0.86 | flagged (nearest: pro_headshot), kept: portrait and selfie templates need few segments (no legs), so several of ... |
-| Shoulder touch (`port_shoulder_touch`) | Portrait | yes | Commons | CC0 | 0.62 | flagged (nearest: selfie_lean_in), kept: portrait and selfie templates need few segments (no legs), so several of ... |
-| Classic arm selfie (`selfie_classic`) | Selfie | yes | Mixkit | Mixkit Free | - | flagged (low score, 0 of 1 people detected), kept: phone held up at eye level, looking into it, seen from beside the phone |
+| Shoulder touch (`port_shoulder_touch`) | Portrait | **no** | | | | removed at the review: the Commons file is in the category 'Seduction (facial expression)' |
+| Classic arm selfie (`selfie_classic`) | Selfie | yes | Mixkit | Mixkit Free | 0.11 | flagged (low score, nearest: port_over_shoulder), kept: phone held out at arm's length above eye level, face and phone in frame ... |
 | Peace sign (`selfie_peace`) | Selfie | yes | Mixkit | Mixkit Free | 0.92 | flagged (nearest: pro_headshot), kept: portrait and selfie templates need few segments (no legs), so several of ... |
-| High-angle selfie (`selfie_high_angle`) | Selfie | yes | Commons | CC BY 2.0 | 0.08 | flagged (low score, nearest: pro_headshot), kept: phone raised high and angled down, looking up into it |
+| High-angle selfie (`selfie_high_angle`) | Selfie | **no** | | | | removed at the review: same uploader and licence doubt as couple_walk_toward (Shixart1985, 'Own work', CC BY 2.0, ... |
 | Cheek rest selfie (`selfie_hand_on_cheek`) | Selfie | **no** | | | | 'Woman in Eyeglasses (5)' (PxHere, CC0) rests her cheek on a hand, but its categories name the model ... |
 | Mirror selfie (`selfie_mirror`) | Selfie | yes | Commons | CC0 | 0.52 | flagged (nearest: pro_folder_hold), kept: a full-length mirror selfie |
-| Two-hand mirror (`selfie_mirror_two_hands`) | Selfie | yes | Commons | CC0 | 0.99 |  |
+| Two-hand mirror (`selfie_mirror_two_hands`) | Selfie | **no** | | | | removed at the review: the man wears tight black shorts that read as boxer briefs, barefoot in a kitchen (the rules exclude ... |
 | Sky gaze selfie (`selfie_look_up`) | Selfie | **no** | | | | No selfie looking up past the phone in the selfie categories or the stock imports. |
 | Lean-in selfie (`selfie_lean_in`) | Selfie | **no** | | | | No lean toward a phone with a hand on the hip |
 | LinkedIn headshot (`pro_headshot`) | Professional | yes | Mixkit | Mixkit Free | 0.00 | flagged (low score, nearest: selfie_look_up), kept: a textbook headshot (suit, smile, eyes on the lens) |
-| Confident crossed arms (`pro_arms_crossed`) | Professional | yes | Commons | CC BY-SA 3.0 | 0.83 |  |
-| Blazer pocket (`pro_blazer_pocket`) | Professional | yes | Mixkit | Mixkit Free | 0.91 |  |
+| Confident crossed arms (`pro_arms_crossed`) | Professional | **no** | | | | removed at the review: the file's categories name the model ('Alisa (photo model)'), which the named-person rule excludes (the ... |
+| Blazer pocket (`pro_blazer_pocket`) | Professional | **no** | | | | removed at the review: no hand is in a pocket (one hand holds the other forearm), it was a second frame of the clip used for ... |
 | Desk-edge perch (`pro_desk_edge`) | Professional | **no** | | | | As lean_table_edge: no desk perch in the desk/table categories or phrases |
 | Open-palm speaker (`pro_open_palm`) | Professional | **no** | | | | The Mixkit speaker clips found in round 2 (36791, 36817, 36820, 37043, 45957) are all Restricted |
 | Boardroom lean (`pro_table_lean`) | Professional | **no** | | | | Nobody leaning on a table with both hands |
@@ -415,13 +480,13 @@ For poses without a photo the note is the selection's last reason (in full in `c
 | Folder in hand (`pro_folder_hold`) | Professional | **no** | | | | 'People holding clipboards' (69 files) gave workers and events |
 | Star jump (`fun_star_jump`) | Fun | **no** | | | | 'Young ladies jump for joy Canberra-1' (CC BY-SA 2.0) has a clean star jump, but in front of Parliament ... |
 | Knee-tuck jump (`fun_tuck_jump`) | Fun | **no** | | | | No knee-tuck jump among Women/Men jumping (216 files) or the jump phrases. |
-| Heel-flick twirl (`fun_twirl`) | Fun | yes | Mixkit | Mixkit Free | 0.22 | flagged (low score, nearest: lean_pole_swing), kept: mid-spin with one arm high and the skirt and shirt flying out |
+| Heel-flick twirl (`fun_twirl`) | Fun | yes | Mixkit | Mixkit Free | 0.40 | flagged (low score), kept: mid-turn with one arm thrown high and the other out to the side, as drawn |
 | Superhero stance (`fun_superhero`) | Fun | **no** | | | | dropped: the only candidate with the stance is a Commons photo of a member of the public at an event ('Man watching ... |
 | Disco point (`fun_disco_point`) | Fun | yes | Mixkit | Mixkit Free | 0.95 | flagged (nearest: selfie_high_angle), kept: one arm pointing high, the other hand on the hip, weight on one leg, as ... |
 | Laughing bend (`fun_laugh_bend`) | Fun | **no** | | | | Nobody doubled over laughing in Women/Men laughing (828 files) |
 | High kick (`fun_high_kick`) | Fun | **no** | | | | No front kick with open arms (martial-arts competition photos only). |
 | Double peace lean (`fun_peace_lean`) | Fun | **no** | | | | The peace-sign phrase (91 files) gave named people and events. |
-| Victory arms (`fun_victory`) | Fun | yes | Mixkit | Mixkit Free | 0.68 |  |
+| Victory arms (`fun_victory`) | Fun | **no** | | | | removed at the review: motion blur on the face and hands, and a low-cut top with visible cleavage at the centre of the frame (the ... |
 | Side hug (`couple_side_hug`) | Couple, 2 people | **no** | | | | No side-by-side hug: the couple matches are events or families, and the Mixkit couple clips are Restricted ... |
 | Forehead touch (`couple_forehead_touch`) | Couple, 2 people | yes | Mixkit | Mixkit Free | 0.31 | flagged (low score, nearest: selfie_classic), kept: foreheads together, eyes closed, hands joined between them, as drawn |
 | Back hug (`couple_back_hug`) | Couple, 2 people | yes | Mixkit | Mixkit Free | 0.48 | flagged (low score, 1 of 2 people detected), kept: he hugs her from behind, both smiling at the camera |
@@ -430,7 +495,7 @@ For poses without a photo the note is the selection's last reason (in full in `c
 | Romantic dip (`couple_dip`) | Couple, 2 people | **no** | | | | 'Dip (dance move)' (10 files) and 'Tango dancers' are stage performances |
 | Face to face (`couple_hold_hands_facing`) | Couple, 2 people | yes | Mixkit | Mixkit Free | 0.73 | flagged (nearest: couple_cheek_kiss), kept: facing each other an arm's length apart holding both hands, as drawn |
 | Sitting close (`couple_sit_lean`) | Couple, 2 people | yes | Mixkit | Mixkit Free | 0.46 | flagged (low score, 1 of 2 people detected), kept: on a bench she rests her head on his shoulder, the gesture the pose describes |
-| Walk and chat (`couple_walk_toward`) | Couple, 2 people | yes | Commons | CC BY 2.0 | 0.92 |  |
+| Walk and chat (`couple_walk_toward`) | Couple, 2 people | **no** | | | | removed at the review: the licence cannot be verified |
 | Cheek kiss (`couple_cheek_kiss`) | Couple, 2 people | yes | Mixkit | Mixkit Free | 0.01 | flagged (low score, 1 of 2 people detected), kept: she kisses his cheek, both smiling (he looks down, not at the camera) |
 | Shoulder line-up (`group_arms_around`) | Group, 3 people | yes | Commons | CC0 | 0.44 | flagged (low score, nearest: group_walk_line), kept: seven women in a line with their arms round each other's shoulders and ... |
 | V-formation (`group_v_formation`) | Group, 3 people | **no** | | | | No V-formation: the group matches are events, political groups or archive photos |
@@ -440,12 +505,13 @@ For poses without a photo the note is the selection's last reason (in full in `c
 | Stacked levels (`group_levels`) | Group, 3 people | **no** | | | | No three head heights in any group candidate. |
 | Back to back (`group_back_to_back`) | Group, 3 people | **no** | | | | No three-person back-to-back |
 
-## The 53 gaps and what they need
+## The 63 gaps and what they need
 
 The free sources reachable here are exhausted for these poses: across the first run and two gap rounds every pose
 was searched by name and category, and what is left is either missing (nobody does the pose: pole swing, kerb step,
 star jump, group levels), Mixkit Restricted (most walking, office, couple and group clips), or ruled out by the people
-rules (named people, events, possible minors, glamour series). Options, best first:
+rules (named people, events, possible minors, glamour series). The 10 poses emptied by the review are in the same
+state: their remaining candidates were searched again (see the review table). Options, best first:
 
 1. **A Pexels or Unsplash API key** (Pixabay too). These sites hold far more stock-model photos than the old CC0
    copies on Commons, searchable by pose words ("hands in pockets", "leaning on wall", "jumping friends"), and their
@@ -465,9 +531,12 @@ rules (named people, events, possible minors, glamour series). Options, best fir
    look and lets each photo match the drawn framing exactly.
 
 Smaller steps: ask Mixkit whether the Restricted clips that match (named in the notes) may be used this way; read the
-Envato policies; replace the weakest kept photos (app score below 0.3: `pro_headshot`, `couple_cheek_kiss`,
-`selfie_high_angle`, `stand_hand_in_hair`, `floor_one_knee`, `fun_twirl`, `floor_side_lie`, and `selfie_classic` with
-no score) when one of the options above produces better ones.
+Envato policies; check the Shixart1985 uploads by hand (uploader talk page, deletion requests, the original files'
+EXIF, a reverse image search): if they prove genuine own work, `couple_walk_toward` could return (its records are in
+`picks/couple-group.json`); decide whether consenting named models ('Full consent' category) may be shown, which would
+bring back `pro_arms_crossed`; replace the weakest kept photos (app score below 0.3: `pro_headshot`,
+`couple_cheek_kiss`, `selfie_classic`, `stand_hand_in_hair`, `floor_side_lie`) when one of the options above produces
+better ones.
 
 ## Appendix: how candidates were found and ranked (first run)
 

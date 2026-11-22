@@ -29,7 +29,7 @@ TOOLS = Path(__file__).resolve().parent
 REPO = TOOLS.parent.parent
 PHOTOS = REPO / "app/src/main/assets/pose_photos"
 POSES_JSON = REPO / "promo/public/poses.json"
-ORDER = ["sitting-floor", "standing-leaning", "portrait-selfie-fun", "couple-group", "gaps-r1", "gaps-r2"]
+ORDER = ["sitting-floor", "standing-leaning", "portrait-selfie-fun", "couple-group", "gaps-r1", "gaps-r2", "review"]
 
 # Confirm stage (pose-core PosePhotoMatch + a second look at every flagged photo, 2026-11-21). A photo is flagged when
 # its app score is below LOW or the matcher ranks another library pose nearer than its own.
@@ -47,6 +47,52 @@ DROPPED: dict[str, str] = {
                      "the people rules skip files from events. The next candidates are a performer in a leotard, a "
                      "studio shoot with the photographer in front of the model, and a near-silhouette under a pink "
                      "filter (Mixkit 1236, hi-res frames checked).",
+    # Review of the shipped set (2026-11-22): every photo looked at again beside its figure and its source record.
+    # Replacements are in picks/review.json (review_finalize.py); these were removed and nothing better was found
+    # (review_rescore.py over all ~8,100 detected frames and photos, plus title searches of every cached record).
+    "selfie_mirror_two_hands": "Removed at the review: the man wears tight black shorts that read as boxer briefs, "
+                               "barefoot in a kitchen (the rules exclude underwear), the file's own title calls the "
+                               "shot unflattering ('... looking strangely due to status of high concentration'), and "
+                               "an Apple logo shows on the phone. No other full-length two-hand mirror selfie among "
+                               "the candidates (the mirror files found are close-ups, a fisheye, a funfair mirror or "
+                               "a wedding-dress fitting).",
+    "couple_walk_toward": "Removed at the review: the licence cannot be verified. Uploader Shixart1985 marks it 'Own "
+                          "work', CC BY 2.0, with no outside source and no licence review; the cached records hold "
+                          "about 24 such uploads of many different models and places in stock-caption style, a "
+                          "pattern of re-uploaded stock photos. Commons' API and upload server answered HTTP 429 to "
+                          "every check of the uploader's talk page and the file's history. Replacements looked at: "
+                          "the Mixkit couple clips that walk toward the camera (40584, 2402, 133, 32744) are 16:9 and "
+                          "thigh-up, too wide for a 3:4 frame, and 2402 has a bustier top; 'Coney Island couple "
+                          "(Unsplash)' has large brand signs and children in the background.",
+    "selfie_high_angle": "Removed at the review: same uploader and licence doubt as couple_walk_toward (Shixart1985, "
+                         "'Own work', CC BY 2.0, generated-sounding caption); the face was also out of focus and the "
+                         "app score 0.08. The only other raised-phone selfie is a frame of a clip that fails the 3:4 "
+                         "frame (Mixkit 41181); the Commons selfies found are passers-by or self-portraits.",
+    "pro_blazer_pocket": "Removed at the review: no hand is in a pocket (one hand holds the other forearm), it was a "
+                         "second frame of the clip used for stand_crossed_ankles, and the red-sequinned face veil "
+                         "reads like blood at thumbnail size. No candidate with a hand in a blazer pocket.",
+    "stand_crossed_ankles": "Removed at the review: the ankles are not crossed (the boots stand side by side, one half "
+                            "a step ahead), the model also filled pro_blazer_pocket and port_arms_crossed_smile, and "
+                            "the red-sequinned face veil reads like blood at thumbnail size. The other candidates "
+                            "(Mixkit 34404, a sheer dress; 1236 under a pink filter) do not cross the ankles either.",
+    "floor_one_knee": "Removed at the review: a marriage proposal (ring box held out, partner cropped away, mouth "
+                      "open mid-speech), not a pose demonstration, and the kneeling leg was lost in the dark (score "
+                      "0.15). The other kneelers are a photographer crouched in front of a model (Mixkit 34405) and a "
+                      "gardener hidden by plants (Mixkit 969).",
+    "pro_arms_crossed": "Removed at the review: the file's categories name the model ('Alisa (photo model)'), which "
+                        "the named-person rule excludes (the same rule removed other crossed-arms photos and "
+                        "'Isabela Salvador' for selfie_hand_on_cheek). The file is also in 'Full consent', so an "
+                        "owner who decides to allow consenting named models could restore it (record kept in "
+                        "picks/gaps-r2.json). No other full-body confident crossed arms.",
+    "lean_railing_back": "Removed at the review: the clip calls her a woman, but in the full-resolution frame she could "
+                         "be under 18, and the rules skip anything that could show a minor. No other elbows-on-the-"
+                         "rail lean among the candidates.",
+    "port_shoulder_touch": "Removed at the review: the Commons file is in the category 'Seduction (facial "
+                           "expression)'; the rules exclude seductive and glamour framing (the text rules now catch "
+                           "'seduction'). No other hand-to-shoulder portrait among the candidates.",
+    "fun_victory": "Removed at the review: motion blur on the face and hands, and a low-cut top with visible cleavage "
+                   "at the centre of the frame (the rules exclude cleavage). The other arms-up frames are a performer "
+                   "on a stage ('Jump for joy', an event) and dancing clips with one arm up.",
 }
 
 # Flagged photos kept after the second look: what the photo shows and why the score does not measure it. Shown in
@@ -56,66 +102,80 @@ NOTES: dict[str, str] = {
                     "height of the 16:9 source frame) while the drawn frame reaches the hips, so most segments the "
                     "figure needs are outside the photo and the matcher's coverage rule gives 0; head and torso parts "
                     "score 1.0.",
-    "selfie_classic": "Kept: phone held up at eye level, looking into it, seen from beside the phone. The detector "
-                      "finds no person in this close-up (half the face, a foreshortened arm), so there is no score.",
     "couple_cheek_kiss": "Kept: she kisses his cheek, both smiling (he looks down, not at the camera). A tight close-up "
                          "of the two faces: the detector separates one person of two, so the score (0.01) does not "
                          "measure the photo.",
-    "selfie_high_angle": "Kept: phone raised high and angled down, looking up into it. Seen from in front of the "
-                         "person rather than from the phone the figure is drawn for (head 0.03, raised arm 0.45); the "
-                         "face is a little soft (focus on the phone).",
     "stand_hand_in_hair": "Kept: standing tall with one hand in the hair and the other arm down, as drawn. The long "
                           "dress hides the legs from the detector (no leg segment scored, so coverage is low) and the "
                           "raised elbow points forward rather than out (left arm 0.0).",
-    "floor_one_knee": "Kept: kneeling on one knee side-on with the front knee up and a hand on it, facing the same way "
-                      "as the figure. The raised hand holds a ring box (a proposal scene, the partner cropped out) and "
-                      "the kneeling leg is dark against dark ground and cut by the frame (arms 0.03 / 0.21, kneeling "
-                      "leg 0.0), hence 0.15.",
-    "fun_twirl": "Kept: mid-spin with one arm high and the skirt and shirt flying out. The other arm hangs instead of "
-                 "reaching out (0.06) and the heel flick is small (leg 0.55).",
     "floor_side_lie": "Kept: lying on her side propped on the elbow, head in hand, knees bent, head to the right as "
                       "drawn. With the body horizontal the head and shin directions are very sensitive (head 0.07, "
                       "lower leg 0.05); its own pose ranks second of 82.",
-    "couple_forehead_touch": "Kept: foreheads together, eyes closed, hands joined between them, as drawn; thigh-up. "
-                             "The two overlapping bodies confuse the detector (one head scores 0.0).",
-    "sit_elbows_on_knees": "Kept: sitting on steps with the forearms on the knees and the hands clasped. Seen from the "
-                           "front while the figure is drawn side-on, so the torso and thighs point differently in 2D "
-                           "(torso 0.28); the nearest pose by rank is the street squat, a similar folded shape.",
+    "couple_forehead_touch": (
+        "Kept: foreheads together, eyes closed, hands joined between them, as drawn; thigh-up. The two "
+        "overlapping bodies confuse the detector (one head scores 0.0). A flat chroma-green studio "
+        "background (as couple_hold_hands_facing, same couple and shoot)."),
+    "sit_elbows_on_knees": (
+        "Kept: sitting on steps with the forearms on the knees and the hands clasped. Seen from the front"
+        " while the figure is drawn side-on, so the torso and thighs point differently in 2D (torso "
+        "0.28); the nearest pose by rank is the street squat, a similar folded shape. Licence: CC0 as "
+        "copied from Pexels; the Commons copy is dated 2017-04-04, when Pexels still published under CC0 "
+        "(it adopted its own licence later); the earliest archived Pexels page (2019) could not be read "
+        "from here (HTTP 403). Nike marks on both shoes (incidental)."),
     "lean_crossed_legs": "Kept: leaning back on a car with the ankles crossed. Dark clothes against the dark car hide "
                          "an arm and a leg from the detector (not scored, so coverage is low).",
     "couple_walk_hands": "Kept: walking hand in hand, free arms swinging; seen from behind and hip-up instead of "
                          "side-on full length.",
-    "sit_crossed_legs": "Kept: seated upright with the legs crossed at the knee as drawn (legs 1.0 / 0.81); the hands "
-                        "are behind the head instead of on the knee (arms 0.0).",
+    "sit_crossed_legs": (
+        "Kept: seated upright with the legs crossed at the knee as drawn (legs 1.0 / 0.81); both hands "
+        "are behind the head instead of on the knee (arms 0.0), and the raised arms dominate the photo."),
     "group_arms_around": "Kept: seven women in a line with their arms round each other's shoulders and waists (the pose "
                          "says it fits any number of people); the detector returns four people, so the score covers "
                          "three figures on four of seven.",
-    "couple_sit_lean": "Kept: on a bench she rests her head on his shoulder, the gesture the pose describes. A "
-                       "head-and-shoulders close-up (the seated legs are out of frame) where the detector separates "
-                       "one person of two, so the score does not measure the photo.",
+    "couple_sit_lean": (
+        "Kept: on a bench she rests her head on his shoulder, the gesture the pose describes. A head-and-"
+        "shoulders close-up (the seated legs are out of frame) where the detector separates one person of"
+        " two, so the score does not measure the photo. Same actors and production as "
+        "couple_forehead_touch and couple_hold_hands_facing (Mixkit 100733/100759/100799): one couple in "
+        "3 of the 6 couple photos."),
     "couple_back_hug": "Kept: he hugs her from behind, both smiling at the camera; waist-up. The detector separates "
                        "one person of two, so the score does not measure the photo.",
     "sit_one_knee_up": "Kept: on stairs with one knee drawn up high and the other leg reaching down (legs 1.0 / 0.45, "
                        "torso 1.0); one hand rests on her shoulder instead of the knee. Its own pose ranks third, "
                        "within 0.03 of two other seated poses.",
-    "floor_street_squat": "Kept: a deep flat-footed squat with the forearms on the knees; its own pose is the nearest "
-                          "of all 82 single-person poses.",
-    "selfie_mirror": "Kept: a full-length mirror selfie; the free hand holds a hat at the side instead of resting on "
-                     "the hip (arm 0.49).",
+    "floor_street_squat": (
+        "Kept: a deep flat-footed squat with the forearms on the knees; its own pose is the nearest of "
+        "all 82 single-person poses. The shipped frame shows the young man in the red shirt (the coach "
+        "who checks his watch), not the woman named in the clip's title 'Young woman getting into "
+        "position for sprinting'; Mixkit's description of clip 32800 mentions him ('a man telling her the"
+        " time'). Page and file URLs are that clip's."),
+    "selfie_mirror": (
+        "Kept: a full-length mirror selfie; the free hand holds a woven hat and a wallet at the side "
+        "instead of resting on the hip (arm 0.49). Lettering on the jacket chest and a mirrored EXIT sign"
+        " are part of the scene. A self-portrait by the uploader (category 'ShiminUfesoj photos'), CC0."),
     "floor_cross_legged": "Kept: cross-legged on grass with the hands on the knees (three-quarter view); the crossed "
                           "shins are hard for the detector (leg 0.45).",
     "lean_foot_on_wall": "Kept: leaning on a wall with one foot planted on it behind him (legs 0.77 / 1.0); a phone in "
                          "both hands at the chest where the figure's arms hang (arms 0.55).",
     "walk_toward_camera": "Kept: walking straight at the camera; at this angle the stride is short, so standing and "
                           "kerb-step poses rank close.",
-    "stand_crossed_ankles": "Kept: standing with the ankles crossed (legs 1.0); with the arms relaxed, several standing "
-                            "poses score alike.",
     "couple_hold_hands_facing": "Kept: facing each other an arm's length apart holding both hands, as drawn; thigh-up "
                                 "rather than full length.",
     "stand_collar_touch": "Kept: full length, one hand at the neck and collarbone, the other arm down, as drawn (score "
                           "0.92); a walking pose with one arm bent to the chest (walk_coffee_run) ranks just above it.",
     "fun_disco_point": "Kept: one arm pointing high, the other hand on the hip, weight on one leg, as drawn (arms 1.0, "
                        "score 0.95); the high-angle selfie and door-frame lean (one arm up) rank just above it.",
+    "stand_hand_on_hip": (
+        "Kept: one hand on the hip, the other arm down, as drawn; a fashion shoot in a boutique. The legs"
+        " stand wider than the figure's relaxed stance (it does not fit stand_power_pose, which needs "
+        "both hands on the hips). The jumpsuit has a deep neckline; nothing is exposed."),
+    "selfie_classic": (
+        "Kept: phone held out at arm's length above eye level, face and phone in frame (Mixkit 40038, "
+        "mirrored). A two-person selfie (a woman leans in beside him) seen from the side, while the "
+        "figure is drawn from the phone's camera, so the matcher scores it low."),
+    "fun_twirl": (
+        "Kept: mid-turn with one arm thrown high and the other out to the side, as drawn; the long skirt "
+        "hides the heel flick, so the legs score low."),
 }
 PORTRAIT_NOTE = ("Kept: portrait and selfie templates need few segments (no legs), so several of them score alike on "
                  "a waist-up photo; its own pose scores {score:.2f} and ranks {rank} of {n}.")
@@ -200,8 +260,8 @@ def note_of(pose_id: str, m: dict | None) -> str | None:
 
 
 def short_attribution(r: dict) -> str:
-    """The line shown under the photo. CC BY / BY-SA: author, licence, source and what was changed (the licences ask
-    for changes to be indicated); CC0: author and source as a courtesy; Mixkit: 'Photo: Mixkit'."""
+    """The line shown under the photo. Commons: author, licence, source and what was changed (CC BY / BY-SA ask for
+    changes to be indicated; CC0 does not, but every Commons credit says it the same way); Mixkit: 'Photo: Mixkit'."""
     if r["source"] == "Mixkit":
         return "Photo: Mixkit"
     lic = r["licence"]["name"]
@@ -214,7 +274,7 @@ def short_attribution(r: dict) -> str:
         changes.append("cropped")
     if r.get("mirrored"):
         changes.append("mirrored")
-    tail = f" ({' and '.join(changes)})" if changes and lic.startswith("CC BY") else ""
+    tail = f" ({' and '.join(changes)})" if changes else ""
     return f"Photo: {author}, {lic}, Wikimedia Commons{tail}"
 
 
@@ -259,7 +319,7 @@ def credit(r: dict, m: dict | None) -> dict:
 def short(text: str | None, limit: int = 110) -> str:
     """First clause of a reason, for the docs table (the whole text is in coverage.json)."""
     t = (text or "").replace("|", "/").strip()
-    t = re.sub(r"^(Kept|Dropped at the confirm stage): ", "", t)
+    t = re.sub(r"^(Kept|Dropped at the confirm stage|Removed at the review): ", "", t)
     depth, cut = 0, len(t)
     for i, ch in enumerate(t):  # the first ": ", "; " or ". " outside brackets, after 20 characters
         depth += (ch == "(") - (ch == ")")
@@ -284,7 +344,8 @@ def print_table():
             note = f"flagged ({flag_short(r)}), kept: {short(r.get('note'), 80)}" if r.get("flag") else ""
             print(f"| {name} | {cat} | yes | {src} | {lic} | {score} | {note} |")
         else:
-            tag = "dropped: " if r.get("verdict", "").startswith("dropped") else ""
+            tag = ("removed at the review: " if (r.get("reason") or "").startswith("Removed at the review")
+                   else "dropped: " if r.get("verdict", "").startswith("dropped") else "")
             print(f"| {name} | {cat} | **no** | | | | {tag}{short(r.get('reason'))} |")
 
 

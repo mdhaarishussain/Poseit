@@ -1,0 +1,174 @@
+[
+ {
+  "pose_id": "stand_arms_crossed",
+  "pose_name": "Relaxed arms crossed",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "The full-body crossed-arms photos found name the person ('Wena Opena, 2021', 'Danielagalliano', 'Claudio-antonioli', 'Kuzzat Altay', 'MBL 35597' = 'Portrait de Marie Béatrice Levaux', a wrestler's watermarked 'BasedHRAEW2024'), come from a cosplay convention, or show two possibly teenage girls ('Cuba (6959893471)'). 'Slightly Business casual Informal wear - pose 2' is excluded too: its categories name the model ('Alisa (photo model)'). Mixkit 43806 and 28302 cross their arms but are waist-up."
+ },
+ {
+  "pose_id": "port_arms_crossed_smile",
+  "pose_name": "Crossed-arm smile",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_arms_crossed_smile.webp",
+  "bytes": 17108,
+  "source": "Mixkit",
+  "title": "Portrait of a confident man smiling at the camera",
+  "page_url": "https://mixkit.co/free-stock-video/portrait-of-a-confident-man-smiling-at-the-camera-43806/",
+  "file_url": "https://mixkit.co/free-stock-video/download/43806/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/43806/43806-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 1.242,
+  "hold_time_s_in_preview": 1.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-22",
+   "evidence": "WORK/gaps-r1/mixkit/clips/43806.json",
+   "rechecked": "clip page read again on 2026-11-22 before the 1080p file was fetched: data-license=\"videoFree\", schema.org license https://mixkit.co/license/#videoFree, no 'Restricted' wording"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/portrait-of-a-confident-man-smiling-at-the-camera-43806/)",
+  "changes": [
+   "still frame at 1.242 s of the 1080p download",
+   "cropped to [611, 0, 1421, 1080] px of the 1920x1080 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   611,
+   0,
+   1421,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.9724,
+  "score_detail": {
+   "score_source_frame": 0.9716,
+   "score_shipped_file": 0.9724,
+   "shipped_matches_flipped_pose": true,
+   "fit": 1.0,
+   "tcov": 0.727,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "head-shoulders",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Replaces the veiled fashion model (Mixkit 52269), whose sequinned veil hid the smile. A man in a coral hoodie stands square to the camera with his arms folded and a relaxed closed-mouth smile, eyes on the lens, on a plain mint studio backdrop (a painted backdrop, not a chroma-key screen): the crossed-arm smile, waist-up, sharp and evenly lit."
+ },
+ {
+  "pose_id": "selfie_classic",
+  "pose_name": "Classic arm selfie",
+  "category": "SELFIE",
+  "photo": "app/src/main/assets/pose_photos/selfie_classic.webp",
+  "bytes": 26688,
+  "source": "Mixkit",
+  "title": "Man and woman taking selfies during a road trip",
+  "page_url": "https://mixkit.co/free-stock-video/man-and-woman-taking-selfies-during-a-road-trip-40038/",
+  "file_url": "https://mixkit.co/free-stock-video/download/40038/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/40038/40038-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 0.367,
+  "hold_time_s_in_preview": 0.5,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-22",
+   "evidence": "WORK/mixkit/clips/40038.json",
+   "rechecked": "clip page read again on 2026-11-22 before the 1080p file was fetched: data-license=\"videoFree\", schema.org license https://mixkit.co/license/#videoFree, no 'Restricted' wording"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/man-and-woman-taking-selfies-during-a-road-trip-40038/)",
+  "changes": [
+   "still frame at 0.367 s of the 1080p download",
+   "cropped to [550, 0, 1360, 1080] px of the 1920x1080 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   550,
+   0,
+   1360,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.1053,
+  "score_detail": {
+   "score_source_frame": 0.3908,
+   "score_shipped_file": 0.1053,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.44,
+   "tcov": 0.386,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Replaces the close-up from beside the phone (Mixkit 51119), which showed neither the extended arm nor the whole face. A man in the passenger seat of an open jeep holds his phone out at arm's length above eye level and smiles into it: the classic arm selfie, phone, arm and face all in frame. A smiling woman leans in beside him (a two-person selfie; the pose itself is drawn for one). Mirrored so the phone arm is on the same side as the figure's. Single-person candidates were looked at and fail the 3:4 frame: in Mixkit 41181 ('Woman taking a selfie in the morning', 16:9) the phone and her face are 1,450 px apart, so any 810x1080 crop loses the phone or the face."
+ },
+ {
+  "pose_id": "fun_twirl",
+  "pose_name": "Heel-flick twirl",
+  "category": "FUN",
+  "photo": "app/src/main/assets/pose_photos/fun_twirl.webp",
+  "bytes": 13512,
+  "source": "Mixkit",
+  "title": "Ballerina spinning and dancing, full shot",
+  "page_url": "https://mixkit.co/free-stock-video/ballerina-spinning-and-dancing-full-shot-43219/",
+  "file_url": "https://mixkit.co/free-stock-video/download/43219/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/43219/43219-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 12.425,
+  "hold_time_s_in_preview": 12.35,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-22",
+   "evidence": "WORK/mixkit/clips/43219.json",
+   "rechecked": "clip page read again on 2026-11-22 before the 1080p file was fetched: data-license=\"videoFree\", schema.org license https://mixkit.co/license/#videoFree, no 'Restricted' wording"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/ballerina-spinning-and-dancing-full-shot-43219/)",
+  "changes": [
+   "still frame at 12.425 s of the 1080p download",
+   "cropped to [230, 200, 1070, 1320] px of the 1080x1920 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   230,
+   200,
+   1070,
+   1320
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.3997,
+  "score_detail": {
+   "score_source_frame": 0.5426,
+   "score_shipped_file": 0.3997,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.818,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "knees",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Replaces the woman swinging a flannel shirt overhead while walking (Mixkit 276), which showed no spin. A barefoot dancer in a black top and long skirt turns on the spot, one arm thrown high and the other out to the side, the skirt swinging with the turn, in a misty empty hall: a twirl with the arms as drawn. The heel flick is hidden by the skirt."
+ }
+]

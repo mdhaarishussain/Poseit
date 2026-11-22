@@ -55,7 +55,7 @@ MINOR = ["child", "children", "kid", "kids", "boy", "boys", "baby", "babies", "t
 AGE_FLAG = ["girl", "young", "teen"]
 
 SENSITIVE = ["nude", "nudity", "naked", "topless", "bottomless", "lingerie", "underwear", "bra", "panties", "bikini",
-             "swimsuit", "swimwear", "bathing suit", "erotic", "erotica", "sexy", "sensual", "seductive", "boudoir",
+             "swimsuit", "swimwear", "bathing suit", "erotic", "erotica", "sexy", "sensual", "seductive", "seduction", "boudoir",
              "fetish", "bdsm", "latex", "pin up", "pinup", "glamour", "playboy", "porn", "stripper", "striptease",
              "burlesque", "implied", "censored", "breast", "breasts", "cleavage", "buttocks", "butt", "thong", "corset",
              "bondage", "sex", "sexual", "shower", "bathtub", "bath", "bed", "bedroom", "drunk", "alcohol", "smoking",
@@ -129,12 +129,16 @@ West Central Upper Lower Saint St Mount Lake Wikimedia Commons Wiki Loves Art Ea
 
 
 def looks_like_person_category(cat: str) -> bool:
-    """A category such as "Jane Doe" or "Jane Doe in 2019": two or three capitalised words that are not generic."""
+    """A category such as "Jane Doe" or "Jane Doe in 2019": two or three capitalised words that are not generic; or
+    a name with a role in brackets, such as "Alisa (photo model)" (added after the 2026-11-22 review)."""
+    if re.match(r"^[A-Z][\w'\-]+(?: [A-Z][\w'\-]+)* \((?:(?:photo |fashion )?model|actress|actor|singer)\)$", cat.strip()):
+        return True
     c = re.sub(r"\s+in \d{4}.*$|\s+\(\d{4}\)$|\s+\d{4}$", "", cat.strip())
     words = c.split()
     if not (2 <= len(words) <= 3):
         return False
-    if not all(re.match(r"^[A-Z][a-z'\-]+\.?$", w) for w in words):
+    # capitalised words, letters of any script after the first, hyphenated parts allowed ("Marie-Béatrice")
+    if not all(w[0].isupper() and re.match(r"^[^\W\d_]+(?:['\-][^\W\d_]+)*\.?$", w) for w in words):
         return False
     return not any(w.strip(".") in _CAP_GENERIC for w in words)
 
