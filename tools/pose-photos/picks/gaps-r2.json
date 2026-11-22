@@ -1,0 +1,514 @@
+[
+ {
+  "pose_id": "stand_hands_in_pockets",
+  "pose_name": "Hands in pockets",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "Round 2's best full-body hands-in-pockets photo ('Italian style 2013', CC0: both hands in her front jeans pockets against a wall) shows the same model and outfit as 'Italian girl 2013' by the same author, whose description calls her an 'Italian teenager', so both are dropped under the minors rule. The other full-length matches name the person ('Will Ng 1', 'Jérôme Beck 2022', 'Mr vera'), and in Mixkit 359 ('Man modelling in different places') he stands far away in a doorway under graffiti lettering."
+ },
+ {
+  "pose_id": "stand_look_away",
+  "pose_name": "Candid look away",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No full-body relaxed stance with the head turned away: the matcher's best new matches are back views, named people ('Ana Belén - N3A1402') or event photos; the 'People looking away' category (563 files) is mostly named portraits; the new Mixkit model clips (41472, 41478, 41519) are close-ups."
+ },
+ {
+  "pose_id": "stand_arms_crossed",
+  "pose_name": "Relaxed arms crossed",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "The full-body crossed-arms photos found name the person ('Wena Opena, 2021', 'Danielagalliano', 'Claudio-antonioli', 'Kuzzat Altay', a wrestler's watermarked 'BasedHRAEW2024'), come from a cosplay convention, or show two possibly teenage girls ('Cuba (6959893471)'). The one clean studio photo ('Slightly Business casual Informal wear - pose 2') is used for pro_arms_crossed, which its business wear fits."
+ },
+ {
+  "pose_id": "stand_over_shoulder",
+  "pose_name": "Over the shoulder",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "Nobody looks back over the shoulder: every high match in 'People looking back' and the stock imports is a back view walking away (the matcher cannot see that the head does not turn)."
+ },
+ {
+  "pose_id": "stand_power_pose",
+  "pose_name": "Power pose",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No clean wide-stance hands-on-hips: 'Hands on hips' and Men/Women with hands on hips (236 files) give celebrities at events ('Kiara Advani snapped in Mumbai', 'Pooja Hegde at ...'), paintings and archive photos; Mixkit 359 has hands on hips at 19 s but is cut at the thighs."
+ },
+ {
+  "pose_id": "stand_sunglasses",
+  "pose_name": "Sunglasses touch",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No full-body hand-on-sunglasses: 'People with/wearing sunglasses' (262 files) are named people, events or head shots."
+ },
+ {
+  "pose_id": "sit_one_knee_up",
+  "pose_name": "One knee up",
+  "category": "SITTING",
+  "photo": "app/src/main/assets/pose_photos/sit_one_knee_up.webp",
+  "bytes": 34600,
+  "source": "Wikimedia Commons",
+  "title": "File:Ladies Grey Loungewear Set (51618413959).jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Ladies_Grey_Loungewear_Set_(51618413959).jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Ladies_Grey_Loungewear_Set_%2851618413959%29.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Ladies_Grey_Loungewear_Set_%2851618413959%29.jpg/1920px-Ladies_Grey_Loungewear_Set_%2851618413959%29.jpg",
+  "author": "Rydale Clothing",
+  "credit_line": "https://www.flickr.com/photos/rydaleclothing/51618413959/",
+  "licence": {
+   "name": "CC BY 2.0",
+   "url": "https://creativecommons.org/licenses/by/2.0",
+   "attribution_required": "true",
+   "restrictions": "",
+   "usage_terms": "Creative Commons Attribution 2.0",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Rydale Clothing (www.rydale.com), CC BY 2.0 (https://creativecommons.org/licenses/by/2.0), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Ladies_Grey_Loungewear_Set_(51618413959).jpg); cropped",
+  "changes": [
+   "cropped to [0, 170, 1920, 2730] px of the 1920x2880 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   0,
+   170,
+   1920,
+   2730
+  ],
+  "source_size": [
+   1920,
+   2880
+  ],
+  "app_matcher_score": 0.484,
+  "score_detail": {
+   "score_source_frame": 0.5123,
+   "score_shipped_file": 0.484,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "A woman in a grey hoodie and joggers sitting on light wooden stairs, one foot drawn up on the step so that knee rises high, the other leg reaching down two steps, one hand resting near the knee and the other on her shoulder: the drawn 'one knee up' on steps, whole body, bright and sharp. A clothing company's product photo with a professional model ('Female models from England'), released under CC BY 2.0; no visible logo. The crop is tight (head to toes) because the 2:3 source is only just tall enough. The matcher scores it low (the photo's arms differ from the figure's), but the body shape reads as the pose.",
+  "attribution_request": "the file description asks for attribution as a link to www.rydale.com"
+ },
+ {
+  "pose_id": "sit_side_saddle",
+  "pose_name": "Side-saddle",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "No knees-together side sit: 'Ladysittingonbench' crosses knee over knee, and Mixkit 1859 sits square to the camera with the knees together."
+ },
+ {
+  "pose_id": "sit_steps_sideways",
+  "pose_name": "Sideways on steps",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "Nearest is 'Man using smartphone, Passeio das Tágides' (CC BY-SA 4.0): he sits along a ledge with one knee up, but he is a small figure in a landscape, on his phone, with no wall at his back."
+ },
+ {
+  "pose_id": "sit_hug_knees",
+  "pose_name": "Hugging knees",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "Mixkit 323 ('Woman sitting on skateboard', Free) hugs one knee in a cross-legged sit, with the feet cut off at 1080p and an off-the-shoulder top in front of a graffiti wall: not the pose and borderline; the floor and grass sitting categories gave no knee hug."
+ },
+ {
+  "pose_id": "sit_armchair_lounge",
+  "pose_name": "Armchair lounge",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "'People sitting on armchairs' (103 files) gave upright sitters and named people; Mixkit 50764 lounges with the legs along a sofa, not over an armrest."
+ },
+ {
+  "pose_id": "sit_chair_backwards",
+  "pose_name": "Backwards chair",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "Nobody astride a backwards chair in the phrase search (38 files) or 'People sitting on chairs' (472)."
+ },
+ {
+  "pose_id": "sit_ankle_on_knee",
+  "pose_name": "Ankle on knee",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "'Crossed legs' (deep category) gives knee-over-knee sits; the only ankle-on-knee look-alikes are Harajuku street snaps of passers-by, not models."
+ },
+ {
+  "pose_id": "sit_high_perch",
+  "pose_name": "High perch",
+  "category": "SITTING",
+  "photo": null,
+  "reason": "'People sitting on stools' (35 files) and the stool phrases gave no clean high perch."
+ },
+ {
+  "pose_id": "lean_shoulder_wall",
+  "pose_name": "Shoulder lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "Closest is 'Cuba (6959893471)' (CC BY 2.0: shoulder on a door frame, arms and ankles crossed), but the two girls in it may be teenagers; Mixkit 359 at 10.5 s leans his back flat on a wall with one foot up, a different lean."
+ },
+ {
+  "pose_id": "lean_hand_on_wall",
+  "pose_name": "Hand on the wall",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "'Italian girl 2013' (hand on the fence above a wall) is described as a teenager; the photographer series with a hand on a pillar ('Jumpsuit with pleated legs - leaning against a wall pose') is a glamour shoot leaning back on the pillar."
+ },
+ {
+  "pose_id": "lean_railing_forward",
+  "pose_name": "Railing lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "The railing phrases gave 10 files and the leaning categories nobody bent forward on the forearms over a rail."
+ },
+ {
+  "pose_id": "lean_door_frame",
+  "pose_name": "Doorway lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "The doorway phrases (213 files) and the leaning categories gave nobody with an arm up on a door frame."
+ },
+ {
+  "pose_id": "lean_pole_swing",
+  "pose_name": "Pole swing",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "Nobody swinging round a pole or lamp post (24 lamp-post files, the jumping and leaning categories)."
+ },
+ {
+  "pose_id": "lean_table_edge",
+  "pose_name": "Table-edge perch",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "'People sitting on desks' and 'People sitting on tables' (24 files) and the desk-perch phrases (27) gave nobody perched on an edge in a usable photo; Mixkit 48676 ('sitting on a table at the library') is Restricted."
+ },
+ {
+  "pose_id": "walk_look_back",
+  "pose_name": "Walk away, look back",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "Nobody walking away and turning back: the high matches are plain back views."
+ },
+ {
+  "pose_id": "walk_kerb_step",
+  "pose_name": "Off the kerb",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No step down from a kerb in any new candidate."
+ },
+ {
+  "pose_id": "walk_skip",
+  "pose_name": "Happy skip",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "No skip: the Commons 'Skipping' category is rope skipping and children; no new Mixkit skip clip is Free (47519 is Restricted)."
+ },
+ {
+  "pose_id": "walk_hat_hold",
+  "pose_name": "Hat in the wind",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "'People holding hats' (21 files) has nobody walking; the Mixkit hat clips found (48663, 27802) are Restricted."
+ },
+ {
+  "pose_id": "walk_pockets",
+  "pose_name": "Pocket stroll",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "Nobody walking with the hands in the pockets; the Mixkit walking clips found (33412, 35419, 46538) are Restricted."
+ },
+ {
+  "pose_id": "walk_coffee_run",
+  "pose_name": "Coffee run",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "'People with cups' (42 files) has nobody walking; the Mixkit coffee clips are hands only (1726) or Restricted (21839, 36863)."
+ },
+ {
+  "pose_id": "walk_jacket_shoulder",
+  "pose_name": "Jacket over shoulder",
+  "category": "WALKING",
+  "photo": null,
+  "reason": "'Black woman with women's suit 8' holds her jacket over her shoulder but stands still and is cut at the thighs; nothing walking."
+ },
+ {
+  "pose_id": "floor_low_crouch",
+  "pose_name": "Low crouch",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "Women/Men/People crouching (592 files) give named people ('TamaraAnnaPawlak', 'WikiTamara'), sport and street scenes; the studio squat 'Man with mustache in street clothes' has the knees apart and a brand logo across his shirt."
+ },
+ {
+  "pose_id": "floor_feet_up",
+  "pose_name": "Feet in the air",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "Nobody lying on the stomach with the feet up: the 'lying on stomach' phrases found 5 files and 'People lying on the ground/grass' (229) none."
+ },
+ {
+  "pose_id": "floor_overhead_lie",
+  "pose_name": "Overhead dreamer",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "No overhead shot of someone lying down in the lying categories or the stock imports."
+ },
+ {
+  "pose_id": "floor_sit_on_heels",
+  "pose_name": "Sit on your heels",
+  "category": "FLOOR",
+  "photo": null,
+  "reason": "'Seiza' and Women/Men/People kneeling (608 files) are religious, sport, martial-arts and named photos; no clean sit on the heels."
+ },
+ {
+  "pose_id": "port_chin_on_hand",
+  "pose_name": "Café chin rest",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_chin_on_hand.webp",
+  "bytes": 38526,
+  "source": "Wikimedia Commons",
+  "title": "File:Love is in the Air (Unsplash).jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Love_is_in_the_Air_(Unsplash).jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Love_is_in_the_Air_%28Unsplash%29.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Love_is_in_the_Air_%28Unsplash%29.jpg/1920px-Love_is_in_the_Air_%28Unsplash%29.jpg",
+  "author": "Yeshi Kangrang omgitsyeshi",
+  "credit_line": "https://unsplash.com/photos/lrg2KrRiNbo Image at the Wayback Machine Gallery at the Wayback Machine",
+  "licence": {
+   "name": "CC0",
+   "url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "attribution_required": "false",
+   "restrictions": "",
+   "usage_terms": "Creative Commons Zero, Public Domain Dedication",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Yeshi Kangrang omgitsyeshi, CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Love_is_in_the_Air_(Unsplash).jpg)",
+  "changes": [
+   "cropped to [83, 0, 1883, 2400] px of the 1920x2400 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   83,
+   0,
+   1883,
+   2400
+  ],
+  "source_size": [
+   1920,
+   2400
+  ],
+  "app_matcher_score": 0.9627,
+  "score_detail": {
+   "score_source_frame": 0.983,
+   "score_shipped_file": 0.9627,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.727,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "head-shoulders",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "A young woman at a café window table resting her chin on the knuckles of one hand, the elbow on the table, the other forearm lying flat across it, looking into the camera with heart-shaped bokeh lights behind: exactly the drawn café chin rest, waist-up, sharp. Unsplash photo (CC0, reviewed import); her age is not stated, but she has a wrist tattoo and a nose piercing and reads as an adult."
+ },
+ {
+  "pose_id": "selfie_hand_on_cheek",
+  "pose_name": "Cheek rest selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "'Woman in Eyeglasses (5)' (PxHere, CC0) rests her cheek on a hand, but its categories name the model ('Isabela Salvador'), which the named-person rule excludes; the selfie categories (76 files) are named people."
+ },
+ {
+  "pose_id": "selfie_look_up",
+  "pose_name": "Sky gaze selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "No selfie looking up past the phone in the selfie categories or the stock imports."
+ },
+ {
+  "pose_id": "selfie_lean_in",
+  "pose_name": "Lean-in selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "No lean toward a phone with a hand on the hip; the studio suit series has hand-on-hip shots without the phone arm."
+ },
+ {
+  "pose_id": "pro_arms_crossed",
+  "pose_name": "Confident crossed arms",
+  "category": "PROFESSIONAL",
+  "photo": "app/src/main/assets/pose_photos/pro_arms_crossed.webp",
+  "bytes": 18156,
+  "source": "Wikimedia Commons",
+  "title": "File:Slightly Business casual Informal wear - pose 2.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Slightly_Business_casual_Informal_wear_-_pose_2.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Slightly_Business_casual_Informal_wear_-_pose_2.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Slightly_Business_casual_Informal_wear_-_pose_2.jpg/1920px-Slightly_Business_casual_Informal_wear_-_pose_2.jpg",
+  "author": "Tobias ToMar Maier",
+  "credit_line": "Own work",
+  "licence": {
+   "name": "CC BY-SA 3.0",
+   "url": "https://creativecommons.org/licenses/by-sa/3.0",
+   "attribution_required": "true",
+   "restrictions": "personality",
+   "usage_terms": "Creative Commons Attribution-Share Alike 3.0",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Tobias ToMar Maier, CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Slightly_Business_casual_Informal_wear_-_pose_2.jpg); cropped and mirrored; this adaptation is shared under CC BY-SA 3.0",
+  "changes": [
+   "cropped to [0, 160, 1920, 2720] px of the 1920x2880 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   0,
+   160,
+   1920,
+   2720
+  ],
+  "source_size": [
+   1920,
+   2880
+  ],
+  "app_matcher_score": 0.8322,
+  "score_detail": {
+   "score_source_frame": 0.7961,
+   "score_shipped_file": 0.8322,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people_detected_source": 1,
+   "people_detected_shipped": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "A woman in a white blouse, black pencil skirt and heels standing square to the camera with her arms folded and a level, confident look: the drawn confident crossed arms, whole body on a plain studio wall, sharp and evenly lit. A consenting model ('Full consent' category) photographed for a dress-code illustration ('Slightly business casual Informal wear - pose 2'); no name, text or logo. The 2:3 source cannot hold the whole figure in a 3:4 frame, so the crop trims the top of the hair; mirrored because the photo matches the flipped figure. Same model and series as photos of hers in other outfits by this photographer, some of which are lingerie studies: only this business-wear frame is used."
+ },
+ {
+  "pose_id": "pro_desk_edge",
+  "pose_name": "Desk-edge perch",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "As lean_table_edge: no desk perch in the desk/table categories or phrases; the Mixkit desk clips found are people seated at desks or Restricted (48676, 49242)."
+ },
+ {
+  "pose_id": "pro_open_palm",
+  "pose_name": "Open-palm speaker",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "The Mixkit speaker clips found in round 2 (36791, 36817, 36820, 37043, 45957) are all Restricted; the Commons 'gesturing/presenting' matches are conference photos (public events)."
+ },
+ {
+  "pose_id": "pro_table_lean",
+  "pose_name": "Boardroom lean",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "Nobody leaning on a table with both hands; the matcher's top matches are people standing with the arms down."
+ },
+ {
+  "pose_id": "pro_cuff_adjust",
+  "pose_name": "Cuff adjust",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "No cuff adjust in any new candidate (the 'Black woman with women's suit' studio series has crossed arms and a jacket over the shoulder, thigh-up)."
+ },
+ {
+  "pose_id": "pro_folder_hold",
+  "pose_name": "Folder in hand",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "'People holding clipboards' (69 files) gave workers and events; the Mixkit tablet clips (17442, 33507, 45706) are Restricted."
+ },
+ {
+  "pose_id": "fun_star_jump",
+  "pose_name": "Star jump",
+  "category": "FUN",
+  "photo": null,
+  "reason": "'Young ladies jump for joy Canberra-1' (CC BY-SA 2.0) has a clean star jump, but in front of Parliament House (the rules exclude politics) and the jumper would be about 500 px tall; 'Beautiful girl jumping on rail tracks' is 720 px with the jumper small and her age unclear."
+ },
+ {
+  "pose_id": "fun_tuck_jump",
+  "pose_name": "Knee-tuck jump",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No knee-tuck jump among Women/Men jumping (216 files) or the jump phrases."
+ },
+ {
+  "pose_id": "fun_laugh_bend",
+  "pose_name": "Laughing bend",
+  "category": "FUN",
+  "photo": null,
+  "reason": "Nobody doubled over laughing in Women/Men laughing (828 files): head-and-shoulders laughs."
+ },
+ {
+  "pose_id": "fun_high_kick",
+  "pose_name": "High kick",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No front kick with open arms (martial-arts competition photos only)."
+ },
+ {
+  "pose_id": "fun_peace_lean",
+  "pose_name": "Double peace lean",
+  "category": "FUN",
+  "photo": null,
+  "reason": "The peace-sign phrase (91 files) gave named people and events."
+ },
+ {
+  "pose_id": "couple_side_hug",
+  "pose_name": "Side hug",
+  "category": "COUPLE",
+  "photo": null,
+  "reason": "No side-by-side hug: the couple matches are events or families, and the Mixkit couple clips are Restricted (46487 'Two women smiling in front of a brick wall', 47906, 46905, 46904) or walk past (45383, 4617)."
+ },
+ {
+  "pose_id": "couple_dip",
+  "pose_name": "Romantic dip",
+  "category": "COUPLE",
+  "photo": null,
+  "reason": "'Dip (dance move)' (10 files) and 'Tango dancers' are stage performances; no dip in the Mixkit dance clips (47032 is Restricted)."
+ },
+ {
+  "pose_id": "group_v_formation",
+  "pose_name": "V-formation",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No V-formation: the group matches are events, political groups or archive photos; the Mixkit friends clips found (36816, 36922, 46771, 8847, 9008) are Restricted."
+ },
+ {
+  "pose_id": "group_jump",
+  "pose_name": "Jump together",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No group jump among the jump categories and phrases; Mixkit 5714 (couple jumping) is Restricted."
+ },
+ {
+  "pose_id": "group_walk_line",
+  "pose_name": "Walking line",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No line of friends walking: Mixkit 46446 ('Three business people walk outside office') is Restricted, and the Commons group-walking photos are events."
+ },
+ {
+  "pose_id": "group_sitting_row",
+  "pose_name": "Sitting row",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "Closest is 'HN007sRamon casaNroute' (three men sitting on steps), but one of them may be a teenager; the other rows are archive photos, families or political groups; Mixkit 35930 and 46771 are Restricted."
+ },
+ {
+  "pose_id": "group_levels",
+  "pose_name": "Stacked levels",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No three head heights in any group candidate."
+ },
+ {
+  "pose_id": "group_back_to_back",
+  "pose_name": "Back to back",
+  "category": "GROUP",
+  "photo": null,
+  "reason": "No three-person back-to-back: the 'Back to back' category search returned unrelated files and the phrase search events."
+ }
+]

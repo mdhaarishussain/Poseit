@@ -1,0 +1,605 @@
+[
+ {
+  "pose_id": "stand_hand_on_hip",
+  "pose_name": "Hand on hip",
+  "category": "STANDING",
+  "photo": "app/src/main/assets/pose_photos/stand_hand_on_hip.webp",
+  "bytes": 42598,
+  "source": "Mixkit",
+  "title": "Woman modeling a short black dress",
+  "page_url": "https://mixkit.co/free-stock-video/woman-modeling-a-short-black-dress-805/",
+  "file_url": "https://mixkit.co/free-stock-video/download/805/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/805/805-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 13.25,
+  "frame_index": 318,
+  "hold_time_s_in_preview": 13.5,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/woman-modeling-a-short-black-dress-805/)",
+  "changes": [
+   "still frame at 13.25 s of the 1080p download (sharpest of 17 frames within 0.3 s of the hold)",
+   "cropped to [669, 202, 1315, 1063] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "mirrored": false,
+  "crop_px": [
+   669,
+   202,
+   1315,
+   1063
+  ],
+  "app_matcher_score": 0.8573,
+  "score_detail": {
+   "score_source_frame": 0.8622,
+   "score_shipped_file": 0.8573,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/stand_hand_on_hip.json",
+  "reason": "Full-body model in a printed mini dress, one hand on the hip and the other arm hanging, weight on one leg: the figure's shape; sharp 1080p hold in a clothing store."
+ },
+ {
+  "pose_id": "stand_hands_in_pockets",
+  "pose_name": "Hands in pockets",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "The only clear candidate (Commons 'Young man standing on a rusty bridge', CC BY-SA 4.0) has a person's name as its whole description, so the rules exclude it. The other candidates have their hands on the hips or clasped in front, not in pockets."
+ },
+ {
+  "pose_id": "stand_crossed_ankles",
+  "pose_name": "Crossed ankles",
+  "category": "STANDING",
+  "photo": "app/src/main/assets/pose_photos/stand_crossed_ankles.webp",
+  "bytes": 11612,
+  "source": "Mixkit",
+  "title": "A young beautiful model poses with poise and elegance wearing a white attire and red boots over a white background",
+  "page_url": "https://mixkit.co/free-stock-video/a-young-beautiful-model-poses-with-poise-and-elegance-wearing-52257/",
+  "file_url": "https://mixkit.co/free-stock-video/download/52257/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/52257/52257-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 16.808,
+  "frame_index": 403,
+  "hold_time_s_in_preview": 16.516,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-young-beautiful-model-poses-with-poise-and-elegance-wearing-52257/)",
+  "changes": [
+   "still frame at 16.808 s of the 1080p download (sharpest of 17 frames within 0.3 s of the hold)",
+   "cropped to [633, 132, 1268, 979] px of the 1920x1080 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "mirrored": true,
+  "crop_px": [
+   633,
+   132,
+   1268,
+   979
+  ],
+  "app_matcher_score": 0.852,
+  "score_detail": {
+   "score_source_frame": 0.8789,
+   "score_shipped_file": 0.852,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.917,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/stand_crossed_ankles.json",
+  "reason": "Full-body studio shot, boots crossed at the ankles with the weight on one leg; arms hang loose where the figure has one hand on the hip, so the legs carry the pose. Mirrored to read the same way as the figure."
+ },
+ {
+  "pose_id": "stand_collar_touch",
+  "pose_name": "Collar touch",
+  "category": "STANDING",
+  "photo": "app/src/main/assets/pose_photos/stand_collar_touch.webp",
+  "bytes": 14250,
+  "source": "Mixkit",
+  "title": "Female model posing captivatingly in a photoshoot",
+  "page_url": "https://mixkit.co/free-stock-video/female-model-posing-captivatingly-in-a-photoshoot-41664/",
+  "file_url": "https://mixkit.co/free-stock-video/download/41664/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/41664/41664-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 9.259,
+  "frame_index": 222,
+  "hold_time_s_in_preview": 9.009,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/female-model-posing-captivatingly-in-a-photoshoot-41664/)",
+  "changes": [
+   "still frame at 9.259 s of the 1080p download (sharpest of 17 frames within 0.3 s of the hold)",
+   "cropped to [36, 483, 723, 1399] px of the 1080x1920 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "mirrored": false,
+  "crop_px": [
+   36,
+   483,
+   723,
+   1399
+  ],
+  "app_matcher_score": 0.9175,
+  "score_detail": {
+   "score_source_frame": 0.9193,
+   "score_shipped_file": 0.9175,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/stand_collar_touch.json",
+  "reason": "Full-body model in a white dress with one hand at the neck and collarbone and the other arm down, as drawn; plain dark studio wall. The photographer's camera in the clip is cropped out."
+ },
+ {
+  "pose_id": "stand_look_away",
+  "pose_name": "Candid look away",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No candidate shows a relaxed full-body stance with the head turned away: the top-ranked frames look at the camera, are backlit silhouettes (Mixkit 407), or show a shirtless man under an open jacket (Mixkit 100148)."
+ },
+ {
+  "pose_id": "stand_arms_crossed",
+  "pose_name": "Relaxed arms crossed",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No full-body arms-crossed photo passes. The Commons photo of a woman with crossed arms names her in its categories (excluded). The red-suit Mixkit clips (50643, 50634, 50649) cut the legs at the shins or knees, or show a lace bralette, or have the photographer in front. The pink-filter clip (1236) has no clean crossed-arms frame at 1080p."
+ },
+ {
+  "pose_id": "stand_hand_in_hair",
+  "pose_name": "Hand in hair",
+  "category": "STANDING",
+  "photo": "app/src/main/assets/pose_photos/stand_hand_in_hair.webp",
+  "bytes": 85504,
+  "source": "Wikimedia Commons",
+  "title": "File:Los Angeles woman in white (Unsplash).jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Los_Angeles_woman_in_white_(Unsplash).jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Los_Angeles_woman_in_white_%28Unsplash%29.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Los_Angeles_woman_in_white_%28Unsplash%29.jpg/1280px-Los_Angeles_woman_in_white_%28Unsplash%29.jpg",
+  "author": "Edwin Andrade theunsteady5",
+  "credit_line": "https://unsplash.com/photos/Oo5sKlgIOZQ archive copy at the Wayback Machine",
+  "licence": {
+   "name": "CC0",
+   "url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "attribution_required": "false",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Edwin Andrade theunsteady5, CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Los_Angeles_woman_in_white_(Unsplash).jpg); cropped, mirrored, resized",
+  "changes": [
+   "cropped to [153, 368, 662, 1046] px of the 800x1200 copy of that rendition stored by commons_harvest.py (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 72, metadata stripped"
+  ],
+  "source_size": [
+   800,
+   1200
+  ],
+  "mirrored": true,
+  "crop_px": [
+   153,
+   368,
+   662,
+   1046
+  ],
+  "app_matcher_score": 0.141,
+  "score_detail": {
+   "score_source_frame": 0.1796,
+   "score_shipped_file": 0.141,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.554,
+   "people": 1,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/stand_hand_in_hair.json",
+  "reason": "Full-body woman on an empty road with one hand in her hair and the other arm down: clearly the pose. The long dress hides her legs from the pose model, so the matcher score is low. Mirrored to match the figure."
+ },
+ {
+  "pose_id": "stand_over_shoulder",
+  "pose_name": "Over the shoulder",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "Nobody turns away from the camera and looks back over the shoulder. Commons 'Kubanino sur stratpesilo' and 'Priscilla Modelling 1' name the person, so the rules exclude them."
+ },
+ {
+  "pose_id": "stand_power_pose",
+  "pose_name": "Power pose",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No clean both-hands-on-hips stance. The Mixkit 41665 hold has the photographer and his camera rig in front of the model. Mixkit 43650 is a flesh-tone bodysuit. Commons 88226302 is a man looking up at an eclipse through viewing glasses, not a power pose."
+ },
+ {
+  "pose_id": "stand_sunglasses",
+  "pose_name": "Sunglasses touch",
+  "category": "STANDING",
+  "photo": null,
+  "reason": "No one touches sunglasses in a full-body shot. Every sunglasses clip is a close-up, a phone screen or a selfie. The hand-at-temple studio frame (Mixkit 52257) shows a sequined veil, not glasses."
+ },
+ {
+  "pose_id": "lean_shoulder_wall",
+  "pose_name": "Shoulder lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No shoulder-to-the-wall lean: the wall leans found are back-against-the-wall (used for 'Foot up on the wall') or waist-up portraits (Commons 79971536)."
+ },
+ {
+  "pose_id": "lean_foot_on_wall",
+  "pose_name": "Foot up on the wall",
+  "category": "LEANING",
+  "photo": "app/src/main/assets/pose_photos/lean_foot_on_wall.webp",
+  "bytes": 64790,
+  "source": "Mixkit",
+  "title": "Young man snaps his fingers listening to music",
+  "page_url": "https://mixkit.co/free-stock-video/young-man-snaps-his-fingers-listening-to-music-4842/",
+  "file_url": "https://mixkit.co/free-stock-video/download/4842/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/4842/4842-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 2.202,
+  "frame_index": 66,
+  "hold_time_s_in_preview": 2.102,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/young-man-snaps-his-fingers-listening-to-music-4842/)",
+  "changes": [
+   "still frame at 2.202 s of the 1080p download (sharpest of 19 frames within 0.3 s of the hold)",
+   "cropped to [904, 0, 1714, 1080] px of the 1920x1080 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "mirrored": true,
+  "crop_px": [
+   904,
+   0,
+   1714,
+   1080
+  ],
+  "app_matcher_score": 0.5356,
+  "score_detail": {
+   "score_source_frame": 0.5491,
+   "score_shipped_file": 0.5356,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/lean_foot_on_wall.json",
+  "reason": "Man leaning back on a street wall with one foot planted on it behind him, the figure's leg shape exactly; he holds a phone at chest height where the figure's arms hang. Mirrored to match the figure. The phone in his hands keeps the matcher score near 0.54."
+ },
+ {
+  "pose_id": "lean_hand_on_wall",
+  "pose_name": "Hand on the wall",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No one has a raised hand braced on a wall; the arm-up frames are selfie arms (Mixkit 51661) or dance moves."
+ },
+ {
+  "pose_id": "lean_railing_forward",
+  "pose_name": "Railing lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No one bent forward over a railing on the forearms; Commons railing photos are waist-up or tiny and side-on."
+ },
+ {
+  "pose_id": "lean_crossed_legs",
+  "pose_name": "Cross-legged lean",
+  "category": "LEANING",
+  "photo": "app/src/main/assets/pose_photos/lean_crossed_legs.webp",
+  "bytes": 43810,
+  "source": "Mixkit",
+  "title": "Woman leaning against luxury black car",
+  "page_url": "https://mixkit.co/free-stock-video/woman-leaning-against-luxury-black-car-69/",
+  "file_url": "https://mixkit.co/free-stock-video/download/69/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/69/69-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 9.75,
+  "frame_index": 234,
+  "hold_time_s_in_preview": 9.5,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/woman-leaning-against-luxury-black-car-69/)",
+  "changes": [
+   "still frame at 9.75 s of the 1080p download (sharpest of 17 frames within 0.3 s of the hold)",
+   "cropped to [1048, 42, 1586, 759] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "mirrored": false,
+  "crop_px": [
+   1048,
+   42,
+   1586,
+   759
+  ],
+  "app_matcher_score": 0.3587,
+  "score_detail": {
+   "score_source_frame": 0.4017,
+   "score_shipped_file": 0.3587,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.636,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/lean_crossed_legs.json",
+  "reason": "Woman leaning back against the side of a parked car, legs crossed at the ankles, one hand in her jacket pocket: a clear cross-legged lean. Dark clothes against a dark car defeat parts of the pose model, so the matcher score is low."
+ },
+ {
+  "pose_id": "lean_door_frame",
+  "pose_name": "Doorway lean",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No doorway lean among the candidates."
+ },
+ {
+  "pose_id": "lean_pole_swing",
+  "pose_name": "Pole swing",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No one swinging around a pole or lamppost; no candidate above 0.5."
+ },
+ {
+  "pose_id": "lean_table_edge",
+  "pose_name": "Table-edge perch",
+  "category": "LEANING",
+  "photo": null,
+  "reason": "No one perched on a table edge; the top-ranked frames are people standing."
+ },
+ {
+  "pose_id": "lean_railing_back",
+  "pose_name": "Elbows on the rail",
+  "category": "LEANING",
+  "photo": "app/src/main/assets/pose_photos/lean_railing_back.webp",
+  "bytes": 56764,
+  "source": "Mixkit",
+  "title": "Woman standing in front of amusement park ride",
+  "page_url": "https://mixkit.co/free-stock-video/woman-standing-in-front-of-amusement-park-ride-709/",
+  "file_url": "https://mixkit.co/free-stock-video/download/709/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/709/709-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 5.505,
+  "frame_index": 132,
+  "hold_time_s_in_preview": 5.756,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/woman-standing-in-front-of-amusement-park-ride-709/)",
+  "changes": [
+   "still frame at 5.505 s of the 1080p download (sharpest of 17 frames within 0.3 s of the hold)",
+   "cropped to [640, 167, 1290, 1034] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "mirrored": false,
+  "crop_px": [
+   640,
+   167,
+   1290,
+   1034
+  ],
+  "app_matcher_score": 0.9543,
+  "score_detail": {
+   "score_source_frame": 0.9579,
+   "score_shipped_file": 0.9543,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/lean_railing_back.json",
+  "reason": "Back against a railing, both arms spread along the rail, ankles crossed: the 'elbows on the rail' shape; sharp 1080p hold in front of a fairground ride at night."
+ },
+ {
+  "pose_id": "pro_headshot",
+  "pose_name": "LinkedIn headshot",
+  "category": "PROFESSIONAL",
+  "photo": "app/src/main/assets/pose_photos/pro_headshot.webp",
+  "bytes": 25838,
+  "source": "Mixkit",
+  "title": "Young teacher teaching complicated equations",
+  "page_url": "https://mixkit.co/free-stock-video/young-teacher-teaching-complicated-equations-4623/",
+  "file_url": "https://mixkit.co/free-stock-video/download/4623/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/4623/4623-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 12.0,
+  "frame_index": 300,
+  "hold_time_s_in_preview": 12.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/young-teacher-teaching-complicated-equations-4623/)",
+  "changes": [
+   "still frame at 12.0 s of the 1080p download (sharpest of 17 frames within 0.3 s of the hold)",
+   "cropped to [627, 0, 1437, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "mirrored": false,
+  "crop_px": [
+   627,
+   0,
+   1437,
+   1080
+  ],
+  "app_matcher_score": 0.0,
+  "score_detail": {
+   "score_source_frame": 1.0,
+   "score_shipped_file": 0.0,
+   "shipped_matches_flipped_pose": true,
+   "fit": 1.0,
+   "tcov": 0.333,
+   "people": 1,
+   "framing": "head-shoulders",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/pro_headshot.json",
+  "reason": "Head-and-shoulders portrait of a man in a dark suit and tie, smiling at the camera, hands loosely steepled: a classic LinkedIn headshot (chalkboard of equations behind him). The source frame scores 1.0. The shipped 3:4 crop scores 0.0 because the scorer cannot place the guide without visible hips, not because of the pose."
+ },
+ {
+  "pose_id": "pro_arms_crossed",
+  "pose_name": "Confident crossed arms",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "Same as stand_arms_crossed. The red-suit clip (Mixkit 50643) is the closest, but its legs are cut below the knee and the shipped crop scores 0.34. The full-body framing the pose needs is not available."
+ },
+ {
+  "pose_id": "pro_blazer_pocket",
+  "pose_name": "Blazer pocket",
+  "category": "PROFESSIONAL",
+  "photo": "app/src/main/assets/pose_photos/pro_blazer_pocket.webp",
+  "bytes": 13452,
+  "source": "Mixkit",
+  "title": "A young beautiful model poses with poise and elegance wearing a white attire and red boots over a white background",
+  "page_url": "https://mixkit.co/free-stock-video/a-young-beautiful-model-poses-with-poise-and-elegance-wearing-52257/",
+  "file_url": "https://mixkit.co/free-stock-video/download/52257/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/52257/52257-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 6.84,
+  "frame_index": 164,
+  "hold_time_s_in_preview": 6.506,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-young-beautiful-model-poses-with-poise-and-elegance-wearing-52257/)",
+  "changes": [
+   "still frame at 6.84 s of the 1080p download (sharpest of 17 frames within 0.3 s of the hold)",
+   "cropped to [563, 48, 1297, 1027] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "mirrored": false,
+  "crop_px": [
+   563,
+   48,
+   1297,
+   1027
+  ],
+  "app_matcher_score": 0.9065,
+  "score_detail": {
+   "score_source_frame": 0.9091,
+   "score_shipped_file": 0.9065,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "landmarks": "tools/pose-photos/landmarks/pro_blazer_pocket.json",
+  "reason": "Full-body model in a white blazer dress, one forearm across the waist and the other arm hanging, as drawn. Her hand rests on her forearm, not in a pocket."
+ },
+ {
+  "pose_id": "pro_desk_edge",
+  "pose_name": "Desk-edge perch",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "No desk or table perch among the candidates (best 0.60, a standing person)."
+ },
+ {
+  "pose_id": "pro_open_palm",
+  "pose_name": "Open-palm speaker",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "The open-palm gesture exists only waist-up (Mixkit 4623, a teacher at a chalkboard at 0.6 s), and the pose is full-body (tcov 0.30). The full-body candidates are standing with the arms down."
+ },
+ {
+  "pose_id": "pro_table_lean",
+  "pose_name": "Boardroom lean",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "No one leaning on a table with both hands. The high matcher scores come from people simply standing with their arms down."
+ },
+ {
+  "pose_id": "pro_cuff_adjust",
+  "pose_name": "Cuff adjust",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "Closest is the red-suit model touching her extended forearm (Mixkit 50643 at 7.2 s), but her legs are cut below the knee and the shipped crop scores 0.39. Other candidates clasp the hands or cross the arms."
+ },
+ {
+  "pose_id": "pro_folder_hold",
+  "pose_name": "Folder in hand",
+  "category": "PROFESSIONAL",
+  "photo": null,
+  "reason": "No one holds a folder, tablet or notebook against the chest in a full-body shot."
+ }
+]

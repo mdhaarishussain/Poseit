@@ -1,0 +1,11 @@
+{
+  "licenses": [
+    {"file": "OFL-Archivo.txt", "name": "SIL Open Font License 1.1", "covers": "the Archivo font"},
+    {"file": "CC0-1.0.txt", "name": "CC0 1.0 Universal", "url": "https://creativecommons.org/publicdomain/zero/1.0/", "covers": "pose sample photos marked CC0 in pose_photos/credits.json"},
+    {"file": "CC-BY-2.0.txt", "name": "Creative Commons Attribution 2.0 Generic", "url": "https://creativecommons.org/licenses/by/2.0/", "covers": "pose sample photos marked CC BY 2.0 in pose_photos/credits.json"},
+    {"file": "CC-BY-3.0.txt", "name": "Creative Commons Attribution 3.0 Unported", "url": "https://creativecommons.org/licenses/by/3.0/", "covers": "pose sample photos marked CC BY 3.0 in pose_photos/credits.json (none at present)"},
+    {"file": "CC-BY-4.0.txt", "name": "Creative Commons Attribution 4.0 International", "url": "https://creativecommons.org/licenses/by/4.0/", "covers": "pose sample photos marked CC BY 4.0 in pose_photos/credits.json (none at present)"},
+    {"file": "CC-BY-SA-3.0.txt", "name": "Creative Commons Attribution-ShareAlike 3.0 Unported", "url": "https://creativecommons.org/licenses/by-sa/3.0/", "covers": "pose sample photos marked CC BY-SA 3.0 in pose_photos/credits.json; the cropped photo file is shared under the same licence"},
+    {"file": "Mixkit-Stock-Video-Free-License.txt", "name": "Mixkit Stock Video Free License (and the limits in the Mixkit User Terms)", "url": "https://mixkit.co/license/#videoFree", "covers": "pose sample photos marked Mixkit in pose_photos/credits.json (still frames of Mixkit stock videos)"}
+  ]
+}

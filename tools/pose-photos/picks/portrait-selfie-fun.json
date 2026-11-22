@@ -1,0 +1,885 @@
+[
+ {
+  "pose_id": "port_chin_rest",
+  "pose_name": "Thoughtful chin rest",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_chin_rest.webp",
+  "bytes": 56548,
+  "source": "Mixkit",
+  "title": "Model with Indian Influence",
+  "page_url": "https://mixkit.co/free-stock-video/model-with-indian-influence-101458/",
+  "file_url": "https://mixkit.co/free-stock-video/download/101458/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/9dpjop1k3oyivwv784mbw9c9ruk4",
+  "video_quality": "1080p",
+  "frame_time_s": 0.0,
+  "hold_time_s_in_preview": 0.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/model-with-indian-influence-101458/)",
+  "changes": [
+   "still frame at 0.0 s of the 1080p download",
+   "cropped to [162, 250, 926, 1267] px of the 1080x1920 source (3:4)",
+   "resized to 676x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   162,
+   250,
+   926,
+   1267
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.8745,
+  "score_detail": {
+   "score_source_frame": 0.4146,
+   "score_shipped_file": 0.8745,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.597,
+   "people": 1,
+   "framing": "head-shoulders",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Knuckles resting under the chin, head tilted, eyes on the lens: the thoughtful chin rest read at a glance. She is seated (cropped waist-up) and the supporting arm rests low instead of folding across the waist, which is why the matcher scores it low."
+ },
+ {
+  "pose_id": "port_face_frame",
+  "pose_name": "Face frame",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_face_frame.webp",
+  "bytes": 22568,
+  "source": "Mixkit",
+  "title": "Young Model Posing in Editorial Style",
+  "page_url": "https://mixkit.co/free-stock-video/young-model-posing-in-editorial-style-100676/",
+  "file_url": "https://mixkit.co/free-stock-video/download/100676/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/d53i2pdk67w8dngkwvihpz2hsidx",
+  "video_quality": "1080p",
+  "frame_time_s": 0.125,
+  "hold_time_s_in_preview": 0.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/young-model-posing-in-editorial-style-100676/)",
+  "changes": [
+   "still frame at 0.125 s of the 1080p download",
+   "cropped to [0, 192, 1080, 1632] px of the 1080x1920 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   0,
+   192,
+   1080,
+   1632
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.861,
+  "score_detail": {
+   "score_source_frame": 0.9667,
+   "score_shipped_file": 0.861,
+   "shipped_matches_flipped_pose": true,
+   "fit": 1.0,
+   "tcov": 0.935,
+   "people": 1,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Both hands raised to frame the face, smiling at the lens, waist-up: the clearest face frame among the candidates (hands sit at the temples rather than the jaw; editorial styling with a fruit garland)."
+ },
+ {
+  "pose_id": "port_hand_in_hair",
+  "pose_name": "Fingers through hair",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_hand_in_hair.webp",
+  "bytes": 49906,
+  "source": "Wikimedia Commons",
+  "title": "File:Woman in a red dress.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Woman_in_a_red_dress.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/51/Woman_in_a_red_dress.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Woman_in_a_red_dress.jpg/3840px-Woman_in_a_red_dress.jpg",
+  "author": "Vladimir Pustovit",
+  "credit_line": "https://www.flickr.com/photos/pustovit/29055595412/",
+  "licence": {
+   "name": "CC BY 2.0",
+   "url": "https://creativecommons.org/licenses/by/2.0",
+   "attribution_required": "true",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Vladimir Pustovit, CC BY 2.0 (https://creativecommons.org/licenses/by/2.0), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Woman_in_a_red_dress.jpg); cropped",
+  "changes": [
+   "3840x2719 rendition of the original",
+   "cropped to [1690, 109, 2792, 1577] px of the 3840x2719 source (3:4)",
+   "resized to 676x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   1690,
+   109,
+   2792,
+   1577
+  ],
+  "source_size": [
+   3840,
+   2719
+  ],
+  "app_matcher_score": 0.6267,
+  "score_detail": {
+   "score_source_frame": 0.5345,
+   "score_shipped_file": 0.6267,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.742,
+   "tcov": 0.597,
+   "people": 1,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "One arm raised with the fingers in the hair at the crown, elbow out to the side, the other arm low on a railing, looking at the lens: the drawn pose, sharp and evenly lit."
+ },
+ {
+  "pose_id": "port_over_shoulder",
+  "pose_name": "Shoulder glance",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_over_shoulder.webp",
+  "bytes": 9600,
+  "source": "Mixkit",
+  "title": "Model in a fashion shoot poses under lights",
+  "page_url": "https://mixkit.co/free-stock-video/model-in-a-fashion-shoot-poses-under-lights-50647/",
+  "file_url": "https://mixkit.co/free-stock-video/download/50647/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/50647/50647-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 5.373,
+  "hold_time_s_in_preview": 5.339,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/model-in-a-fashion-shoot-poses-under-lights-50647/)",
+  "changes": [
+   "still frame at 5.373 s of the 1080p download",
+   "cropped to [651, 281, 1250, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   651,
+   281,
+   1250,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.5455,
+  "score_detail": {
+   "score_source_frame": 0.3565,
+   "score_shipped_file": 0.5455,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.714,
+   "people": 1,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Body turned away from the camera, head turned back over the shoulder to look into the lens: the shoulder glance (the frame at 6.3 s scores higher but shows only her profile)."
+ },
+ {
+  "pose_id": "port_arms_crossed_smile",
+  "pose_name": "Crossed-arm smile",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_arms_crossed_smile.webp",
+  "bytes": 13676,
+  "source": "Mixkit",
+  "title": "A young beautiful model posing over a red backdrop with a stunning white outfit",
+  "page_url": "https://mixkit.co/free-stock-video/a-young-beautiful-model-posing-over-a-red-backdrop-with-52269/",
+  "file_url": "https://mixkit.co/free-stock-video/download/52269/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/52269/52269-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 7.625,
+  "hold_time_s_in_preview": 7.341,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-young-beautiful-model-posing-over-a-red-backdrop-with-52269/)",
+  "changes": [
+   "still frame at 7.625 s of the 1080p download",
+   "cropped to [854, 292, 1446, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 676x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   854,
+   292,
+   1446,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.9792,
+  "score_detail": {
+   "score_source_frame": 0.9942,
+   "score_shipped_file": 0.9792,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Arms folded across the body, shoulders angled, a soft closed-mouth smile, plain red backdrop: the crossed-arm smile (fashion styling with a sheer beaded veil). Preferred over the higher-scoring frame of Mixkit 50649, where a lace bra shows under the open blazer."
+ },
+ {
+  "pose_id": "port_chin_on_hand",
+  "pose_name": "Café chin rest",
+  "category": "PORTRAIT",
+  "photo": null,
+  "reason": "No one leaning forward over a table with the chin on the knuckles. Nearest: Mixkit 101458 (used for the chin rest, seated on the floor, no table) and Mixkit 8744 (cheek propped on a hand on a sofa, in a clip titled 'upset and frustrated'); neither reads as the cafe pose."
+ },
+ {
+  "pose_id": "port_dreamy_gaze",
+  "pose_name": "Dreamy gaze",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_dreamy_gaze.webp",
+  "bytes": 38082,
+  "source": "Mixkit",
+  "title": "Coffee and music in the morning",
+  "page_url": "https://mixkit.co/free-stock-video/coffee-and-music-in-the-morning-43391/",
+  "file_url": "https://mixkit.co/free-stock-video/download/43391/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/43391/43391-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 0.743,
+  "hold_time_s_in_preview": 1.001,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/coffee-and-music-in-the-morning-43391/)",
+  "changes": [
+   "still frame at 0.743 s of the 1080p download",
+   "cropped to [27, 109, 1064, 1492] px of the 1080x1920 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   27,
+   109,
+   1064,
+   1492
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.9822,
+  "score_detail": {
+   "score_source_frame": 0.8275,
+   "score_shipped_file": 0.9822,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "knees",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Holding a warm mug at chest height and smiling off into the distance: the dreamy gaze as described (one hand on the mug rather than two)."
+ },
+ {
+  "pose_id": "port_collar_adjust",
+  "pose_name": "Collar adjust",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_collar_adjust.webp",
+  "bytes": 26672,
+  "source": "Mixkit",
+  "title": "Woman poses on white wall",
+  "page_url": "https://mixkit.co/free-stock-video/woman-poses-on-white-wall-435/",
+  "file_url": "https://mixkit.co/free-stock-video/download/435/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/435/435-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 7.867,
+  "hold_time_s_in_preview": 7.667,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/woman-poses-on-white-wall-435/)",
+  "changes": [
+   "still frame at 7.867 s of the 1080p download",
+   "cropped to [895, 65, 1430, 778] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   895,
+   65,
+   1430,
+   778
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.857,
+  "score_detail": {
+   "score_source_frame": 0.8584,
+   "score_shipped_file": 0.857,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.597,
+   "people": 1,
+   "framing": "head-shoulders",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Fingers pinching the neckerchief at the collar with the elbow out, the other hand low at the pocket, chin down and eyes on the lens: the collar adjust."
+ },
+ {
+  "pose_id": "port_shoulder_touch",
+  "pose_name": "Shoulder touch",
+  "category": "PORTRAIT",
+  "photo": "app/src/main/assets/pose_photos/port_shoulder_touch.webp",
+  "bytes": 71036,
+  "source": "Wikimedia Commons",
+  "title": "File:Pexels-photo-458694.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Pexels-photo-458694.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Pexels-photo-458694.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Pexels-photo-458694.jpg/3840px-Pexels-photo-458694.jpg",
+  "author": "Anna_Bella",
+  "credit_line": "https://pixabay.com/en/girl-model-petersburg-photoshoot-2417612/ archive copy at the Wayback Machine",
+  "licence": {
+   "name": "CC0",
+   "url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "attribution_required": "false",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Anna_Bella, CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Pexels-photo-458694.jpg); cropped",
+  "changes": [
+   "3840x2560 rendition of the original",
+   "cropped to [1306, 205, 2150, 1331] px of the 3840x2560 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   1306,
+   205,
+   2150,
+   1331
+  ],
+  "source_size": [
+   3840,
+   2560
+  ],
+  "app_matcher_score": 0.6222,
+  "score_detail": {
+   "score_source_frame": 0.6887,
+   "score_shipped_file": 0.6222,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "waist",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Hand resting high on the chest at the opposite collarbone, head tilted, looking at the lens: the soft shoulder touch (the hand sits a little lower than drawn)."
+ },
+ {
+  "pose_id": "selfie_classic",
+  "pose_name": "Classic arm selfie",
+  "category": "SELFIE",
+  "photo": "app/src/main/assets/pose_photos/selfie_classic.webp",
+  "bytes": 32646,
+  "source": "Mixkit",
+  "title": "A young stylish woman wearing white earbuds takes a selfie on the couch sharing her infectious smile",
+  "page_url": "https://mixkit.co/free-stock-video/a-young-stylish-woman-wearing-white-earbuds-takes-a-selfie-51119/",
+  "file_url": "https://mixkit.co/free-stock-video/download/51119/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/51119/51119-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 2.95,
+  "hold_time_s_in_preview": 2.667,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-young-stylish-woman-wearing-white-earbuds-takes-a-selfie-51119/)",
+  "changes": [
+   "still frame at 2.95 s of the 1080p download",
+   "cropped to [461, 0, 1271, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   461,
+   0,
+   1271,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": null,
+  "score_detail": {
+   "score_source_frame": 0.2456,
+   "score_shipped_file": null,
+   "shipped_matches_flipped_pose": null,
+   "fit": null,
+   "tcov": null,
+   "people": null,
+   "framing": null,
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Phone held out at arm's length a little above eye level, shoulders turned toward it, looking at the phone: the everyday arm selfie seen from the side. The matcher scores it low because the photo shows the selfie being taken, not the front camera's view the figure is drawn for."
+ },
+ {
+  "pose_id": "selfie_peace",
+  "pose_name": "Peace sign",
+  "category": "SELFIE",
+  "photo": "app/src/main/assets/pose_photos/selfie_peace.webp",
+  "bytes": 33900,
+  "source": "Mixkit",
+  "title": "A young stylish woman wearing white earbuds takes a selfie on the couch sharing her infectious smile",
+  "page_url": "https://mixkit.co/free-stock-video/a-young-stylish-woman-wearing-white-earbuds-takes-a-selfie-51119/",
+  "file_url": "https://mixkit.co/free-stock-video/download/51119/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/51119/51119-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 7.992,
+  "hold_time_s_in_preview": 8.0,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-young-stylish-woman-wearing-white-earbuds-takes-a-selfie-51119/)",
+  "changes": [
+   "still frame at 7.992 s of the 1080p download",
+   "cropped to [787, 0, 1597, 1080] px of the 1920x1080 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   787,
+   0,
+   1597,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.9759,
+  "score_detail": {
+   "score_source_frame": 0.1349,
+   "score_shipped_file": 0.9759,
+   "shipped_matches_flipped_pose": true,
+   "fit": 1.0,
+   "tcov": 0.179,
+   "people": 1,
+   "framing": "head-shoulders",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Phone at arm's length in one hand and a V sign beside the face with the other, big smile, head tilted toward the V: the peace-sign selfie (seen from beside the phone, hence the low matcher score)."
+ },
+ {
+  "pose_id": "selfie_high_angle",
+  "pose_name": "High-angle selfie",
+  "category": "SELFIE",
+  "photo": "app/src/main/assets/pose_photos/selfie_high_angle.webp",
+  "bytes": 30974,
+  "source": "Wikimedia Commons",
+  "title": "File:Woman with curly hair smiles while taking a selfie in a cozy indoor setting with a brick wall.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Woman_with_curly_hair_smiles_while_taking_a_selfie_in_a_cozy_indoor_setting_with_a_brick_wall.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Woman_with_curly_hair_smiles_while_taking_a_selfie_in_a_cozy_indoor_setting_with_a_brick_wall.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Woman_with_curly_hair_smiles_while_taking_a_selfie_in_a_cozy_indoor_setting_with_a_brick_wall.jpg/1920px-Woman_with_curly_hair_smiles_while_taking_a_selfie_in_a_cozy_indoor_setting_with_a_brick_wall.jpg",
+  "author": "Shixart1985",
+  "credit_line": "Own work",
+  "licence": {
+   "name": "CC BY 2.0",
+   "url": "https://creativecommons.org/licenses/by/2.0",
+   "attribution_required": "true",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Shixart1985, CC BY 2.0 (https://creativecommons.org/licenses/by/2.0), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Woman_with_curly_hair_smiles_while_taking_a_selfie_in_a_cozy_indoor_setting_with_a_brick_wall.jpg); cropped",
+  "changes": [
+   "1920x2876 rendition of the original",
+   "cropped to [363, 756, 1920, 2833] px of the 1920x2876 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   363,
+   756,
+   1920,
+   2833
+  ],
+  "source_size": [
+   1920,
+   2876
+  ],
+  "app_matcher_score": 0.0804,
+  "score_detail": {
+   "score_source_frame": 0.3457,
+   "score_shipped_file": 0.0804,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.824,
+   "tcov": 0.418,
+   "people": 1,
+   "framing": "head-shoulders",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Phone raised high above the head and angled down, looking up into it with a smile: the high-angle selfie. The focus is on the phone and hand, so the face is soft."
+ },
+ {
+  "pose_id": "selfie_hand_on_cheek",
+  "pose_name": "Cheek rest selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "No usable cheek-rest selfie. Mixkit 43187 (8.0 s) has a hand at the side of the head but the phone sits at the far edge of the frame, so a 3:4 crop shows no selfie; Mixkit 273 holds a phone with the hand on the chin (a thinking gesture), and phone and face do not fit one 3:4 crop."
+ },
+ {
+  "pose_id": "selfie_mirror",
+  "pose_name": "Mirror selfie",
+  "category": "SELFIE",
+  "photo": "app/src/main/assets/pose_photos/selfie_mirror.webp",
+  "bytes": 35252,
+  "source": "Wikimedia Commons",
+  "title": "File:Selfie at a mirror of the hotel.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Selfie_at_a_mirror_of_the_hotel.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Selfie_at_a_mirror_of_the_hotel.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1c/Selfie_at_a_mirror_of_the_hotel.jpg/1920px-Selfie_at_a_mirror_of_the_hotel.jpg",
+  "author": "ShiminUfesoj",
+  "credit_line": "Own work",
+  "licence": {
+   "name": "CC0",
+   "url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "attribution_required": "false",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: ShiminUfesoj, CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Selfie_at_a_mirror_of_the_hotel.jpg); cropped",
+  "changes": [
+   "1920x2560 rendition of the original",
+   "cropped to [265, 441, 1854, 2560] px of the 1920x2560 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   265,
+   441,
+   1854,
+   2560
+  ],
+  "source_size": [
+   1920,
+   2560
+  ],
+  "app_matcher_score": 0.5228,
+  "score_detail": {
+   "score_source_frame": 0.5318,
+   "score_shipped_file": 0.5228,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Full-length mirror selfie in a hotel corridor, phone held up at face height with the face still visible: the outfit-of-the-day mirror shot (his free hand holds a hat at his side instead of resting on the hip)."
+ },
+ {
+  "pose_id": "selfie_mirror_two_hands",
+  "pose_name": "Two-hand mirror",
+  "category": "SELFIE",
+  "photo": "app/src/main/assets/pose_photos/selfie_mirror_two_hands.webp",
+  "bytes": 21446,
+  "source": "Wikimedia Commons",
+  "title": "File:Man taking whole body selfie in mirror and looking strangely due to status of high concentration.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Man_taking_whole_body_selfie_in_mirror_and_looking_strangely_due_to_status_of_high_concentration.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/46/Man_taking_whole_body_selfie_in_mirror_and_looking_strangely_due_to_status_of_high_concentration.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Man_taking_whole_body_selfie_in_mirror_and_looking_strangely_due_to_status_of_high_concentration.jpg/1920px-Man_taking_whole_body_selfie_in_mirror_and_looking_strangely_due_to_status_of_high_concentration.jpg",
+  "author": "Pittigrilli",
+  "credit_line": "Own work",
+  "licence": {
+   "name": "CC0",
+   "url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "attribution_required": "false",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Pittigrilli, CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Man_taking_whole_body_selfie_in_mirror_and_looking_strangely_due_to_status_of_high_concentration.jpg); cropped",
+  "changes": [
+   "1920x3261 rendition of the original",
+   "cropped to [64, 676, 1837, 3040] px of the 1920x3261 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   64,
+   676,
+   1837,
+   3040
+  ],
+  "source_size": [
+   1920,
+   3261
+  ],
+  "app_matcher_score": 0.9962,
+  "score_detail": {
+   "score_source_frame": 0.9955,
+   "score_shipped_file": 0.9962,
+   "shipped_matches_flipped_pose": true,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Full-length mirror selfie with the phone held in both hands in front of the chest and face, elbows close to the body: the two-hand mirror shot (standing square rather than with a popped knee)."
+ },
+ {
+  "pose_id": "selfie_look_up",
+  "pose_name": "Sky gaze selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "No selfie looking up past the phone to the sky; the high scorers are mirror selfies, dancers and people looking at their phones."
+ },
+ {
+  "pose_id": "selfie_lean_in",
+  "pose_name": "Lean-in selfie",
+  "category": "SELFIE",
+  "photo": null,
+  "reason": "No one leaning the upper body toward a phone with a hand on the hip; the best-scoring frame (Mixkit 43595 at 9.0 s) is two women, one taking a selfie with the other at her shoulder."
+ },
+ {
+  "pose_id": "fun_star_jump",
+  "pose_name": "Star jump",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No mid-air star jump. The only jump photo (Commons 'Jumping in the air, Flash jump shot') is a group of youths that may include minors; the rest stand with arms out."
+ },
+ {
+  "pose_id": "fun_tuck_jump",
+  "pose_name": "Knee-tuck jump",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No tuck jump in any candidate; best scores (0.46) are dancers and a hula-hoop performer standing."
+ },
+ {
+  "pose_id": "fun_twirl",
+  "pose_name": "Heel-flick twirl",
+  "category": "FUN",
+  "photo": null,
+  "reason": "Near miss only: Mixkit 43219 (contemporary dancer spinning in a long dress, one arm up) is backlit, small and seen from behind, without the heel flick; the ballet frames (Mixkit 40162) are an en-pointe stage pose with heavy stage make-up. Left empty."
+ },
+ {
+  "pose_id": "fun_superhero",
+  "pose_name": "Superhero stance",
+  "category": "FUN",
+  "photo": "app/src/main/assets/pose_photos/fun_superhero.webp",
+  "bytes": 92146,
+  "source": "Wikimedia Commons",
+  "title": "File:Man watching the total solar eclipse at Southern Illinois University in Carbondale, Illinois.jpg",
+  "page_url": "https://commons.wikimedia.org/wiki/File:Man_watching_the_total_solar_eclipse_at_Southern_Illinois_University_in_Carbondale,_Illinois.jpg",
+  "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Man_watching_the_total_solar_eclipse_at_Southern_Illinois_University_in_Carbondale%2C_Illinois.jpg",
+  "rendition_used": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Man_watching_the_total_solar_eclipse_at_Southern_Illinois_University_in_Carbondale%2C_Illinois.jpg/1920px-Man_watching_the_total_solar_eclipse_at_Southern_Illinois_University_in_Carbondale%2C_Illinois.jpg",
+  "author": "Matthew T Rader",
+  "credit_line": "Man watching the total solar eclipse at Southern Illinois University in Carbondale, Illinois Own work",
+  "licence": {
+   "name": "CC BY-SA 4.0",
+   "url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "attribution_required": "true",
+   "restrictions": "",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Photo: Matthew T Rader, CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Man_watching_the_total_solar_eclipse_at_Southern_Illinois_University_in_Carbondale,_Illinois.jpg); cropped; this crop is shared under CC BY-SA 4.0",
+  "changes": [
+   "1920x1920 rendition of the original",
+   "cropped to [230, 422, 1354, 1920] px of the 1920x1920 source (3:4)",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": false,
+  "crop_px": [
+   230,
+   422,
+   1354,
+   1920
+  ],
+  "source_size": [
+   1920,
+   1920
+  ],
+  "app_matcher_score": 0.7631,
+  "score_detail": {
+   "score_source_frame": 0.7643,
+   "score_shipped_file": 0.7631,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 1.0,
+   "people": 1,
+   "framing": "full",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Hands on hips with the elbows out, feet apart, chin up and gaze to the sky: the superhero stance (he is looking at an eclipse through viewing glasses)."
+ },
+ {
+  "pose_id": "fun_disco_point",
+  "pose_name": "Disco point",
+  "category": "FUN",
+  "photo": "app/src/main/assets/pose_photos/fun_disco_point.webp",
+  "bytes": 35508,
+  "source": "Mixkit",
+  "title": "Happy woman dancing happily in a colorful spot",
+  "page_url": "https://mixkit.co/free-stock-video/happy-woman-dancing-happily-in-a-colorful-spot-42306/",
+  "file_url": "https://mixkit.co/free-stock-video/download/42306/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/42306/42306-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 2.036,
+  "hold_time_s_in_preview": 2.002,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/happy-woman-dancing-happily-in-a-colorful-spot-42306/)",
+  "changes": [
+   "still frame at 2.036 s of the 1080p download",
+   "cropped to [0, 154, 1080, 1594] px of the 1080x1920 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   0,
+   154,
+   1080,
+   1594
+  ],
+  "source_size": [
+   1080,
+   1920
+  ],
+  "app_matcher_score": 0.9531,
+  "score_detail": {
+   "score_source_frame": 0.7718,
+   "score_shipped_file": 0.9531,
+   "shipped_matches_flipped_pose": false,
+   "fit": 1.0,
+   "tcov": 0.752,
+   "people": 1,
+   "framing": "knees",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "One arm pointing high to the sky, the other hand on the hip, hip popped with one knee bent in, smiling: the disco point, full length on a playful set."
+ },
+ {
+  "pose_id": "fun_laugh_bend",
+  "pose_name": "Laughing bend",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No one doubled over laughing with a hand on the knee; best score 0.46 (a seated couple)."
+ },
+ {
+  "pose_id": "fun_high_kick",
+  "pose_name": "High kick",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No front kick; best score 0.44 (an arms-out standing pose and dancers)."
+ },
+ {
+  "pose_id": "fun_peace_lean",
+  "pose_name": "Double peace lean",
+  "category": "FUN",
+  "photo": null,
+  "reason": "No double peace sign; the leaning candidates are dancers and a dark silhouette."
+ },
+ {
+  "pose_id": "fun_victory",
+  "pose_name": "Victory arms",
+  "category": "FUN",
+  "photo": "app/src/main/assets/pose_photos/fun_victory.webp",
+  "bytes": 11372,
+  "source": "Mixkit",
+  "title": "A young smiling hispanic woman wearing white clothes and flickering RGB headphones swirls away from the camera dancing over a purple background",
+  "page_url": "https://mixkit.co/free-stock-video/a-young-smiling-hispanic-woman-wearing-white-clothes-and-flickering-51746/",
+  "file_url": "https://mixkit.co/free-stock-video/download/51746/?context=sidebar&type=1080p",
+  "video_file": "https://assets.mixkit.co/videos/51746/51746-1080.mp4",
+  "video_quality": "1080p",
+  "frame_time_s": 9.377,
+  "hold_time_s_in_preview": 9.343,
+  "author": "Mixkit (no author named on the clip page)",
+  "licence": {
+   "name": "Mixkit Stock Video Free License",
+   "url": "https://mixkit.co/license/#videoFree",
+   "stated_on_page": "Download this free stock video clip for commercial or personal use, under the Mixkit Stock Video Free License.",
+   "checked": "2026-11-21"
+  },
+  "attribution": "Video still: Mixkit, Mixkit Stock Video Free License (https://mixkit.co/free-stock-video/a-young-smiling-hispanic-woman-wearing-white-clothes-and-flickering-51746/)",
+  "changes": [
+   "still frame at 9.377 s of the 1080p download",
+   "cropped to [369, 0, 1179, 1080] px of the 1920x1080 source (3:4)",
+   "mirrored horizontally",
+   "resized to 675x900, WebP quality 78, metadata stripped"
+  ],
+  "mirrored": true,
+  "crop_px": [
+   369,
+   0,
+   1179,
+   1080
+  ],
+  "source_size": [
+   1920,
+   1080
+  ],
+  "app_matcher_score": 0.675,
+  "score_detail": {
+   "score_source_frame": 0.7693,
+   "score_shipped_file": 0.675,
+   "shipped_matches_flipped_pose": false,
+   "fit": 0.865,
+   "tcov": 0.736,
+   "people": 1,
+   "framing": "knees",
+   "scorer": "tools/pose-photos/posematch.py (Python port of pose-core PoseMatcher)"
+  },
+  "reason": "Both arms up with bent elbows and fists raised in a goal-post shape, one knee lifted, cheering: the victory pose mid-dance."
+ }
+]
