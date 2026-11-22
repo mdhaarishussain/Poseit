@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitRadius
@@ -59,6 +61,9 @@ enum class PoseTileSize {
  * @param onDark the compact caption's colour for the camera's black surround (cream instead of ink)
  * @param nameMinLines reserve this many lines for the name (up to two), so the cards of a grid row line up
  * @param overlay extra content drawn over the figure area, e.g. a [Badge] in a corner
+ * @param badge drawn in the card's bottom-end corner beside the caption, where no figure ever stands (a pose's
+ *   photo print, [PhotoBadge]: align it with `Modifier.align(Alignment.BottomEnd)`); [PoseTileSize.Regular] only
+ * @param badgeReserve the width the caption's text leaves free for [badge] at its end
  */
 @Composable
 fun PoseTile(
@@ -77,6 +82,8 @@ fun PoseTile(
     interactionSource: MutableInteractionSource? = null,
     nameMinLines: Int = 1,
     overlay: @Composable BoxScope.() -> Unit = {},
+    badge: (@Composable BoxScope.() -> Unit)? = null,
+    badgeReserve: Dp = 0.dp,
 ) {
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val regular = size == PoseTileSize.Regular
@@ -86,72 +93,78 @@ fun PoseTile(
     } else {
         Modifier
     }
+    val cornerBadge = badge.takeIf { regular }
     Column(modifier.then(click)) {
         ProvideSurfaceTone(SurfaceTone.Dark) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(shape)
-                    .background(PoseitColors.backgroundStage)
-                    .indication(source, ripple())
-                    .selectedRing(selected, if (regular) PoseitRadius.tile else PoseitRadius.control),
-            ) {
-                Box(
+            Box(Modifier.fillMaxWidth()) {
+                Column(
                     Modifier
                         .fillMaxWidth()
-                        .aspectRatio(3f / 4f),
+                        .clip(shape)
+                        .background(PoseitColors.backgroundStage)
+                        .indication(source, ripple())
+                        .selectedRing(selected, if (regular) PoseitRadius.tile else PoseitRadius.control),
                 ) {
-                    PoseThumbnail(
-                        template = pose,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(
-                                start = if (regular) Space.m else Space.xs,
-                                end = if (regular) Space.m else Space.xs,
-                                top = if (regular) Space.l else Space.xs,
-                                bottom = if (regular) Space.xs else Space.xs,
-                            ),
-                        mirrored = mirrored,
-                        background = null,
-                    )
-                    overlay()
-                    if (regular && onToggleFavorite != null) {
-                        val label = name ?: pose.name
-                        PlainIconButton(
-                            icon = if (isFavorite) PoseitIcons.favouriteOn else PoseitIcons.favouriteOff,
-                            contentDescription = if (isFavorite) "Remove $label from favourites" else "Add $label to favourites",
-                            onClick = onToggleFavorite,
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(3f / 4f),
+                    ) {
+                        PoseThumbnail(
+                            template = pose,
                             modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(Space.xs),
-                            tint = PoseitColors.textPrimaryInverted,
+                                .fillMaxSize()
+                                .padding(
+                                    start = if (regular) Space.m else Space.xs,
+                                    end = if (regular) Space.m else Space.xs,
+                                    top = if (regular) Space.l else Space.xs,
+                                    bottom = if (regular) Space.xs else Space.xs,
+                                ),
+                            mirrored = mirrored,
+                            background = null,
                         )
-                    }
-                }
-                if (regular && (name != null || detail != null)) {
-                    Column(Modifier.padding(start = Space.l, end = Space.m, bottom = Space.l)) {
-                        if (name != null) {
-                            // Two lines, so a long name wraps instead of being cut off in a narrow column.
-                            Text(
-                                name,
-                                style = PoseitType.bodyStrong,
-                                color = PoseitColors.textPrimaryInverted,
-                                minLines = nameMinLines.coerceIn(1, 2),
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                        if (detail != null) {
-                            Text(
-                                detail,
-                                style = PoseitType.supporting,
-                                color = PoseitColors.textSecondaryInverted,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+                        overlay()
+                        if (regular && onToggleFavorite != null) {
+                            val label = name ?: pose.name
+                            PlainIconButton(
+                                icon = if (isFavorite) PoseitIcons.favouriteOn else PoseitIcons.favouriteOff,
+                                contentDescription = if (isFavorite) "Remove $label from favourites" else "Add $label to favourites",
+                                onClick = onToggleFavorite,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(Space.xs),
+                                tint = PoseitColors.textPrimaryInverted,
                             )
                         }
                     }
+                    if (regular && (name != null || detail != null)) {
+                        val badgeRoom = if (cornerBadge != null) badgeReserve else 0.dp
+                        Column(Modifier.padding(start = Space.l, end = Space.m + badgeRoom, bottom = Space.l)) {
+                            if (name != null) {
+                                // Two lines, so a long name wraps instead of being cut off in a narrow column.
+                                Text(
+                                    name,
+                                    style = PoseitType.bodyStrong,
+                                    color = PoseitColors.textPrimaryInverted,
+                                    minLines = nameMinLines.coerceIn(1, 2),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            if (detail != null) {
+                                Text(
+                                    detail,
+                                    style = PoseitType.supporting,
+                                    color = PoseitColors.textSecondaryInverted,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                    }
                 }
+                // Beside the caption, in the corner no figure reaches (a pose's photo print).
+                cornerBadge?.invoke(this)
             }
         }
         if (!regular && name != null) {

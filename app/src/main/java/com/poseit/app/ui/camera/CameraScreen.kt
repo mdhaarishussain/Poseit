@@ -394,6 +394,7 @@ private fun CameraContent(vm: CameraViewModel, onBack: () -> Unit, onOpenGallery
             favorite = tipsPose.id in favorites,
             onToggleFavorite = { vm.toggleFavorite(tipsPose.id) },
             onDismiss = { showTips = false },
+            mirrored = ui.poseMirrored,
         )
     }
     if (showPhotoshoot) {
