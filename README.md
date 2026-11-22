@@ -34,8 +34,8 @@ known not to work.
 ## Screenshots
 
 <p>
-  <img src="docs/images/screens/1-library.png" width="32%" alt="The library: a dark top bar card with the Poseit wordmark and a 99 poses badge, joined to the Today's pose card for Peace sign with its figure, a small sample photo, the credit line Photo: Mixkit and the button Try this pose; below, a search field, tabs for all poses, favourites, recent and my poses, filter pills for solo, couple, group and standing, the first pose tiles, and a bottom bar with the camera, Poses and Photos, and a plus button.">
-  <img src="docs/images/screens/2-pose-detail.png" width="32%" alt="The Walk across pose: its name card and the walking white figure inside frame marks, joined to the card See it on a person with a real photo of someone walking across a paved city square and the credit line Photo: Mixkit; below, the Level and People cards and the buttons Customise and Try this pose.">
+  <img src="docs/images/screens/1-library.png" width="32%" alt="The library: a dark top bar card with the Poseit wordmark and a 99 poses badge, joined to the Today's pose card for Collar touch with its standing figure, a small sample photo, the credit line Photo: Mixkit and the button Try this pose; below, a search field, tabs for all poses, favourites, recent and my poses, filter pills for solo, couple, group and standing, the first pose tiles, and a bottom bar with the camera, Poses and Photos, and a plus button.">
+  <img src="docs/images/screens/2-pose-detail.png" width="32%" alt="The Walk across pose: its name card and the walking white figure inside frame marks, joined to the card See it on a person with a real photo of someone walking across a paved city square and the credit line Photo: Mixkit; below, the tops of the Level and People cards and the buttons Customise and Try this pose.">
   <img src="docs/images/screens/3-camera.png" width="32%" alt="The camera on a black preview: the Superhero stance guide drawn in green with a white stick skeleton on top, a score ring showing 93%, the hint Perfect. Hold it, and below the pose strip and the shutter."><br>
   <img src="docs/images/screens/4-editor.png" width="32%" alt="The pose editor, based on Disco point: a figure with a round handle on each joint over a grid, a Save button, undo and redo, and buttons for mirror, reset, add person and remove.">
   <img src="docs/images/screens/5-pose-from-photo.png" width="32%" alt="Pose from a photo: the headline Recreate any photo, a faded figure beside the traced white figure, a note that the photo is never uploaded, three numbered steps, and the button Choose a photo.">
@@ -49,7 +49,7 @@ known not to work.
 - 99 original poses in 11 categories, from standing, sitting and walking to selfies, couples and groups.
 - Filter by the number of people, category, place and mood, or search for words like "beach" or "confident".
 - Each pose has a short description and numbered steps, and the library suggests one pose to try each day.
-- 34 of the poses also show a real photo of people in the pose next to the figure, always with its credit line.
+- 34 of the poses also show a real photo of people in the pose next to the figure, always with its credit.
   Every photo's author, source, licence and changes are in Settings, under About, Photo credits.
 - Keep favourites; recently used poses get their own tab.
 

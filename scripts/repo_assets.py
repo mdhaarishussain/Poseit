@@ -15,7 +15,8 @@ is decoded again to check it.
   scale) on the corners.
 - icon.png: the adaptive launcher icon, flat, 256x256, cut to the disc the app ships for launchers without
   adaptive icons (res/mipmap/ic_launcher.xml).
-- qr-latest-release.png: the latest release page as a QR code, Ink on Paper, 4-module quiet zone.
+- qr-latest-release.png: the latest release page as a QR code, Teal950 on Cream100 (the cards' teal on the canvas
+  cream, 15:1), 4-module quiet zone.
 
 Each image is saved as a palette PNG when that keeps every pixel within a small colour distance of the original
 (no visible banding), otherwise as an optimised full-colour PNG.
@@ -33,8 +34,9 @@ RENDERS = ROOT / "app" / "build" / "repo-assets"
 OUT = ROOT / "docs" / "images"
 
 RELEASE_URL = "https://github.com/mdhaarishussain/Poseit/releases/latest"
-INK = (0x17, 0x18, 0x1A)
-PAPER = (0xE4, 0xE5, 0xE1)
+# docs/DESIGN.md palette: Teal950 (the dark cards, textPrimary) on Cream100 (the canvas).
+INK = (0x0A, 0x21, 0x25)
+PAPER = (0xF4, 0xF3, 0xEF)
 
 # The banners are 800dp wide at 2 px per dp: 40dp is 80 px.
 BANNER_RADIUS = 80

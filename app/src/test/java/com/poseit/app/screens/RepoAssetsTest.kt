@@ -242,8 +242,11 @@ class RepoAssetsTest {
         const val CAMERA_POSE = "fun_superhero"
         const val EDITOR_POSE = "fun_disco_point"
 
-        /** Noon UTC on 2026-11-22, the 1.2.0 release day: Today's pose is Peace sign, a pose with a sample photo. */
-        const val LIBRARY_DAY_MILLIS = 1_795_348_800_000L
+        /**
+         * Noon UTC on 2026-12-04: Today's pose is Collar touch, a whole figure with a sample photo (a Mixkit still, so
+         * "Photo: Mixkit" is the whole credit). A close-up such as Peace sign would leave the hero a cut-off bust.
+         */
+        const val LIBRARY_DAY_MILLIS = 1_796_385_600_000L
     }
 }
 
