@@ -8,8 +8,10 @@ with the app's own matcher, which poses have a photo, and what the remaining gap
 
 **Status (2026-11-22): wired into the app. 34 of 99 poses have a photo** (27 Mixkit video stills from 27 clips, 7
 Wikimedia Commons photos: 5 CC0, 2 CC BY 2.0). 65 poses have none yet, and poses people make themselves never have
-one. **Release builds show only the 7 Commons photos** until the owner settles the two open Mixkit questions (see
-[Mixkit in release builds](#mixkit-in-release-builds)); debug builds and the screenshot tests show all 34.
+one. **Every build shows all 34, release builds included (since 1.2.0).** On 2026-11-22 the owner asked for the build
+with all 34 photos to be released, after the two open Mixkit questions had been explained to them; the questions are
+not resolved, the owner accepted them (see [Mixkit in release builds](#mixkit-in-release-builds), which also says how
+to undo it).
 
 Where the photos appear (`docs/DESIGN.md`, "Sample photos" and "Figure first, photo as companion"): always beside or
 with the pose's figure, which stays the larger picture and the only guide the camera matches against.
@@ -139,7 +141,8 @@ The Envato Acceptable Use Policy and Fair Use Policy that the terms incorporate
 403, a browser check). A search summary of the Acceptable Use Policy says assets that depict or reference sensitive
 topics may only be used in an educational, informational, journalistic or advocacy context, and items must not be used
 to create a false identity or imply that a depicted person endorses a product. **Someone should read both policies in a
-browser before release.**
+browser.** Nobody had read them when 1.2.0 was released with the Mixkit stills; the owner accepted that (see
+[Mixkit in release builds](#mixkit-in-release-builds)).
 
 ### Are still frames inside an app allowed?
 
@@ -168,10 +171,10 @@ download page by the selection scripts, one clip at a time, and the video was de
 clips for the 33 stills shipped before the review. The review fetched 4 more licensed files the same way (40038,
 41181, 43219, 43806; 41181 is not used) and removed 8 Mixkit stills, and the second look removed the 40038 still, so
 27 clips give the 27 stills shipped now. That
-is far from "the entire library", but it is scripted. Before the app ships the Mixkit stills, the owner should decide
-whether that is acceptable, or download those 27 clips by hand from the pages listed in `credits.json` (`pageUrl`,
-frame time in `frameTimeS`) and re-cut the frames, or ask Mixkit. Until then the release build leaves the Mixkit
-stills out (next section).
+is far from "the entire library", but it is scripted. The ways to settle it: accept it, download those 27 clips by
+hand from the pages listed in `tools/pose-photos/credits-full.json` (`pageUrl`, frame time in `frameTimeS`) and re-cut
+the frames, or ask Mixkit. None of these has been done; the owner accepted the question as it stands when they asked
+for the 1.2.0 release with the Mixkit stills (next section).
 
 Licence re-checks on 2026-11-22: the reviewer read five clip pages again (52257, 51119, 32800, 51645, 101458) and the
 review read the four new ones before fetching them; every page still says "Mixkit Stock Video Free License"
@@ -183,17 +186,25 @@ studio shots (no sensitive topics), and the app never names the people or sugges
 
 ### Mixkit in release builds
 
-Both questions above are still open: the scripted downloads under User Terms clause 9, and the Envato Acceptable Use
-and Fair Use Policies that nobody has read yet. No decision is recorded, so **release builds leave the 27 Mixkit
-stills out**: the Gradle property `poseit.releaseMixkitPhotos` is unset (false), which sets `BuildConfig.MIXKIT_PHOTOS`
-to false in release (true in debug), so `PosePhotos` skips every credit whose source is Mixkit and the release APK's
-merged assets drop their `.webp` files (`app/build.gradle.kts`). A release APK then shows the 7 Wikimedia Commons
-photos; the 27 poses whose photo is a Mixkit still keep their figure-only layout, complete on its own. Debug builds,
-the screenshot tests and the README screenshots show all 34.
+**Release builds include the 27 Mixkit stills since 1.2.0.** On 2026-11-22 the owner asked for the build with all 34
+photos to be released, after both open questions above had been explained to them: the stills were fetched by script,
+which User Terms clause 9 ("use scripts or bots to mass download Items") may forbid, and the Envato Acceptable Use and
+Fair Use Policies that the terms incorporate have never been read (HTTP 403 from here). **Neither question is
+resolved; the owner accepted both** and asked to release anyway. Their facts stay as recorded above.
 
-To ship them, the owner records the decision on both questions here (or re-downloads the 27 clips by hand and re-cuts
-the frames, or gets Mixkit's answer), then sets `poseit.releaseMixkitPhotos=true` in `gradle.properties` (or passes
-`-Pposeit.releaseMixkitPhotos=true`) and rebuilds the release.
+How it is set: `poseit.releaseMixkitPhotos=true` in `gradle.properties` sets `BuildConfig.MIXKIT_PHOTOS` to true in
+release builds (debug builds are always true), so `PosePhotos` shows every credit and the release APK keeps all 34
+`.webp` files (`app/build.gradle.kts`). The gate stays in the code so the decision can be undone.
+
+To undo it, either:
+
+- set `poseit.releaseMixkitPhotos=false` in `gradle.properties` (or build with `-Pposeit.releaseMixkitPhotos=false`)
+  and rebuild the release: `PosePhotos` then skips every credit whose source is Mixkit and the release APK's merged
+  assets drop their `.webp` files, so a release shows the 7 Wikimedia Commons photos and the 27 poses whose photo is a
+  Mixkit still keep their figure-only layout, complete on its own; or
+- settle the download question instead: re-download the 27 clips by hand from the pages in
+  `tools/pose-photos/credits-full.json` (`pageUrl`) and re-cut the stills at the recorded `frameTimeS` (or get
+  Mixkit's answer), and have someone read the two Envato policies in a browser.
 
 ## Wikimedia Commons
 
@@ -414,7 +425,7 @@ mirror, kneel, crossed arms, couple walking, ...). Replacements went through the
 | `port_dreamy_gaze` and others | small third-party marks | confirmed | kept; listed under the people rules |
 | `floor_side_lie` | same set as `port_chin_rest` | confirmed | kept, noted |
 | CC0 attributions | "(cropped)" / "(mirrored)" missing for CC0 | confirmed | `credits.py` now adds them for every Commons photo |
-| all Mixkit stills | scripted downloads vs. User Terms clause 9 | still open | numbers updated above; five clip pages re-read by the reviewer, four new ones by the review |
+| all Mixkit stills | scripted downloads vs. User Terms clause 9 | still open; accepted by the owner for the 1.2.0 release | numbers updated above; five clip pages re-read by the reviewer, four new ones by the review; see [Mixkit in release builds](#mixkit-in-release-builds) |
 
 Net effect: 46 -> 36 photos (10 removed, 3 replaced). The removed records stay in `credits.py`'s `DROPPED` with the
 reason; their selection records stay in the earlier fragments, so a photo could be rebuilt if a decision changes.

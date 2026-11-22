@@ -29,8 +29,9 @@ import kotlinx.serialization.json.Json
  * poses people make never do. The photos are shown only in the pose guide, beside the pose's figure, always with
  * their credit; the app never offers them to share, save or export.
  *
- * Mixkit stills are left out of release builds until the owner settles the two open questions in docs/POSE_PHOTOS.md
- * ("Mixkit in release builds"): BuildConfig.MIXKIT_PHOTOS, set from the Gradle property poseit.releaseMixkitPhotos.
+ * Whether a build shows the Mixkit stills is BuildConfig.MIXKIT_PHOTOS: always in debug builds; in release builds it
+ * follows the Gradle property poseit.releaseMixkitPhotos, true since 1.2.0 at the owner's request with the two open
+ * questions in docs/POSE_PHOTOS.md ("Mixkit in release builds") accepted. Setting it to false leaves them out again.
  */
 
 /**
@@ -187,8 +188,8 @@ internal object PhotoCredits {
     fun parse(text: String): Map<String, PhotoCreditRecord> = json.decodeFromString(text)
 
     /**
-     * The credits a build shows: every one, or without the Mixkit stills when [includeMixkit] is false (release
-     * builds until the owner settles the open Mixkit questions; docs/POSE_PHOTOS.md).
+     * The credits a build shows: every one, or without the Mixkit stills when [includeMixkit] is false (a release
+     * built with poseit.releaseMixkitPhotos=false; docs/POSE_PHOTOS.md, "Mixkit in release builds").
      */
     fun shown(records: Map<String, PhotoCreditRecord>, includeMixkit: Boolean): Map<String, PhotoCreditRecord> =
         if (includeMixkit) records else records.filterValues { it.source != PosePhoto.SOURCE_MIXKIT }

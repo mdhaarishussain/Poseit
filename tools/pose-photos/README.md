@@ -6,8 +6,9 @@ matcher. Licences, rules and open questions: [docs/POSE_PHOTOS.md](../../docs/PO
 
 Shipped now: **34 of 99 poses have a photo**, 27 Mixkit stills from 27 clips and 7 Wikimedia Commons photos (5 CC0, 2
 CC BY 2.0); 65 have none. 14 photos were dropped along the way (2 at the confirm stage, 10 at the review, 1 at the
-second look, 1 at the photo stage review); each keeps its reason in `credits.py`'s `DROPPED`. Release builds leave
-the Mixkit stills out until the owner decides (docs/POSE_PHOTOS.md, "Mixkit in release builds").
+second look, 1 at the photo stage review); each keeps its reason in `credits.py`'s `DROPPED`. Release builds include
+the Mixkit stills since 1.2.0, at the owner's request with the two open Mixkit questions accepted, not settled
+(docs/POSE_PHOTOS.md, "Mixkit in release builds").
 
 Everything downloaded or generated goes to a work folder outside git, `/home/user/poseit-photos-work` (override with
 `POSE_PHOTOS_WORK`). The pose models are read from `app/src/main/assets/models/` (or the main checkout's, or

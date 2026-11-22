@@ -113,9 +113,9 @@ class PosePhotosTest {
     }
 
     /**
-     * Release builds leave the Mixkit stills out until the owner settles the open Mixkit questions
-     * (docs/POSE_PHOTOS.md): a PosePhotos built that way lists only the Wikimedia Commons photos, and the poses
-     * whose photo was a Mixkit still have none (their figure-only layout).
+     * A release built with poseit.releaseMixkitPhotos=false leaves the Mixkit stills out (docs/POSE_PHOTOS.md,
+     * "Mixkit in release builds"; 1.2.0 ships them): a PosePhotos built that way lists only the Wikimedia Commons
+     * photos, and the poses whose photo was a Mixkit still have none (their figure-only layout).
      */
     @Test
     fun withoutMixkitOnlyTheCommonsPhotosAreShown() {
@@ -126,7 +126,7 @@ class PosePhotosTest {
         assertEquals(photos.all.count { it.source == PosePhoto.SOURCE_COMMONS }, release.all.size)
         assertNull(release.photoFor("stand_hand_on_hip"))
         assertNotNull(release.photoFor("sit_one_knee_up"))
-        // Debug builds (and these tests) show every photo.
+        // Debug builds, these tests and (since 1.2.0) release builds show every photo.
         assertEquals(34, PosePhotos(context, includeMixkit = true).all.size)
     }
 

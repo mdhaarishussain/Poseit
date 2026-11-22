@@ -363,9 +363,9 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
 ## Sample photos
 
 34 of the 99 built-in poses have a real photo of a person in the pose (`app/src/main/assets/pose_photos/`; sources,
-licences and the people rules in `docs/POSE_PHOTOS.md`). Poses people make never have one. Release builds leave the
-27 Mixkit stills out until the owner settles the open Mixkit questions (`docs/POSE_PHOTOS.md`, "Mixkit in release
-builds"), so they show the 7 Wikimedia Commons photos; debug builds and the screenshot tests show all 34. Data:
+licences and the people rules in `docs/POSE_PHOTOS.md`). Poses people make never have one. Every build shows all 34:
+release builds include the 27 Mixkit stills since 1.2.0, at the owner's request (`docs/POSE_PHOTOS.md`, "Mixkit in
+release builds"); with `poseit.releaseMixkitPhotos=false` a release shows only the 7 Wikimedia Commons photos. Data:
 `context.appContainer.posePhotos` (`PosePhotos`): `photoFor(poseId)` / `photoFor(pose)` return a `PosePhoto`
 (attribution, source, title, author, pageUrl, licence, licenceUrl, licenceTextPath, changes, mirrored, width, height,
 aspect, isLandscape, contentDescription, titleForDisplay, titleRequired) or null; pixels are decoded off the main

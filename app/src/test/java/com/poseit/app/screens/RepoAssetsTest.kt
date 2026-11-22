@@ -3,23 +3,26 @@ package com.poseit.app.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -27,23 +30,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.poseit.app.R
+import com.poseit.app.appContainer
 import com.poseit.app.camera.FlashMode
 import com.poseit.app.camera.SceneAspect
 import com.poseit.app.data.AppSettings
@@ -70,14 +83,20 @@ import com.poseit.app.ui.camera.TimerOption
 import com.poseit.app.ui.camera.ToolRail
 import com.poseit.app.ui.camera.buildStripPoses
 import com.poseit.app.ui.camera.toFigureStyle
+import com.poseit.app.ui.components.Badge
+import com.poseit.app.ui.components.ConnectedAxis
+import com.poseit.app.ui.components.ConnectedCardDefaults
 import com.poseit.app.ui.components.FigurePaint
 import com.poseit.app.ui.components.FigureStyle
+import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.PoseThumbnail
+import com.poseit.app.ui.components.connectedCardsPath
 import com.poseit.app.ui.components.drawPoseFigure
 import com.poseit.app.ui.create.CreateFromPhotoScreen
 import com.poseit.app.ui.detail.PoseDetailScreen
 import com.poseit.app.ui.editor.PoseEditorScreen
 import com.poseit.app.ui.library.LibraryScreen
+import com.poseit.app.ui.library.LibraryViewModel
 import com.poseit.app.ui.settings.SettingsScreen
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitTheme
@@ -167,8 +186,23 @@ class RepoAssetsTest {
 
     // ------------------------------------------------------------------ screenshots
 
+    /**
+     * The library on a pinned day, so Today's pose (picked from the date) is the same in every render: the screen's
+     * view model is created ahead with a fixed clock, and LibraryScreen's own `viewModel()` call then finds it.
+     */
     @Test
-    fun screenLibrary() = screen("1-library", ready = "99 poses") { LibraryScreen({}, {}, {}, {}, {}, {}) }
+    fun screenLibrary() = screen("1-library", ready = "99 poses") {
+        val context = LocalContext.current.applicationContext
+        val owner = remember {
+            object : ViewModelStoreOwner {
+                override val viewModelStore = ViewModelStore()
+            }.also { owner ->
+                val factory = viewModelFactory { initializer { LibraryViewModel(context.appContainer.poseRepository, clock = { LIBRARY_DAY_MILLIS }) } }
+                ViewModelProvider(owner.viewModelStore, factory)[LibraryViewModel::class.java]
+            }
+        }
+        CompositionLocalProvider(LocalViewModelStoreOwner provides owner) { LibraryScreen({}, {}, {}, {}, {}, {}) }
+    }
 
     @Test
     fun screenDetail() = screen("2-detail", ready = "How to do it") {
@@ -200,140 +234,208 @@ class RepoAssetsTest {
     }
 
     private companion object {
-        const val DETAIL_POSE = "couple_side_hug"
+        /**
+         * A pose with a sample photo, so the README shows the photo card and its credit line: a Mixkit still of a real
+         * street, whose "Photo: Mixkit" is the whole credit.
+         */
+        const val DETAIL_POSE = "walk_across"
         const val CAMERA_POSE = "fun_superhero"
         const val EDITOR_POSE = "fun_disco_point"
+
+        /** Noon UTC on 2026-11-22, the 1.2.0 release day: Today's pose is Peace sign, a pose with a sample photo. */
+        const val LIBRARY_DAY_MILLIS = 1_795_348_800_000L
     }
 }
 
-// ====================================================================== the studio set
+// ====================================================================== the banner and the social preview
 
-/** Poses on the banner, left to right. */
-private val BannerCast = listOf("stand_hand_on_hip", "walk_across", "couple_walk_hands", "fun_disco_point")
-
-private class Placed(val pose: PoseTemplate, val left: Dp, val top: Dp)
-
-/**
- * Lays [ids] out left to right from [start], each pose's frame [frameHeight] tall, so that every figure's feet (its
- * contact shadow) land on [floorY] and neighbouring figures keep [gap] between their bodies.
+/*
+ * The README banner and the social preview in the v2 identity (docs/DESIGN.md), built from the app's own pieces: on
+ * the cream canvas, a connected stack (the top bar card with the wordmark and the lavender count badge, fused to a
+ * card with the tagline) beside a connected row of dark cards, one white lay figure standing in each. Figures only:
+ * no sample photos (they would need their credits, and could read as the people endorsing the app).
  */
-private fun placeCast(ids: List<String>, frameHeight: Dp, floorY: Dp, start: Dp, gap: Dp): List<Placed> {
-    var x = start
-    return ids.map { id ->
-        val pose = BuiltInPoses.byId(id) ?: error("no pose $id")
-        val w = frameHeight * pose.frameAspect
-        val pts = pose.figures.flatMap { it.points.values }
-        val minX = pts.minOf { it.x }
-        val maxX = pts.maxOf { it.x }
-        val ankle = pose.figures.maxOf { f -> maxOf(f[Joint.LEFT_ANKLE]?.y ?: 0f, f[Joint.RIGHT_ANKLE]?.y ?: 0f) }
-        // Limbs and the head are drawn wider than their joints: pad by a little over half a limb.
-        val pad = frameHeight * 0.035f
-        val left = x - w * minX + pad
-        val top = floorY - frameHeight * (ankle + 0.014f)
-        x += w * (maxX - minX) + pad * 2 + gap
-        Placed(pose, left, top)
-    }
-}
 
-private fun castWidth(placed: List<Placed>, frameHeight: Dp): Dp {
-    val last = placed.last()
-    val pts = last.pose.figures.flatMap { it.points.values }
-    return last.left + frameHeight * last.pose.frameAspect * pts.maxOf { it.x } + frameHeight * 0.035f - placed.first().left
+/** Poses on the banner's figure cards, left to right. */
+private val BannerCast = listOf("stand_hand_on_hip", "couple_walk_hands", "fun_disco_point")
+
+/** Poses on the social preview's figure cards. */
+private val SocialCast = listOf("walk_across", "fun_disco_point")
+
+/** The canvas of the dark banner (GitHub's dark theme): the camera's black, where the dark cards sit in the app too. */
+private fun field(dark: Boolean) = if (dark) PoseitColors.backgroundCamera else PoseitColors.backgroundBody
+
+@Composable
+private fun Banner(dark: Boolean) = Identity(
+    dark = dark,
+    cast = BannerCast,
+    margin = 16.dp,
+    textWidth = 352.dp,
+    wordmarkSize = 60.sp,
+    badgeScale = 1.5f,
+    padding = 28.dp,
+) {
+    Text(TAGLINE, style = Tagline.copy(fontSize = 24.sp, lineHeight = 31.sp), color = PoseitColors.textPrimaryInverted)
 }
 
 @Composable
-private fun Cast(placed: List<Placed>, frameHeight: Dp, dx: Dp = 0.dp) {
-    placed.forEach { p ->
-        PoseThumbnail(
-            template = p.pose,
-            modifier = Modifier
-                .offset(x = p.left + dx, y = p.top)
-                .size(width = frameHeight * p.pose.frameAspect, height = frameHeight),
-            background = null,
+private fun Social() = Identity(
+    dark = false,
+    cast = SocialCast,
+    margin = 16.dp,
+    textWidth = 330.dp,
+    wordmarkSize = 50.sp,
+    badgeScale = 1.25f,
+    padding = 26.dp,
+) {
+    Text(TAGLINE, style = Tagline.copy(fontSize = 22.sp, lineHeight = 28.sp), color = PoseitColors.textPrimaryInverted)
+    // The facts at the card's foot, where Today's pose has its button.
+    Spacer(Modifier.weight(1f))
+    Text(SOCIAL_FACTS, style = PoseitType.body.copy(fontSize = 17.sp, lineHeight = 24.sp), color = PoseitColors.textSecondaryInverted)
+}
+
+/**
+ * The identity layout: on the [dark] or cream field, [margin] all round, the wordmark stack on the left, at least
+ * [textWidth] wide, and the figure row on the right in the rest (its cards as wide as their figures need), [Space.edge]
+ * apart.
+ */
+@Composable
+private fun Identity(
+    dark: Boolean,
+    cast: List<String>,
+    margin: Dp,
+    textWidth: Dp,
+    wordmarkSize: TextUnit,
+    badgeScale: Float,
+    padding: Dp,
+    text: @Composable ColumnScope.() -> Unit,
+) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(field(dark)).padding(margin)) {
+        val cards = remember(cast, maxWidth, maxHeight) { figureCards(cast, maxHeight, maxWidth - textWidth - Space.edge) }
+        val rowWidth = cards.sumOf { it.width.value.toDouble() }.dp + ConnectedCardDefaults.Gap * (cards.size - 1)
+        Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(Space.edge)) {
+            FillingCardStack(
+                cards = listOf(
+                    { WordmarkCard(wordmarkSize, badgeScale, padding) },
+                    {
+                        Column(Modifier.fillMaxSize().padding(horizontal = padding, vertical = padding)) { text() }
+                    },
+                ),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                fillIndex = 1,
+            )
+            FigureRow(cards, Modifier.width(rowWidth).fillMaxHeight())
+        }
+    }
+}
+
+/** The top bar card, banner size: the wordmark, and the count badge at the end as on the home screen. */
+@Composable
+private fun WordmarkCard(size: TextUnit, badgeScale: Float, padding: Dp) {
+    Row(
+        Modifier.fillMaxWidth().padding(start = padding, end = padding, top = padding * 0.75f, bottom = padding * 0.75f),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            "Poseit",
+            style = PoseitType.wordmark.copy(fontSize = size, lineHeight = size * 1.15f, letterSpacing = size * (-0.6f / 22f)),
+            color = PoseitColors.textPrimaryInverted,
+            modifier = Modifier.weight(1f),
+        )
+        // The app's Badge at a larger scale: every dimension and its type grow together.
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density * badgeScale, density.fontScale)) {
+            Badge("${BuiltInPoses.all.size} poses")
+        }
+    }
+}
+
+/** One card of the figure row: the pose, the card's width, and where its frame sits inside the card. */
+private class FigureCard(val pose: PoseTemplate, val width: Dp, val frameLeft: Dp, val frameTop: Dp, val frameHeight: Dp)
+
+/**
+ * Sizes the figure cards for a row [height] tall and at most [maxWidth] wide: one frame height for every pose, as
+ * large as lets every figure keep some room above its head (or raised hand) and below its feet and the row fit
+ * [maxWidth]. The figures stand on one floor line, placed so that the tallest of them is centred in the cards. Each
+ * card is its figure's width plus a side padding.
+ */
+private fun figureCards(ids: List<String>, height: Dp, maxWidth: Dp): List<FigureCard> {
+    val poses = ids.map { BuiltInPoses.byId(it) ?: error("no pose $it") }
+    val room = height * 0.1f
+    // Limbs and the head are drawn wider than their joints; the head stands above its topmost joint.
+    val headRoom = 0.075f
+    val ankle = { p: PoseTemplate -> p.figures.maxOf { f -> maxOf(f[Joint.LEFT_ANKLE]?.y ?: 0f, f[Joint.RIGHT_ANKLE]?.y ?: 0f) } }
+    val top = { p: PoseTemplate -> p.figures.flatMap { it.points.values }.minOf { it.y } - headRoom }
+    val pad = height * 0.07f
+    // Each figure's horizontal extent in its frame (0..1 of the frame width).
+    val extents = poses.map { p ->
+        val pts = p.figures.flatMap { it.points.values }
+        // The floor spot under each figure is wider than a slim figure (PoseThumbnail: 0.17 of the frame width).
+        val spots = p.figures.mapNotNull { f ->
+            val l = f[Joint.LEFT_ANKLE] ?: return@mapNotNull null
+            val r = f[Joint.RIGHT_ANKLE] ?: return@mapNotNull null
+            (l.x + r.x) / 2f
+        }
+        val limb = 0.035f / p.frameAspect
+        minOf(pts.minOf { it.x } - limb, spots.minOf { it - 0.17f }) to maxOf(pts.maxOf { it.x } + limb, spots.maxOf { it + 0.17f })
+    }
+    // From the top of the head to the floor spot's foot, in frame heights.
+    val tallest = poses.maxOf { p -> ankle(p) + 0.02f - top(p) }
+    val byHeight = (height - room * 2) / tallest
+    val fixed = pad * 2 * poses.size + ConnectedCardDefaults.Gap * (poses.size - 1)
+    val units = poses.indices.sumOf { i -> (poses[i].frameAspect * (extents[i].second - extents[i].first)).toDouble() }.toFloat()
+    val frame = minOf(byHeight, (maxWidth - fixed) / units)
+    val floorY = (height + frame * tallest) / 2 - frame * 0.006f
+    return poses.mapIndexed { i, p ->
+        val fw = frame * p.frameAspect
+        val (minX, maxX) = extents[i]
+        FigureCard(
+            pose = p,
+            width = fw * (maxX - minX) + pad * 2,
+            frameLeft = pad - fw * minX,
+            frameTop = floorY - frame * (ankle(p) + 0.014f),
+            frameHeight = frame,
         )
     }
 }
 
+/** The figure cards side by side, fused by the connected-card necks (`connectedCardsPath`, as ConnectedCardRow). */
 @Composable
-private fun Banner(dark: Boolean) = SetScene(
-    cast = BannerCast,
-    dark = dark,
-    frame = 196.dp,
-    floorTop = 204.dp,
-    floorY = 234.dp,
-    margin = 56.dp,
-    gap = 10.dp,
-    textTop = 61.dp,
-    textWidth = 340.dp,
-) { ink, quiet ->
-    Text("Poseit", style = Wordmark.copy(fontSize = 64.sp, lineHeight = 68.sp), color = ink)
-    Spacer(Modifier.height(Space.m))
-    Text(TAGLINE, style = Tagline.copy(fontSize = 19.sp, lineHeight = 27.sp), color = quiet)
-}
-
-@Composable
-private fun Social() = SetScene(
-    cast = listOf("couple_side_hug", "fun_disco_point"),
-    dark = false,
-    frame = 216.dp,
-    floorTop = 236.dp,
-    floorY = 262.dp,
-    margin = 64.dp,
-    gap = 16.dp,
-    textTop = 66.dp,
-    textWidth = 300.dp,
-) { ink, quiet ->
-    Text("Poseit", style = Wordmark.copy(fontSize = 52.sp, lineHeight = 56.sp), color = ink)
-    Spacer(Modifier.height(Space.m))
-    Text(TAGLINE, style = Tagline.copy(fontSize = 18.sp, lineHeight = 25.sp), color = ink)
-    Spacer(Modifier.height(Space.s))
-    Text(SOCIAL_FACTS, style = Tagline.copy(fontSize = 15.sp, lineHeight = 21.sp), color = quiet)
-}
-
-/**
- * The studio set: paper wall, the darker floor the figures stand on, the [cast] lined up on the right with their
- * feet on [floorY], and the type on the left from [textTop], which puts the wordmark's cap height level with the
- * tallest head.
- */
-@Composable
-private fun SetScene(
-    cast: List<String>,
-    dark: Boolean,
-    frame: Dp,
-    floorTop: Dp,
-    floorY: Dp,
-    margin: Dp,
-    gap: Dp,
-    textTop: Dp,
-    textWidth: Dp,
-    text: @Composable ColumnScope.(ink: Color, quiet: Color) -> Unit,
-) {
-    val wall = if (dark) PoseitColors.backgroundCamera else PoseitColors.backgroundBody
-    val ink = if (dark) PoseitColors.figureFill else PoseitColors.textPrimary
-    val quiet = if (dark) PoseitColors.figureFill.copy(alpha = 0.7f) else PoseitColors.textSecondary
-    BoxWithConstraints(Modifier.fillMaxSize().background(wall).clipToBounds()) {
-        Floor(dark, floorTop)
-        val placed = placeCast(cast, frame, floorY = floorY, start = 0.dp, gap = gap)
-        val width = castWidth(placed, frame)
-        Cast(placed, frame, dx = maxWidth - margin - width - placed.first().left)
-        Column(Modifier.padding(start = margin, top = textTop).width(textWidth)) { text(ink, quiet) }
+private fun FigureRow(cards: List<FigureCard>, modifier: Modifier) {
+    Row(
+        modifier.drawWithCache {
+            val gap = ConnectedCardDefaults.Gap.toPx()
+            var x = 0f
+            val segments = cards.map { c -> Rect(x, 0f, x + c.width.toPx(), size.height).also { x = it.right + gap } }
+            val path = connectedCardsPath(
+                segments,
+                ConnectedAxis.Horizontal,
+                ConnectedCardDefaults.Radius.toPx(),
+                ConnectedCardDefaults.JoinRadius.toPx(),
+                ConnectedCardDefaults.NotchLength.toPx(),
+            )
+            onDrawBehind { drawPath(path, PoseitColors.backgroundCard) }
+        },
+        horizontalArrangement = Arrangement.spacedBy(ConnectedCardDefaults.Gap),
+    ) {
+        cards.forEach { c ->
+            Box(Modifier.width(c.width).fillMaxHeight().clipToBounds()) {
+                PoseThumbnail(
+                    template = c.pose,
+                    // The frame is wider than the card (its empty sides overhang): place it from the card's corner.
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.TopStart, unbounded = true)
+                        .offset(x = c.frameLeft, y = c.frameTop)
+                        .requiredSize(width = c.frameHeight * c.pose.frameAspect, height = c.frameHeight),
+                    background = null,
+                )
+            }
+        }
     }
 }
 
-/** The floor of the set: the darker patch of paper the figures stand on (Set on Paper), or a faint line on black. */
-@Composable
-private fun Floor(dark: Boolean, top: Dp) {
-    if (dark) {
-        Box(Modifier.offset(y = top).fillMaxWidth().height(1.dp).background(PoseitColors.figureFill.copy(alpha = 0.16f)))
-    } else {
-        Box(Modifier.offset(y = top).fillMaxSize().background(PoseitColors.backgroundMuted))
-    }
-}
-
-private val Wordmark get() = PoseitType.wordmark.copy(letterSpacing = (-0.5).sp)
-
-/** Body text with balanced lines, so a two-line tagline doesn't leave one word alone. */
-private val Tagline get() = PoseitType.body.copy(lineBreak = LineBreak.Heading)
+/** Light text with balanced lines, so a two-line tagline doesn't leave one word alone. */
+private val Tagline get() = PoseitType.display.copy(letterSpacing = (-0.4).sp, lineBreak = LineBreak.Heading)
 private const val TAGLINE = "A pose guide for people who freeze in front of a camera."
 private const val SOCIAL_FACTS = "Free for Android. Works offline."
 

@@ -1,7 +1,7 @@
 <p>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/banner-dark.png">
-    <img src="docs/images/banner-light.png" width="100%" alt="Poseit: a pose guide for people who freeze in front of a camera. Five white lay figures stand in a row: one with a hand on the hip, one walking, a couple walking hand in hand, and one pointing up.">
+    <img src="docs/images/banner-light.png" width="100%" alt="Poseit: a pose guide for people who freeze in front of a camera. On the left, a dark card with the Poseit wordmark and a lavender 99 poses badge, joined to a card with the tagline. On the right, three joined dark cards with white lay figures: one with a hand on the hip, a couple walking hand in hand, and one pointing up.">
   </picture>
 </p>
 
@@ -9,9 +9,9 @@ Poseit is a free pose-guide camera for Android. Pick one of 99 poses and line yo
 drawn over the camera. Poseit tells you what to change, out loud and on screen, and takes the photo when you
 hold the pose. Everything runs on your phone and works offline, with no account, ads or subscription.
 
-[![Latest release](https://img.shields.io/github/v/release/mdhaarishussain/Poseit?style=flat-square&label=release&labelColor=5A5C5B&color=17181A)](https://github.com/mdhaarishussain/Poseit/releases/latest)
-[![Build APK workflow status](https://img.shields.io/github/actions/workflow/status/mdhaarishussain/Poseit/android.yml?branch=main&style=flat-square&label=build&labelColor=5A5C5B&color=17181A)](https://github.com/mdhaarishussain/Poseit/actions/workflows/android.yml)
-[![Android 7.0 or newer](https://img.shields.io/badge/Android-7.0%2B-17181A?style=flat-square&labelColor=5A5C5B)](#download)
+[![Latest release](https://img.shields.io/github/v/release/mdhaarishussain/Poseit?style=flat-square&label=release&labelColor=586563&color=0A2125)](https://github.com/mdhaarishussain/Poseit/releases/latest)
+[![Build APK workflow status](https://img.shields.io/github/actions/workflow/status/mdhaarishussain/Poseit/android.yml?branch=main&style=flat-square&label=build&labelColor=586563&color=0A2125)](https://github.com/mdhaarishussain/Poseit/actions/workflows/android.yml)
+[![Android 7.0 or newer](https://img.shields.io/badge/Android-7.0%2B-0A2125?style=flat-square&labelColor=586563)](#download)
 
 ## Download
 
@@ -19,8 +19,8 @@ hold the pose. Everything runs on your phone and works offline, with no account,
 
 **[Download the latest APK](https://github.com/mdhaarishussain/Poseit/releases/latest)** from the newest
 release, where it's listed under Assets. On a computer, scan the code with your phone to open the release
-there. The current version is 1.1.0 ([release notes](docs/releases/v1.1.0.md)) and the file is
-`Poseit-v1.1.0.apk`. Poseit needs Android 7.0 or newer and runs best on a recent phone.
+there. The current version is 1.2.0 ([release notes](docs/releases/v1.2.0.md)) and the file is
+`Poseit-v1.2.0.apk`. Poseit needs Android 7.0 or newer and runs best on a recent phone.
 
 To install, open the APK on your phone. The first time, Android asks you to allow your browser or file manager
 to install unknown apps: allow it, then tap Install.
@@ -34,12 +34,12 @@ known not to work.
 ## Screenshots
 
 <p>
-  <img src="docs/images/screens/1-library.png" width="32%" alt="The library: today's pose at the top, tabs for all poses, favourites, recent and my poses, filter chips for solo, couple and group, and a grid of pose tiles.">
-  <img src="docs/images/screens/2-pose-detail.png" width="32%" alt="The Side hug pose: two figures in different tones inside frame marks, a short description, numbered steps, and the buttons Customise and Try this pose.">
-  <img src="docs/images/screens/3-camera.png" width="32%" alt="The camera on a black preview: the Superhero stance guide drawn in green with a white stick skeleton on top, a score ring showing 93, and the hint Perfect. Hold it."><br>
-  <img src="docs/images/screens/4-editor.png" width="32%" alt="The pose editor, based on Disco point: a mannequin with a round handle on each joint over a grid, and tools for mirror, reset, grid and add person.">
-  <img src="docs/images/screens/5-pose-from-photo.png" width="32%" alt="Pose from a photo: the headline Recreate any photo, three numbered steps, a note that the photo is never uploaded, and the button Choose a photo.">
-  <img src="docs/images/screens/6-settings.png" width="32%" alt="Settings: switches for voice guidance and auto-capture, a match strictness slider, countdown chips from off to 10 seconds, and three guide styles.">
+  <img src="docs/images/screens/1-library.png" width="32%" alt="The library: a dark top bar card with the Poseit wordmark and a 99 poses badge, joined to the Today's pose card for Peace sign with its figure, a small sample photo, the credit line Photo: Mixkit and the button Try this pose; below, a search field, tabs for all poses, favourites, recent and my poses, filter pills for solo, couple, group and standing, the first pose tiles, and a bottom bar with the camera, Poses and Photos, and a plus button.">
+  <img src="docs/images/screens/2-pose-detail.png" width="32%" alt="The Walk across pose: its name card and the walking white figure inside frame marks, joined to the card See it on a person with a real photo of someone walking across a paved city square and the credit line Photo: Mixkit; below, the Level and People cards and the buttons Customise and Try this pose.">
+  <img src="docs/images/screens/3-camera.png" width="32%" alt="The camera on a black preview: the Superhero stance guide drawn in green with a white stick skeleton on top, a score ring showing 93%, the hint Perfect. Hold it, and below the pose strip and the shutter."><br>
+  <img src="docs/images/screens/4-editor.png" width="32%" alt="The pose editor, based on Disco point: a figure with a round handle on each joint over a grid, a Save button, undo and redo, and buttons for mirror, reset, add person and remove.">
+  <img src="docs/images/screens/5-pose-from-photo.png" width="32%" alt="Pose from a photo: the headline Recreate any photo, a faded figure beside the traced white figure, a note that the photo is never uploaded, three numbered steps, and the button Choose a photo.">
+  <img src="docs/images/screens/6-settings.png" width="32%" alt="Settings: a match strictness bar at 80%, countdown options from off to 10 seconds with 3 seconds selected, switches for voice guidance and auto-capture, and three guide styles.">
 </p>
 
 ## Features
@@ -49,8 +49,8 @@ known not to work.
 - 99 original poses in 11 categories, from standing, sitting and walking to selfies, couples and groups.
 - Filter by the number of people, category, place and mood, or search for words like "beach" or "confident".
 - Each pose has a short description and numbered steps, and the library suggests one pose to try each day.
-- Many poses also show a real sample photo of people in the pose next to the figure, always with its credit.
-  Every photo's author, source, licence and changes are in Settings, under Photo credits.
+- 34 of the poses also show a real photo of people in the pose next to the figure, always with its credit line.
+  Every photo's author, source, licence and changes are in Settings, under About, Photo credits.
 - Keep favourites; recently used poses get their own tab.
 
 ### Line up
@@ -98,14 +98,16 @@ may send anonymous usage statistics to Google while you're online.
 
 ## Status
 
-Poseit 1.1.0 hasn't been tried on a physical phone yet. Its 273 automated tests all pass on the JVM:
+Poseit 1.2.0 hasn't been tried on a physical phone yet. Its 374 automated tests all pass on the JVM:
 
 - engine tests, including a check that every built-in pose can actually be matched;
 - Robolectric UI-flow tests on Android 7.0, 9 and 15 (onboarding, library, detail, editor, settings, gallery,
   pose from a photo, camera permission and controls);
+- checks that every sample photo ships with its file, its credit and its licence text;
 - screenshot tests, including small phones and large fonts.
 
-Three independent review rounds fixed 50 issues. What the tests can't reach still needs a check on a phone:
+Before 1.1.0, three independent review rounds fixed 50 issues; the new look and the sample photos in 1.2.0 had
+reviews of their own. What the tests can't reach still needs a check on a phone:
 live CameraX and MediaPipe detection, voice (TextToSpeech), saving to the gallery, and how well real
 detections score. If you try it on a phone, please
 [report what you see](https://github.com/mdhaarishussain/Poseit/issues/new/choose), with the phone model and
@@ -129,7 +131,7 @@ Android version.
 ## How it works
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#E4E5E1", "primaryTextColor": "#17181A", "primaryBorderColor": "#5A5C5B", "lineColor": "#83857F"}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#F4F3EF", "primaryTextColor": "#0A2125", "primaryBorderColor": "#0A2125", "lineColor": "#586563"}}}%%
 flowchart LR
     frame["Camera frame"] --> landmarker["MediaPipe pose landmarker"]
     landmarker --> smoothing["Smoothing"]
@@ -206,7 +208,8 @@ install yours.
   Free License) and 7 photos from [Wikimedia Commons](https://commons.wikimedia.org) (5 CC0, 2 CC BY 2.0). Each is
   credited in `app/src/main/assets/pose_photos/credits.json`, with the licence texts in
   `app/src/main/assets/licenses/`, and in the app under Settings, About, Photo credits. They keep their own
-  licences. Release builds include only the Commons photos for now (see [docs/POSE_PHOTOS.md](docs/POSE_PHOTOS.md)).
+  licences. Release builds include all 34. [docs/POSE_PHOTOS.md](docs/POSE_PHOTOS.md) records the sources, their
+  terms and two open questions about the Mixkit stills.
 - All pose figures are original. Poseit's own DSL generates them from joint angles; no images were copied from
   other apps.
 

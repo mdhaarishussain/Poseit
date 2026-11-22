@@ -234,7 +234,7 @@ fun PhotoCredit(
 
 /**
  * Where the shown photos come from, for the About card and the credits screen: "Mixkit and Wikimedia Commons
- * contributors", or only the sources this build shows (a release build without the Mixkit stills).
+ * contributors", or only the sources this build shows (a release built without the Mixkit stills).
  */
 fun photoSourcesPhrase(photos: List<PosePhoto>): String {
     val sources = photos.map { it.source }.distinct().sortedBy { if (it == PosePhoto.SOURCE_MIXKIT) 0 else 1 }

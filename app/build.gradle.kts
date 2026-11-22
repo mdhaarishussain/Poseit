@@ -7,10 +7,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-// Mixkit stills in release builds (docs/POSE_PHOTOS.md, "Mixkit in release builds"): off until the owner has settled
-// the two open questions recorded there (scripted downloads under the Mixkit User Terms, and the unread Envato
-// policies), then set poseit.releaseMixkitPhotos=true in gradle.properties. Debug builds and the screenshot tests
-// always include them, so the design can be reviewed with every photo.
+// Mixkit stills in release builds (docs/POSE_PHOTOS.md, "Mixkit in release builds"): on since 1.2.0, through
+// poseit.releaseMixkitPhotos=true in gradle.properties. The owner asked for the release with all 34 photos after the
+// two open questions recorded there (scripted downloads under the Mixkit User Terms, and the unread Envato policies)
+// were explained to them; the questions are accepted, not settled. Set the property to false (or pass
+// -Pposeit.releaseMixkitPhotos=false) and rebuild to leave the stills out of a release again. Debug builds and the
+// screenshot tests always include them.
 val releaseMixkitPhotos = providers.gradleProperty("poseit.releaseMixkitPhotos").orNull?.toBoolean() ?: false
 
 android {
@@ -104,8 +106,8 @@ android {
 }
 
 // ---------------------------------------------------------------------------
-// Without poseit.releaseMixkitPhotos the release APK leaves the Mixkit stills out entirely (not just unshown): their
-// files are removed from the merged assets. Which files they are comes from pose_photos/credits.json.
+// With poseit.releaseMixkitPhotos unset or false, the release APK leaves the Mixkit stills out entirely (not just
+// unshown): their files are removed from the merged assets. Which files they are comes from pose_photos/credits.json.
 // ---------------------------------------------------------------------------
 if (!releaseMixkitPhotos) {
     val creditsFile = layout.projectDirectory.file("src/main/assets/pose_photos/credits.json").asFile
@@ -115,7 +117,7 @@ if (!releaseMixkitPhotos) {
             val credits = groovy.json.JsonSlurper().parse(creditsFile) as Map<String, Map<String, Any?>>
             val mixkit = credits.values.filter { it["source"] == "Mixkit" }.map { "pose_photos/${it["photo"]}" }
             outputs.files.files.forEach { dir -> mixkit.forEach { File(dir, it).delete() } }
-            logger.lifecycle("Release assets: ${mixkit.size} Mixkit stills left out (poseit.releaseMixkitPhotos is not set)")
+            logger.lifecycle("Release assets: ${mixkit.size} Mixkit stills left out (poseit.releaseMixkitPhotos is not true)")
         }
     }
 }
