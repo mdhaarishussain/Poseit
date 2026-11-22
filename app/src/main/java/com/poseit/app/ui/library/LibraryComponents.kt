@@ -8,8 +8,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -42,6 +48,10 @@ import com.poseit.app.ui.components.AccentButton
 import com.poseit.app.ui.components.ButtonForm
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.FilterPill
+import com.poseit.app.ui.components.PhotoCredit
+import com.poseit.app.ui.components.PosePhoto
+import com.poseit.app.ui.components.rememberPosePhoto
+import com.poseit.app.data.PosePhoto
 import com.poseit.app.ui.components.IconSize
 import com.poseit.app.ui.components.PillTabs
 import com.poseit.app.ui.components.PlainIconButton
@@ -244,12 +254,15 @@ private val TodaysPoseMinHeight = 224.dp
 /**
  * Today's pose, the card fused under the top bar card (docs/DESIGN.md, "Home"): "Today's pose" in mist, the name
  * in the headline style, its facts as one short phrase and "Try this pose" at the foot, with the lay figure
- * standing on the right of the dark card. The whole card opens the pose; the button opens the camera.
+ * standing on the right of the dark card. The whole card opens the pose; the button opens the camera. When the pose
+ * has a sample photo, a small print of it and its credit line sit above the button, so the figure keeps the stage
+ * and the photo stays its companion; without one the card is the figure and the words alone.
  *
  * It is one card of a connected stack, so put it in `TopBarCard(joined = { ... })`.
  */
 @Composable
 internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () -> Unit, modifier: Modifier = Modifier) {
+    val photo = rememberPosePhoto(pose)
     // With a large font the words get more of the card, so the button's label still fits on one line.
     val largeFont = LocalDensity.current.fontScale > 1.15f
     val textShare = if (largeFont) 0.66f else 0.58f
@@ -296,6 +309,10 @@ internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () ->
                     Spacer(Modifier.height(Space.xs))
                     Text(pose.factsPhrase(), style = PoseitType.supporting, color = PoseitColors.textSecondaryInverted)
                 }
+                if (photo != null) {
+                    Spacer(Modifier.height(Space.l))
+                    TodaysPhoto(photo)
+                }
                 Column {
                     Spacer(Modifier.height(Space.l))
                     // The screen's one accent: the thing to do next. A block, like every button inside a card.
@@ -305,3 +322,50 @@ internal fun TodaysPoseCard(pose: PoseTemplate, onOpen: () -> Unit, onTry: () ->
         }
     }
 }
+
+/**
+ * Today's pose's sample photo: a small print (the whole photo, never cropped) with its credit line beside its foot,
+ * or under it when the credit is a long one (a Wikimedia Commons author and licence) that would need more than two
+ * lines beside the print. The card around it already names the pose, so the print has no spoken label of its own;
+ * the credit is a button.
+ */
+@Composable
+private fun TodaysPhoto(photo: PosePhoto) {
+    val printWidth = if (photo.isLandscape) TodaysPhotoWidth * 4f / 3f else TodaysPhotoWidth
+    val print = @Composable {
+        PosePhoto(
+            photo,
+            Modifier
+                .width(printWidth)
+                .aspectRatio(photo.aspect),
+            shape = PoseitShapes.Inner,
+            contentDescription = null,
+        )
+    }
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val measurer = rememberTextMeasurer()
+        val density = LocalDensity.current
+        val besidePx = with(density) { (maxWidth - printWidth - Space.s - CreditGlyphRoom).roundToPx() }.coerceAtLeast(1)
+        val besideLines = remember(photo.attribution, besidePx, density) {
+            measurer.measure(photo.attribution, PoseitType.supporting, constraints = Constraints(maxWidth = besidePx)).lineCount
+        }
+        if (besideLines <= 2) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                print()
+                Spacer(Modifier.width(Space.s))
+                PhotoCredit(photo, Modifier.weight(1f, fill = false))
+            }
+        } else {
+            Column {
+                print()
+                PhotoCredit(photo)
+            }
+        }
+    }
+}
+
+/** Width of the portrait print on the Today's pose card (a landscape one is a third wider). */
+private val TodaysPhotoWidth = 60.dp
+
+/** The credit line's info glyph and the gap after it. */
+private val CreditGlyphRoom = 22.dp

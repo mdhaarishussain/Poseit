@@ -325,6 +325,18 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   licence", "Read the licence": the bundled text, scrollable, in the same sheet) and Changes in plain words.
   `PhotoCreditContent(photo)` is the sheet's inside for inline use. `rememberPosePhoto(poseId | pose)` gives the
   `PosePhoto` data or null.
+- **Photo companion** (`PhotoCompanion.kt`; "figure first, photo as companion"): `PhotoCompanionCard(photo,
+  figureMirrored, compact)` is "See it on a person", one card of a `ConnectedCardStack` fused under the card that
+  shows the figure: the heading in `bodyLarge` cream, one `supporting` mist line about the pose (never about the
+  people), the photo at its own aspect with `Inner` corners and its `PhotoCredit`. A portrait photo stands at the
+  right of the words, about 42% of the card's inner width (112 to 176dp, 88dp when `compact`), the credit at the foot
+  of the words beside it; the landscape group photo runs under the words at 72% of the width, and so does a portrait
+  photo when the heading no longer fits on one line beside it or the font is 150% or more (at the same modest size).
+  TalkBack reads heading, line, photo, credit (traversal indices in one traversal group). `PhotoBadge(photo)` is the
+  photo as a 36x48dp print (48x36 for the group photo) with a mist hairline and the credit's info glyph on a stage
+  disc at its corner, for a pose tile; the print is a 48dp credit button ("Photo credit: Mixkit") that opens
+  `PhotoCreditSheet`. `PoseTile(badge, badgeReserve)` puts it in the card's bottom-end corner beside the caption,
+  where no figure ever stands, and keeps `badgeReserve` (`PhotoBadgeSize`, 48dp) of the caption free.
 - **System bars:** dark icons on cream screens (the app default); call `LightSystemBarIconsEffect()` on a screen
   whose top and bottom edges are dark (the camera, the photo viewer). It only counts the screen in and out; the
   outermost `PoseitTheme` owns the window's icon colour and sets light icons while any such screen is composed, so
@@ -356,6 +368,16 @@ isLandscape, contentDescription) or null; pixels are decoded off the main thread
   675x900, so they look sharp up to about 340dp wide on a 2x screen and 225dp on a 3x one.
 - **Screenshot tests** add `@get:Rule val photos = InlinePosePhotos()` so photos decode inside the frame and the
   capture shows them (production decodes on Dispatchers.IO).
+- **Figure first, photo as companion.** The figure is what the camera matches, so it stays the larger, first
+  picture everywhere a photo appears: the detail screen's preview card, then "See it on a person" fused under it;
+  the pose tips card in the camera, then a compact companion; Today's pose's figure, with a 60dp print beside the
+  words; the library tile's figure, with a 36dp print beside the caption. Photos are never cropped (no round
+  thumbnails), so no head is ever cut off.
+- **Mirror.** The detail screen's Mirror toggle (and the camera's flip, in the tips sheet) flips the figure only. The
+  photo is a real photograph whose credit lists every change made to it, so it is never flipped at runtime; while
+  the figure is mirrored, the companion's line says "The figure is mirrored. The photo shows the original side."
+- **Not in the camera's pose strip or All poses picker**: their tiles are too small for a print and its credit
+  button, and the viewfinder only ever shows the figure. The tips sheet is where the camera shows the photo.
 
 ## Screen map
 
@@ -366,15 +388,20 @@ they are; where a label changes, its tests change with it.
 - `TopBarCard("Poseit", wordmark = true, badge = { Badge("<n> poses") }, actions = { PlainIconButton(settings,
   "Settings") })`, **joined** to the Today's pose card: label "Today's pose" (`supporting`, mist), the pose name in
   `headline`, the detail line ("Walking, easy") in `supporting`, an `AccentButton("Try this pose", form = Block)` at the foot,
-  and the white figure on the stage filling the right side of the card. The whole card can open the pose
-  (`CardSegment(onClick, onClickLabel)`); the button opens the camera.
+  and the white figure on the stage filling the right side of the card. When the pose has a sample photo, a 60dp
+  print of it sits above the button with its `PhotoCredit` beside its foot (under it, when a long Commons credit
+  would need more than two lines there); without one the card is the words and the figure alone. The whole card can
+  open the pose (`CardSegment(onClick, onClickLabel)`); the button opens the camera, the credit opens its sheet.
 - Below, on the canvas: the search field (cream surface, 16dp corners, 1dp `border`), then `PillTabs` (All /
   Favourites / Recent / My poses) and one scrolling row of `FilterPill`s (people, category, place, mood groups
   split by short `VerticalHairline`s), both starting on `Space.edge`.
 - While a tab or a filter narrows the list, the count ("12 poses") in `supporting` on `textInset` with
   `TertiaryButton("Clear filters")` while filters are on; on the unfiltered list the badge already gives the count.
   Then the grid: `PoseTile`s two columns (more on wide screens), 8dp apart, 8dp from the sides. Each row reserves
-  the name lines its longest name needs (measured), so the dark cards of a row end on one line.
+  the name lines its longest name needs (measured), so the dark cards of a row end on one line. A pose with a
+  sample photo carries its `PhotoBadge` print in the bottom-end corner beside the caption (the caption leaves 48dp
+  for it, and the name measurement counts that), so photo poses are spotted at a glance and the tile keeps its
+  size and its figure.
 - "My poses" starts with a "Create a pose" tile: an outlined cream card with the footprint of a pose tile.
 - `FloatingPillBar`: left `CircleIconButton(camera, "Pose camera")`, middle `PillBarSegments(["Poses", "Photos"])`
   with Poses selected (Photos calls `onOpenGallery`; returning shows Poses again), right
@@ -388,7 +415,10 @@ they are; where a label changes, its tests change with it.
 **Pose detail** (`detail/`)
 - A fused stack that scrolls with the page (`detail/ScrollingStackScreen`): the top bar card (back, the category or
   source as a lavender `Badge`, the favourite heart) **joined** to the name card (the pose name alone in `display`
-  Light), **joined** to the preview card (the figure on the stage inside cream `frameMarks`, the Mirror `IconToggle` in its corner). Once the
+  Light), **joined** to the preview card (the figure on the stage inside cream `frameMarks`, the Mirror `IconToggle` in its corner),
+  and, for a built-in pose with a sample photo, **joined** to `PhotoCompanionCard` ("See it on a person"). With a
+  photo the preview takes 40% of the screen's height instead of 44%, so the figure and the whole photo card fit a
+  phone's first screen and the figure stays the larger picture. Once the
   stack's bar scrolls away, a plain `TopBarCard` titled with the pose name fades in; only one of the two bars is in
   the semantics tree at a time.
 - Under the stack, the mockups' stat pair (`ConnectedCardRow`): "Level" (the word in light numerals over a
@@ -426,7 +456,8 @@ they are; where a label changes, its tests change with it.
   `RowGroup`s on `edge`, like Settings. The countdown is the shared `CountdownChips` segmented pill (48dp, options
   spoken as "2 seconds"); the guide style is three small stage tiles drawing the pose in each style;
   zoom presets and the photoshoot choices ("3 / 5 / 10 / Until I stop", "2 s / 3 s / 5 s / 10 s") are `FilterPill`s. The tips sheet opens with the pose as a dark card
-  (name, facts, camera height and framing as label/value pairs, the figure). Dialogs as `PoseitAlertDialog`.
+  (name, facts, camera height and framing as label/value pairs, the figure, mirrored with the guide), fused to a
+  compact `PhotoCompanionCard` when the pose has a sample photo. Dialogs as `PoseitAlertDialog`.
 - Permission screen: the top bar card joined to a headline card ("Let Poseit use the camera") and, when there is
   room, a picture card with a figure in viewfinder marks; `AccentButton("Allow camera")` and
   an outlined `SecondaryButton("Not now")` beside it (a `ButtonPair`).

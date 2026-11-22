@@ -59,6 +59,7 @@ import com.poseit.app.ui.components.Stat
 import com.poseit.app.ui.components.DestructiveButton
 import com.poseit.app.ui.components.EmptyState
 import com.poseit.app.ui.components.IconToggle
+import com.poseit.app.ui.components.PhotoCompanionCard
 import com.poseit.app.ui.components.PillTabs
 import com.poseit.app.ui.components.PlainIconButton
 import com.poseit.app.ui.components.PoseSteps
@@ -75,6 +76,7 @@ import com.poseit.app.ui.components.SegmentedProgress
 import com.poseit.app.ui.components.TertiaryButton
 import com.poseit.app.ui.components.TopBarCard
 import com.poseit.app.ui.components.frameMarks
+import com.poseit.app.ui.components.rememberPosePhoto
 import com.poseit.app.ui.library.Difficulty
 import com.poseit.app.ui.library.isCustom
 import com.poseit.app.ui.library.tileDetail
@@ -213,7 +215,8 @@ private fun PlainScreen(onBack: () -> Unit, snackbar: SnackbarHostState, content
 /**
  * The pose, as the mockups' stack: the top bar card (Back, the category badge, the favourite heart) fused to the
  * name card (the name in Display Light with the facts as label / value pairs) and to the preview card (the figure
- * on the dark stage inside cream frame marks, the Mirror toggle in its corner). Below, on the canvas: the
+ * on the dark stage inside cream frame marks, the Mirror toggle in its corner), and, for a built-in pose with a
+ * sample photo, the "See it on a person" card with the photo and its credit. Below, on the canvas: the
  * description, the steps in a dark card, the camera setup in an outlined card, and what the pose is good for.
  * "Customise" and "Try this pose" stay pinned at the foot.
  */
@@ -231,6 +234,7 @@ private fun ReadyContent(
 ) {
     val details = state.details
     val pose = details.pose
+    val photo = rememberPosePhoto(pose)
     val favourite: @Composable RowScope.() -> Unit = {
         PlainIconButton(
             icon = if (state.isFavorite) PoseitIcons.favouriteOn else PoseitIcons.favouriteOff,
@@ -247,7 +251,10 @@ private fun ReadyContent(
         bottomBar = { DetailActions(isCustom = pose.isCustom, onEdit = onEdit, onTry = onTry) },
         joined = {
             NameCard(pose)
-            PreviewCard(details, height = previewHeight(), mirrored = mirrored, onMirroredChange = onMirroredChange)
+            PreviewCard(details, height = previewHeight(withPhoto = photo != null), mirrored = mirrored, onMirroredChange = onMirroredChange)
+            // The figure stays the hero (it is what the camera matches); a built-in pose's sample photo follows it
+            // as a smaller companion card, fused under the preview. Without a photo the stack ends at the figure.
+            if (photo != null) PhotoCompanionCard(photo, figureMirrored = mirrored)
         },
     ) {
         PoseFacts(pose, Modifier.padding(start = Space.edge, end = Space.edge, top = Space.edge))
@@ -289,8 +296,14 @@ private fun ReadyContent(
     }
 }
 
+/**
+ * The preview card's height: 44% of the screen, or 40% when the photo card follows it, so the figure and its
+ * companion photo both fit the first screen of a phone while the figure stays clearly the larger of the two.
+ */
 @Composable
-private fun previewHeight() = LocalConfiguration.current.screenHeightDp.let { h -> (h * 0.44f).coerceIn(240f, 480f).dp }
+private fun previewHeight(withPhoto: Boolean) = LocalConfiguration.current.screenHeightDp.let { h ->
+    (h * if (withPhoto) 0.40f else 0.44f).coerceIn(240f, 480f).dp
+}
 
 /**
  * "Customise" (or "Edit") beside the screen's one accent action, on the canvas band at the foot; stacked, the accent

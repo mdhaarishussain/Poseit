@@ -62,17 +62,18 @@ import com.poseit.app.pose.PoseSource
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.pose.library.BuiltInPoses
 import com.poseit.app.ui.components.CameraSetup
-import com.poseit.app.ui.components.CardVariant
 import com.poseit.app.ui.components.FilterPill
 import com.poseit.app.ui.components.IconGlyphInset
+import com.poseit.app.ui.components.ConnectedCardStack
+import com.poseit.app.ui.components.PhotoCompanionCard
 import com.poseit.app.ui.components.PillTabs
+import com.poseit.app.ui.components.rememberPosePhoto
 import com.poseit.app.ui.components.PlainIconButton
 import com.poseit.app.ui.components.PoseSteps
 import com.poseit.app.ui.components.PoseThumbnail
 import com.poseit.app.ui.components.PoseTile
 import com.poseit.app.ui.components.PoseitAlertDialog
 import com.poseit.app.ui.components.PoseitBottomSheet
-import com.poseit.app.ui.components.PoseitCard
 import com.poseit.app.ui.components.PoseitIcons
 import com.poseit.app.ui.components.PrimaryButton
 import com.poseit.app.ui.components.RadioRow
@@ -548,8 +549,12 @@ internal fun AllPosesSheet(
 // ===================================================================== tips
 
 /**
- * The current pose's card (its figure on the stage, the name, the facts and the favourite heart), then its
- * description, posing steps and camera advice, and how to move the guide.
+ * The current pose's card (its figure on the stage, the name, the facts and the favourite heart) with, for a
+ * built-in pose with a sample photo, the "See it on a person" card fused under it; then its description, posing
+ * steps and camera advice, and how to move the guide. The photo appears only here, in the sheet, never over the
+ * viewfinder: the guide in the camera is always the figure.
+ *
+ * @param mirrored the guide is mirrored (the camera's flip toggle): the card's figure follows it, the photo doesn't
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -558,6 +563,7 @@ internal fun PoseTipsSheet(
     favorite: Boolean,
     onToggleFavorite: () -> Unit,
     onDismiss: () -> Unit,
+    mirrored: Boolean = false,
 ) {
     PoseitBottomSheet(
         onDismissRequest = onDismiss,
@@ -571,7 +577,7 @@ internal fun PoseTipsSheet(
                 .padding(bottom = Space.xl)
                 .navigationBarsPadding(),
         ) {
-            TipsPoseCard(pose, favorite, onToggleFavorite)
+            TipsPoseCard(pose, favorite, onToggleFavorite, mirrored)
             Column(Modifier.padding(horizontal = Space.textInset)) {
                 if (pose.description.isNotBlank()) {
                     Spacer(Modifier.height(Space.section))
@@ -599,17 +605,16 @@ private val TipsCardHeight = 208.dp
 /**
  * The pose as a dark card, like the mockups' headline card: the name in Headline and the facts at the top left, two
  * small label and value pairs (camera height, framing) at its foot, and the figure on the stage at the right under
- * the favourite heart.
+ * the favourite heart. A pose with a sample photo gets the "See it on a person" card fused under it.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TipsPoseCard(pose: PoseTemplate, favorite: Boolean, onToggleFavorite: () -> Unit) {
-    PoseitCard(
+private fun TipsPoseCard(pose: PoseTemplate, favorite: Boolean, onToggleFavorite: () -> Unit, mirrored: Boolean) {
+    val photo = rememberPosePhoto(pose)
+    ConnectedCardStack(
         Modifier
             .padding(horizontal = Space.edge)
             .fillMaxWidth(),
-        variant = CardVariant.Dark,
-        contentPadding = PaddingValues(0.dp),
     ) {
         Row {
             Column(
@@ -649,12 +654,14 @@ private fun TipsPoseCard(pose: PoseTemplate, favorite: Boolean, onToggleFavorite
                 PoseThumbnail(
                     template = pose,
                     background = null,
+                    mirrored = mirrored,
                     modifier = Modifier
                         .padding(end = Space.l, bottom = Space.l)
                         .size(width = 112.dp, height = TipsCardHeight - 48.dp - Space.cardPadding + IconGlyphInset - Space.l),
                 )
             }
         }
+        if (photo != null) PhotoCompanionCard(photo, figureMirrored = mirrored, compact = true)
     }
 }
 

@@ -87,6 +87,8 @@ import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.EmptyPictureCard
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.PinnedTopBar
+import com.poseit.app.ui.components.PhotoBadgeSize
+import com.poseit.app.ui.components.rememberPosePhotos
 import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitMotion
@@ -204,10 +206,13 @@ private fun LibraryContent(
         val showCreateCard = state.filter.tab == LibraryTab.MINE && state.tabTotal > 0
         val barAway = rememberTopBarScrolledAway(gridState)
         BoxWithConstraints(Modifier.fillMaxSize()) {
+            val posePhotos = rememberPosePhotos()
             val nameLines = rememberRowNameLines(
                 poses = state.poses,
                 leadingName = if (showCreateCard) CreatePoseCardName else null,
                 gridWidth = maxWidth - startPadding - endPadding,
+                // A tile with a photo print leaves room for it at the end of its caption.
+                captionReserve = { pose -> if (posePhotos.photoFor(pose) != null) PhotoBadgeSize else 0.dp },
             )
             LazyVerticalGrid(
                 columns = PoseGridCells,
@@ -429,14 +434,20 @@ private class RowNameLines(private val perItem: List<Int>, private val offset: I
  *
  * @param leadingName the caption of a tile placed before the poses (the create tile), or null
  * @param gridWidth the grid's width inside its content padding
+ * @param captionReserve the width a pose's tile keeps free at the end of its caption (a photo print)
  */
 @Composable
-private fun rememberRowNameLines(poses: List<PoseTemplate>, leadingName: String?, gridWidth: Dp): RowNameLines {
+private fun rememberRowNameLines(
+    poses: List<PoseTemplate>,
+    leadingName: String?,
+    gridWidth: Dp,
+    captionReserve: (PoseTemplate) -> Dp = { 0.dp },
+): RowNameLines {
     val density = LocalDensity.current
     val measurer = rememberTextMeasurer()
-    // Line counts by name for this width: a search keystroke only re-chunks cached counts into rows instead of laying
-    // out every visible name again.
-    val cache = remember(gridWidth, density) { HashMap<String, Int>() }
+    // Line counts by name and reserve for this width: a search keystroke only re-chunks cached counts into rows
+    // instead of laying out every visible name again.
+    val cache = remember(gridWidth, density) { HashMap<Pair<String, Int>, Int>() }
     val geometry = remember(gridWidth, density) {
         val gridPx = with(density) { gridWidth.roundToPx() }.coerceAtLeast(0)
         val spacingPx = with(density) { Space.edge.roundToPx() }
@@ -447,10 +458,13 @@ private fun rememberRowNameLines(poses: List<PoseTemplate>, leadingName: String?
     }
     return remember(poses, leadingName, geometry) {
         val (columns, textPx) = geometry
-        val all = listOfNotNull(leadingName) + poses.map { it.name }
-        val lines = all.map { name ->
-            cache.getOrPut(name) {
-                measurer.measure(name, PoseitType.bodyStrong, maxLines = 2, constraints = Constraints(maxWidth = textPx)).lineCount
+        val all = listOfNotNull(leadingName?.let { it to 0 }) +
+            poses.map { it.name to with(density) { captionReserve(it).roundToPx() } }
+        val lines = all.map { key ->
+            cache.getOrPut(key) {
+                val (name, reservePx) = key
+                val width = (textPx - reservePx).coerceAtLeast(1)
+                measurer.measure(name, PoseitType.bodyStrong, maxLines = 2, constraints = Constraints(maxWidth = width)).lineCount
             }
         }
         val rows = lines.chunked(columns).map { row -> row.max() }

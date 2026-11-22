@@ -1,0 +1,278 @@
+package com.poseit.app.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.poseit.app.data.PosePhoto
+import com.poseit.app.ui.theme.PoseitColors
+import com.poseit.app.ui.theme.PoseitShapes
+import com.poseit.app.ui.theme.PoseitType
+import com.poseit.app.ui.theme.Space
+
+/*
+ * Figure first, photo as companion (docs/DESIGN.md, "Sample photos"). The white figure stays the hero of every pose
+ * view, because it is what the camera matches; a pose's sample photo stands beside it as a smaller companion that
+ * shows the same pose on a real person, always with its credit. Poses without a photo simply don't get these:
+ * their figure-only layout is complete on its own.
+ *
+ * - PhotoCompanionCard: "See it on a person", a dark card fused under the figure's card (the detail screen, the
+ *   camera's pose tips).
+ * - PhotoBadge: the photo as a small print beside a pose tile's caption, which is also the photo's credit button.
+ */
+
+/** The companion card's heading. */
+const val PhotoCompanionTitle = "See it on a person"
+
+/**
+ * "See it on a person": the pose's sample photo with its credit line, as one card of a [ConnectedCardStack], fused
+ * directly under the card that shows the pose's figure. A portrait photo stands at the right of the words, smaller
+ * than the figure above it; the landscape group photo runs under them, and so does a portrait photo once the
+ * heading no longer fits on one line beside it (large font sizes, narrow phones). Never cropped: the photo keeps
+ * its own aspect, so no head is ever cut off.
+ *
+ * The photo is never mirrored with the figure: it is a real photograph and its credit lists every change made to
+ * it. While the figure is mirrored ([figureMirrored]) the words say that the photo shows the original side.
+ *
+ * TalkBack reads the heading, the line under it, the photo ("Photo of a person in the Hand on hip pose") and then
+ * the credit button, in that order.
+ *
+ * @param compact a smaller photo, for a card whose figure is drawn small (the camera's pose tips), so the photo
+ *   never outgrows the figure
+ */
+@Composable
+fun PhotoCompanionCard(
+    photo: PosePhoto,
+    modifier: Modifier = Modifier,
+    figureMirrored: Boolean = false,
+    compact: Boolean = false,
+    contentPadding: PaddingValues = PaddingValues(
+        start = Space.cardPadding,
+        end = Space.cardPadding,
+        top = Space.l + Space.xs,
+        bottom = Space.cardPadding,
+    ),
+) {
+    CardSegment(
+        modifier = modifier.semantics { isTraversalGroup = true },
+        contentPadding = contentPadding,
+    ) {
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val density = LocalDensity.current
+            val measurer = rememberTextMeasurer()
+            val sideWidth = if (compact) CompactSidePhoto else (maxWidth * SidePhotoShare).coerceIn(SidePhotoMin, SidePhotoMax)
+            val textWidth = maxWidth - sideWidth - Space.l
+            val titleFits = remember(textWidth, density) {
+                val titleWidth = measurer.measure(PhotoCompanionTitle, PoseitType.bodyLarge, softWrap = false, maxLines = 1).size.width
+                titleWidth <= with(density) { textWidth.toPx() }
+            }
+            // Beside the words while the heading fits on one line next to it; under them for the landscape group
+            // photo and at large font sizes. Under them it keeps the same modest size, smaller than the figure.
+            val stacked = photo.isLandscape || density.fontScale >= 1.5f || !titleFits
+            val stackedWidth = when {
+                photo.isLandscape && compact -> CompactLandscapePhoto
+                photo.isLandscape -> (maxWidth * 0.72f).coerceAtMost(LandscapePhotoMax)
+                else -> sideWidth
+            }.coerceAtMost(maxWidth)
+            if (stacked) {
+                Column(Modifier.fillMaxWidth()) {
+                    CompanionWords(photo, figureMirrored)
+                    Spacer(Modifier.height(Space.l))
+                    CompanionPhoto(photo, Modifier.width(stackedWidth))
+                    Spacer(Modifier.height(Space.xs))
+                    CompanionCredit(photo)
+                }
+            } else {
+                val photoHeight = sideWidth / photo.aspect
+                Row(Modifier.fillMaxWidth()) {
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .heightIn(min = photoHeight),
+                    ) {
+                        CompanionWords(photo, figureMirrored)
+                        Spacer(Modifier.weight(1f).heightIn(min = Space.m))
+                        // The credit closes the column at the foot of the photo, beside it like a side caption.
+                        CompanionCredit(photo, Modifier.offset(y = Space.xs))
+                    }
+                    Spacer(Modifier.width(Space.l))
+                    CompanionPhoto(photo, Modifier.width(sideWidth))
+                }
+            }
+        }
+    }
+}
+
+/** The heading and the one line under it. */
+@Composable
+private fun CompanionWords(photo: PosePhoto, figureMirrored: Boolean) {
+    Text(
+        PhotoCompanionTitle,
+        style = PoseitType.bodyLarge,
+        color = PoseitColors.textPrimaryInverted,
+        modifier = Modifier.semantics {
+            heading()
+            traversalIndex = 0f
+        },
+    )
+    Spacer(Modifier.height(Space.xs))
+    Text(
+        companionLine(photo, figureMirrored),
+        style = PoseitType.supporting,
+        color = PoseitColors.textSecondaryInverted,
+        modifier = Modifier.semantics { traversalIndex = 1f },
+    )
+}
+
+/**
+ * What the line under the heading says. It speaks about the pose and the figure, never about the people in the
+ * photo (docs/POSE_PHOTOS.md: no captions with words or feelings).
+ */
+internal fun companionLine(photo: PosePhoto, figureMirrored: Boolean): String = when {
+    figureMirrored -> "The figure is mirrored. The photo shows the original side."
+    photo.people >= 3 -> "A real photo of the pose. It works with more people too."
+    else -> "A real photo of the pose. In the camera you line up with the figure."
+}
+
+@Composable
+private fun CompanionPhoto(photo: PosePhoto, modifier: Modifier) {
+    PosePhoto(
+        photo,
+        modifier
+            .aspectRatio(photo.aspect)
+            .semantics { traversalIndex = 2f },
+        shape = PoseitShapes.Inner,
+    )
+}
+
+@Composable
+private fun CompanionCredit(photo: PosePhoto, modifier: Modifier = Modifier) {
+    PhotoCredit(photo, modifier.semantics { traversalIndex = 3f })
+}
+
+/** A portrait photo beside the words takes about this share of the card's inner width. */
+private const val SidePhotoShare = 0.42f
+private val SidePhotoMin = 112.dp
+private val SidePhotoMax = 176.dp
+private val LandscapePhotoMax = 288.dp
+
+/** The compact card's portrait photo: a little smaller than the pose tips card's figure (about 99 x 132dp). */
+private val CompactSidePhoto = 88.dp
+private val CompactLandscapePhoto = 176.dp
+
+/**
+ * A pose's sample photo as a small print in a pose tile (the library grid), in the card's bottom-end corner beside
+ * the caption: the one place a figure never reaches, so the print never covers the guide, and the tile keeps its
+ * size. It is the whole photo at its own aspect (never a round crop, which would cut off heads or turn it into a
+ * portrait of the model), on a thin mist edge, with the small info glyph of [PhotoCredit] on its corner.
+ *
+ * It is too small to carry its credit line, so the print is the credit button: one tap opens [PhotoCreditSheet]
+ * (spoken "Photo credit: Mixkit", click label "Show the full photo credit"). Its touch target is at least
+ * [PhotoBadgeSize] square, the print aligned to its bottom-end corner; the caption leaves that much room for it
+ * ([PoseTile]'s `badgeReserve`).
+ *
+ * @param printSize the print's longer side; the shorter one follows the photo's aspect
+ */
+@Composable
+fun PhotoBadge(photo: PosePhoto, modifier: Modifier = Modifier, printSize: Dp = PhotoBadgePrint) {
+    var open by rememberSaveable(photo.poseId) { mutableStateOf(false) }
+    val width = if (photo.isLandscape) printSize else printSize * photo.aspect
+    val height = if (photo.isLandscape) printSize / photo.aspect else printSize
+    val source = remember { MutableInteractionSource() }
+    Box(
+        modifier
+            .size(maxOf(PhotoBadgeSize, width), maxOf(PhotoBadgeSize, height))
+            .clickable(interactionSource = source, indication = null, onClickLabel = ShowCredit, role = Role.Button) { open = true }
+            .clearAndSetSemantics {
+                contentDescription = photoCreditLabel(photo)
+                role = Role.Button
+                onClick(label = ShowCredit) {
+                    open = true
+                    true
+                }
+            },
+        contentAlignment = Alignment.BottomEnd,
+    ) {
+        Box {
+            PosePhoto(
+                photo,
+                Modifier
+                    .size(width, height)
+                    .border(1.dp, PoseitColors.borderEmphasizedInverted, PoseitShapes.Inner)
+                    .clip(PoseitShapes.Inner)
+                    .indication(source, ripple()),
+                shape = PoseitShapes.Inner,
+                contentDescription = null,
+            )
+            // The credit glyph on the print's corner: the same info glyph as every credit line, on a stage disc.
+            Box(
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = BadgeGlyphOverhang, y = BadgeGlyphOverhang)
+                    .size(BadgeGlyph)
+                    .background(PoseitColors.backgroundStage, PoseitShapes.Circle),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    PoseitIcons.info,
+                    contentDescription = null,
+                    tint = PoseitColors.textPrimaryInverted,
+                    modifier = Modifier.size(BadgeGlyph - 2.dp),
+                )
+            }
+        }
+    }
+    if (open) PhotoCreditSheet(photo, onDismissRequest = { open = false })
+}
+
+/** The longer side of a [PhotoBadge]'s print in a library tile (36 x 48dp for a portrait photo). */
+val PhotoBadgePrint: Dp = 48.dp
+
+/** A [PhotoBadge]'s touch target, which the tile's caption leaves free: the print and the gap before it. */
+val PhotoBadgeSize: Dp = 48.dp
+
+private val BadgeGlyph = 16.dp
+
+/** How far the glyph's disc reaches past the print's bottom-end corner. */
+private val BadgeGlyphOverhang = 4.dp
+
+private const val ShowCredit = "Show the full photo credit"

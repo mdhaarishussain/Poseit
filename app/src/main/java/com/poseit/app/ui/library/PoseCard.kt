@@ -34,10 +34,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.IconSize
+import com.poseit.app.ui.components.PhotoBadge
+import com.poseit.app.ui.components.PhotoBadgeSize
 import com.poseit.app.ui.components.PoseTile
 import com.poseit.app.ui.components.PoseitIcons
 import com.poseit.app.ui.components.PoseitMenu
 import com.poseit.app.ui.components.PoseitMenuItem
+import com.poseit.app.ui.components.rememberPosePhoto
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitShapes
 import com.poseit.app.ui.theme.PoseitType
@@ -45,7 +48,8 @@ import com.poseit.app.ui.theme.Space
 
 /**
  * One tile of the library grid: a dark pose tile. Tap opens the pose; long-press opens a small menu (try this pose /
- * customise / favourite), which TalkBack offers as custom actions.
+ * customise / favourite), which TalkBack offers as custom actions. A built-in pose with a sample photo carries it as
+ * a small print in the card's bottom corner, beside the caption ([PhotoBadge]), which opens the photo's credit.
  *
  * @param nameLines lines reserved for the name (1 or 2): the grid passes the most any tile of the row needs, so the
  *   dark cards of one row end on the same line
@@ -67,6 +71,7 @@ internal fun PoseCard(
     val source = remember { MutableInteractionSource() }
     val customizeLabel = if (pose.isCustom) "Edit" else "Customise"
     val favouriteLabel = if (isFavorite) "Remove from favourites" else "Add to favourites"
+    val photo = rememberPosePhoto(pose)
     Box(modifier) {
         PoseTile(
             pose = pose,
@@ -75,6 +80,15 @@ internal fun PoseCard(
             onToggleFavorite = onToggleFavorite,
             interactionSource = source,
             nameMinLines = nameLines,
+            // A pose with a sample photo shows it as a small print beside the caption, in the corner no figure
+            // reaches: spotted at a glance, without changing the tile's size or covering the figure. The print is
+            // also the photo's credit button.
+            badge = if (photo != null) {
+                { PhotoBadge(photo, Modifier.align(Alignment.BottomEnd).padding(end = Space.m, bottom = Space.m)) }
+            } else {
+                null
+            },
+            badgeReserve = if (photo != null) PhotoBadgeSize else 0.dp,
             modifier = Modifier
                 .combinedClickable(
                     interactionSource = source,
