@@ -96,6 +96,9 @@ android {
         unitTests.isIncludeAndroidResources = true
         unitTests.all { test ->
             test.systemProperty("roborazzi.test.record", "true")
+            // Screenshot tests keep large native-graphics bitmaps alive (the component gallery is a 1300x3200dp
+            // canvas); Gradle's default 512 MB test heap ran out on GitHub's runners.
+            test.maxHeapSize = "2g"
             // Optional: -ProbolectricRepoUrl=<maven mirror> if Maven Central rate-limits Robolectric's SDK download.
             (project.findProperty("robolectricRepoUrl") as String?)?.let {
                 test.systemProperty("robolectric.dependency.repo.url", it)
