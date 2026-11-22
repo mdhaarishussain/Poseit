@@ -319,7 +319,8 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   alignment, placeholderColor, contentDescription)` draws a pose's photo filled and cropped into its bounds, clipped to
   `shape`, on a quiet placeholder (raised card colour on dark, muted fill on cream) while it decodes; `PosePhoto(pose,
   ...)` draws nothing at all when the pose has no photo. `PhotoCredit(photo, modifier, maxLines, color)`: the credit
-  line in `supporting` after a 16dp info glyph, cream on a dark card and secondary ink on cream, one 48dp button
+  line in `supporting` after an info glyph (16dp at 100%, growing with the text and centred on its first line), cream
+  on a dark card and secondary ink on cream, one 48dp button
   (spoken "Photo credit: Mixkit") that opens `PhotoCreditSheet(photo, onDismissRequest)`: a `PoseitBottomSheet` with
   "Photo credit" on `textInset` and a `RowGroup` on `edge` of Credit, Author, Source ("View source"), Licence ("View
   licence", "Read the licence": the bundled text, scrollable, in the same sheet) and Changes in plain words.
@@ -336,7 +337,8 @@ All take a `modifier`, keep their accessibility semantics, and pick colours from
   photo as a 36x48dp print (48x36 for the group photo) with a mist hairline and the credit's info glyph on a stage
   disc at its corner, for a pose tile; the print is a 48dp credit button ("Photo credit: Mixkit") that opens
   `PhotoCreditSheet`. `PoseTile(badge, badgeReserve)` puts it in the card's bottom-end corner beside the caption,
-  where no figure ever stands, and keeps `badgeReserve` (`PhotoBadgeSize`, 48dp) of the caption free.
+  where no figure ever stands, and keeps `badgeReserve` of the caption free: `photoBadgeReserve(photo)`, the 48dp
+  target or the print plus an 8dp gap if wider (56dp for the group photo).
 - **System bars:** dark icons on cream screens (the app default); call `LightSystemBarIconsEffect()` on a screen
   whose top and bottom edges are dark (the camera, the photo viewer). It only counts the screen in and out; the
   outermost `PoseitTheme` owns the window's icon colour and sets light icons while any such screen is composed, so
@@ -399,8 +401,8 @@ they are; where a label changes, its tests change with it.
   `TertiaryButton("Clear filters")` while filters are on; on the unfiltered list the badge already gives the count.
   Then the grid: `PoseTile`s two columns (more on wide screens), 8dp apart, 8dp from the sides. Each row reserves
   the name lines its longest name needs (measured), so the dark cards of a row end on one line. A pose with a
-  sample photo carries its `PhotoBadge` print in the bottom-end corner beside the caption (the caption leaves 48dp
-  for it, and the name measurement counts that), so photo poses are spotted at a glance and the tile keeps its
+  sample photo carries its `PhotoBadge` print in the bottom-end corner beside the caption (the caption leaves
+  `photoBadgeReserve` for it, and the name measurement counts that), so photo poses are spotted at a glance and the tile keeps its
   size and its figure.
 - "My poses" starts with a "Create a pose" tile: an outlined cream card with the footprint of a pose tile.
 - `FloatingPillBar`: left `CircleIconButton(camera, "Pose camera")`, middle `PillBarSegments(["Poses", "Photos"])`

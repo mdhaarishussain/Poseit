@@ -46,10 +46,13 @@ import com.poseit.app.ui.library.TodaysPoseCard
 import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitTheme
 import com.poseit.app.ui.theme.Space
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,6 +78,9 @@ class PhotoUiScreenshotTest {
     val photos = InlinePosePhotos()
 
     private val posePhotos get() = ApplicationProvider.getApplicationContext<Context>().appContainer.posePhotos
+
+    @Before
+    fun startWithoutFavourites() = clearFavourites()
 
     private fun set(content: @Composable () -> Unit) {
         compose.setContent {
@@ -313,4 +319,13 @@ class PhotoUiScreenshotTest {
         assertNull(drawn)
         assertNotNull(original)
     }
+}
+
+/**
+ * Favourites live in a DataStore that outlives one test class in the same JVM, so a heart another class tapped would
+ * show up filled in these captures. Every photo capture starts with none.
+ */
+internal fun clearFavourites() = runBlocking {
+    val poses = ApplicationProvider.getApplicationContext<Context>().appContainer.poseRepository
+    poses.favorites.first().forEach { poses.toggleFavorite(it) }
 }

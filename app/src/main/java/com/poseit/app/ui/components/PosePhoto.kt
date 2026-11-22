@@ -38,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -208,9 +209,12 @@ fun PhotoCredit(
             .padding(vertical = Space.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // The glyph sits on the first line when a long credit wraps.
+        // The glyph sits on the first line when a long credit wraps, and grows with the text at large font sizes:
+        // 16dp in an 18dp line at 100%, centred on that line at any size.
+        val line = with(LocalDensity.current) { PoseitType.supporting.lineHeight.toDp() }
+        val glyph = line * (CreditGlyph / CreditLine)
         Row(verticalAlignment = Alignment.Top) {
-            Icon(PoseitIcons.info, contentDescription = null, tint = fg, modifier = Modifier.padding(top = 1.dp).size(CreditGlyph))
+            Icon(PoseitIcons.info, contentDescription = null, tint = fg, modifier = Modifier.padding(top = (line - glyph) / 2).size(glyph))
             Spacer(Modifier.width(6.dp))
             Text(photo.attribution, style = PoseitType.supporting, color = fg, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
         }
@@ -223,6 +227,9 @@ fun photoCreditLabel(photo: PosePhoto): String = "Photo credit: " + photo.attrib
 
 private const val SHOW_CREDIT = "Show the full photo credit"
 private val CreditGlyph = 16.dp
+
+/** The credit text's line height at 100% (`PoseitType.supporting`), which [CreditGlyph] is drawn in. */
+private val CreditLine = 18.dp
 
 /**
  * The full credit of a sample photo in a [PoseitBottomSheet]: the credit line, the author, the source with "View

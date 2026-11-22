@@ -10,10 +10,12 @@ with the app's own matcher, which poses have a photo, and what the remaining gap
 from 27 clips, 8 Wikimedia Commons photos: 6 CC0, 2 CC BY 2.0). 64 poses have none yet, and poses people make
 themselves never have one. The app reads the credits (`PosePhotos`), has the photo and credit components
 (`PosePhoto`, `PhotoCredit`, `PhotoCreditSheet`) and lists every photo with its full credit in Settings, About, Photo
-credits; showing the photos on the pose screens is the next UI step. A review of the shipped set on 2026-11-22 removed
-10 photos and replaced 3 (see [Review, 2026-11-22](#review-2026-11-22)); a second look before the photos went into the
-app removed one of the replacements, `selfie_classic` (see [Second look](#second-look-2026-11-22)). Before the review,
-46 poses had a photo.
+credits. The pose screens show each photo as a companion of the pose's figure, always with its credit: "See it on a
+person" under the figure on the detail screen and in the camera's tips sheet, and a small print beside Today's pose
+and each library tile's caption (`docs/DESIGN.md`, "Figure first, photo as companion"). A review of the shipped set
+on 2026-11-22 removed 10 photos and replaced 3 (see [Review, 2026-11-22](#review-2026-11-22)); a second look before
+the photos went into the app removed one of the replacements, `selfie_classic` (see
+[Second look](#second-look-2026-11-22)). Before the review, 46 poses had a photo.
 
 | Where | What |
 | --- | --- |

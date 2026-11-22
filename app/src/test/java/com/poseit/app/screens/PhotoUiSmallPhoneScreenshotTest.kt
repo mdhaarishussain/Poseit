@@ -36,6 +36,7 @@ import com.poseit.app.ui.theme.PoseitColors
 import com.poseit.app.ui.theme.PoseitTheme
 import com.poseit.app.ui.theme.Space
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,6 +76,9 @@ abstract class PhotoUiSmallPhoneShots(private val prefix: String) {
     val photos = InlinePosePhotos()
 
     private val posePhotos get() = ApplicationProvider.getApplicationContext<Context>().appContainer.posePhotos
+
+    @Before
+    fun startWithoutFavourites() = clearFavourites()
 
     private fun set(content: @Composable () -> Unit) {
         compose.setContent {

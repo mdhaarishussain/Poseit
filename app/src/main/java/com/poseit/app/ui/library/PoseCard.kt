@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.poseit.app.pose.PoseTemplate
 import com.poseit.app.ui.components.IconSize
 import com.poseit.app.ui.components.PhotoBadge
-import com.poseit.app.ui.components.PhotoBadgeSize
+import com.poseit.app.ui.components.photoBadgeReserve
 import com.poseit.app.ui.components.PoseTile
 import com.poseit.app.ui.components.PoseitIcons
 import com.poseit.app.ui.components.PoseitMenu
@@ -88,7 +88,7 @@ internal fun PoseCard(
             } else {
                 null
             },
-            badgeReserve = if (photo != null) PhotoBadgeSize else 0.dp,
+            badgeReserve = if (photo != null) photoBadgeReserve(photo) else 0.dp,
             modifier = Modifier
                 .combinedClickable(
                     interactionSource = source,

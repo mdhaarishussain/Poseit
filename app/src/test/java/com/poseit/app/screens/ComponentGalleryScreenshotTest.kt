@@ -72,6 +72,9 @@ import com.poseit.app.ui.components.PillTabs
 import com.poseit.app.ui.components.PlainIconButton
 import com.poseit.app.ui.components.PhotoCredit
 import com.poseit.app.ui.components.PhotoCreditContent
+import com.poseit.app.ui.components.PhotoBadge
+import com.poseit.app.ui.components.photoBadgeReserve
+import com.poseit.app.ui.components.PhotoCompanionCard
 import com.poseit.app.ui.components.PosePhoto
 import com.poseit.app.ui.components.PoseThumbnail
 import com.poseit.app.ui.components.rememberPosePhotos
@@ -247,6 +250,45 @@ private fun ColumnScope.TokenColumn() {
             Text("0:03", style = PoseitType.numeralDisplay, color = PoseitColors.textNumeralPale)
             Text("87%", style = PoseitType.numeralLarge, color = PoseitColors.textPrimary)
             Text("12", style = PoseitType.numeralMedium, color = PoseitColors.textPrimary, modifier = Modifier.padding(bottom = 6.dp))
+        }
+    }
+    PhotoCompanionGallery()
+}
+
+/** The photo companion pieces: the figure's card with "See it on a person" fused under it, and tiles with a print. */
+@Composable
+private fun ColumnScope.PhotoCompanionGallery() {
+    Gallery("Photo companion") {
+        // Figure first: the figure's card, then "See it on a person" fused under it (the detail screen, the tips).
+        val hip = samplePhoto("stand_hand_on_hip")
+        val hipPose = BuiltInPoses.byId(hip.poseId)!!
+        ConnectedCardStack(Modifier.fillMaxWidth()) {
+            CardSegment {
+                PoseThumbnail(
+                    hipPose,
+                    Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .frameMarks(),
+                    background = null,
+                )
+            }
+            PhotoCompanionCard(hip)
+        }
+        // A library tile keeps its figure; the photo is a small print beside the caption, and its credit button.
+        val group = samplePhoto("group_arms_around")
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.edge)) {
+            listOf(hip, group).forEach { photo ->
+                PoseTile(
+                    BuiltInPoses.byId(photo.poseId)!!,
+                    Modifier.weight(1f),
+                    onToggleFavorite = {},
+                    onClick = {},
+                    nameMinLines = 2,
+                    badge = { PhotoBadge(photo, Modifier.align(Alignment.BottomEnd).padding(end = Space.m, bottom = Space.m)) },
+                    badgeReserve = photoBadgeReserve(photo),
+                )
+            }
         }
     }
 }

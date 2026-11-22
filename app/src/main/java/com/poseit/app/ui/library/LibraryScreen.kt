@@ -87,7 +87,7 @@ import com.poseit.app.ui.components.FillingCardStack
 import com.poseit.app.ui.components.EmptyPictureCard
 import com.poseit.app.ui.components.CardSegment
 import com.poseit.app.ui.components.PinnedTopBar
-import com.poseit.app.ui.components.PhotoBadgeSize
+import com.poseit.app.ui.components.photoBadgeReserve
 import com.poseit.app.ui.components.rememberPosePhotos
 import com.poseit.app.ui.components.rememberTopBarScrolledAway
 import com.poseit.app.ui.theme.PoseitColors
@@ -212,7 +212,7 @@ private fun LibraryContent(
                 leadingName = if (showCreateCard) CreatePoseCardName else null,
                 gridWidth = maxWidth - startPadding - endPadding,
                 // A tile with a photo print leaves room for it at the end of its caption.
-                captionReserve = { pose -> if (posePhotos.photoFor(pose) != null) PhotoBadgeSize else 0.dp },
+                captionReserve = { pose -> posePhotos.photoFor(pose)?.let { photoBadgeReserve(it) } ?: 0.dp },
             )
             LazyVerticalGrid(
                 columns = PoseGridCells,

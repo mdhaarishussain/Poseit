@@ -207,7 +207,7 @@ private val CompactLandscapePhoto = 176.dp
  *
  * It is too small to carry its credit line, so the print is the credit button: one tap opens [PhotoCreditSheet]
  * (spoken "Photo credit: Mixkit", click label "Show the full photo credit"). Its touch target is at least
- * [PhotoBadgeSize] square, the print aligned to its bottom-end corner; the caption leaves that much room for it
+ * [PhotoBadgeSize] square, the print aligned to its bottom-end corner; the caption leaves [photoBadgeReserve] for it
  * ([PoseTile]'s `badgeReserve`).
  *
  * @param printSize the print's longer side; the shorter one follows the photo's aspect
@@ -269,6 +269,16 @@ val PhotoBadgePrint: Dp = 48.dp
 
 /** A [PhotoBadge]'s touch target, which the tile's caption leaves free: the print and the gap before it. */
 val PhotoBadgeSize: Dp = 48.dp
+
+/**
+ * The width a pose tile's caption leaves free at its end for [photo]'s [PhotoBadge]: the badge's touch target, and
+ * at least [Space.s] between the name and the print, so the wide print of the landscape group photo doesn't touch
+ * the name. The library's name measurement uses the same width.
+ */
+fun photoBadgeReserve(photo: PosePhoto, printSize: Dp = PhotoBadgePrint): Dp {
+    val width = if (photo.isLandscape) printSize else printSize * photo.aspect
+    return maxOf(PhotoBadgeSize, width + Space.s)
+}
 
 private val BadgeGlyph = 16.dp
 
